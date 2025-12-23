@@ -13,7 +13,7 @@ import image
 import voice
 import export
 import analysis  # The Universal Engine
-import supabase_client
+import supabase
 
 app = FastAPI(title="Dynamo AI Hub")
 
