@@ -1,4 +1,4 @@
-#model.py
+# app_model.py
 import google.generativeai as genai
 from groq import Groq
 import config
