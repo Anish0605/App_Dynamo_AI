@@ -1,4 +1,4 @@
-# image.py
+# app_image.py
 import aiohttp
 import base64
 import uuid
