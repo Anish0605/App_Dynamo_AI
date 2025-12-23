@@ -1,4 +1,4 @@
-# pdf.py
+# app_pdf.py
 from pypdf import PdfReader
 from docx import Document
 import io
