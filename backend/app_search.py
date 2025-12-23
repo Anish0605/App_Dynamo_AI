@@ -1,4 +1,4 @@
-# search.py
+# app_search.py
 from tavily import TavilyClient
 import config
 
