@@ -1,4 +1,4 @@
-# supabase_client.py
+# app_supabase.py
 from supabase import create_client
 import config
 
