@@ -1,4 +1,4 @@
-# app_main.py — Dynamo AI Central Router 
+# app_main.py — Dynamo AI Central Router (FINAL & LOCKED)
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,11 +15,12 @@ import search
 import image
 import voice
 import analysis
-import export          
+import export
 import supabase_client
 
-# NEW: Export router
+# Routers & Engines
 from export_routes import router as export_router
+from presentation_engine import build_presentation
 
 # -------------------------
 # APP INITIALIZATION
@@ -28,7 +29,7 @@ app = FastAPI(title="Dynamo AI Hub")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],   # tighten later
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -36,17 +37,24 @@ app.add_middleware(
 # -------------------------
 # ROUTERS
 # -------------------------
-app.include_router(export_router)   # ✅ ONLY export entry point
+app.include_router(export_router)   # /export/pdf | /export/word | /export/ppt
+
+@app.post("/generate-ppt-smart")
+async def generate_ppt(payload: dict):
+    """
+    Smart presentation generation (Gemini / DeepSeek → PPT)
+    """
+    return build_presentation(payload)
 
 # -------------------------
-# MODELS
+# REQUEST MODELS
 # -------------------------
 class ChatReq(BaseModel):
     message: str
     history: list = []
     use_search: bool = True
     deep_dive: bool = False
-    model: str = "gemini-2.0-flash"
+    model: str = "gemini-2.0-flash"  # Fast Mode default
 
 # -------------------------
 # HEALTH CHECK
@@ -65,7 +73,9 @@ async def health():
 async def chat(req: ChatReq):
     msg_lower = req.message.lower()
 
+    # -------------------------
     # IMAGE GENERATION
+    # -------------------------
     if any(k in msg_lower for k in ["generate image", "create image"]):
         prompt = (
             req.message.split("of")[-1].strip()
@@ -74,17 +84,25 @@ async def chat(req: ChatReq):
         )
         return await image.generate_image_base64(prompt)
 
+    # -------------------------
     # SEARCH CONTEXT
+    # -------------------------
     context = ""
     if req.use_search:
-        context = search.get_web_context(req.message, req.deep_dive)
+        context = search.get_web_context(
+            req.message,
+            req.deep_dive
+        )
 
-    # AI RESPONSE
+    # -------------------------
+    # AI RESPONSE (🔥 FIXED)
+    # -------------------------
     response = model.get_ai_response(
-        req.message,
-        req.history,
-        req.model,
-        context
+        prompt=req.message,
+        history=req.history,
+        model_name=req.model,
+        context=context,
+        deep_dive=req.deep_dive   # ✅ THIS WAS THE CRITICAL FIX
     )
 
     return {
@@ -98,7 +116,10 @@ async def chat(req: ChatReq):
 @app.post("/analyze-data")
 async def analyze_data(file: UploadFile = File(...)):
     contents = await file.read()
-    return analysis.process_file_universally(contents, file.filename)
+    return analysis.process_file_universally(
+        contents,
+        file.filename
+    )
 
 # -------------------------
 # RADIO / AUDIO
