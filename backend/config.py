@@ -8,6 +8,7 @@ load_dotenv()
 GEMINI_KEY = os.getenv("GEMINI_API_KEY")
 GROQ_KEY = os.getenv("GROQ_API_KEY")
 TAVILY_KEY = os.getenv("TAVILY_API_KEY")
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 
 # Supabase Config
 SUPABASE_URL = os.getenv("SUPABASE_URL")
