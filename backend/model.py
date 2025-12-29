@@ -1,11 +1,11 @@
-# model.py — Dynamo AI (FINAL, SAFE, RENDER-STABLE)
+# model.py — Dynamo AI (FINAL, DEEPDIVE-AWARE, RENDER-SAFE)
 
 import google.generativeai as genai
 from groq import Groq
 import config
 
 # --------------------------------------------------
-# CLIENT INITIALIZATION (SAFE)
+# CLIENT INIT
 # --------------------------------------------------
 
 groq_client = None
@@ -21,7 +21,7 @@ except Exception as e:
     print("AI Client Initialization Error:", e)
 
 # --------------------------------------------------
-# GROQ MODEL ALIAS MAP (FIXED)
+# GROQ MODEL MAP
 # --------------------------------------------------
 
 GROQ_MODEL_MAP = {
@@ -31,40 +31,34 @@ GROQ_MODEL_MAP = {
 }
 
 # --------------------------------------------------
-# HISTORY NORMALIZER (JSON SAFE)
+# HISTORY NORMALIZER
 # --------------------------------------------------
 
 def normalize_history(history):
     clean = []
-
     if not isinstance(history, list):
         return clean
 
     for m in history[-10:]:
-        if not isinstance(m, dict):
-            continue
-
-        role = m.get("role")
-        content = m.get("content")
-
-        if role in ("user", "assistant") and isinstance(content, str):
+        if (
+            isinstance(m, dict)
+            and m.get("role") in ("user", "assistant")
+            and isinstance(m.get("content"), str)
+        ):
             clean.append({
-                "role": role,
-                "content": content
+                "role": m["role"],
+                "content": m["content"]
             })
-
     return clean
 
 # --------------------------------------------------
 # CORE AI ROUTER
 # --------------------------------------------------
 
-def get_ai_response(prompt, history, model_name, context=""):
+def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
     msg_lower = prompt.lower()
 
-    # -------------------------
-    # IDENTITY GUARD
-    # -------------------------
+    # Identity guard
     if any(q in msg_lower for q in [
         "who are you",
         "your name",
@@ -73,26 +67,30 @@ def get_ai_response(prompt, history, model_name, context=""):
     ]):
         return config.DYNAMO_IDENTITY
 
-    # -------------------------
-    # SYSTEM INSTRUCTION (SAFE STRING)
-    # -------------------------
+    # Base system instruction
     sys_instr = (
         "You are Dynamo AI. " +
         config.DYNAMO_IDENTITY + " " +
         "Provide professional, research-grade answers in Markdown. "
-        "Avoid diagrams or visuals unless explicitly requested."
+        "Avoid diagrams unless explicitly requested."
     )
 
-    # -------------------------
-    # NORMALIZE HISTORY
-    # -------------------------
+    # 🔥 DeepDive behavior
+    if deep_dive:
+        sys_instr += (
+            " When DeepDive mode is enabled, structure your response as:\n"
+            "1. Conceptual overview\n"
+            "2. Technical / advanced explanation\n"
+            "3. Practical examples or applications\n"
+            "Use clear Markdown headings."
+        )
+
     history = normalize_history(history)
 
     # -------------------------
-    # GROQ ROUTE (LLAMA3)
+    # GROQ (LLAMA3)
     # -------------------------
     if groq_client and "llama3" in model_name.lower():
-
         groq_model = GROQ_MODEL_MAP.get(
             model_name.lower(),
             "llama3-8b-8192"
@@ -107,10 +105,7 @@ def get_ai_response(prompt, history, model_name, context=""):
             })
 
         for m in history:
-            messages.append({
-                "role": m["role"],
-                "content": m["content"]
-            })
+            messages.append(m)
 
         messages.append({
             "role": "user",
@@ -123,23 +118,21 @@ def get_ai_response(prompt, history, model_name, context=""):
                 messages=messages
             )
             return completion.choices[0].message.content
-
         except Exception as e:
             return "Groq Engine Error: " + str(e)
 
     # -------------------------
-    # GEMINI ROUTE (DEFAULT)
+    # GEMINI (DEFAULT)
     # -------------------------
     try:
         full_prompt = (
-            sys_instr + "\n\n" +
-            "CONTEXT:\n" + context + "\n\n" +
+            sys_instr + "\n\n"
+            "CONTEXT:\n" + context + "\n\n"
             "USER QUERY:\n" + prompt
         )
 
         model = genai.GenerativeModel("gemini-2.0-flash")
         response = model.generate_content(full_prompt)
-
         return response.text
 
     except Exception as e:
