@@ -1,4 +1,4 @@
-# model.py — Dynamo AI (FINAL, GEMINI DEFAULT + DEEPSEEK FOR DEEPDIVE)
+# model.py — Dynamo AI (FINAL, GEMINI DEFAULT + DEEPSEEK FOR DEEPTHINK)
 
 import google.generativeai as genai
 from openai import OpenAI
@@ -11,12 +11,12 @@ import config
 deepseek_client = None
 
 try:
-    # Gemini (default fast model)
+    # Gemini (Fast Mode - default)
     if config.GEMINI_KEY:
         genai.configure(api_key=config.GEMINI_KEY)
 
-    # DeepSeek (used only for DeepDive)
-    if config.DEEPSEEK_API_KEY:
+    # DeepSeek (Research / DeepThink)
+    if getattr(config, "DEEPSEEK_API_KEY", None):
         deepseek_client = OpenAI(
             api_key=config.DEEPSEEK_API_KEY,
             base_url="https://api.deepseek.com"
@@ -31,6 +31,7 @@ except Exception as e:
 
 def normalize_history(history):
     clean = []
+
     if not isinstance(history, list):
         return clean
 
@@ -44,6 +45,7 @@ def normalize_history(history):
                 "role": m["role"],
                 "content": m["content"]
             })
+
     return clean
 
 # --------------------------------------------------
@@ -56,16 +58,16 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
     # -------------------------
     # IDENTITY GUARD
     # -------------------------
-    if any(q in msg_lower for q in [
+    if any(q in msg_lower for q in (
         "who are you",
         "your name",
         "what is your name",
         "who made you"
-    ]):
+    )):
         return config.DYNAMO_IDENTITY
 
     # -------------------------
-    # BASE SYSTEM INSTRUCTION
+    # BASE SYSTEM PROMPT
     # -------------------------
     sys_instr = (
         "You are Dynamo AI. "
@@ -75,22 +77,22 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
     )
 
     # -------------------------
-    # DEEPDIVE INSTRUCTIONS
+    # DEEPTHINK MODE
     # -------------------------
     if deep_dive:
         sys_instr += (
-            " DeepDive mode is enabled. "
+            " DeepThink mode is enabled. "
             "Structure your response as:\n"
             "## 1. Conceptual Overview\n"
             "## 2. Technical / Advanced Explanation\n"
             "## 3. Practical Examples or Applications\n"
-            "Be detailed, precise, and analytical."
+            "Be analytical, structured, and precise."
         )
 
     history = normalize_history(history)
 
     # ==================================================
-    # 🔥 DEEPSEEK ROUTE (ONLY WHEN DEEPDIVE = TRUE)
+    # 🔬 DEEPSEEK (Research / DeepThink)
     # ==================================================
     if deep_dive and deepseek_client:
         messages = [{"role": "system", "content": sys_instr}]
@@ -101,8 +103,7 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
                 "content": "Research Context:\n" + context
             })
 
-        for m in history:
-            messages.append(m)
+        messages.extend(history)
 
         messages.append({
             "role": "user",
@@ -121,7 +122,7 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
             return "DeepSeek Engine Error: " + str(e)
 
     # ==================================================
-    # ⚡ GEMINI DEFAULT ROUTE (FAST)
+    # ⚡ GEMINI (Fast Mode - DEFAULT)
     # ==================================================
     try:
         full_prompt = (
