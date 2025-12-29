@@ -1,29 +1,17 @@
-# model.py — Dynamo AI (FINAL, GEMINI DEFAULT + DEEPSEEK FOR DEEPTHINK)
+# model.py — Dynamo AI (FINAL, GEMINI ONLY, FAST + DEEPTHINK)
 
 import google.generativeai as genai
-from openai import OpenAI
 import config
 
 # --------------------------------------------------
 # CLIENT INITIALIZATION (SAFE)
 # --------------------------------------------------
 
-deepseek_client = None
-
 try:
-    # Gemini (Fast Mode - default)
     if config.GEMINI_KEY:
         genai.configure(api_key=config.GEMINI_KEY)
-
-    # DeepSeek (Research / DeepThink)
-    if getattr(config, "DEEPSEEK_API_KEY", None):
-        deepseek_client = OpenAI(
-            api_key=config.DEEPSEEK_API_KEY,
-            base_url="https://api.deepseek.com"
-        )
-
 except Exception as e:
-    print("AI Client Initialization Error:", e)
+    print("Gemini Init Error:", e)
 
 # --------------------------------------------------
 # HISTORY NORMALIZER (JSON SAFE)
@@ -77,62 +65,43 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
     )
 
     # -------------------------
-    # DEEPTHINK MODE
+    # DEEPTHINK MODE (Research Mode)
     # -------------------------
     if deep_dive:
         sys_instr += (
             " DeepThink mode is enabled. "
-            "Structure your response as:\n"
+            "Structure your response strictly as:\n"
             "## 1. Conceptual Overview\n"
             "## 2. Technical / Advanced Explanation\n"
             "## 3. Practical Examples or Applications\n"
-            "Be analytical, structured, and precise."
+            "Use clear headings, concise bullets, and deep reasoning."
         )
 
+    # -------------------------
+    # NORMALIZE HISTORY
+    # -------------------------
     history = normalize_history(history)
 
-    # ==================================================
-    # 🔬 DEEPSEEK (Research / DeepThink)
-    # ==================================================
-    if deep_dive and deepseek_client:
-        messages = [{"role": "system", "content": sys_instr}]
+    # -------------------------
+    # BUILD FINAL PROMPT
+    # -------------------------
+    final_prompt = (
+        sys_instr + "\n\n"
+        + ("RESEARCH CONTEXT:\n" + context + "\n\n" if context else "")
+        + "CONVERSATION HISTORY:\n"
+    )
 
-        if context:
-            messages.append({
-                "role": "system",
-                "content": "Research Context:\n" + context
-            })
+    for m in history:
+        final_prompt += f"{m['role'].upper()}: {m['content']}\n"
 
-        messages.extend(history)
+    final_prompt += "\nUSER QUERY:\n" + prompt
 
-        messages.append({
-            "role": "user",
-            "content": prompt
-        })
-
-        try:
-            response = deepseek_client.chat.completions.create(
-                model="deepseek-chat",
-                messages=messages,
-                temperature=0.3
-            )
-            return response.choices[0].message.content
-
-        except Exception as e:
-            return "DeepSeek Engine Error: " + str(e)
-
-    # ==================================================
-    # ⚡ GEMINI (Fast Mode - DEFAULT)
-    # ==================================================
+    # -------------------------
+    # GEMINI EXECUTION (FAST + RESEARCH)
+    # -------------------------
     try:
-        full_prompt = (
-            sys_instr + "\n\n"
-            + "CONTEXT:\n" + context + "\n\n"
-            + "USER QUERY:\n" + prompt
-        )
-
         model = genai.GenerativeModel("gemini-2.0-flash")
-        response = model.generate_content(full_prompt)
+        response = model.generate_content(final_prompt)
         return response.text
 
     except Exception as e:
