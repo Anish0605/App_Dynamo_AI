@@ -1,4 +1,5 @@
-# app_export_routes.py — Dynamo AI (FINAL)
+# export_routes.py — Dynamo AI (FINAL, STABLE)
+
 from fastapi import APIRouter, Body, HTTPException
 from fastapi.responses import StreamingResponse
 from export import pdf, word, ppt
@@ -8,48 +9,38 @@ router = APIRouter(
     tags=["Export"]
 )
 
-def validate_history(history):
-    if not isinstance(history, list) or len(history) == 0:
-        raise HTTPException(status_code=400, detail="No chat history provided")
+# --------------------------------------------------
+# HISTORY VALIDATOR
+# --------------------------------------------------
 
-    for m in history:
-        if "role" not in m or "content" not in m:
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid message format"
-            )
+def extract_history(payload: dict):
+    history = payload.get("messages") or payload.get("history")
+
+    if not isinstance(history, list) or not history:
+        raise HTTPException(
+            status_code=400,
+            detail="No valid chat history provided"
+        )
+
+    return history
+
+# --------------------------------------------------
+# ROUTES
+# --------------------------------------------------
 
 @router.post("/pdf")
 async def export_pdf(payload: dict = Body(...)):
-    history = payload.get("messages")
-    validate_history(history)
-
-    response: StreamingResponse = pdf(history)
-    response.headers["Content-Disposition"] = (
-        "attachment; filename=DynamoAI_Report.pdf"
-    )
-    return response
+    history = extract_history(payload)
+    return pdf(history)
 
 
 @router.post("/word")
 async def export_word(payload: dict = Body(...)):
-    history = payload.get("messages")
-    validate_history(history)
-
-    response: StreamingResponse = word(history)
-    response.headers["Content-Disposition"] = (
-        "attachment; filename=DynamoAI_Report.docx"
-    )
-    return response
+    history = extract_history(payload)
+    return word(history)
 
 
 @router.post("/ppt")
 async def export_ppt(payload: dict = Body(...)):
-    history = payload.get("messages")
-    validate_history(history)
-
-    response: StreamingResponse = ppt(history)
-    response.headers["Content-Disposition"] = (
-        "attachment; filename=DynamoAI_Report.pptx"
-    )
-    return response
+    history = extract_history(payload)
+    return ppt(history)
