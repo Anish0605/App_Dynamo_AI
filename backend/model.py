@@ -1,10 +1,12 @@
-# model.py — Dynamo AI (FINAL, GEMINI ONLY, FAST + DEEPTHINK)
+# model.py — Dynamo AI
+# FINAL: Gemini Default + DeepThink v3 (Adaptive Intelligence)
+# Stable • Render-safe • No external paid dependency
 
 import google.generativeai as genai
 import config
 
 # --------------------------------------------------
-# CLIENT INITIALIZATION (SAFE)
+# CLIENT INITIALIZATION
 # --------------------------------------------------
 
 try:
@@ -37,6 +39,47 @@ def normalize_history(history):
     return clean
 
 # --------------------------------------------------
+# DEEPTHINK v3 — ADAPTIVE INTELLIGENCE PROMPT
+# --------------------------------------------------
+
+def build_deepthink_prompt(base_instruction):
+    return (
+        base_instruction
+        + "\n\nDeepThink v3 (Adaptive Intelligence) is enabled.\n\n"
+
+        "You must dynamically adapt your response based on the topic complexity.\n\n"
+
+        "Always follow this structure:\n\n"
+
+        "## 1. Clear Concept Overview\n"
+        "- Explain the core idea in simple, precise terms.\n"
+        "- Assume the reader is intelligent but not a domain expert.\n\n"
+
+        "## 2. How It Works (Depth Depends on Topic)\n"
+        "- If the topic is technical: explain mechanisms, flow, or logic.\n"
+        "- If the topic is conceptual: explain reasoning and relationships.\n"
+        "- Use bullets or numbered steps where possible.\n\n"
+
+        "## 3. Real-World Applications or Examples\n"
+        "- Provide 2–4 realistic examples.\n"
+        "- Prefer industry, business, education, or technology use cases.\n\n"
+
+        "## 4. Advantages, Limitations, or Trade-offs\n"
+        "- Clearly list strengths and weaknesses.\n"
+        "- Avoid hype or marketing language.\n\n"
+
+        "## 5. When This Matters (Optional but Preferred)\n"
+        "- Explain why this topic is important today.\n"
+        "- Connect to jobs, industry trends, or real impact.\n\n"
+
+        "Formatting Rules:\n"
+        "- Use Markdown headings (##).\n"
+        "- Prefer bullet points over long paragraphs.\n"
+        "- Be structured, not verbose.\n"
+        "- Do NOT include diagrams unless explicitly requested.\n"
+    )
+
+# --------------------------------------------------
 # CORE AI ROUTER
 # --------------------------------------------------
 
@@ -55,49 +98,38 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
         return config.DYNAMO_IDENTITY
 
     # -------------------------
-    # BASE SYSTEM PROMPT
+    # BASE SYSTEM INSTRUCTION
     # -------------------------
-    sys_instr = (
+    base_sys_instr = (
         "You are Dynamo AI. "
         + config.DYNAMO_IDENTITY
-        + " Provide professional, research-grade answers in Markdown. "
-        + "Avoid diagrams unless explicitly requested."
+        + " Respond with professional, accurate, Markdown-formatted answers. "
+        + "Avoid unnecessary fluff."
     )
 
     # -------------------------
-    # DEEPTHINK MODE (Research Mode)
+    # APPLY DEEPTHINK v3 IF ENABLED
     # -------------------------
     if deep_dive:
-        sys_instr += (
-            " DeepThink mode is enabled. "
-            "Structure your response strictly as:\n"
-            "## 1. Conceptual Overview\n"
-            "## 2. Technical / Advanced Explanation\n"
-            "## 3. Practical Examples or Applications\n"
-            "Use clear headings, concise bullets, and deep reasoning."
-        )
+        sys_instr = build_deepthink_prompt(base_sys_instr)
+    else:
+        sys_instr = base_sys_instr
 
-    # -------------------------
-    # NORMALIZE HISTORY
-    # -------------------------
     history = normalize_history(history)
 
     # -------------------------
     # BUILD FINAL PROMPT
     # -------------------------
     final_prompt = (
-        sys_instr + "\n\n"
-        + ("RESEARCH CONTEXT:\n" + context + "\n\n" if context else "")
-        + "CONVERSATION HISTORY:\n"
+        sys_instr
+        + "\n\n"
+        + ("CONTEXT:\n" + context + "\n\n" if context else "")
+        + "USER QUESTION:\n"
+        + prompt
     )
 
-    for m in history:
-        final_prompt += f"{m['role'].upper()}: {m['content']}\n"
-
-    final_prompt += "\nUSER QUERY:\n" + prompt
-
     # -------------------------
-    # GEMINI EXECUTION (FAST + RESEARCH)
+    # GEMINI EXECUTION (SINGLE SOURCE OF TRUTH)
     # -------------------------
     try:
         model = genai.GenerativeModel("gemini-2.0-flash")
