@@ -1,37 +1,32 @@
-# model.py — Dynamo AI (FINAL, DEEPDIVE-AWARE, RENDER-SAFE)
+# model.py — Dynamo AI (FINAL, GEMINI DEFAULT + DEEPSEEK FOR DEEPDIVE)
 
 import google.generativeai as genai
-from groq import Groq
+from openai import OpenAI
 import config
 
 # --------------------------------------------------
-# CLIENT INIT
+# CLIENT INITIALIZATION (SAFE)
 # --------------------------------------------------
 
-groq_client = None
+deepseek_client = None
 
 try:
+    # Gemini (default fast model)
     if config.GEMINI_KEY:
         genai.configure(api_key=config.GEMINI_KEY)
 
-    if config.GROQ_KEY:
-        groq_client = Groq(api_key=config.GROQ_KEY)
+    # DeepSeek (used only for DeepDive)
+    if config.DEEPSEEK_API_KEY:
+        deepseek_client = OpenAI(
+            api_key=config.DEEPSEEK_API_KEY,
+            base_url="https://api.deepseek.com"
+        )
 
 except Exception as e:
     print("AI Client Initialization Error:", e)
 
 # --------------------------------------------------
-# GROQ MODEL MAP
-# --------------------------------------------------
-
-GROQ_MODEL_MAP = {
-    "llama3": "llama3-8b-8192",
-    "llama3-8b": "llama3-8b-8192",
-    "llama3-70b": "llama3-70b-8192"
-}
-
-# --------------------------------------------------
-# HISTORY NORMALIZER
+# HISTORY NORMALIZER (JSON SAFE)
 # --------------------------------------------------
 
 def normalize_history(history):
@@ -58,7 +53,9 @@ def normalize_history(history):
 def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
     msg_lower = prompt.lower()
 
-    # Identity guard
+    # -------------------------
+    # IDENTITY GUARD
+    # -------------------------
     if any(q in msg_lower for q in [
         "who are you",
         "your name",
@@ -67,35 +64,35 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
     ]):
         return config.DYNAMO_IDENTITY
 
-    # Base system instruction
+    # -------------------------
+    # BASE SYSTEM INSTRUCTION
+    # -------------------------
     sys_instr = (
-        "You are Dynamo AI. " +
-        config.DYNAMO_IDENTITY + " " +
-        "Provide professional, research-grade answers in Markdown. "
-        "Avoid diagrams unless explicitly requested."
+        "You are Dynamo AI. "
+        + config.DYNAMO_IDENTITY
+        + " Provide professional, research-grade answers in Markdown. "
+        + "Avoid diagrams unless explicitly requested."
     )
 
-    # 🔥 DeepDive behavior
+    # -------------------------
+    # DEEPDIVE INSTRUCTIONS
+    # -------------------------
     if deep_dive:
         sys_instr += (
-            " When DeepDive mode is enabled, structure your response as:\n"
-            "1. Conceptual overview\n"
-            "2. Technical / advanced explanation\n"
-            "3. Practical examples or applications\n"
-            "Use clear Markdown headings."
+            " DeepDive mode is enabled. "
+            "Structure your response as:\n"
+            "## 1. Conceptual Overview\n"
+            "## 2. Technical / Advanced Explanation\n"
+            "## 3. Practical Examples or Applications\n"
+            "Be detailed, precise, and analytical."
         )
 
     history = normalize_history(history)
 
-    # -------------------------
-    # GROQ (LLAMA3)
-    # -------------------------
-    if groq_client and "llama3" in model_name.lower():
-        groq_model = GROQ_MODEL_MAP.get(
-            model_name.lower(),
-            "llama3-8b-8192"
-        )
-
+    # ==================================================
+    # 🔥 DEEPSEEK ROUTE (ONLY WHEN DEEPDIVE = TRUE)
+    # ==================================================
+    if deep_dive and deepseek_client:
         messages = [{"role": "system", "content": sys_instr}]
 
         if context:
@@ -113,22 +110,24 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
         })
 
         try:
-            completion = groq_client.chat.completions.create(
-                model=groq_model,
-                messages=messages
+            response = deepseek_client.chat.completions.create(
+                model="deepseek-chat",
+                messages=messages,
+                temperature=0.3
             )
-            return completion.choices[0].message.content
-        except Exception as e:
-            return "Groq Engine Error: " + str(e)
+            return response.choices[0].message.content
 
-    # -------------------------
-    # GEMINI (DEFAULT)
-    # -------------------------
+        except Exception as e:
+            return "DeepSeek Engine Error: " + str(e)
+
+    # ==================================================
+    # ⚡ GEMINI DEFAULT ROUTE (FAST)
+    # ==================================================
     try:
         full_prompt = (
             sys_instr + "\n\n"
-            "CONTEXT:\n" + context + "\n\n"
-            "USER QUERY:\n" + prompt
+            + "CONTEXT:\n" + context + "\n\n"
+            + "USER QUERY:\n" + prompt
         )
 
         model = genai.GenerativeModel("gemini-2.0-flash")
