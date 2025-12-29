@@ -1,7 +1,7 @@
 # app_export_routes.py — Dynamo AI (FINAL)
 from fastapi import APIRouter, Body, HTTPException
 from fastapi.responses import StreamingResponse
-from app_export import pdf, word, ppt
+from export import pdf, word, ppt
 
 router = APIRouter(
     prefix="/export",
