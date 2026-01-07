@@ -1,4 +1,4 @@
-# analysis.py — Dynamo AI (FINAL, SAFE, UNIVERSAL)
+# analysis.py — Dynamo AI (FINAL, SAFE, STRUCTURED, UI-FRIENDLY)
 
 import io
 import base64
@@ -6,13 +6,14 @@ import mimetypes
 
 import pandas as pd
 import matplotlib
-matplotlib.use("Agg")  # 🔒 REQUIRED for Render
+matplotlib.use("Agg")  # REQUIRED for server environments
 import matplotlib.pyplot as plt
 
 from pypdf import PdfReader
 from docx import Document
 import google.generativeai as genai
 import config
+
 
 # --------------------------------------------------
 # UNIVERSAL FILE ANALYSIS ENGINE
@@ -22,9 +23,9 @@ def process_file_universally(file_bytes: bytes, filename: str):
     fn = filename.lower()
 
     try:
-        # --------------------------------------------------
+        # ==================================================
         # 1️⃣ TABULAR DATA (CSV / EXCEL)
-        # --------------------------------------------------
+        # ==================================================
         if fn.endswith((".csv", ".xlsx", ".xls")):
 
             try:
@@ -43,8 +44,21 @@ def process_file_universally(file_bytes: bytes, filename: str):
                     "insight": "File format not supported or corrupted."
                 }
 
+            # Clean dataframe
+            df = df.fillna("")
+
+            # Prepare structured table output
+            table_payload = {
+                "columns": list(df.columns),
+                "rows": df.head(10).values.tolist()
+            }
+
+            # Detect numeric data
             numeric_df = df.select_dtypes(include=["number"])
 
+            # -------------------------------
+            # Chart generation (if numeric)
+            # -------------------------------
             if not numeric_df.empty:
                 plt.figure(figsize=(10, 5))
                 numeric_df.head(10).plot(kind="bar", color="#EAB308")
@@ -61,19 +75,24 @@ def process_file_universally(file_bytes: bytes, filename: str):
                 return {
                     "type": "chart",
                     "image": "data:image/png;base64," + img_b64,
-                    "content": f"Data Preview:\n{df.head(5).to_markdown()}",
-                    "insight": f"Extracted numeric trends from {filename}."
+                    "columns": table_payload["columns"],
+                    "rows": table_payload["rows"],
+                    "insight": f"Extracted numeric trends from {filename}. Showing first 10 rows."
                 }
 
+            # -------------------------------
+            # Table only (no numeric columns)
+            # -------------------------------
             return {
-                "type": "text",
-                "content": f"Data Preview:\n{df.head(10).to_markdown()}",
-                "insight": f"No numeric columns found in {filename}."
+                "type": "table",
+                "columns": table_payload["columns"],
+                "rows": table_payload["rows"],
+                "insight": f"Preview of first 10 rows from {filename}. No numeric columns detected."
             }
 
-        # --------------------------------------------------
+        # ==================================================
         # 2️⃣ DOCUMENTS (PDF / DOCX / TXT)
-        # --------------------------------------------------
+        # ==================================================
         elif fn.endswith((".pdf", ".docx", ".txt")):
             text = ""
 
@@ -94,13 +113,13 @@ def process_file_universally(file_bytes: bytes, filename: str):
 
             return {
                 "type": "text",
-                "content": text[:30000],  # 🔒 token safety
+                "content": text[:30000],  # token safety
                 "insight": f"Read {filename} successfully."
             }
 
-        # --------------------------------------------------
-        # 3️⃣ VISION (IMAGES)
-        # --------------------------------------------------
+        # ==================================================
+        # 3️⃣ IMAGE / VISION ANALYSIS
+        # ==================================================
         elif fn.endswith((".png", ".jpg", ".jpeg", ".webp")):
 
             if not config.GEMINI_KEY:
@@ -110,7 +129,6 @@ def process_file_universally(file_bytes: bytes, filename: str):
                 }
 
             mime_type = mimetypes.guess_type(filename)[0] or "image/png"
-
             img_b64 = base64.b64encode(file_bytes).decode()
 
             image_part = {
@@ -130,7 +148,7 @@ def process_file_universally(file_bytes: bytes, filename: str):
             return {
                 "type": "vision",
                 "content": response.text,
-                "image": f"data:{mime_type};base64," + img_b64,
+                "image": f"data:{mime_type};base64,{img_b64}",
                 "insight": "Visual analysis complete."
             }
 
@@ -141,6 +159,9 @@ def process_file_universally(file_bytes: bytes, filename: str):
             "error": str(e)
         }
 
+    # --------------------------------------------------
+    # Unsupported file
+    # --------------------------------------------------
     return {
         "type": "text",
         "content": "Unsupported file format."
