@@ -44,20 +44,18 @@ def process_file_universally(file_bytes: bytes, filename: str):
                     "insight": "File format not supported or corrupted."
                 }
 
-            # Clean dataframe
-            df = df.fillna("")
+            # 🔒 Clean & normalize dataframe
+            df = df.fillna("").astype(str)
 
-            # Prepare structured table output
-            table_payload = {
-                "columns": list(df.columns),
-                "rows": df.head(10).values.tolist()
-            }
+            columns = list(df.columns)
+            rows = df.head(10).values.tolist()
 
-            # Detect numeric data
-            numeric_df = df.select_dtypes(include=["number"])
+            # Detect numeric columns (for chart)
+            numeric_df = df.apply(pd.to_numeric, errors="coerce")
+            numeric_df = numeric_df.dropna(axis=1, how="all")
 
             # -------------------------------
-            # Chart generation (if numeric)
+            # 📊 Chart + Table
             # -------------------------------
             if not numeric_df.empty:
                 plt.figure(figsize=(10, 5))
@@ -75,18 +73,18 @@ def process_file_universally(file_bytes: bytes, filename: str):
                 return {
                     "type": "chart",
                     "image": "data:image/png;base64," + img_b64,
-                    "columns": table_payload["columns"],
-                    "rows": table_payload["rows"],
+                    "columns": columns,
+                    "rows": rows,
                     "insight": f"Extracted numeric trends from {filename}. Showing first 10 rows."
                 }
 
             # -------------------------------
-            # Table only (no numeric columns)
+            # 📋 Table only
             # -------------------------------
             return {
                 "type": "table",
-                "columns": table_payload["columns"],
-                "rows": table_payload["rows"],
+                "columns": columns,
+                "rows": rows,
                 "insight": f"Preview of first 10 rows from {filename}. No numeric columns detected."
             }
 
@@ -106,7 +104,8 @@ def process_file_universally(file_bytes: bytes, filename: str):
             elif fn.endswith(".docx"):
                 doc = Document(io.BytesIO(file_bytes))
                 for para in doc.paragraphs:
-                    text += para.text + "\n"
+                    if para.text:
+                        text += para.text + "\n"
 
             else:  # TXT
                 text = file_bytes.decode("utf-8", errors="ignore")
