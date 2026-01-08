@@ -49,19 +49,18 @@ async def chat(req: ChatReq):
     msg_lower = req.message.lower()
 
     IMAGE_KEYWORDS = [
-    "create an image",
-    "generate an image",
-    "create image",
-    "generate image",
-    "draw",
-    "picture",
-    "illustration",
-    "visual"
-]
+        "create an image",
+        "generate an image",
+        "create image",
+        "generate image",
+        "draw",
+        "picture",
+        "illustration",
+        "visual"
+    ]
 
-if any(k in msg_lower for k in IMAGE_KEYWORDS):
-    return await image.generate_image_base64(req.message)
-
+    if any(k in msg_lower for k in IMAGE_KEYWORDS):
+        return await image.generate_image_base64(req.message)
 
     context = ""
     if req.use_search:
