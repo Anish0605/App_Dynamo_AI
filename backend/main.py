@@ -48,9 +48,20 @@ async def health():
 async def chat(req: ChatReq):
     msg_lower = req.message.lower()
 
-    if any(k in msg_lower for k in ["generate image", "create image"]):
-        prompt = req.message.split("of")[-1].strip() if "of" in msg_lower else req.message
-        return await image.generate_image_base64(prompt)
+    IMAGE_KEYWORDS = [
+    "create an image",
+    "generate an image",
+    "create image",
+    "generate image",
+    "draw",
+    "picture",
+    "illustration",
+    "visual"
+]
+
+if any(k in msg_lower for k in IMAGE_KEYWORDS):
+    return await image.generate_image_base64(req.message)
+
 
     context = ""
     if req.use_search:
