@@ -127,6 +127,17 @@ async def generate_radio(req: ChatReq):
     and returns MP3 audio stream.
     """
     return await voice.generate_voice_stream(req.message)
+    
+# --------------------------------------------------
+# 🔽 AUDIO EXPORT (READ-ALOUD DOWNLOAD)
+# --------------------------------------------------
+
+@app.post("/export-audio")
+async def export_audio(req: ChatReq):
+    """
+    Exports AI response as a downloadable MP3 (single voice).
+    """
+    return await voice.generate_simple_voice(req.message)
 
 # --------------------------------------------------
 # SERVER START
