@@ -1,8 +1,7 @@
-# app_main.py — Dynamo AI Central Router (FINAL, RADIO MODE READY)
+# app_main.py — Dynamo AI Central Router (FINAL, CLEAN)
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import uvicorn
 import os
@@ -46,7 +45,7 @@ class ChatReq(BaseModel):
     model: str = "gemini-2.0-flash"
 
 # --------------------------------------------------
-# HEALTH CHECK
+# HEALTH
 # --------------------------------------------------
 
 @app.get("/")
@@ -54,11 +53,15 @@ async def health():
     return {
         "status": "online",
         "identity": "Dynamo AI",
-        "radio_mode": "enabled"
+        "audio": {
+            "read_aloud": True,
+            "radio_mode": True,
+            "export": True
+        }
     }
 
 # --------------------------------------------------
-# CHAT ENDPOINT
+# CHAT
 # --------------------------------------------------
 
 @app.post("/chat")
@@ -76,16 +79,16 @@ async def chat(req: ChatReq):
         "visual"
     ]
 
-    # 🖼️ Image Generation
+    # 🖼 Image
     if any(k in msg_lower for k in IMAGE_KEYWORDS):
         return await image.generate_image_base64(req.message)
 
-    # 🔍 Web Search Context
+    # 🔍 Search
     context = ""
     if req.use_search:
         context = search.get_web_context(req.message, req.deep_dive)
 
-    # 🧠 Normal Chat
+    # 🧠 AI
     response = model.get_ai_response(
         prompt=req.message,
         history=req.history,
@@ -109,7 +112,7 @@ async def analyze_data(file: UploadFile = File(...)):
     return analysis.process_file_universally(contents, file.filename)
 
 # --------------------------------------------------
-# SMART PPT GENERATION
+# PPT
 # --------------------------------------------------
 
 @app.post("/generate-ppt-smart")
@@ -117,30 +120,31 @@ async def generate_ppt(payload: dict):
     return build_presentation(payload)
 
 # --------------------------------------------------
-# 🎧 RADIO MODE (TWO-PERSON DIALOGUE)
+# 🔊 READ-ALOUD / STREAM
 # --------------------------------------------------
 
 @app.post("/generate-radio")
 async def generate_radio(req: ChatReq):
     """
-    Converts text into a two-person radio dialogue
-    and returns MP3 audio stream.
+    Used for:
+    - Read aloud playback
+    - Radio mode playback
     """
     return await voice.generate_voice_stream(req.message)
-    
+
 # --------------------------------------------------
-# 🔽 AUDIO EXPORT (READ-ALOUD DOWNLOAD)
+# ⬇️ AUDIO EXPORT
 # --------------------------------------------------
 
 @app.post("/export-audio")
 async def export_audio(req: ChatReq):
     """
-    Exports AI response as a downloadable MP3 (single voice).
+    Downloads AI response as MP3 (single voice).
     """
     return await voice.generate_simple_voice(req.message)
 
 # --------------------------------------------------
-# SERVER START
+# SERVER
 # --------------------------------------------------
 
 if __name__ == "__main__":
