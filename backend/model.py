@@ -65,20 +65,16 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
     )
 
     # -------------------------
-    # DEEPTHINK v3 (ADAPTIVE)
+    # DEEPTHINK v3 (ADAPTIVE - CLEAN)
     # -------------------------
     if deep_dive:
         sys_prompt += (
             "\n\nDeepThink v3 is enabled.\n"
-            "Adapt your depth based on complexity.\n"
-            "Always respond in this structure:\n"
-            "## Executive Summary\n"
-            "## Core Concepts\n"
-            "## Deep Technical Analysis\n"
-            "## Real-world Applications\n"
-            "## Key Takeaways\n"
-            "\nWhen useful, think in terms of slide sections."
-        )
+            "Provide deeper reasoning, structured insights, and clear explanations.\n"
+            "Adapt the response style naturally based on the question.\n"
+            "Use headings, bullet points, or sections ONLY when helpful.\n"
+            "DO NOT force any fixed format like executive summaries.\n"
+    )
 
     # -------------------------
     # FULL PROMPT
