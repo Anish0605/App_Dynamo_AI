@@ -1,4 +1,4 @@
-# app_main.py — Dynamo AI Central Router (FINAL, CLEAN)
+# main.py — Dynamo AI Central Router (FINAL, CLEAN)
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +15,7 @@ import analysis
 import export
 import supabase_client
 
+from supabase_client import (get_or_create_user,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
 from presentation_engine import build_presentation
 
@@ -43,7 +44,8 @@ class ChatReq(BaseModel):
     use_search: bool = True
     deep_dive: bool = False
     model: str = "gemini-2.0-flash"
-
+    chat_id: str | None = None
+    user_id: str | None = None
 # --------------------------------------------------
 # HEALTH
 # --------------------------------------------------
@@ -59,13 +61,14 @@ async def health():
             "export": True
         }
     }
-
+    
 # --------------------------------------------------
 # CHAT
 # --------------------------------------------------
 
 @app.post("/chat")
 async def chat(req: ChatReq):
+
     msg_lower = req.message.lower()
 
     IMAGE_KEYWORDS = [
@@ -79,27 +82,72 @@ async def chat(req: ChatReq):
         "visual"
     ]
 
-    # 🖼 Image
+    # 🖼 Image (NO CHANGE)
     if any(k in msg_lower for k in IMAGE_KEYWORDS):
         return await image.generate_image_base64(req.message)
 
-    # 🔍 Search
+    # -------------------------
+    # 🧠 1. USER HANDLING
+    # -------------------------
+    user = None
+    if req.user_id:
+        user = get_or_create_user(req.user_id)
+
+    # -------------------------
+    # 💬 2. CHAT HANDLING
+    # -------------------------
+    chat_id = req.chat_id
+
+    if not chat_id and user:
+        chat = create_chat(user["id"], title=req.message[:30])
+        chat_id = chat["id"] if chat else None
+
+    # -------------------------
+    # 📜 3. LOAD HISTORY
+    # -------------------------
+    history = []
+
+    if chat_id:
+        db_messages = fetch_chat_messages(chat_id)
+
+        for m in db_messages:
+            history.append({
+                "role": m["role"],
+                "content": m["content"]
+            })
+
+    # -------------------------
+    # 🔍 4. SEARCH
+    # -------------------------
     context = ""
     if req.use_search:
         context = search.get_web_context(req.message, req.deep_dive)
 
-    # 🧠 AI
+    # -------------------------
+    # 🤖 5. AI RESPONSE
+    # -------------------------
     response = model.get_ai_response(
         prompt=req.message,
-        history=req.history,
+        history=history,
         model_name=req.model,
         context=context,
         deep_dive=req.deep_dive
     )
 
+    # -------------------------
+    # 💾 6. SAVE TO DB
+    # -------------------------
+    if chat_id:
+        save_message(chat_id, "user", req.message)
+        save_message(chat_id, "assistant", response)
+
+    # -------------------------
+    # 📤 7. RETURN
+    # -------------------------
     return {
         "type": "text",
-        "content": response
+        "content": response,
+        "chat_id": chat_id
     }
 
 # --------------------------------------------------
