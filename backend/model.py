@@ -59,9 +59,10 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
     # SYSTEM PROMPT (BASE)
     # -------------------------
     sys_prompt = (
-        "You are Dynamo AI, an advanced research and reasoning system. "
-        + config.DYNAMO_IDENTITY +
-        " Respond in clear Markdown. Be precise, factual, and structured."
+    "You are Dynamo AI, an advanced research and reasoning system. "
+    + config.DYNAMO_IDENTITY +
+    " Respond in a clear, natural, and helpful way. "
+    "Use structure only when it improves clarity. Avoid rigid formats."
     )
 
     # -------------------------
