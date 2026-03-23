@@ -23,7 +23,7 @@ def normalize_history(history):
     if not isinstance(history, list):
         return clean
 
-    for m in history[-8:]:
+    for m in history[-20:]:
         if (
             isinstance(m, dict)
             and m.get("role") in ("user", "assistant")
