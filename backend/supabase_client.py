@@ -1,8 +1,8 @@
-# supabase_client.py — Dynamo AI (PRODUCTION SAFE)
+# supabase_client.py — Dynamo AI (CLEAN + PRODUCTION SAFE)
 
 from supabase import create_client
 import config
-from datetime import datetime
+from datetime import datetime, date
 
 # --------------------------------------------------
 # INIT SUPABASE CLIENT
@@ -24,7 +24,7 @@ else:
 
 
 # --------------------------------------------------
-# USERS
+# USERS (WITH DAILY RESET)
 # --------------------------------------------------
 
 def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
@@ -32,20 +32,54 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
         return None
 
     try:
+        # -------------------------
+        # FETCH USER
+        # -------------------------
         res = supabase.table("users") \
             .select("*") \
             .eq("firebase_uid", firebase_uid) \
             .execute()
 
+        # -------------------------
+        # USER EXISTS
+        # -------------------------
         if res.data:
-            return res.data[0]
+            user = res.data[0]
 
+            # 🔥 DAILY RESET LOGIC
+            today = date.today().isoformat()
+
+            if user.get("quota_date") != today:
+                try:
+                    supabase.table("users") \
+                        .update({
+                            "daily_quota_used": 0,
+                            "quota_date": today
+                        }) \
+                        .eq("id", user["id"]) \
+                        .execute()
+
+                    user["daily_quota_used"] = 0
+                    user["quota_date"] = today
+
+                    print("✅ Daily quota reset")
+
+                except Exception as e:
+                    print("Quota reset error:", e)
+
+            return user
+
+        # -------------------------
+        # CREATE NEW USER
+        # -------------------------
         insert = {
             "firebase_uid": firebase_uid,
             "email": email,
             "full_name": full_name,
             "phone": phone,
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.utcnow().isoformat(),
+            "daily_quota_used": 0,
+            "quota_date": date.today().isoformat()
         }
 
         res = supabase.table("users").insert(insert).execute()
@@ -107,7 +141,7 @@ def save_message(chat_id, role, content, content_type="text"):
         res = supabase.table("messages").insert({
             "chat_id": chat_id,
             "role": role,
-            "content": content,          # JSONB (string / dict / list)
+            "content": content,
             "content_type": content_type,
             "created_at": datetime.utcnow().isoformat()
         }).execute()
@@ -140,7 +174,7 @@ def fetch_chat_messages(chat_id, limit=50):
 
 
 # --------------------------------------------------
-# SOFT DELETE (OPTIONAL)
+# SOFT DELETE
 # --------------------------------------------------
 
 def soft_delete_message(message_id):
