@@ -89,6 +89,42 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
         print("User fetch/create error:", e)
         return None
 
+# --------------------------------------------------
+# 🔥 QUOTA CHECK
+# --------------------------------------------------
+
+def check_user_quota(user):
+    if not user:
+        return True  # allow if no user
+
+    plan = user.get("plan", "free")
+    used = user.get("daily_quota_used", 0)
+
+    if plan == "plus":
+        return True  # unlimited
+
+    limit = 10  # free plan
+
+    return used < limit
+
+
+# --------------------------------------------------
+# 🔥 INCREMENT QUOTA
+# --------------------------------------------------
+
+def increment_quota(user):
+    try:
+        new_value = user.get("daily_quota_used", 0) + 1
+
+        supabase.table("users") \
+            .update({
+                "daily_quota_used": new_value
+            }) \
+            .eq("id", user["id"]) \
+            .execute()
+
+    except Exception as e:
+        print("Quota increment error:", e)
 
 # --------------------------------------------------
 # CHATS
