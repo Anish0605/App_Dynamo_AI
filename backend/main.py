@@ -92,7 +92,15 @@ async def chat(req: ChatReq):
     user = None
     if req.user_id:
         user = get_or_create_user(req.user_id)
-
+    # -------------------------
+    # 🚫 1.1 QUOTA CHECK (ADD HERE)
+    # -------------------------
+    if user:
+        if not supabase_client.check_user_quota(user):
+            return {
+                "type": "error",
+                "content": "⚠️ You have reached your daily limit."
+        }
     # -------------------------
     # 💬 2. CHAT HANDLING
     # -------------------------
@@ -140,7 +148,11 @@ async def chat(req: ChatReq):
     if chat_id:
         save_message(chat_id, "user", req.message)
         save_message(chat_id, "assistant", response)
-
+    # -------------------------
+    # 🔥 6.1 INCREMENT QUOTA (ADD HERE)
+    # -------------------------
+    if user:
+        supabase_client.increment_quota(user)
     # -------------------------
     # 📤 7. RETURN
     # -------------------------
