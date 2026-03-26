@@ -10,7 +10,7 @@ function collectChatHistory() {
 
   return history.map(m => ({
     role: m.role,
-    content: { text: m.content || "" }
+    content: m.content || ""
   }));
 }
 
