@@ -102,7 +102,8 @@ async function loadProfileData() {
     /* -------------------------
        USE LOCAL DATA (FAST)
     ------------------------- */
-    const name = user.full_name || "User";
+    const firebaseUser = window.appState?.user;
+    const name = user.full_name || firebaseUser?.displayName || firebaseUser?.email?.split("@")[0] || "User";
     const initials = name.substring(0, 2).toUpperCase();
     const plan = (user.plan || "free").toUpperCase();
 

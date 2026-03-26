@@ -69,9 +69,24 @@ async function syncUserWithSupabase(firebaseUser) {
       userData = newUser;
     }
 
+    // 2b. Patch full_name if missing in existing record
+    if (userData && !userData.full_name && firebaseUser.displayName) {
+      const { data: patched } = await supabaseClient
+        .from("users")
+        .update({ full_name: firebaseUser.displayName })
+        .eq("id", userData.id)
+        .select()
+        .single();
+
+      if (patched) userData = patched;
+    }
+
     // 3. SAVE TO APP STATE ✅
     window.setAppUser(firebaseUser);
     window.setSupabaseUser(userData);
+
+    // 4. UPDATE SIDEBAR WITH REAL NAME + PLAN
+    updateSidebarPlan(userData);
 
     console.log("✅ Supabase user synced:", userData.id);
 
@@ -315,8 +330,11 @@ function applyAuthModeUI() {
    UI HELPERS
 -------------------------------------------------- */
 function updateAuthUI(user) {
-  document.getElementById("user-display-name").textContent =
-    user.displayName || user.email.split("@")[0];
+  const name = user.displayName || user.email?.split("@")[0] || "User";
+  const initials = name.substring(0, 2).toUpperCase();
+
+  document.getElementById("user-display-name").textContent = name;
+  document.getElementById("sidebar-avatar").textContent = initials;
 
   document.getElementById("logged-out-view")?.classList.add("hidden");
   document.getElementById("header-logout-btn")?.classList.remove("hidden");
@@ -324,7 +342,19 @@ function updateAuthUI(user) {
 
 function resetAuthUI() {
   document.getElementById("user-display-name").textContent = "Guest";
+  document.getElementById("sidebar-avatar").textContent = "G";
+  document.getElementById("sidebar-plan").textContent = "FREE PLAN";
 
   document.getElementById("logged-out-view")?.classList.remove("hidden");
   document.getElementById("header-logout-btn")?.classList.add("hidden");
+}
+
+function updateSidebarPlan(supabaseUser) {
+  const plan = (supabaseUser?.plan || "free").toUpperCase();
+  const name = supabaseUser?.full_name || window.appState?.user?.displayName || "User";
+  const initials = name.substring(0, 2).toUpperCase();
+
+  document.getElementById("sidebar-avatar").textContent = initials;
+  document.getElementById("user-display-name").textContent = name;
+  document.getElementById("sidebar-plan").textContent = plan + " PLAN";
 }
