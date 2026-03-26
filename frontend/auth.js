@@ -105,6 +105,8 @@ firebaseAuth?.onAuthStateChanged(async (user) => {
 
     window.setAppUser(null);
     window.setSupabaseUser(null);
+
+    window.loadChatSidebar?.();
   }
 });
 

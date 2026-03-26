@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (window.handleLogout) {
           await window.handleLogout();
         }
-        window.location.reload();
+        modal.classList.add("hidden");
       } catch (err) {
         console.error("Logout error:", err);
       }
