@@ -83,7 +83,7 @@ async function syncUserWithSupabase(firebaseUser) {
 
     // 3. SAVE TO APP STATE ✅
     window.setAppUser(firebaseUser);
-    window.setSupabaseUser(userData);
+    await window.setSupabaseUser(userData);
 
     // 4. UPDATE SIDEBAR WITH REAL NAME + PLAN
     updateSidebarPlan(userData);
