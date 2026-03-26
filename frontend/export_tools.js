@@ -5,23 +5,13 @@ console.log("export_tools.js loaded");
    COLLECT CHAT HISTORY (JSON SAFE)
 -------------------------------------------------- */
 function collectChatHistory() {
-  const container = document.getElementById("chat-messages");
-  if (!container) return [];
+  const history = window.chatHistory;
+  if (!history || history.length === 0) return [];
 
-  const messages = [];
-
-  container.querySelectorAll("[data-role]").forEach(el => {
-    const role = el.dataset.role;
-    const text = el.innerText?.trim();
-    if (!text) return;
-
-    messages.push({
-      role: role,
-      content: { text: text }
-    });
-  });
-
-  return messages;
+  return history.map(m => ({
+    role: m.role,
+    content: { text: m.content || "" }
+  }));
 }
 
 /* --------------------------------------------------
