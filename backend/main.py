@@ -2,6 +2,8 @@
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import uvicorn
 import os
@@ -22,6 +24,8 @@ from presentation_engine import build_presentation
 # --------------------------------------------------
 # FASTAPI APP
 # --------------------------------------------------
+
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
 
 app = FastAPI(title="Dynamo AI Hub")
 
@@ -50,7 +54,7 @@ class ChatReq(BaseModel):
 # HEALTH
 # --------------------------------------------------
 
-@app.get("/")
+@app.get("/health")
 async def health():
     return {
         "status": "online",
@@ -61,6 +65,18 @@ async def health():
             "export": True
         }
     }
+
+@app.get("/")
+async def serve_index():
+    return FileResponse(os.path.join(FRONTEND_DIR, "Index.html"))
+
+@app.get("/features.html")
+async def serve_features():
+    return FileResponse(os.path.join(FRONTEND_DIR, "features.html"))
+
+@app.get("/pricing.html")
+async def serve_pricing():
+    return FileResponse(os.path.join(FRONTEND_DIR, "pricing.html"))
     
 # --------------------------------------------------
 # CHAT
@@ -204,13 +220,19 @@ async def export_audio(req: ChatReq):
     return await voice.generate_simple_voice(req.message)
 
 # --------------------------------------------------
+# STATIC FILES (frontend — must come last)
+# --------------------------------------------------
+
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=False), name="frontend")
+
+# --------------------------------------------------
 # SERVER
 # --------------------------------------------------
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     uvicorn.run(
-        "app_main:app",
+        "main:app",
         host="0.0.0.0",
         port=port,
         reload=False
