@@ -5,7 +5,7 @@ console.log("ui.js loaded");
    GLOBAL UI STATE
 -------------------------------------------------- */
 window.dynamoUI = {
-  model: "gemini-2.0-flash", // Fast Mode
+  model: "gemini-3.1-flash-lite", // Fast Mode
   tools: new Set()
 };
 
