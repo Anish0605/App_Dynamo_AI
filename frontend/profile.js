@@ -95,7 +95,14 @@ async function loadProfileData() {
        GUEST MODE
     ------------------------- */
     if (!user) {
-      setProfileUI("Guest", "G", "FREE");
+      const firebaseOnly = window.appState?.user;
+      if (firebaseOnly) {
+        const name = firebaseOnly.displayName || firebaseOnly.email?.split("@")[0] || "User";
+        const initials = name.substring(0, 2).toUpperCase();
+        setProfileUI(name, initials, "FREE");
+      } else {
+        setProfileUI("Guest", "G", "FREE");
+      }
       return;
     }
 

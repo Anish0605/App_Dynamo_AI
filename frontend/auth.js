@@ -103,6 +103,7 @@ firebaseAuth?.onAuthStateChanged(async (user) => {
     console.log("🔥 Firebase user detected");
 
     updateAuthUI(user);
+    window.setAppUser(user);
 
     // ✅ sync user
     await syncUserWithSupabase(user);
