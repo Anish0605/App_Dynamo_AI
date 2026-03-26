@@ -1,0 +1,25 @@
+Superbase
+
+SUPABASE_URL = https://jbulnpcqxtbjobrclsqq.supabase.co
+SUPABASE_SERVICE_ROLE_KEY =  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidWxucGNxeHRiam9icmNsc3FxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTI1MzY0OCwiZXhwIjoyMDgwODI5NjQ4fQ.naklbybHuo0om2vwBBUURlZGgvqDLebnyTRShIi7mTA
+
+Firebase
+{
+  "type": "service_account",
+  "project_id": "dynamo-ai-01",
+  "private_key_id": "9cf7c1d365e66e7df57e607978466e51c979b364",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC5EqrDTThdfwxi\nPXn3TZDe26BiLDovNAMGA+Gltzc89Kh7eWweVFqZelypqNK+qNiYdTd8r3cEjp62\nMAda2Erv69dpJ9Ppt22OLEHmHdDqPYXyql3v2BgQJQR/Ah/C9Vfz7SI6FzKx7uaG\nQp8NRBtlrjg2sa8oeEIRDrgqkjc06IhdfqFZqRry90eSiXO+qcpWkLiBbz2iDrjD\ntu8To7QBZFG7/fT72D1PptwJlY/FfjdL/OC14gRFP0xn5ajQXVXvkRSDmc1FL1h6\n+M08KkHYtjjNGGGzyKFaWLzdPC0Ucz4TOc2CGEAJHN8RJ8gJaCpcgdy4IrZHweZh\ntut4vxX5AgMBAAECggEAPcM0B69KgzE2AccAX/6bvTPQR1L5K+2QoL5E3JfTMF15\nqJMx+MEv5w5FxDzZ79TLS726gbrQ3k12O9i1a6TJBV5QagBnoRSc1BiC+Xez06gq\nfnxKkxMrnJ+t63DbBqX37yiRBo/dVDIk7mNnTvcOqZVFn0MW8EuJyMV/wn0/PUFX\nhzF0aOvur9YNbIfaPPDNQyvVKghoTheKVFT6MyWKjNfFfRK+oHAIrW6RRF6cVoS7\ndRn2UIQWpWcJrRIUyLBdehsd+niPlWgF71FB2T7fw4UcB2/lIBttMPYuHDtKcOO6\nB9w3wL+GAHE6Xsn1YRZKidmLLEFoogYsgwKdfeIfzQKBgQDeqkoJn4yYXvoKzBHR\n8KUtZINX2wq5O/t+sYAxA+nNEDXxXchnfuuU1Lb9ysUJffV4PjR8maOy5jpf6KMs\nkv0draNRK0rMKA1gf56hm3PNXL3AyDaER7DazKEqBbinxqEyiRZds+oAm2YFU23O\nh1vUCgUhWhmxyxYdV1gWAGsq5wKBgQDUx6R/QleCAdr5TQNVepiV1EYMmRPOqT19\nGG/zQlpzj7u43A7/+/B4/NMQz8tIu6ibivZ6/+ygdMJVSmobwhXbIIcG/jJ9hs9c\nzgE74VDbA/LzCD4U/17SSgXSF0ElQCul0/h74qZDFLft+paunm/JiGlEJ36tbo6c\nNU2KKnt8HwKBgQDBEbMk6P1F2YTB+/SvrxPqai8g7MM9nm8RieN3nMcLkjTT1tfA\nNeMbp94L7dgvxNIlsvpb1/SDWPHg250xNzrWkwr7hKhUoZ4HwGDSDDK7LOEz2ea7\niFYnQiu0fkWA5NA9O3TzRt9uK1Co6ZBa9i9/ijislK2W5luEkYnFehNynQKBgA0A\nyk+wmTJrtJsJlsuRe2OknkdEz44Qj55mcOj3xBlNzlYEtLH2DoMGSEu9txmRxkMD\nIf7wRuCjYgDeVE+v86/5c+b8f89l/qQYPsEPCubnfeBWP5z+4ieNuH9XRnblTgWL\nR6MifbCZwoe7iZvQONqjCHPOyhIFMJfhNgTchcFXAoGAA8/HsfSsWUSnSYauWj7f\n2iSNpuLVr3iNmnHLXcuwlX+rdYkEI/w72t/oqjXGCcrO6bDeals0jSqTs+b6Lzp8\nNFxoRavQnOYz1CuMT0Wp08s/ex7qmlxSRK6MNBr1fel6RXOc96HbQlsvzEoZnUfQ\n9yJn8w+dmbbDqwnP40gyCp4=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@dynamo-ai-01.iam.gserviceaccount.com",
+  "client_id": "108274022514952740537",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40dynamo-ai-01.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
+
+RAZORPAY
+RAZORPAY_KEY_ID = rzp_live_RpQLRliZ7B9iZq
+RAZORPAY_KEY_SECRET = wfhnzI9qds8dbjtp7gXrHeHs
+RAZORPAY_WEBHOOK_SECRET = Dynamo_AI_Payment_Done_1992
+https://dynamo-ai.onrender.com/razorpay/webhook
