@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dynamo AI — Pricing</title>
+  <meta name="description" content="Stop overpaying for AI. Get Dynamo AI's full Research OS (Chat, PDF, Vision, Voice) for just ₹99/mo. Save 90% compared to ChatGPT Plus. Made for India 🇮🇳.">
+  <meta name="keywords" content="cheapest AI tool India, AI for 99 rupees, affordable AI research tool, ChatGPT alternative India, student AI plan, best free AI tool, Dynamo AI pricing">
+  <meta name="author" content="Dynamo AI">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://dynamoai.in/pricing.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://dynamoai.in/pricing.html">
+  <meta property="og:title" content="Why pay ₹2,000? Get Dynamo AI for ₹99/mo ⚡️">
+  <meta property="og:description" content="Unlock Gemini 2.0 Flash, PDF Research, and Image Analysis for the price of a coffee. The most affordable AI suite in India.">
+  <meta property="og:image" content="https://dynamoai.in/dynamo_ai_logo.png">
+
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://dynamoai.in/pricing.html">
+  <meta property="twitter:title" content="Dynamo AI: Premium AI features. Student-friendly price.">
+  <meta property="twitter:description" content="Switch to the #1 Affordable Research OS. Unlimited Chat, Vision, and Docs for just ₹99/mo.">
+  <meta property="twitter:image" content="https://dynamoai.in/dynamo_ai_logo.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <script>
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+            extend: {
+                colors: { gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' } }
+            }
+        }
+    }
+  </script>
+  <script>
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+  </script>
+
+  <style>
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    .animate-fade-in-up { animation: fadeInUp 0.4s ease-out forwards; opacity: 0; transform: translateY(10px); }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+  </style>
+  
+  <script>
+    window.SUPABASE_URL_PUBLIC = "https://jbulnpcqxtbjobrclsqq.supabase.co"; 
+    window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidWxucGNxeHRiam9icmNsc3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyNTM2NDgsImV4cCI6MjA4MDgyOTY0OH0.waH5th8HYB08NWWtN99SYt9G5AViQbY1DWOU3Lb5YWw";
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-200">
+
+  <header class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <a href="index.html" class="flex items-center gap-3">
+            <img src="dynamo_ai_logo.png" alt="Dynamo AI" class="w-8 h-8 rounded-lg shadow-sm object-contain bg-white">
+            <span class="text-lg font-semibold text-gray-900 dark:text-white">Dynamo AI</span>
+          </a>
+        </div>
+
+        <nav class="hidden md:flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
+          <a href="features.html" class="hover:text-gray-900 dark:hover:text-white transition-colors">Features</a>
+          <a href="index.html" class="hover:text-gray-900 dark:hover:text-white transition-colors">Home</a>
+          <a href="pricing.html" class="px-3 py-1 bg-yellow-400 text-black rounded-full shadow-sm font-medium">Pricing</a>
+        </nav>
+
+        <div class="flex items-center gap-4">
+            <button id="theme-toggle" class="p-2 text-gray-500 dark:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+                <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+                <i data-lucide="sun" class="w-5 h-5 block dark:hidden"></i>
+            </button>
+
+            <div id="auth-buttons-container" class="flex gap-2">
+                <button id="open-login" class="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition">Log in</button>
+                <button id="open-signup" class="px-4 py-2 text-sm font-bold bg-black dark:bg-yellow-400 text-white dark:text-black rounded-full hover:bg-gray-800 dark:hover:bg-yellow-300 transition shadow-sm hover:shadow-md">Sign up</button>
+            </div>
+            <button class="logout-trigger hidden text-sm font-medium text-red-600 hover:text-red-700 px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition">Log out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <section class="text-center mb-10">
+      <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">Plans built for creators & researchers</h1>
+      <p class="mt-3 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Use Dynamo AI to chat, analyze documents, generate images and extract insights — start for free or upgrade for unlimited power.</p>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      
+      <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-white">Compare plans</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-100 dark:border-gray-700">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="text-sm text-gray-500 dark:text-gray-400 uppercase mb-2">Free</div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white">Free</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Perfect for casual users</div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-gray-500 dark:text-gray-400">Limit</div>
+                <div class="text-lg font-semibold text-gray-900 dark:text-white">10 / day</div>
+              </div>
+            </div>
+            <ul class="mt-4 space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500"></i> Llama 3 (8B) Chat</li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500"></i> Standard Web Search</li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500"></i> Basic Voice Mode</li>
+            </ul>
+          </div>
+
+          <div class="bg-black dark:bg-yellow-500 text-white dark:text-black rounded-lg p-4 shadow-lg">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="text-sm text-yellow-300 dark:text-black/70 uppercase mb-2 font-bold">Plus</div>
+                <div class="text-2xl font-bold">₹99 / mo</div>
+                <div class="text-sm text-yellow-200 dark:text-black/80 mt-1">Unlimited usage</div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-yellow-200 dark:text-black/80">Perks</div>
+                <div class="text-lg font-semibold">Unlimited</div>
+              </div>
+            </div>
+            <ul class="mt-4 space-y-2 text-sm text-yellow-100 dark:text-black/90">
+              <li class="flex items-center gap-2"><i data-lucide="cpu" class="w-4 h-4"></i> 70B & Mixtral Models</li>
+              <li class="flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4"></i> PDF Reports</li>
+              <li class="flex items-center gap-2"><i data-lucide="eye" class="w-4 h-4"></i> Vision & Uploads</li>
+              <li class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4"></i> Unlimited History</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-6 overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-gray-500 dark:text-gray-400">
+                <th class="py-2">Feature</th>
+                <th class="py-2">Free</th>
+                <th class="py-2">Plus</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-700 dark:text-gray-300">
+              <tr class="border-t border-gray-100 dark:border-gray-700">
+                <td class="py-3">AI Models</td>
+                <td class="py-3">Standard (8B)</td>
+                <td class="py-3 font-bold text-yellow-600 dark:text-yellow-400">Premium (70B, Mixtral)</td>
+              </tr>
+              <tr class="border-t border-gray-100 dark:border-gray-700">
+                <td class="py-3">PDF Report Export</td>
+                <td class="py-3">—</td>
+                <td class="py-3 text-green-600 dark:text-green-400">✔</td>
+              </tr>
+              <tr class="border-t border-gray-100 dark:border-gray-700">
+                <td class="py-3">Deep Dive Mode</td>
+                <td class="py-3">—</td>
+                <td class="py-3 text-green-600 dark:text-green-400">✔</td>
+              </tr>
+              <tr class="border-t border-gray-100 dark:border-gray-700">
+                <td class="py-3">Daily responses</td>
+                <td class="py-3">10 / day</td>
+                <td class="py-3 font-bold">Unlimited</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm flex flex-col gap-4 border border-gray-100 dark:border-gray-700">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Start free, upgrade anytime</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Buy Plus to unlock advanced analysis, vision, and unlimited usage.</p>
+        </div>
+
+        <div class="space-y-3">
+          <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg flex justify-between items-center">
+            <div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">Monthly</div>
+              <div class="text-xl font-bold text-gray-900 dark:text-white">₹99</div>
+            </div>
+            <button id="buy-monthly" class="px-4 py-2 bg-yellow-400 text-black rounded-md font-semibold hover:bg-yellow-300 transition">Buy Monthly</button>
+          </div>
+
+          <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg flex justify-between items-center">
+            <div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">Yearly</div>
+              <div class="text-xl font-bold text-gray-900 dark:text-white">₹999</div>
+            </div>
+            <button id="buy-yearly" class="px-4 py-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition">Buy Yearly</button>
+          </div>
+
+          <div id="pricing-status" class="text-sm text-gray-600 dark:text-gray-400"></div>
+        </div>
+        
+        <div class="mt-auto text-sm text-gray-600 dark:text-gray-400">
+            <ul class="space-y-1">
+              <li><a href="privacy.html" class="hover:underline">Privacy Policy</a></li>
+              <li><a href="terms.html" class="hover:underline">Terms & Conditions</a></li>
+              <li><a href="refund.html" class="hover:underline">Refund Policy</a></li>
+            </ul>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div id="auth-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden animate-fade-in-up">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm p-8 relative mx-4 border border-gray-100 dark:border-gray-700">
+        <button id="auth-close" class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">✕</button>
+        <div class="mb-6 text-center">
+            <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center mx-auto mb-4 text-yellow-600 dark:text-yellow-400"><i data-lucide="user" class="w-6 h-6"></i></div>
+            <h2 id="auth-title" class="text-2xl font-bold text-gray-900 dark:text-white">Welcome</h2>
+            <p id="auth-subtitle" class="text-sm text-gray-500 dark:text-gray-400 mt-1">Sign in to save your research history.</p>
+        </div>
+
+        <div id="main-auth-fields" class="space-y-4">
+          <div id="signup-fields" class="hidden space-y-4">
+              <div><label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 ml-1">Full Name</label><input id="auth-name" type="text" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="John Doe"></div>
+              <div><label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 ml-1">Phone Number</label><input id="auth-phone" type="tel" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="+919876543210"></div>
+          </div>
+          <div id="email-field-container">
+              <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 ml-1">Email Address</label><input id="auth-email" type="email" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="name@example.com">
+          </div>
+          <div id="password-field-container">
+              <div class="flex justify-between items-center mb-1"><label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">Password</label><button id="forgot-password-link" class="text-xs text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300 font-medium">Forgot?</button></div>
+              <input id="auth-password" type="password" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="••••••••">
+          </div>
+          <div id="recaptcha-container" class="hidden flex justify-center mt-2"></div>
+        </div>
+
+        <div id="otp-fields" class="hidden space-y-4">
+            <div class="text-center text-sm text-gray-600 dark:text-gray-400 mb-2">We sent a verification code to your phone.</div>
+            <div><label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 ml-1">Verification Code (OTP)</label><input id="auth-otp" type="text" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-center text-lg tracking-widest font-bold focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="123456"></div>
+            <button id="verify-otp-btn" class="mt-4 w-full bg-black dark:bg-yellow-400 text-white dark:text-black font-bold py-3.5 rounded-xl hover:bg-gray-800 dark:hover:bg-yellow-300 transition">Verify & Create Account</button>
+        </div>
+        
+        <p id="auth-error" class="text-xs text-red-500 mt-3 min-h-[1rem] font-medium text-center"></p>
+        <button id="auth-submit" class="mt-4 w-full bg-black dark:bg-yellow-400 text-white dark:text-black font-bold py-3.5 rounded-xl hover:bg-gray-800 dark:hover:bg-yellow-300 transition transform active:scale-95">Continue</button>
+        <div id="auth-footer" class="mt-6 text-center border-t border-gray-100 dark:border-gray-700 pt-4">
+            <p class="text-xs text-gray-500 dark:text-gray-400"><span id="auth-toggle-text">Don't have an account?</span> <button id="auth-toggle-mode" class="text-black dark:text-white font-bold hover:underline ml-1">Sign up</button></p>
+            <button id="back-to-login" class="hidden text-xs text-gray-500 hover:text-black dark:hover:text-white mt-2 font-medium">Back to Log in</button>
+        </div>
+      </div>
+  </div>
+
+  <script src="auth.js"></script>
+
+  <script>
+    const BACKEND_URL = "https://dynamo-ai.onrender.com"; 
+
+    // Theme Toggle
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', () => {
+          if (document.documentElement.classList.contains('dark')) {
+              document.documentElement.classList.remove('dark');
+              localStorage.theme = 'light';
+          } else {
+              document.documentElement.classList.add('dark');
+              localStorage.theme = 'dark';
+          }
+      });
+    }
+
+    async function isAuthenticated() {
+      const t = localStorage.getItem("dynamo_id_token");
+      return !!t;
+    }
+
+    async function getAuthHeaders() {
+      const t = localStorage.getItem("dynamo_id_token");
+      return t ? { "Authorization": "Bearer " + t } : {};
+    }
+
+    async function handleBuy(amount_inr) {
+      const statusEl = document.getElementById("pricing-status");
+      if (statusEl) statusEl.textContent = "";
+
+      const authed = await isAuthenticated();
+      if (!authed) {
+        // Trigger Auth
+        const loginBtn = document.getElementById("open-login");
+        if(loginBtn) loginBtn.click(); 
+        return;
+      }
+
+      // GET EMAIL
+      const userEmail = localStorage.getItem("dynamo_user_email");
+      if (!userEmail) {
+          alert("Error: Please log out and log in again.");
+          return;
+      }
+
+      try {
+        if (statusEl) statusEl.textContent = "Creating order...";
+        
+        const res = await fetch(`${BACKEND_URL}/create-razorpay-order`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount_inr: amount_inr, email: userEmail })
+        });
+        
+        if (!res.ok) throw new Error("Failed to create order");
+        const order = await res.json();
+        
+        const options = {
+          key: order.key_id,
+          amount: order.amount,
+          currency: "INR",
+          name: "Dynamo AI",
+          description: "Plus Plan Upgrade",
+          order_id: order.order_id,
+          prefill: { email: userEmail },
+          handler: function (resp) {
+            if (statusEl) statusEl.textContent = "Payment successful! Refreshing...";
+            setTimeout(() => window.location.reload(), 2000); 
+          },
+          theme: { color: "#FFC107" }
+        };
+        const rzp = new Razorpay(options);
+        rzp.open();
+        
+      } catch (err) {
+        console.error(err);
+        if (statusEl) statusEl.textContent = "Error: " + err.message;
+      }
+    }
+
+    document.getElementById("buy-monthly").addEventListener("click", () => handleBuy(99));
+    document.getElementById("buy-yearly").addEventListener("click", () => handleBuy(999));
+
+    document.addEventListener("DOMContentLoaded", function() {
+      lucide.createIcons();
+    });
+  </script>
+  
+  <footer class="mt-12 py-6 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-colors duration-200">
+    <div class="text-center text-sm text-gray-600 dark:text-gray-400 space-x-2">
+        <a href="mailto:support@dynamoai.in" class="hover:underline">support@dynamoai.in</a>
+        <span>|</span>
+        <span>Made in India 🇮🇳</span>
+    </div>
+  </footer>
+
+</body>
+</html>
