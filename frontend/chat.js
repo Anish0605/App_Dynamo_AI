@@ -57,6 +57,9 @@ function showHero() {
   if (heroSection) heroSection.style.display = "flex";
 }
 
+window.hideHero = hideHero;
+window.showHero = showHero;
+
 function scrollToBottom() {
   chatContainer?.scrollTo({
     top: chatContainer.scrollHeight,
@@ -289,6 +292,7 @@ function typeText(element, text, speed = 10) {
   };
 }
 // ---------------- USER MESSAGE ----------------
+window.renderUserMessage = function(text, save = true) { return renderUserMessage(text, save); };
 function renderUserMessage(text, save = true) {
   hideHero();
 
@@ -311,6 +315,7 @@ function renderUserMessage(text, save = true) {
 }
 
 // ---------------- ASSISTANT MESSAGE ----------------
+window.renderAssistantMessage = function(html, rawText, save) { return renderAssistantMessage(html, rawText, save); };
 function renderAssistantMessage(html, rawText = "", save = true) {
   hideHero();
 
