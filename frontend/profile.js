@@ -121,18 +121,26 @@ async function loadProfileData() {
        OPTIONAL REFRESH FROM DB
     ------------------------- */
     if (window.supabaseClient) {
-      const { data } = await window.supabaseClient
-        .from("users")
-        .select("plan, full_name")
-        .eq("id", user.id)
-        .single();
+      const firebaseUid = firebaseUser?.uid || user.firebase_uid;
+      if (firebaseUid) {
+        const { data } = await window.supabaseClient
+          .from("users")
+          .select("plan, full_name")
+          .eq("firebase_uid", firebaseUid)
+          .single();
 
-      if (data) {
-        const freshName = data.full_name || name;
-        const freshInitials = freshName.substring(0, 2).toUpperCase();
-        const freshPlan = (data.plan || "free").toUpperCase();
+        if (data) {
+          const freshName = data.full_name || name;
+          const freshInitials = freshName.substring(0, 2).toUpperCase();
+          const freshPlan = (data.plan || "free").toUpperCase();
 
-        setProfileUI(freshName, freshInitials, freshPlan);
+          setProfileUI(freshName, freshInitials, freshPlan);
+
+          if (window.appState.supabaseUser) {
+            window.appState.supabaseUser.plan = data.plan;
+            window.appState.supabaseUser.full_name = data.full_name;
+          }
+        }
       }
     }
 

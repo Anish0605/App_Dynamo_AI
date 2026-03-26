@@ -18,10 +18,11 @@ async function loadUserData(user) {
   if (!user || !window.supabaseClient) return null;
 
   try {
+    const firebaseUid = user.firebase_uid || user.uid || user.id;
     const { data, error } = await window.supabaseClient
       .from("users")
       .select("*")
-      .eq("firebase_uid", user.id)
+      .eq("firebase_uid", firebaseUid)
       .single();
 
     if (error) {
