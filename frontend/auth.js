@@ -217,10 +217,33 @@ window.resetPassword = async () => {
    LOGOUT
 -------------------------------------------------- */
 window.handleLogout = async () => {
-  await firebaseAuth.signOut();
+  try {
+    if (firebaseAuth) await firebaseAuth.signOut();
+  } catch (e) {
+    console.warn("signOut error:", e);
+  }
+
   window.setAppUser(null);
   window.setSupabaseUser(null);
   resetAuthUI();
+
+  // Clear Firebase tokens from localStorage
+  Object.keys(localStorage)
+    .filter(k => k.startsWith("firebase:"))
+    .forEach(k => localStorage.removeItem(k));
+
+  // Clear Firebase tokens from sessionStorage
+  Object.keys(sessionStorage)
+    .filter(k => k.startsWith("firebase:"))
+    .forEach(k => sessionStorage.removeItem(k));
+
+  // Delete Firebase IndexedDB so it can't re-authenticate on next load
+  try {
+    indexedDB.deleteDatabase("firebaseLocalStorageDb");
+  } catch (e) {}
+
+  // Reload after storage is cleared so Firebase starts fresh with no session
+  window.location.reload();
 };
 
 /* --------------------------------------------------
