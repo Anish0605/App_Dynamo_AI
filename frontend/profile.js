@@ -55,14 +55,12 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  /* 🔥 FIXED LOGOUT */
   if (logoutBtn) {
     logoutBtn.onclick = async () => {
       try {
-        if (window.firebaseAuth) {
-          await window.firebaseAuth.signOut();
+        if (window.handleLogout) {
+          await window.handleLogout();
         }
-        window.setSupabaseUser(null);
         window.location.reload();
       } catch (err) {
         console.error("Logout error:", err);
