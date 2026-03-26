@@ -193,7 +193,78 @@ async def analyze_data(file: UploadFile = File(...)):
 
 @app.post("/generate-ppt-smart")
 async def generate_ppt(payload: dict):
-    return build_presentation(payload)
+    import json as _json
+    import re as _re
+    import google.generativeai as genai
+
+    messages = payload.get("messages", [])
+    title = payload.get("title", "Executive Briefing")
+    theme = payload.get("theme", "executive")
+
+    # Build conversation transcript
+    transcript = "\n".join(
+        f"{m.get('role','').upper()}: {m.get('content','')}"
+        for m in messages
+        if m.get("content")
+    )
+
+    # Ask AI to convert transcript into slides JSON
+    slide_prompt = f"""You are a professional presentation designer.
+Convert the following AI conversation into a structured executive deck.
+
+Return ONLY valid JSON in this exact format (no markdown, no explanation):
+{{
+  "title": "{title}",
+  "theme": "{theme}",
+  "slides": [
+    {{
+      "type": "content",
+      "heading": "Slide Title",
+      "bullets": ["Point 1", "Point 2", "Point 3"]
+    }}
+  ]
+}}
+
+Rules:
+- 4 to 7 slides
+- Each slide must have 3-5 clear bullet points
+- Extract the key insights, answers, and facts from the conversation
+- Use professional executive language
+
+CONVERSATION:
+{transcript[:3000]}
+"""
+
+    try:
+        ai_model = genai.GenerativeModel("gemini-2.0-flash")
+        resp = ai_model.generate_content(slide_prompt)
+        raw = resp.text.strip()
+
+        # Strip markdown code fences if present
+        raw = _re.sub(r"^```[a-z]*\n?", "", raw).rstrip("```").strip()
+
+        slides_payload = _json.loads(raw)
+        slides_payload["theme"] = theme
+        return build_presentation(slides_payload)
+
+    except Exception as e:
+        # Fallback: build a single-slide summary PPT
+        fallback = {
+            "title": title,
+            "theme": theme,
+            "slides": [
+                {
+                    "type": "content",
+                    "heading": "Conversation Summary",
+                    "bullets": [
+                        m.get("content", "")[:120]
+                        for m in messages
+                        if m.get("role") == "assistant"
+                    ][:5]
+                }
+            ]
+        }
+        return build_presentation(fallback)
 
 # --------------------------------------------------
 # 🔊 READ-ALOUD / STREAM

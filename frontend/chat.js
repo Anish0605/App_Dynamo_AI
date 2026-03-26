@@ -399,6 +399,21 @@ window.startNewChat = () => {
 };
 
 /* =========================================================
+   🧠 SMART ACTIONS HELPERS
+========================================================= */
+
+window.getLastAssistantMessage = () => {
+  const assistantMsgs = window.chatHistory.filter(m => m.role === "assistant");
+  return assistantMsgs.length ? assistantMsgs[assistantMsgs.length - 1].content : null;
+};
+
+window.sendFromInputWithText = async (text) => {
+  if (!chatInput) return;
+  chatInput.value = text;
+  await window.sendFromInput();
+};
+
+/* =========================================================
    AUTO LOAD
 ========================================================= */
 
