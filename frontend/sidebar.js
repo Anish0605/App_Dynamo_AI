@@ -346,13 +346,13 @@ window.loadChatHistory = async () => {
   data?.forEach(msg => {
     const text = msg.content?.text || "";
     if (msg.role === "user") {
-      renderUserMessage(text, false);
+      window.renderUserMessage(text, false);
     } else {
-      renderAssistantMessage(marked.parse(text), text, false);
+      window.renderAssistantMessage(marked.parse(text), text, false);
     }
   });
 
-  if (typeof hideHero === "function") hideHero();
+  if (typeof window.hideHero === "function") window.hideHero();
 };
 
 /* =========================================================
