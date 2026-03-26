@@ -5,28 +5,29 @@ console.log("✅ profile.js loaded");
    GLOBAL REFS
 ------------------------- */
 let modal = null;
-let closeBtn = null;
 
 /* -------------------------
    INIT
 ------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
   modal = document.getElementById("profile-modal");
-  closeBtn = document.getElementById("profile-close");
 
-  if (!modal || !closeBtn) {
-    console.error("❌ Profile modal elements not found");
+  if (!modal) {
+    console.error("❌ Profile modal not found");
     return;
   }
 
   /* -------------------------
-     CLOSE
+     CLICK OUTSIDE TO CLOSE
   ------------------------- */
-  closeBtn.onclick = () => modal.classList.add("hidden");
-
-  modal.onclick = (e) => {
-    if (e.target === modal) modal.classList.add("hidden");
-  };
+  document.addEventListener("click", (e) => {
+    if (modal.classList.contains("hidden")) return;
+    const card = modal.querySelector(".profile-card");
+    const trigger = document.querySelector("[onclick='openProfile()']");
+    if (!card.contains(e.target) && !trigger?.contains(e.target)) {
+      modal.classList.add("hidden");
+    }
+  });
 
   /* -------------------------
      BUTTONS
