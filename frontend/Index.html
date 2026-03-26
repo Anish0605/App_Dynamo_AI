@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Dynamo AI - The #1 AI Research OS Made in India</title>
+  
+  <meta name="description" content="Dynamo AI is the #1 AI Research OS made in India. Analyze data, create images, explore trends, and automate research using AI." />
+    <meta name="keywords" content="AI Research OS, Dynamo AI, AI tools India, data analysis AI, generative AI platform" />
+    <meta name="author" content="Dynamo AI" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Dynamo AI - The #1 AI Research OS Made in India" />
+    <meta property="og:description" content="Analyze data, create images, explore AI trends, and automate research with Dynamo AI." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://dynamoai.in" />
+    <meta property="og:image" content="https://dynamoai.in/og-image.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dynamo AI - The #1 AI Research OS Made in India" />
+    <meta name="twitter:description" content="India’s most powerful AI Research OS for students, professionals, and businesses." />
+
+  <!-- GLOBAL CONFIG -->
+  <script>
+    window.SUPABASE_URL_PUBLIC = "https://jbulnpcqxtbjobrclsqq.supabase.co";
+    window.SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidWxucGNxeHRiam9icmNsc3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyNTM2NDgsImV4cCI6MjA4MDgyOTY0OH0.waH5th8HYB08NWWtN99SYt9G5AViQbY1DWOU3Lb5YWw";
+    window.BACKEND_URL = "https://app-dynamo-ai.onrender.com";
+  </script>
+
+  <!-- CDNs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: { gray: { 850: "#1f2937" } },
+        },
+      },
+    };
+    if (
+      localStorage.theme === "dark" ||
+      (!("theme" in localStorage) &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      document.documentElement.classList.add("dark");
+    }
+  </script>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .tool-pill {
+      width: 100%; text-align: left; padding: 0.7rem 0.9rem; border-radius: 1rem;
+      background: #f3f4f6; font-size: 0.85rem; font-weight: 600; color: #111827;
+      margin-bottom: 0.4rem; transition: all 0.25s ease;
+    }
+    .dark .tool-pill { background: #1f2937; color: #e5e7eb; }
+    .tool-pill:hover { transform: translateY(-1px); background: #fde68a; color: #000; }
+    .tool-pill.active { background: #facc15; color: #000; box-shadow: 0 8px 24px rgba(250, 204, 21, 0.35); }
+    
+    /* Smooth transitions for mobile sidebar */
+    #main-sidebar {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    /* PROFILE MODAL (GOLD UI) */
+  .profile-modal {
+  position: absolute;
+  bottom: 85px;
+  left: 12px;
+  width: 280px;
+  z-index: 1000;
+  }
+
+  .profile-modal.hidden {
+  display: none;
+  }
+
+  .profile-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+  border: 1px solid #f1f1f1;
+  }
+  
+  .profile-card {
+  animation: fadeUp 0.2s ease;
+  }
+
+  @keyframes fadeUp {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  }
+  /* HEADER */
+  .profile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  }
+
+  .profile-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #facc15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: black;
+  font-size: 14px;
+  }
+
+  .profile-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+  }
+
+  .profile-plan {
+  font-size: 10px;
+  background: #facc15;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 700;
+  margin-top: 2px;
+  display: inline-block;
+  }
+
+  /* CLOSE BUTTON */
+  #profile-close {
+  margin-left: auto;
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 0.5;
+  }
+
+  #profile-close:hover {
+  opacity: 1;
+  }
+
+  /* DIVIDER */
+  .profile-divider {
+  height: 1px;
+  background: #eee;
+  margin: 14px 0;
+  }
+
+  /* MENU ITEMS */
+  .profile-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  }
+
+  .profile-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  }
+
+  .profile-item i {
+  width: 16px;
+  height: 16px;
+  color: #facc15;
+  }
+
+  .profile-item span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111;
+  }
+
+  .profile-item:hover {
+  background: #fff9db;
+  }
+
+  /* RIGHT ARROW */
+  .profile-arrow {
+  font-size: 14px;
+  color: #bbb;
+  }
+
+  /* LOGOUT */
+  .profile-item.logout span {
+  color: #e74c3c;
+  }
+
+  </style>
+</head>
+
+<body class="bg-white dark:bg-gray-900 h-screen w-full flex overflow-hidden">
+
+  <!-- 1. SIDEBAR (Left Side) -->
+  <aside id="main-sidebar" class="fixed md:relative inset-y-0 left-0 z-50 w-72 bg-gray-50 dark:bg-gray-850 border-r border-gray-200 dark:border-gray-700 flex flex-col transform -translate-x-full md:translate-x-0">
+    <!-- BRAND -->
+    <div class="px-5 py-4 flex items-center justify-between md:justify-start gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-yellow-400 rounded-lg flex items-center justify-center shadow-lg">
+          <i data-lucide="zap" class="w-5 h-5 text-black fill-current"></i>
+        </div>
+        <span class="text-xl font-black text-black dark:text-white">Dynamo AI</span>
+      </div>
+      <button class="md:hidden text-gray-500" onclick="window.toggleMobileSidebar(false)">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="px-4 mt-2">
+      <div class="relative">
+        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+        <input id="chat-search" type="text" placeholder="Search chats..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-black dark:text-white outline-none" />
+      </div>
+    </div>
+
+    <!-- NEW CHAT -->
+    <div class="px-4 mt-4">
+        <button 
+            onclick="startNewChat()"
+            class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 font-bold text-sm text-black dark:text-white hover:bg-white dark:hover:bg-gray-800 transition">
+    
+            <i data-lucide="plus" class="text-yellow-500"></i> 
+            New Chat
+        </button>
+    </div>
+
+    <!-- NAV -->
+    <nav class="px-4 mt-6 space-y-4 text-sm">
+      <a href="#" class="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition"><i data-lucide="layers" class="text-purple-500"></i> Features</a>
+      <a href="#" class="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition"><i data-lucide="credit-card" class="text-green-500"></i> Pricing</a>
+    </nav>
+
+    <!-- QUICK TOOLS -->
+    <div class="px-4 mt-8">
+      <p class="text-xs font-bold uppercase text-gray-400 mb-3">Quick Tools</p>
+      
+      <button onclick="window.toggleSidebarMenu('export-menu')" class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition text-black dark:text-white">
+        <div class="flex items-center gap-3"><i data-lucide="download" class="w-4 h-4 text-blue-500"></i> Export / Save</div>
+        <i data-lucide="chevron-down" id="arrow-export-menu" class="w-3 h-3 text-gray-400 transition-transform duration-200"></i>
+      </button>
+      <div id="export-menu" class="hidden pl-6 mt-2 space-y-2 border-l border-gray-200 dark:border-gray-700">
+        <button onclick="window.downloadPptReport()" class="block text-sm font-medium text-gray-500 hover:text-orange-600">PowerPoint</button>
+        <button onclick="window.downloadWordReport()" class="block text-sm font-medium text-blue-600 hover:text-orange-600">Word Doc</button>
+        <button onclick="window.downloadPdfReport()" class="block text-sm font-medium text-gray-500 hover:text-red-600 hover:text-orange-600">PDF File</button>
+      </div>
+
+      <button onclick="window.toggleSidebarMenu('ai-tools-menu')" class="w-full mt-3 flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition text-black dark:text-white">
+        <div class="flex items-center gap-3">
+          <i data-lucide="sparkles" class="w-4 h-4 text-yellow-500"></i> Smart Actions
+        </div>
+        <i data-lucide="chevron-down" id="arrow-ai-tools-menu" class="w-3 h-3 text-gray-400 transition-transform duration-200"></i>
+      </button>
+      <div id="ai-tools-menu" class="hidden pl-6 mt-2 space-y-2 border-l border-gray-200 dark:border-gray-700">
+        <button onclick="smartSummarise()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
+          <i data-lucide="align-left" class="w-4 h-4"></i> Summarise
+        </button>
+        <button onclick="smartExplain()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
+          <i data-lucide="help-circle" class="w-4 h-4"></i> Explain Simply
+        </button>
+        <button onclick="createExecutiveDeck()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
+          <i data-lucide="presentation" class="w-4 h-4"></i> Create Executive Deck
+        </button>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="px-4 mt-8 flex-1 overflow-y-auto scrollbar-hide">
+      <p class="text-xs font-bold uppercase text-gray-400 mb-2">History</p>
+      <div id="history-list" class="space-y-2 text-sm text-gray-400 italic">
+        No recent chats...
+      </div>
+    </div>
+
+    <!-- USER -->
+    <div class="px-4 py-4 border-t border-gray-200 dark:border-gray-700 cursor-pointer" onclick="openProfile()">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-yellow-100 flex items-center justify-center font-bold text-black">U</div>
+        <div class="overflow-hidden">
+          <div id="user-display-name" class="text-sm font-bold text-black dark:text-white truncate">Guest</div>
+          <div class="text-xs font-bold text-yellow-600">FREE PLAN</div>
+        </div>
+      </div>
+    </div>
+  <!-- PROFILE MODAL -->
+<div id="profile-modal" class="profile-modal hidden">
+  <div class="profile-card">
+
+    <!-- HEADER -->
+    <div class="profile-header">
+      <div class="profile-avatar" id="profile-avatar">U</div>
+
+      <div>
+        <div id="profile-name" class="profile-name">User</div>
+        <div id="profile-plan" class="profile-plan">FREE</div>
+      </div>
+
+      <button id="profile-close">✕</button>
+    </div>
+
+    <div class="profile-divider"></div>
+
+    <!-- MENU -->
+    <div class="profile-menu">
+
+      <div class="profile-item" id="upgrade-btn">
+        <div class="profile-item-left">
+          <i data-lucide="zap"></i>
+          <span>Upgrade Plan</span>
+        </div>
+        <span class="profile-arrow">›</span>
+      </div>
+
+      <div class="profile-item" id="guide-btn">
+        <div class="profile-item-left">
+          <i data-lucide="book-open"></i>
+          <span>How to use Dynamo AI</span>
+        </div>
+        <span class="profile-arrow">›</span>
+      </div>
+
+      <div class="profile-item" id="support-btn">
+        <div class="profile-item-left">
+          <i data-lucide="mail"></i>
+          <span>Support</span>
+        </div>
+        <span class="profile-arrow">›</span>
+      </div>
+
+      <div class="profile-item logout" id="logout-btn">
+        <div class="profile-item-left">
+          <i data-lucide="log-out"></i>
+          <span>Log out</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div> <!-- ✅ FIX 1 -->
+</div>   <!-- ✅ FIX 2 -->
+  </aside>
+
+  <!-- 2. CONTENT AREA -->
+  <div class="flex-1 flex flex-col min-w-0 h-full relative">
+    
+    <!-- HEADER -->
+    <header class="sticky top-0 z-30 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 w-full">
+      <div class="flex items-center px-4 md:px-6 py-3">
+        <button class="md:hidden mr-3 text-black dark:text-white p-1" onclick="window.toggleMobileSidebar(true)">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+        
+        <div class="ml-auto flex items-center gap-3 md:gap-6">
+          <a href="#" class="hidden sm:inline text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Features</a>
+          <a href="#" class="hidden sm:inline text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Pricing</a>
+          
+          <button id="theme-toggle-btn" class="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-white">
+            <i data-lucide="moon" class="w-5 h-5"></i>
+          </button>
+
+          <div id="logged-out-view" class="flex items-center gap-2 md:gap-4">
+            <span class="text-xs md:text-sm cursor-pointer text-gray-700 dark:text-gray-300 font-medium hover:text-black dark:hover:text-white" onclick="window.openAuthModal('login')">Log in</span>
+            <button class="px-3 md:px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-full text-xs md:text-sm font-semibold" onclick="window.openAuthModal('signup')">Sign up</button>
+          </div>
+
+          <button id="header-logout-btn" onclick="window.handleLogout()" class="hidden px-3 md:px-4 py-1.5 bg-gray-200 dark:bg-gray-850 text-black dark:text-white rounded-full text-xs md:text-sm font-semibold hover:bg-gray-300 dark:hover:bg-gray-700 transition">
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main id="chat-area" class="flex-1 overflow-y-auto relative flex flex-col scrollbar-hide">
+     <div id="chat-messages" class="max-w-4xl mx-auto w-full px-4 py-6 space-y-6"></div>
+      <!-- HERO SECTION -->
+      <section id="hero-section" class="flex-1 flex flex-col items-center justify-center text-center px-6 py-8 md:py-12">
+        <div class="w-16 h-16 md:w-20 md:h-20 bg-yellow-400 rounded-2xl md:rounded-3xl mb-6 md:mb-8 flex items-center justify-center shadow-xl">
+          <i data-lucide="zap" class="w-10 h-10 md:w-12 md:h-12 text-black fill-current"></i>
+        </div>
+        <h1 class="text-3xl md:text-5xl font-black mb-8 md:mb-10 tracking-tight text-black dark:text-white max-w-lg">How can I help you?</h1>
+        
+        <div class="flex flex-wrap justify-center gap-3 md:gap-4 max-w-2xl mx-auto">
+          <button class="flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 border border-gray-200 dark:border-gray-700 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold text-black dark:text-white hover:bg-yellow-50 dark:hover:bg-gray-800 transition shadow-sm">
+            <i data-lucide="sparkles" class="w-4 h-4 text-yellow-500"></i> AI Trends 2025
+          </button>
+          <button class="flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 border border-gray-200 dark:border-gray-700 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold text-black dark:text-white hover:bg-yellow-50 dark:hover:bg-gray-800 transition shadow-sm">
+            <i data-lucide="bar-chart-3" class="w-4 h-4 text-blue-500"></i> Analyze Data
+          </button>
+          <button class="flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 border border-gray-200 dark:border-gray-700 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold text-black dark:text-white hover:bg-yellow-50 dark:hover:bg-gray-800 transition shadow-sm">
+            <i data-lucide="image" class="w-4 h-4 text-purple-500"></i> Create Image
+          </button>
+        </div>
+      </section>
+
+      <div class="h-32 md:h-40 flex-shrink-0"></div>
+    </main>
+
+    <!-- INPUT BOX AREA -->
+    <div class="absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 border-t border-gray-100 dark:border-gray-800 px-3 md:px-4 py-4 md:py-5 z-30">
+      <div class="max-w-3xl mx-auto relative">
+        
+        <!-- TOOLS DROPDOWN (DROP-UP) -->
+        <div id="tools-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-full sm:w-[20rem] bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-4 z-50">
+          <!-- MODEL SELECTION -->
+          <div class="mb-4">
+            <p class="text-[11px] font-bold uppercase text-gray-400 mb-3 flex items-center gap-2">🧠 Model Selection</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="tool-pill active" data-model-btn onclick="window.selectModel('gemini-2.0-flash',this)">Fast Mode</button>
+              <button class="tool-pill" data-model-btn onclick="window.selectModel('research', this)">Research Mode</button>
+            </div>
+          </div>
+          <!-- RESEARCH TOOLS -->
+          <div class="mb-4">
+            <p class="text-[11px] font-bold uppercase text-gray-400 mb-3 flex items-center gap-2">🔍 Research Tools</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="tool-pill" onclick="window.toggleTool('deep',this)">DeepThink</button>
+              <button class="tool-pill" onclick="window.toggleTool('search',this)">Web Search</button>
+            </div>
+          </div>
+          <!-- AUDIO MODE -->
+          <div>
+            <p class="text-[11px] font-bold uppercase text-gray-400 mb-3 flex items-center gap-2">🔊 Audio Experience</p>
+            <button class="tool-pill" onclick="window.toggleTool('radio',this)">🎧 Radio Mode</button>
+          </div>
+        </div>
+
+        <!-- MAIN INPUT ROW -->
+        <div class="flex items-end gap-2 md:gap-3 border-2 border-yellow-400 rounded-2xl md:rounded-3xl bg-white dark:bg-gray-900 px-2 md:px-4 py-2 md:py-3 shadow-xl">
+          <button id="tools-btn" onclick="window.toggleTools(event)" class="flex items-center justify-center gap-2 h-10 px-2 md:px-3 rounded-lg md:rounded-xl border border-yellow-400 bg-gray-50 dark:bg-gray-800 text-[10px] font-black uppercase text-black dark:text-white shrink-0 hover:bg-yellow-50 transition">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Tools</span>
+          </button>
+          <!-- UPLOAD -->
+          <button type="button" onclick="window.openAnalyzeFile()" class="w-10 h-10 flex items-center justify-center rounded-lg  md:rounded-xl border border-blue-400 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition shrink-0"> <i data-lucide="paperclip" class="w-5 h-5 text-gray-600 dark:text-gray-300"></i>
+          </button>
+          <!-- VOICE -->
+          <button id="mic-btn" onclick="window.startVoice()" class="w-10 h-10 flex items-center justify-center rounded-lg md:rounded-xl bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 transition shrink-0">
+            <i data-lucide="mic" class="w-5 h-5 text-red-600 dark:text-red-400"></i>
+          </button>
+          <!-- TEXTAREA -->
+          <textarea id="chat-input" rows="1" placeholder="Ask anything..." class="flex-1 resize-none bg-transparent outline-none py-2 px-1 text-sm md:text-base text-gray-900 dark:text-white max-h-32 md:max-h-48 scrollbar-hide" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
+          <!-- SEND -->
+          <button onclick="window.sendFromInput()" class="w-10 h-10 flex items-center justify-center rounded-lg md:rounded-xl bg-yellow-400 hover:bg-yellow-500 transition shadow-md shrink-0">
+            <i data-lucide="arrow-up" class="w-5 h-5 text-black"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div id="auth-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="relative w-full max-w-md bg-white dark:bg-gray-850 rounded-2xl md:rounded-3xl px-6 md:px-8 py-6 md:py-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+      <button onclick="window.closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black dark:hover:text-white p-1">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+      
+      <div class="flex justify-center mb-6">
+        <div class="w-12 h-12 md:w-14 md:h-14 bg-yellow-400 rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg">
+          <i data-lucide="zap" class="w-7 h-7 md:w-8 md:h-8 text-black fill-current"></i>
+        </div>
+      </div>
+      
+      <h2 id="auth-title" class="text-xl md:text-2xl font-black text-center mb-6 text-black dark:text-white">Welcome Back</h2>
+      
+      <div class="space-y-3 md:space-y-4">
+        <input id="auth-name" type="text" placeholder="Full Name" class="hidden w-full px-4 py-2.5 md:py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"/>
+        <input id="auth-phone" type="tel" placeholder="Phone Number" class="hidden w-full px-4 py-2.5 md:py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"/>
+        <input id="auth-email" type="email" placeholder="Email Address" class="w-full px-4 py-2.5 md:py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"/>
+        <input id="auth-password" type="password" placeholder="Password" class="w-full px-4 py-2.5 md:py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"/>
+        <p id="auth-error" class="text-xs text-red-500"></p>     
+        <!-- 🔥 FORGOT PASSWORD (CONTROLLED BY JS) -->
+        <div id="forgot-password-box" class="text-right text-xs text-gray-500 mt-1 hidden">
+        <button onclick="resetPassword()" class="hover:underline">Forgot password?</button></div>
+        <!-- EMAIL LOGIN BUTTON --> 
+        <button id="auth-submit" class="w-full mt-2 md:mt-4 py-2.5 md:py-3 rounded-xl md:rounded-2xl bg-black dark:bg-white text-white dark:text-black font-bold text-base md:text-lg hover:opacity-90 transition">Continue</button>
+       <!-- 🔥 GOOGLE SIGN-IN SECTION -->
+      <div class="mt-4">
+          <div class="flex items-center gap-3 my-4">
+          <div class="flex-1 h-px bg-gray-300"></div>
+          <span class="text-xs text-gray-400 font-medium">OR</span>
+          <div class="flex-1 h-px bg-gray-300"></div>
+      </div>
+      <button onclick="signInWithGoogle()" class="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-gray-300 bg-white hover:bg-gray-100 text-black font-semibold transition">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"/>Continue with Google
+      </button>
+      </div>
+      </div>
+      <!-- GDPR CHECKBOX -->
+        <div id="gdpr-box" class="flex items-start gap-2 mt-3 text-xs text-gray-500">
+        <input id="auth-consent" type="checkbox" class="mt-1 accent-yellow-400"/>
+          <label>I agree to the collection of my personal data as per the 
+          <a href="https://dynamoai.in/privacy.html" target="_blank" class="underline font-medium text-black dark:text-white">
+          Privacy Policy</a> and 
+          <a href="https://dynamoai.in/terms.html" target="_blank" class="underline font-medium text-black dark:text-white">
+          Terms of Service
+          </a>.
+          </label>
+        </div>
+      <div class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+        <span id="auth-footer-text">New to Dynamo AI?</span>
+        <button id="auth-footer-action" onclick="window.toggleAuthMode()" class="font-semibold text-black dark:text-white ml-1 underline underline-offset-4">Sign up</button>
+      </div>
+    </div>
+  </div>
+<!-- MOBILE OVERLAY -->
+  <div id="mobile-overlay" class="fixed inset-0 bg-black/60 z-40 hidden backdrop-blur-[2px]" onclick="window.toggleMobileSidebar(false)">  
+  </div>
+  <!-- 🔒 Analyze Data Hidden File Input (REQUIRED) -->
+  <input
+  type="file"
+  id="analyze-file-input"
+  class="hidden"
+  accept=".csv,.xlsx,.xls,.pdf,.docx,.txt,.png,.jpg,.jpeg"
+  />
+  <script>
+
+    // INITIALIZE ICONS
+    lucide.createIcons();
+  </script>
+ <!-- CORE (must be first) -->
+ <script src="utils.js"></script>
+
+ <!-- AUDIO ENGINE -->
+ <script src="audio_engine.js"></script>
+ 
+ <!-- SIDERBAR -->
+ <script src="sidebar.js"></script>
+ 
+  <!-- QUIZ -->
+ <script src="quiz.js"></script>
+ 
+ <!-- CHAT SYSTEM -->
+ <script src="chat.js"></script>
+
+ <!-- FEATURE LAYERS -->
+ <script src="analysis_ui.js"></script>
+ <script src="ui.js"></script>
+ <script src="export_tools.js"></script>
+ <script src="profile.js"></script>
+
+ <!-- AUTH MUST BE LAST -->
+ <script src="auth.js"></script>
+</body>
+</html>
