@@ -11,7 +11,12 @@ TAVILY_KEY = os.getenv("TAVILY_API_KEY")
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 STABILITY_API_KEY = os.getenv("STABILITY_API_KEY")
+RUNWAY_API_KEY = os.getenv("RUNWAY_API_KEY")
 
+VIDEO_PROMPT_STYLE = (
+    "cinematic, smooth motion, ultra realistic, "
+    "high quality, 4k, dramatic lighting"
+)
 # Supabase Config
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
