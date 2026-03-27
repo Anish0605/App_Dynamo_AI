@@ -340,7 +340,7 @@ function renderAssistantMessage(html, rawText = "", save = true) {
   div.innerHTML = `
     <div class="flex items-start gap-2">
 
-      <div class="bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-2xl max-w-[75%] text-sm shadow assistant-msg">
+      <div class="bg-gray-100 dark:bg-gray-700 dark:text-white dark:border dark:border-gray-600 px-4 py-2 rounded-2xl max-w-[75%] text-sm shadow assistant-msg">
       </div>
 
       <div class="flex flex-col gap-1 mt-1">

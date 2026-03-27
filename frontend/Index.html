@@ -411,17 +411,17 @@
     
     <!-- HEADER -->
     <header class="sticky top-0 z-30 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 w-full">
-      <div class="flex items-center px-4 md:px-6 py-3">
-        <button class="md:hidden mr-3 text-black dark:text-white p-1" onclick="window.toggleMobileSidebar(true)">
-          <i data-lucide="menu" class="w-6 h-6"></i>
+      <div class="flex items-center justify-between px-3 md:px-6 py-3 w-full">
+        <button class="md:hidden text-black dark:text-white p-2 -ml-2" onclick="window.toggleMobileSidebar(true)">
+          <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
         
-        <div class="ml-auto flex items-center gap-3 md:gap-6">
+        <div class="flex items-center gap-2 md:gap-6 ml-auto">
           <a href="#" class="hidden sm:inline text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Features</a>
           <a href="#" class="hidden sm:inline text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Pricing</a>
           
-          <button id="theme-toggle-btn" class="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-white">
-            <i data-lucide="moon" class="w-5 h-5"></i>
+          <button id="theme-toggle-btn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-white">
+            <i data-lucide="moon" class="w-4 h-4 md:w-5 md:h-5"></i>
           </button>
 
           <div id="logged-out-view" class="flex items-center gap-2 md:gap-4">
@@ -586,27 +586,27 @@
     lucide.createIcons();
   </script>
  <!-- CORE (must be first) -->
- <script src="utils.js?v=20260333"></script>
+ <script src="utils.js?v=20260334"></script>
 
  <!-- AUDIO ENGINE -->
- <script src="audio_engine.js?v=20260333"></script>
+ <script src="audio_engine.js?v=20260334"></script>
  
  <!-- CHAT SYSTEM (must load before sidebar so render functions are available) -->
- <script src="chat.js?v=20260333"></script>
+ <script src="chat.js?v=20260334"></script>
 
  <!-- SIDERBAR -->
- <script src="sidebar.js?v=20260333"></script>
+ <script src="sidebar.js?v=20260334"></script>
  
   <!-- QUIZ -->
- <script src="quiz.js?v=20260333"></script>
+ <script src="quiz.js?v=20260334"></script>
 
  <!-- FEATURE LAYERS -->
- <script src="analysis_ui.js?v=20260333"></script>
- <script src="ui.js?v=20260333"></script>
- <script src="export_tools.js?v=20260333"></script>
- <script src="profile.js?v=20260333"></script>
+ <script src="analysis_ui.js?v=20260334"></script>
+ <script src="ui.js?v=20260334"></script>
+ <script src="export_tools.js?v=20260334"></script>
+ <script src="profile.js?v=20260334"></script>
 
  <!-- AUTH MUST BE LAST -->
- <script src="auth.js?v=20260333"></script>
+ <script src="auth.js?v=20260334"></script>
 </body>
 </html>
