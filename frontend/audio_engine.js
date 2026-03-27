@@ -121,29 +121,40 @@ window.restartReadAloud = (btn) => {
    (NEW — SAFE ADDITION)
 ================================================== */
 window.downloadAudio = async (text) => {
-  if (!text || !window.BACKEND_URL) return;
+  if (!text) return;
 
   try {
-    const res = await fetch(`${window.BACKEND_URL}/export-audio`, {
+    // Use relative URL or fallback to current origin
+    const backendUrl = window.BACKEND_URL || '';
+    const url = `${backendUrl}/export-audio`;
+    
+    console.log("📥 Downloading audio from:", url);
+    
+    const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: text })
     });
 
-    if (!res.ok) throw new Error("Audio export failed");
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Audio export failed (${res.status}): ${errText}`);
+    }
 
     const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
+    const objUrl = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
-    a.href = url;
+    a.href = objUrl;
     a.download = "dynamo_ai_audio.mp3";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
 
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(objUrl), 100);
+    console.log("✅ Audio downloaded successfully");
   } catch (err) {
     console.error("❌ Audio download error:", err);
+    alert("Failed to download audio. Check console for details.");
   }
 };
