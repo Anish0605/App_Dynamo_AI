@@ -135,13 +135,15 @@
   }
 
   .profile-plan {
-  font-size: 10px;
+  font-size: 11px;
   background: #facc15;
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-weight: 700;
-  margin-top: 2px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 800;
+  margin-top: 4px;
   display: inline-block;
+  color: #000;
+  box-shadow: 0 2px 8px rgba(250, 204, 21, 0.3);
   }
 
   /* DIVIDER */
@@ -232,6 +234,23 @@
 
   .dark .profile-item.logout span {
   color: #f87171;
+  }
+
+  /* SIDEBAR PLAN BADGE */
+  #sidebar-plan {
+    background: #facc15;
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    box-shadow: 0 2px 6px rgba(250, 204, 21, 0.25);
+  }
+
+  .dark #sidebar-plan {
+    background: #f59e0b;
+    color: #000;
   }
 
   </style>
@@ -567,27 +586,27 @@
     lucide.createIcons();
   </script>
  <!-- CORE (must be first) -->
- <script src="utils.js?v=20260332"></script>
+ <script src="utils.js?v=20260333"></script>
 
  <!-- AUDIO ENGINE -->
- <script src="audio_engine.js?v=20260332"></script>
+ <script src="audio_engine.js?v=20260333"></script>
  
  <!-- CHAT SYSTEM (must load before sidebar so render functions are available) -->
- <script src="chat.js?v=20260332"></script>
+ <script src="chat.js?v=20260333"></script>
 
  <!-- SIDERBAR -->
- <script src="sidebar.js?v=20260332"></script>
+ <script src="sidebar.js?v=20260333"></script>
  
   <!-- QUIZ -->
- <script src="quiz.js?v=20260332"></script>
+ <script src="quiz.js?v=20260333"></script>
 
  <!-- FEATURE LAYERS -->
- <script src="analysis_ui.js?v=20260332"></script>
- <script src="ui.js?v=20260332"></script>
- <script src="export_tools.js?v=20260332"></script>
- <script src="profile.js?v=20260332"></script>
+ <script src="analysis_ui.js?v=20260333"></script>
+ <script src="ui.js?v=20260333"></script>
+ <script src="export_tools.js?v=20260333"></script>
+ <script src="profile.js?v=20260333"></script>
 
  <!-- AUTH MUST BE LAST -->
- <script src="auth.js?v=20260332"></script>
+ <script src="auth.js?v=20260333"></script>
 </body>
 </html>

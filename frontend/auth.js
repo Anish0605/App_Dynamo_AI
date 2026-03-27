@@ -344,7 +344,7 @@ function updateAuthUI(user) {
 function resetAuthUI() {
   document.getElementById("user-display-name").textContent = "Guest";
   document.getElementById("sidebar-avatar").textContent = "G";
-  document.getElementById("sidebar-plan").textContent = "FREE PLAN";
+  document.getElementById("sidebar-plan").textContent = "FREE";
 
   document.getElementById("logged-out-view")?.classList.remove("hidden");
   document.getElementById("header-logout-btn")?.classList.add("hidden");
@@ -357,5 +357,5 @@ function updateSidebarPlan(supabaseUser) {
 
   document.getElementById("sidebar-avatar").textContent = initials;
   document.getElementById("user-display-name").textContent = name;
-  document.getElementById("sidebar-plan").textContent = plan + " PLAN";
+  document.getElementById("sidebar-plan").textContent = plan;
 }
