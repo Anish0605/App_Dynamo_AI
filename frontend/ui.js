@@ -115,16 +115,62 @@ document.addEventListener("DOMContentLoaded", () => {
 /* --------------------------------------------------
    SMART ACTIONS
 -------------------------------------------------- */
-window.smartSummarise = () => {
+window.smartSummarise = async () => {
   const text = window.getLastAssistantMessage?.();
   if (!text) return alert("No AI response yet.");
-  window.sendFromInputWithText(`Summarise clearly:\n\n${text}`);
+  
+  // Send directly to backend, avoiding image detection
+  const chatInput = document.getElementById("chat-input");
+  if (chatInput) chatInput.value = "";
+  
+  window.renderUserMessage(`Summarise: ${text.slice(0, 100)}...`);
+  
+  try {
+    const payload = {
+      message: `Please provide a clear and concise summary of the following text:\n\n${text.slice(0, 3000)}`,
+      history: window.chatHistory.slice(-10),
+      use_search: false,
+      deep_dive: false,
+      force_image: false,
+      chat_id: window.appState?.chatId,
+      user_id: window.appState?.supabaseUserId
+    };
+    
+    const res = await window.callBackend("/chat", payload);
+    if (res?.content) window.renderAssistantMessage(res.content);
+  } catch (err) {
+    console.error("Summarise error:", err);
+    window.renderAssistantMessage("Failed to summarise.");
+  }
 };
 
-window.smartExplain = () => {
+window.smartExplain = async () => {
   const text = window.getLastAssistantMessage?.();
   if (!text) return alert("No AI response yet.");
-  window.sendFromInputWithText(`Explain simply:\n\n${text}`);
+  
+  // Send directly to backend, avoiding image detection
+  const chatInput = document.getElementById("chat-input");
+  if (chatInput) chatInput.value = "";
+  
+  window.renderUserMessage(`Explain: ${text.slice(0, 100)}...`);
+  
+  try {
+    const payload = {
+      message: `Please explain this in simple terms that anyone can understand:\n\n${text.slice(0, 3000)}`,
+      history: window.chatHistory.slice(-10),
+      use_search: false,
+      deep_dive: false,
+      force_image: false,
+      chat_id: window.appState?.chatId,
+      user_id: window.appState?.supabaseUserId
+    };
+    
+    const res = await window.callBackend("/chat", payload);
+    if (res?.content) window.renderAssistantMessage(res.content);
+  } catch (err) {
+    console.error("Explain error:", err);
+    window.renderAssistantMessage("Failed to explain.");
+  }
 };
 
 /* --------------------------------------------------
