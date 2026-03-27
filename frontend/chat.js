@@ -292,7 +292,6 @@ function typeText(element, text, speed = 10) {
   };
 }
 // ---------------- USER MESSAGE ----------------
-window.renderUserMessage = function(text, save = true) { return renderUserMessage(text, save); };
 function renderUserMessage(text, save = true) {
   hideHero();
 
@@ -313,9 +312,9 @@ function renderUserMessage(text, save = true) {
   saveMessage("user", text);
 }
 }
+window.renderUserMessage = renderUserMessage;
 
 // ---------------- ASSISTANT MESSAGE ----------------
-window.renderAssistantMessage = function(html, rawText, save) { return renderAssistantMessage(html, rawText, save); };
 function renderAssistantMessage(html, rawText = "", save = true) {
   hideHero();
 
@@ -389,6 +388,7 @@ function renderAssistantMessage(html, rawText = "", save = true) {
   window.chatHistory.push({ role: "assistant", content: text });
   if (save) saveMessage("assistant", text);
 }
+window.renderAssistantMessage = renderAssistantMessage;
 
 /* =========================================================
    ➕ NEW CHAT
