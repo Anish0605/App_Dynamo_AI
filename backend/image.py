@@ -1,97 +1,107 @@
 import aiohttp
 import base64
-import uuid
 import os
+import config
 
-HF_API_URL = "https://api-inference.huggingface.co/models/stabilityai/sdxl-turbo"
-HF_API_TOKEN = os.getenv("HF_API_TOKEN")
+OPENAI_KEY = config.OPENAI_API_KEY
+STABILITY_KEY = config.STABILITY_API_KEY
 
-async def generate_image_base64(prompt: str):
-    """
-    Generates an image using:
-    1) Pollinations (primary, free)
-    2) Hugging Face SDXL Turbo (fallback)
-    Returns Base64 image for frontend rendering
-    """
 
-    clean_prompt = prompt.strip().replace(" ", "%20")
-
-    pollinations_url = (
-        "https://image.pollinations.ai/prompt/"
-        + clean_prompt
-        + "?nologo=true&width=1024&height=1024&seed="
-        + str(uuid.uuid4())
+# --------------------------------------------------
+# 🎯 PROMPT ENHANCER (VERY IMPORTANT)
+# --------------------------------------------------
+def enhance_prompt(prompt: str):
+    return (
+        f"{prompt}, ultra detailed, high quality, "
+        "cinematic lighting, 4k, professional, sharp focus"
     )
+
+
+# --------------------------------------------------
+# 🖼 IMAGE GENERATOR
+# --------------------------------------------------
+async def generate_image_base64(prompt: str):
+
+    enhanced_prompt = enhance_prompt(prompt)
 
     async with aiohttp.ClientSession() as session:
 
         # ===============================
-        # 1️⃣ TRY POLLINATIONS (PRIMARY)
+        # 1️⃣ OPENAI (PRIMARY)
         # ===============================
-        try:
-            async with session.get(pollinations_url, timeout=30) as resp:
-                if resp.status == 200:
-                    img_bytes = await resp.read()
-                    img_b64 = base64.b64encode(img_bytes).decode("utf-8")
+        if OPENAI_KEY:
+            try:
+                for _ in range(2):  # retry logic
+                    async with session.post(
+                        "https://api.openai.com/v1/images/generations",
+                        headers={
+                            "Authorization": f"Bearer {OPENAI_KEY}",
+                            "Content-Type": "application/json"
+                        },
+                        json={
+                            "model": "gpt-image-1",
+                            "prompt": enhanced_prompt,
+                            "size": "1024x1024"
+                        },
+                        timeout=20
+                    ) as resp:
 
-                    return {
-                        "type": "image_v2",
-                        "content": f"data:image/jpeg;base64,{img_b64}",
-                        "prompt": prompt,
-                        "source": "pollinations"
-                    }
-        except Exception as e:
-            print("Pollinations failed:", str(e))
+                        if resp.status == 200:
+                            data = await resp.json()
+                            img_b64 = data["data"][0]["b64_json"]
+
+                            return {
+                                "type": "image_v2",
+                                "content": f"data:image/png;base64,{img_b64}",
+                                "prompt": prompt,
+                                "enhanced_prompt": enhanced_prompt,
+                                "source": "openai"
+                            }
+
+            except Exception as e:
+                print("OpenAI failed:", str(e))
 
         # ===============================
-        # 2️⃣ FALLBACK – HUGGING FACE
+        # 2️⃣ STABILITY (FALLBACK)
         # ===============================
-        if not HF_API_TOKEN:
-            return {
-                "type": "text",
-                "content": "Image system unavailable (HF token missing)."
-            }
+        if STABILITY_KEY:
+            try:
+                async with session.post(
+                    "https://api.stability.ai/v2beta/stable-image/generate/core",
+                    headers={
+                        "Authorization": f"Bearer {STABILITY_KEY}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "prompt": enhanced_prompt,
+                        "output_format": "png"
+                    },
+                    timeout=25
+                ) as resp:
 
-        headers = {
-            "Authorization": f"Bearer {HF_API_TOKEN}",
-            "Content-Type": "application/json"
-        }
+                    if resp.status == 200:
+                        img_bytes = await resp.read()
+                        img_b64 = base64.b64encode(img_bytes).decode()
 
-        payload = {
-            "inputs": prompt,
-            "options": {"wait_for_model": True}
-        }
+                        return {
+                            "type": "image_v2",
+                            "content": f"data:image/png;base64,{img_b64}",
+                            "prompt": prompt,
+                            "enhanced_prompt": enhanced_prompt,
+                            "source": "stability"
+                        }
 
-        try:
-            async with session.post(
-                HF_API_URL,
-                headers=headers,
-                json=payload,
-                timeout=60
-            ) as resp:
+                    else:
+                        error_text = await resp.text()
+                        print("Stability error:", error_text)
 
-                if resp.status == 200:
-                    img_bytes = await resp.read()
-                    img_b64 = base64.b64encode(img_bytes).decode("utf-8")
-
-                    return {
-                        "type": "image_v2",
-                        "content": f"data:image/png;base64,{img_b64}",
-                        "prompt": prompt,
-                        "source": "huggingface"
-                    }
-
-                else:
-                    error_text = await resp.text()
-                    print("HF Error:", error_text)
-
-        except Exception as e:
-            print("HuggingFace failed:", str(e))
+            except Exception as e:
+                print("Stability failed:", str(e))
 
     # ===============================
     # FINAL FAILSAFE
     # ===============================
     return {
         "type": "text",
-        "content": "Image generation is currently busy. Please try again."
+        "content": "⚠️ Image generation is temporarily unavailable. Try again."
     }
