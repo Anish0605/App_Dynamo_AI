@@ -94,7 +94,7 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
     # GEMINI EXECUTION
     # -------------------------
     try:
-        model = genai.GenerativeModel("gemini-3.1-flash-lite")
+        model = genai.GenerativeModel("gemini-2.0-flash")
         response = model.generate_content(full_prompt)
         return response.text
     except Exception as e:
