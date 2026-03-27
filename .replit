@@ -45,5 +45,5 @@ run = ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5000"]
 [userenv]
 
 [userenv.shared]
-OPENAI_API_KEY = "sk-placeholder-openai"
-STABILITY_API_KEY = "placeholder-stability-key"
+OPENAI_API_KEY = "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"
+STABILITY_API_KEY = "sk-NxZ4p6wUI3WvQFse3OSu4dWOkoNimEksLpfuuLnKU1Cxmewn"
