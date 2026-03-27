@@ -241,6 +241,49 @@ async def chat(
     }
 
 # --------------------------------------------------
+# 🎤 SPEECH-TO-TEXT (VOICE TRANSCRIPTION)
+# --------------------------------------------------
+
+@app.post("/transcribe-audio")
+async def transcribe_audio(audio: UploadFile = File(...)):
+    """
+    Convert audio to text using Google Cloud Speech-to-Text or fallback.
+    """
+    try:
+        import google.generativeai as genai
+        
+        # Read audio file
+        audio_bytes = await audio.read()
+        
+        # Use Gemini's audio understanding (free & fast)
+        genai.configure(api_key=config.GEMINI_KEY)
+        model = genai.GenerativeModel("gemini-2.0-flash")
+        
+        # Convert audio to base64
+        import base64
+        audio_b64 = base64.b64encode(audio_bytes).decode()
+        
+        # Ask Gemini to transcribe
+        response = model.generate_content([
+            "Please transcribe this audio to text. Return ONLY the transcribed text, no explanations.",
+            {
+                "mime_type": "audio/wav",
+                "data": audio_b64
+            }
+        ])
+        
+        return {
+            "text": response.text.strip(),
+            "status": "success"
+        }
+    except Exception as e:
+        return {
+            "text": "",
+            "status": "error",
+            "error": str(e)
+        }
+
+# --------------------------------------------------
 # FILE ANALYSIS
 # --------------------------------------------------
 

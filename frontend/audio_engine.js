@@ -118,7 +118,6 @@ window.restartReadAloud = (btn) => {
 
 /* ==================================================
    ⬇️ DOWNLOAD AUDIO (BACKEND EDGE-TTS)
-   (NEW — SAFE ADDITION)
 ================================================== */
 window.downloadAudio = async (text) => {
   if (!text) return;
@@ -158,3 +157,111 @@ window.downloadAudio = async (text) => {
     alert("Failed to download audio. Check console for details.");
   }
 };
+
+/* ==================================================
+   🎤 VOICE INPUT (RECORD & TRANSCRIBE)
+================================================== */
+window.voiceState = {
+  recording: false,
+  mediaRecorder: null,
+  audioChunks: [],
+  stream: null
+};
+
+window.startVoice = async () => {
+  const micBtn = document.getElementById("mic-btn");
+  if (!micBtn) return;
+
+  // Toggle recording
+  if (window.voiceState.recording) {
+    // Stop recording
+    stopVoiceRecording();
+    return;
+  }
+
+  // Start recording
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    window.voiceState.stream = stream;
+    window.voiceState.audioChunks = [];
+
+    const mediaRecorder = new MediaRecorder(stream);
+    window.voiceState.mediaRecorder = mediaRecorder;
+    window.voiceState.recording = true;
+
+    // Update button visual
+    micBtn.classList.add("animate-pulse", "bg-red-500/70");
+    micBtn.innerHTML = '<i data-lucide="mic-off" class="w-5 h-5 text-white"></i>';
+    lucide.createIcons();
+
+    mediaRecorder.ondataavailable = (event) => {
+      window.voiceState.audioChunks.push(event.data);
+    };
+
+    mediaRecorder.onstop = async () => {
+      const audioBlob = new Blob(window.voiceState.audioChunks, { type: "audio/wav" });
+      await processVoiceInput(audioBlob);
+    };
+
+    mediaRecorder.start();
+    console.log("🎤 Recording started...");
+  } catch (err) {
+    console.error("❌ Mic error:", err);
+    alert("Microphone access denied. Please allow microphone permissions.");
+  }
+};
+
+async function stopVoiceRecording() {
+  const micBtn = document.getElementById("mic-btn");
+  
+  if (window.voiceState.mediaRecorder && window.voiceState.recording) {
+    window.voiceState.mediaRecorder.stop();
+    window.voiceState.recording = false;
+
+    // Stop all tracks
+    if (window.voiceState.stream) {
+      window.voiceState.stream.getTracks().forEach(t => t.stop());
+    }
+
+    // Reset button
+    if (micBtn) {
+      micBtn.classList.remove("animate-pulse", "bg-red-500/70");
+      micBtn.innerHTML = '<i data-lucide="mic" class="w-5 h-5 text-red-600 dark:text-red-400"></i>';
+      lucide.createIcons();
+    }
+
+    console.log("🎤 Recording stopped");
+  }
+}
+
+async function processVoiceInput(audioBlob) {
+  try {
+    const fd = new FormData();
+    fd.append("audio", audioBlob, "voice.wav");
+
+    const backendUrl = window.BACKEND_URL || '';
+    const res = await fetch(`${backendUrl}/transcribe-audio`, {
+      method: "POST",
+      body: fd
+    });
+
+    if (!res.ok) throw new Error("Transcription failed");
+
+    const data = await res.json();
+    const transcript = data.text || data.transcription || "";
+
+    if (transcript) {
+      const chatInput = document.getElementById("chat-input");
+      if (chatInput) {
+        chatInput.value = transcript;
+        chatInput.style.height = "";
+        chatInput.style.height = chatInput.scrollHeight + "px";
+        chatInput.focus();
+        console.log("✅ Voice transcribed:", transcript);
+      }
+    }
+  } catch (err) {
+    console.error("❌ Voice processing error:", err);
+    alert("Voice transcription failed. Check console for details.");
+  }
+}
