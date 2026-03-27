@@ -86,6 +86,19 @@ async def chat(req: ChatReq):
     if any(k in msg_lower for k in IMAGE_KEYWORDS):
         return await image.generate_image_base64(req.message)
 
+    #  Video (ADD RECENTLY)
+    VIDEO_KEYWORDS = [
+    "create video",
+    "generate video",
+    "make video",
+    "animation",
+    "video"
+    ]
+
+    if any(k in msg_lower for k in VIDEO_KEYWORDS):
+    import video
+    return await video.generate_video(req.message)
+    
     # -------------------------
     # 🧠 1. USER HANDLING
     # -------------------------
