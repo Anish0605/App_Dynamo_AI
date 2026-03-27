@@ -176,3 +176,23 @@ window.createExecutiveDeck = async () => {
     alert("Failed to create executive deck.");
   }
 };
+
+/* --------------------------------------------------
+   MOBILE SIDEBAR TOGGLE
+-------------------------------------------------- */
+window.toggleMobileSidebar = (show) => {
+  const sidebar = document.getElementById("main-sidebar");
+  const overlay = document.getElementById("mobile-overlay");
+  
+  if (!sidebar || !overlay) return;
+  
+  if (show) {
+    sidebar.classList.remove("-translate-x-full");
+    sidebar.classList.add("translate-x-0");
+    overlay.classList.remove("hidden");
+  } else {
+    sidebar.classList.add("-translate-x-full");
+    sidebar.classList.remove("translate-x-0");
+    overlay.classList.add("hidden");
+  }
+};
