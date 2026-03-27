@@ -13,6 +13,17 @@ window.isAnalyzingFile = false;
 let lastChatType = null;
 let currentChatId = null;
 
+/* ---------------- KEYBOARD SHORTCUTS ---------------- */
+if (chatInput) {
+  chatInput.addEventListener("keydown", (e) => {
+    // Send message on Enter (but allow Shift+Enter for new line)
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      window.sendFromInput();
+    }
+  });
+}
+
 /* ---------------- IMAGE INTENT ---------------- */
 function isImagePrompt(text) {
   return /(create|generate|draw|image|picture|illustration|visual|art)/i.test(text);
