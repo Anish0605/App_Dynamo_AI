@@ -242,7 +242,7 @@ window.sendFromInput = async () => {
       fd.append("chat_id", currentChatId || "");
       fd.append("user_id", window.appState?.supabaseUserId || "");
       
-      res = await fetch(`${window.BACKEND_URL}/chat`, {
+      res = await fetch(`${window.BACKEND_URL}/chat-with-file`, {
         method: "POST",
         body: fd
       }).then(r => r.json());

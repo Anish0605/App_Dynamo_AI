@@ -84,62 +84,9 @@ async def serve_pricing():
 # --------------------------------------------------
 
 @app.post("/chat")
-async def chat(
-    message: str = None,
-    history: str = None,
-    use_search: bool = True,
-    deep_dive: bool = False,
-    force_image: bool = False,
-    chat_id: str = None,
-    user_id: str = None,
-    file: UploadFile = None
-):
-    # Handle both FormData and JSON requests
-    import json as _json
-    
-    # Parse history if it's a string (FormData)
-    if isinstance(history, str):
-        try:
-            history = _json.loads(history)
-        except:
-            history = []
-    elif not history:
-        history = []
+async def chat(req: ChatReq):
 
-    msg_lower = (message or "").lower()
-
-    # 🎯 FILE ANALYSIS MODE (IF FILE PROVIDED)
-    if file:
-        try:
-            file_bytes = await file.read()
-            analysis_result = analysis.process_file_universally(file_bytes, file.filename)
-            
-            # Build context from file analysis
-            file_context = f"User uploaded: {file.filename}\n"
-            file_context += f"File analysis: {analysis_result.get('content', '')[:2000]}\n"
-            if message:
-                file_context += f"User instruction: {message}\n"
-            
-            # Send to AI with file context
-            response = model.get_ai_response(
-                prompt=file_context,
-                history=history,
-                model_name="gemini-2.0-flash",
-                context="",
-                deep_dive=deep_dive
-            )
-            
-            return {
-                "type": "text",
-                "content": response,
-                "chat_id": chat_id,
-                "file_analyzed": file.filename
-            }
-        except Exception as e:
-            return {
-                "type": "error",
-                "content": f"File analysis failed: {str(e)}"
-            }
+    msg_lower = req.message.lower()
 
     # 🖼 Image Detection (FLEXIBLE)
     IMAGE_KEYWORDS = [
@@ -160,20 +107,19 @@ async def chat(
     is_image_prompt = (
         any(k in msg_lower for k in IMAGE_KEYWORDS) or
         any(k in msg_lower.split() for k in SINGLE_WORD_KEYWORDS) or
-        force_image
+        req.force_image
     )
 
     # 🖼 Image (NO CHANGE)
     if is_image_prompt:
-        return await image.generate_image_base64(message)
+        return await image.generate_image_base64(req.message)
 
     # -------------------------
     # 🧠 1. USER HANDLING
     # -------------------------
     user = None
-    if user_id:
-        # user_id from frontend is always the Supabase UUID (not firebase_uid)
-        user = get_user_by_supabase_id(user_id)
+    if req.user_id:
+        user = get_user_by_supabase_id(req.user_id)
     # -------------------------
     # 🚫 1.1 QUOTA CHECK
     # -------------------------
@@ -186,16 +132,20 @@ async def chat(
     # -------------------------
     # 💬 2. CHAT HANDLING
     # -------------------------
+    chat_id = req.chat_id
+
     if not chat_id and user:
-        chat = create_chat(user["id"], title=(message or "New chat")[:30])
+        chat = create_chat(user["id"], title=req.message[:30])
         chat_id = chat["id"] if chat else None
 
     # -------------------------
     # 📜 3. LOAD HISTORY
     # -------------------------
+    history = []
+
     if chat_id:
         db_messages = fetch_chat_messages(chat_id)
-        history = []
+
         for m in db_messages:
             history.append({
                 "role": m["role"],
@@ -206,25 +156,25 @@ async def chat(
     # 🔍 4. SEARCH
     # -------------------------
     context = ""
-    if use_search and message:
-        context = search.get_web_context(message, deep_dive)
+    if req.use_search:
+        context = search.get_web_context(req.message, req.deep_dive)
 
     # -------------------------
     # 🤖 5. AI RESPONSE
     # -------------------------
     response = model.get_ai_response(
-        prompt=message or "hello",
+        prompt=req.message,
         history=history,
-        model_name="gemini-2.0-flash",
+        model_name=req.model,
         context=context,
-        deep_dive=deep_dive
+        deep_dive=req.deep_dive
     )
 
     # -------------------------
     # 💾 6. SAVE TO DB
     # -------------------------
     if chat_id:
-        save_message(chat_id, "user", message or "[File uploaded]")
+        save_message(chat_id, "user", req.message)
         save_message(chat_id, "assistant", response)
     # -------------------------
     # 🔥 6.1 INCREMENT QUOTA
@@ -239,6 +189,58 @@ async def chat(
         "content": response,
         "chat_id": chat_id
     }
+
+# --------------------------------------------------
+# CHAT WITH FILE (FormData — separate endpoint)
+# --------------------------------------------------
+
+@app.post("/chat-with-file")
+async def chat_with_file(
+    file: UploadFile = File(...),
+    message: str = "",
+    user_id: str = "",
+    chat_id: str = "",
+    history: str = "[]"
+):
+    import json as _json
+
+    try:
+        parsed_history = _json.loads(history)
+    except Exception:
+        parsed_history = []
+
+    try:
+        file_bytes = await file.read()
+        analysis_result = analysis.process_file_universally(file_bytes, file.filename)
+
+        file_content = analysis_result.get("content", "")[:3000]
+        user_instruction = message.strip() if message.strip() else "Summarize this document."
+
+        combined_prompt = (
+            f"The user uploaded a file: {file.filename}\n\n"
+            f"File content:\n{file_content}\n\n"
+            f"User instruction: {user_instruction}"
+        )
+
+        response = model.get_ai_response(
+            prompt=combined_prompt,
+            history=parsed_history,
+            model_name="gemini-2.0-flash",
+            context="",
+            deep_dive=False
+        )
+
+        return {
+            "type": "text",
+            "content": response,
+            "chat_id": chat_id or None,
+            "file_analyzed": file.filename
+        }
+    except Exception as e:
+        return {
+            "type": "error",
+            "content": f"File analysis failed: {str(e)}"
+        }
 
 # --------------------------------------------------
 # 🎤 SPEECH-TO-TEXT (VOICE TRANSCRIPTION)
