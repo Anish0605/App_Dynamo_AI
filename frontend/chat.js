@@ -236,48 +236,61 @@ window.sendFromInput = async () => {
 
     // ---------------- IMAGE ----------------
     if (res?.type === "image_v2" && res.content) {
+      hideHero();
+      
+      const div = document.createElement("div");
+      div.className = "flex justify-start mb-4";
+      
       const imageHtml = `
-        <div class="relative inline-block group">
-          <img src="${res.content}" class="rounded-lg shadow-lg max-w-md" id="generated-image"/>
-          
-          <!-- Image Controls (Bottom Right) -->
-          <div class="absolute bottom-3 right-3 bg-black/70 rounded-lg p-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <!-- Download Button -->
-            <button class="download-img-btn p-2 hover:bg-white/20 rounded transition" title="Download">
-              <i data-lucide="download" class="w-5 h-5 text-white"></i>
-            </button>
+        <div class="flex items-start gap-2">
+          <div class="relative inline-block group">
+            <img src="${res.content}" class="rounded-lg shadow-lg max-w-md" id="generated-image"/>
             
-            <!-- Share Button -->
-            <button class="share-img-btn p-2 hover:bg-white/20 rounded transition" title="Share">
-              <i data-lucide="share-2" class="w-5 h-5 text-white"></i>
-            </button>
-            
-            <!-- Thumb Up -->
-            <button class="thumb-up-btn p-2 hover:bg-green-500/30 rounded transition" title="Good">
-              <i data-lucide="thumbs-up" class="w-5 h-5 text-white"></i>
-            </button>
-            
-            <!-- Thumb Down -->
-            <button class="thumb-down-btn p-2 hover:bg-red-500/30 rounded transition" title="Not good">
-              <i data-lucide="thumbs-down" class="w-5 h-5 text-white"></i>
-            </button>
+            <!-- Image Controls (Bottom Right) -->
+            <div class="absolute bottom-3 right-3 bg-black/70 rounded-lg p-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <!-- Download Button -->
+              <button class="download-img-btn p-2 hover:bg-white/20 rounded transition" title="Download">
+                <i data-lucide="download" class="w-5 h-5 text-white"></i>
+              </button>
+              
+              <!-- Share Button -->
+              <button class="share-img-btn p-2 hover:bg-white/20 rounded transition" title="Share">
+                <i data-lucide="share-2" class="w-5 h-5 text-white"></i>
+              </button>
+              
+              <!-- Thumb Up -->
+              <button class="thumb-up-btn p-2 hover:bg-green-500/30 rounded transition" title="Good">
+                <i data-lucide="thumbs-up" class="w-5 h-5 text-white"></i>
+              </button>
+              
+              <!-- Thumb Down -->
+              <button class="thumb-down-btn p-2 hover:bg-red-500/30 rounded transition" title="Not good">
+                <i data-lucide="thumbs-down" class="w-5 h-5 text-white"></i>
+              </button>
+            </div>
           </div>
         </div>
       `;
       
-      renderAssistantMessage(imageHtml);
+      div.innerHTML = imageHtml;
+      chatContainer.appendChild(div);
+      scrollToBottom();
       
-      // Add event listeners after rendering
+      // Add to chat history
+      window.chatHistory.push({ role: "assistant", content: "[Image Generated]" });
+      if (saveMessage && window.appState?.supabaseUserId) {
+        saveMessage("assistant", "[Image Generated]");
+      }
+      
+      // Setup event listeners
       setTimeout(() => {
         lucide.createIcons();
         
-        const downloadBtn = document.querySelector(".download-img-btn");
-        const shareBtn = document.querySelector(".share-img-btn");
-        const thumbUpBtn = document.querySelector(".thumb-up-btn");
-        const thumbDownBtn = document.querySelector(".thumb-down-btn");
-        const imgElement = document.getElementById("generated-image");
+        const downloadBtn = div.querySelector(".download-img-btn");
+        const shareBtn = div.querySelector(".share-img-btn");
+        const thumbUpBtn = div.querySelector(".thumb-up-btn");
+        const thumbDownBtn = div.querySelector(".thumb-down-btn");
         
-        // Download functionality
         downloadBtn?.addEventListener("click", () => {
           const link = document.createElement("a");
           link.href = res.content;
@@ -289,7 +302,6 @@ window.sendFromInput = async () => {
           setTimeout(() => downloadBtn.classList.remove("scale-110"), 200);
         });
         
-        // Share functionality
         shareBtn?.addEventListener("click", async () => {
           const shareData = {
             title: "Check out this AI-generated image from Dynamo AI!",
@@ -303,41 +315,23 @@ window.sendFromInput = async () => {
               console.log("Share cancelled");
             }
           } else {
-            // Fallback: copy to clipboard
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            const img = new Image();
-            img.onload = () => {
-              canvas.width = img.width;
-              canvas.height = img.height;
-              ctx.drawImage(img, 0, 0);
-              canvas.toBlob(blob => {
-                navigator.clipboard.write([
-                  new ClipboardItem({ "image/png": blob })
-                ]);
-              });
-            };
-            img.src = res.content;
-            
             shareBtn.classList.add("scale-110");
             setTimeout(() => shareBtn.classList.remove("scale-110"), 200);
           }
         });
         
-        // Thumb Up
         thumbUpBtn?.addEventListener("click", () => {
           thumbUpBtn.classList.add("bg-green-500/50", "scale-110");
           thumbDownBtn?.classList.remove("bg-red-500/50", "scale-110");
           setTimeout(() => thumbUpBtn.classList.remove("scale-110"), 200);
         });
         
-        // Thumb Down
         thumbDownBtn?.addEventListener("click", () => {
           thumbDownBtn.classList.add("bg-red-500/50", "scale-110");
           thumbUpBtn?.classList.remove("bg-green-500/50", "scale-110");
           setTimeout(() => thumbDownBtn.classList.remove("scale-110"), 200);
         });
-      }, 100);
+      }, 50);
       
       return;
     }
