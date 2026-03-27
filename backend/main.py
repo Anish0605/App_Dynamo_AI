@@ -47,6 +47,7 @@ class ChatReq(BaseModel):
     history: list = []
     use_search: bool = True
     deep_dive: bool = False
+    force_image: bool = False
     model: str = "gemini-2.0-flash"
     chat_id: str | None = None
     user_id: str | None = None
@@ -87,19 +88,30 @@ async def chat(req: ChatReq):
 
     msg_lower = req.message.lower()
 
+    # 🖼 Image Detection (FLEXIBLE)
     IMAGE_KEYWORDS = [
         "create an image",
-        "generate an image",
+        "create a image",
+        "generate an image", 
+        "generate a image",
         "create image",
         "generate image",
-        "draw",
+        "draw ",
         "picture",
         "illustration",
         "visual"
     ]
+    
+    SINGLE_WORD_KEYWORDS = ["image", "photo", "artwork", "drawing"]
+    
+    is_image_prompt = (
+        any(k in msg_lower for k in IMAGE_KEYWORDS) or
+        any(k in msg_lower.split() for k in SINGLE_WORD_KEYWORDS) or
+        req.force_image
+    )
 
     # 🖼 Image (NO CHANGE)
-    if any(k in msg_lower for k in IMAGE_KEYWORDS):
+    if is_image_prompt:
         return await image.generate_image_base64(req.message)
 
     # -------------------------
