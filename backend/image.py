@@ -10,12 +10,14 @@ STABILITY_KEY = config.STABILITY_API_KEY
 # --------------------------------------------------
 # 🎯 PROMPT ENHANCER (VERY IMPORTANT)
 # --------------------------------------------------
-def enhance_prompt(prompt: str):
-    return (
-        f"{prompt}, ultra detailed, high quality, "
-        "cinematic lighting, 4k, professional, sharp focus"
-    )
+def enhance_prompt(prompt, style="realistic"):
+    styles = {
+        "realistic": "ultra realistic, 4k, cinematic lighting",
+        "anime": "anime style, vibrant colors, studio ghibli",
+        "cyberpunk": "cyberpunk, neon lights, futuristic"
+    }
 
+    return f"{prompt}, {styles.get(style, styles['realistic'])}"
 
 # --------------------------------------------------
 # 🖼 IMAGE GENERATOR
