@@ -250,7 +250,7 @@ async function processVoiceInput(audioBlob) {
     const data = await res.json();
     const transcript = data.text || data.transcription || "";
 
-    if (transcript) {
+    if (transcript && transcript.trim()) {
       const chatInput = document.getElementById("chat-input");
       if (chatInput) {
         chatInput.value = transcript;
@@ -258,7 +258,14 @@ async function processVoiceInput(audioBlob) {
         chatInput.style.height = chatInput.scrollHeight + "px";
         chatInput.focus();
         console.log("✅ Voice transcribed:", transcript);
+        
+        // Auto-send after short delay
+        setTimeout(() => {
+          window.sendFromInput();
+        }, 300);
       }
+    } else {
+      alert("Could not transcribe audio. Please try again.");
     }
   } catch (err) {
     console.error("❌ Voice processing error:", err);
