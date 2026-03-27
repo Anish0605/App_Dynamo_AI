@@ -4,10 +4,9 @@ console.log("analysis_ui.js loaded");
 let lastAnalysisData = null;
 let lastAnalyzedFile = null;
 
-document.addEventListener("DOMContentLoaded", () => {
-  const fileInput = document.getElementById("analyze-file-input");
-  if (!fileInput) return;
-
+// Initialize file input handler immediately (not in DOMContentLoaded)
+const fileInput = document.getElementById("analyze-file-input");
+if (fileInput) {
   window.openAnalyzeFile = () => {
     fileInput.value = "";
     fileInput.click();
@@ -47,7 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
       window.isAnalyzingFile = false;
     }
   });
-});
+} else {
+  console.warn("analyze-file-input element not found");
+}
 
 /* --------------------------------------------------
    ANALYSIS RENDER (UNCHANGED)
