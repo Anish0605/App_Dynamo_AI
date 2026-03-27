@@ -41,3 +41,9 @@ exposeLocalhost = true
 [deployment]
 deploymentTarget = "autoscale"
 run = ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5000"]
+
+[userenv]
+
+[userenv.shared]
+OPENAI_API_KEY = "sk-placeholder-openai"
+STABILITY_API_KEY = "placeholder-stability-key"
