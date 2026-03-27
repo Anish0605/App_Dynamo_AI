@@ -29,6 +29,11 @@ function isImagePrompt(text) {
   return /(create|generate|draw|image|picture|illustration|visual|art)/i.test(text);
 }
 
+/* ---------------- VIDEO INTENT ---------------- */
+function isVideoPrompt(text) {
+  return /(generate a video|create a video|make a video|create video|generate video|make video|video of|video about|cinematic video|short video|animate|animation)/i.test(text);
+}
+
 /* ---------------- QUIZ INTENT ---------------- */
 function isQuizPrompt(text) {
   return /(quiz|mcq|multiple choice|test me|questions)/i.test(text);
@@ -190,6 +195,8 @@ window.sendFromInput = async () => {
     return;
   }
 
+  const isVideoReq = !hasFile && isVideoPrompt(msg);
+
   const userId = window.appState?.supabaseUserId;
 
   // ✅ ALWAYS SHOW USER MESSAGE
@@ -214,7 +221,25 @@ window.sendFromInput = async () => {
     return;
   }
 
-  showThinking();
+  // 🎬 Video loading bubble (premium feel)
+  let videoLoadingEl = null;
+  if (isVideoReq) {
+    videoLoadingEl = document.createElement("div");
+    videoLoadingEl.className = "flex justify-start mb-4";
+    videoLoadingEl.innerHTML = `
+      <div class="video-loading-bubble">
+        <div class="video-loading-title">
+          🎬 Creating cinematic video...
+        </div>
+        <div class="video-loading-sub">This may take ~30 seconds. Sit tight!</div>
+        <div class="dynamo-spinner"></div>
+      </div>
+    `;
+    chatContainer.appendChild(videoLoadingEl);
+    scrollToBottom();
+  } else {
+    showThinking();
+  }
 
   try {
     // Filter out quiz/json content from history to prevent contamination
@@ -230,9 +255,18 @@ window.sendFromInput = async () => {
       .slice(-10);
 
     let res;
-    
+
+    // 🎬 Video request — dedicated endpoint
+    if (isVideoReq) {
+      res = await window.callBackend("/generate-video", {
+        message: msg,
+        duration: 5,
+        user_id: window.appState?.supabaseUserId
+      });
+      videoLoadingEl?.remove();
+    }
     // If file is attached, use FormData
-    if (hasFile) {
+    else if (hasFile) {
       const fd = new FormData();
       fd.append("file", window.pendingUploadFile);
       fd.append("message", msg);
@@ -269,11 +303,52 @@ window.sendFromInput = async () => {
       currentChatId = res.chat_id;
     }
 
-    hideThinking();
+    // Hide the right loader
+    if (isVideoReq) {
+      videoLoadingEl?.remove();
+    } else {
+      hideThinking();
+    }
 
     // ✅ Increment local quota count so frontend check stays accurate
     if (window.appState?.supabaseUser) {
       window.appState.supabaseUser.daily_quota_used = (window.appState.supabaseUser.daily_quota_used || 0) + 1;
+    }
+
+    // ---------------- VIDEO ----------------
+    if (res?.type === "video" && res.url) {
+      hideHero();
+
+      const div = document.createElement("div");
+      div.className = "flex justify-start mb-4";
+      div.innerHTML = `
+        <div class="flex flex-col gap-2" style="max-width:480px;">
+          <video
+            src="${res.url}"
+            controls
+            autoplay
+            muted
+            style="max-width:100%; border-radius:12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);"
+          ></video>
+          <div class="flex gap-2">
+            <a href="${res.url}" download="dynamo-video-${Date.now()}.mp4"
+              class="text-xs text-yellow-500 hover:underline flex items-center gap-1">
+              ⬇️ Download Video
+            </a>
+          </div>
+        </div>
+      `;
+      chatContainer.appendChild(div);
+      scrollToBottom();
+
+      window.chatHistory.push({ role: "assistant", content: "[Video Generated]" });
+      if (window.appState?.supabaseUserId) saveMessage("assistant", "[Video Generated]");
+      return;
+    }
+
+    if (res?.type === "video") {
+      renderAssistantMessage("⚠️ Video generation failed. Please try again.");
+      return;
     }
 
     // ---------------- IMAGE ----------------

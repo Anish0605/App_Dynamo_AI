@@ -15,6 +15,7 @@ import image
 import voice
 import analysis
 import export
+import video
 import supabase_client
 
 from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
@@ -396,6 +397,26 @@ async def export_audio(req: ChatReq):
     Downloads AI response as MP3 (single voice).
     """
     return await voice.generate_simple_voice(req.message)
+
+# --------------------------------------------------
+# 🎬 VIDEO GENERATION
+# --------------------------------------------------
+
+class VideoReq(BaseModel):
+    message: str
+    duration: int = 5
+    user_id: str | None = None
+
+@app.post("/generate-video")
+async def generate_video(req: VideoReq):
+    """
+    Generate a short cinematic video using Runway Gen-3 Turbo.
+    Duration locked at 5s for cost control.
+    """
+    return await video.generate_video(
+        prompt=req.message,
+        duration=min(req.duration, 5)   # Hard cap at 5s
+    )
 
 # --------------------------------------------------
 # STATIC FILES (frontend — must come last)
