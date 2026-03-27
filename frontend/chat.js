@@ -204,8 +204,10 @@ window.sendFromInput = async () => {
       .slice(-15)
       .filter(msg => {
         const content = msg.content || "";
-        // Skip messages that are quiz JSON or technical formatting
-        return !(content.startsWith("{") && content.includes("quiz"));
+        // Skip structured data (quiz JSON, analysis JSON, etc)
+        const isStructuredData = content.trim().startsWith("{") && 
+          (content.includes("quiz") || content.includes("analysis") || content.includes("questions"));
+        return !isStructuredData;
       })
       .slice(-10);
 
@@ -257,6 +259,9 @@ window.sendFromInput = async () => {
         const parsed = JSON.parse(cleanText);
 
         window.renderQuiz(parsed.quiz);
+        
+        // ✅ Don't save quiz to chatHistory - it contaminates context
+        window.chatHistory.push({ role: "assistant", content: "[Quiz rendered]" });
 
         return; // ✅ CRITICAL FIX (STOP DOUBLE RESPONSE)
 
