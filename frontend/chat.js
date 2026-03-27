@@ -171,15 +171,19 @@ window.sendFromInput = async () => {
     if (window.isSending) return;
     window.isSending = true;
   const msg = chatInput.value.trim();
-  if (!msg) {
-  window.isSending = false;
-  return;
-}
+  
+  // Allow sending if there's a message OR a pending file
+  const hasFile = window.pendingUploadFile && window.pendingUploadFile.size > 0;
+  if (!msg && !hasFile) {
+    window.isSending = false;
+    return;
+  }
 
   const userId = window.appState?.supabaseUserId;
 
   // ✅ ALWAYS SHOW USER MESSAGE
-  renderUserMessage(msg);
+  if (msg) renderUserMessage(msg);
+  if (hasFile) renderUserMessage(`📎 Analyzing: ${window.pendingUploadFile.name}`);
 
   // 🔒 LOGIN CHECK
   if (!userId) {
@@ -193,6 +197,9 @@ window.sendFromInput = async () => {
   const limit = await checkMessageLimit();
   if (!limit.allowed) {
     renderAssistantMessage(limit.message || "⚠️ Daily limit reached.");
+    window.isSending = false;
+    window.pendingUploadFile = null;
+    window.clearUploadFile?.();
     return;
   }
 
@@ -211,17 +218,41 @@ window.sendFromInput = async () => {
       })
       .slice(-10);
 
-    const payload = {
-      message: isQuizPrompt(msg) ? buildQuizPrompt(msg) : msg,
-      history: cleanHistory,
-      use_search: true,
-      deep_dive: true,
-      force_image: isImagePrompt(msg),
-      chat_id: currentChatId,
-      user_id: window.appState?.supabaseUserId
-    };
+    let res;
+    
+    // If file is attached, use FormData
+    if (hasFile) {
+      const fd = new FormData();
+      fd.append("file", window.pendingUploadFile);
+      fd.append("message", msg);
+      fd.append("history", JSON.stringify(cleanHistory));
+      fd.append("use_search", "true");
+      fd.append("deep_dive", "true");
+      fd.append("chat_id", currentChatId || "");
+      fd.append("user_id", window.appState?.supabaseUserId || "");
+      
+      res = await fetch(`${window.BACKEND_URL}/chat`, {
+        method: "POST",
+        body: fd
+      }).then(r => r.json());
+      
+      // Clear file after sending
+      window.pendingUploadFile = null;
+      window.clearUploadFile?.();
+    } else {
+      // Regular JSON send
+      const payload = {
+        message: isQuizPrompt(msg) ? buildQuizPrompt(msg) : msg,
+        history: cleanHistory,
+        use_search: true,
+        deep_dive: true,
+        force_image: isImagePrompt(msg),
+        chat_id: currentChatId,
+        user_id: window.appState?.supabaseUserId
+      };
 
-    const res = await window.callBackend("/chat", payload);
+      res = await window.callBackend("/chat", payload);
+    }
 
     if (res?.chat_id) {
       currentChatId = res.chat_id;

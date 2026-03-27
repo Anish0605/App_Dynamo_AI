@@ -1,8 +1,11 @@
-// analysis_ui.js — Dynamo AI (PHASE-2 + RADIO MODE)
+// analysis_ui.js — Dynamo AI (CHATGPT-STYLE FILE UPLOAD)
 console.log("analysis_ui.js loaded");
 
 let lastAnalysisData = null;
 let lastAnalyzedFile = null;
+
+// Store pending file for ChatGPT-style UX (upload → type → send)
+window.pendingUploadFile = null;
 
 // Initialize file input handler immediately (not in DOMContentLoaded)
 const fileInput = document.getElementById("analyze-file-input");
@@ -16,42 +19,62 @@ if (fileInput) {
     const file = fileInput.files[0];
     if (!file) return;
 
-    window.isAnalyzingFile = true;
-
-    const fd = new FormData();
-    fd.append("file", file);
-
-    try {
-      const res = await fetch(`${window.BACKEND_URL}/analyze-data`, {
-        method: "POST",
-        body: fd
-      });
-
-      if (!res.ok) throw new Error("Analyze failed");
-
-      const data = await res.json();
-      lastAnalysisData = data;
-      lastAnalyzedFile = file.name;
-
-      renderAnalysis(data);
-
-      // 🔊 RADIO MODE AUTO-PLAY
-      if (window.dynamoUI?.audio?.radioMode && data?.content) {
-        window.playRadioFromAnalysis?.(data.content);
-      }
-
-    } catch (err) {
-      console.error(err);
-    } finally {
-      window.isAnalyzingFile = false;
-    }
+    // Store file for later send (ChatGPT style)
+    window.pendingUploadFile = file;
+    
+    // Show file chip in input area
+    showUploadChip(file.name);
+    
+    console.log("📎 File ready:", file.name);
   });
 } else {
   console.warn("analyze-file-input element not found");
 }
 
+// Show file attachment chip
+function showUploadChip(filename) {
+  let chipContainer = document.getElementById("file-chip-container");
+  
+  if (!chipContainer) {
+    const inputArea = document.querySelector('[class*="input"]');
+    chipContainer = document.createElement("div");
+    chipContainer.id = "file-chip-container";
+    chipContainer.className = "flex flex-wrap gap-2 mb-2 px-4";
+    // Insert before the main input row
+    const mainInput = document.querySelector('[class*="border-2"][class*="border-yellow"]');
+    if (mainInput?.parentElement) {
+      mainInput.parentElement.insertBefore(chipContainer, mainInput);
+    }
+  }
+  
+  // Clear old chips
+  chipContainer.innerHTML = "";
+  
+  // Create chip
+  const chip = document.createElement("div");
+  chip.className = "flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-full text-sm text-gray-700 dark:text-gray-300 border border-blue-300 dark:border-blue-700";
+  chip.innerHTML = `
+    <i data-lucide="paperclip" class="w-4 h-4"></i>
+    <span>${filename}</span>
+    <button onclick="window.clearUploadFile()" class="ml-1 hover:text-red-500">
+      <i data-lucide="x" class="w-3 h-3"></i>
+    </button>
+  `;
+  
+  chipContainer.appendChild(chip);
+  lucide.createIcons();
+}
+
+// Clear uploaded file
+window.clearUploadFile = () => {
+  window.pendingUploadFile = null;
+  const chipContainer = document.getElementById("file-chip-container");
+  if (chipContainer) chipContainer.innerHTML = "";
+  console.log("📎 File cleared");
+};
+
 /* --------------------------------------------------
-   ANALYSIS RENDER (UNCHANGED)
+   ANALYSIS RENDER
 -------------------------------------------------- */
 function renderAnalysis(data) {
   if (!data || !data.type) return;
