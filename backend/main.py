@@ -17,7 +17,7 @@ import analysis
 import export
 import supabase_client
 
-from supabase_client import (get_or_create_user,create_chat,save_message,fetch_chat_messages)
+from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
 from presentation_engine import build_presentation
 
@@ -107,7 +107,8 @@ async def chat(req: ChatReq):
     # -------------------------
     user = None
     if req.user_id:
-        user = get_or_create_user(req.user_id)
+        # user_id from frontend is always the Supabase UUID (not firebase_uid)
+        user = get_user_by_supabase_id(req.user_id)
     # -------------------------
     # 🚫 1.1 QUOTA CHECK (ADD HERE)
     # -------------------------

@@ -229,6 +229,11 @@ window.sendFromInput = async () => {
 
     hideThinking();
 
+    // ✅ Increment local quota count so frontend check stays accurate
+    if (window.appState?.supabaseUser) {
+      window.appState.supabaseUser.daily_quota_used = (window.appState.supabaseUser.daily_quota_used || 0) + 1;
+    }
+
     // ---------------- IMAGE ----------------
     if (res?.type === "image_v2" && res.content) {
       renderAssistantMessage(`<img src="${res.content}" class="rounded-lg"/>`);

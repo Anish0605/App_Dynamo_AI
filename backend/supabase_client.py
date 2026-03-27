@@ -90,20 +90,67 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
         return None
 
 # --------------------------------------------------
+# 🔥 GET USER BY SUPABASE ID (for backend quota checks)
+# --------------------------------------------------
+
+def get_user_by_supabase_id(supabase_id):
+    """Look up a user by their Supabase UUID (the 'id' column).
+    Also runs daily quota reset if needed."""
+    if not supabase or not supabase_id:
+        return None
+
+    try:
+        res = supabase.table("users") \
+            .select("*") \
+            .eq("id", supabase_id) \
+            .execute()
+
+        if not res.data:
+            return None
+
+        user = res.data[0]
+
+        # Daily reset
+        today = date.today().isoformat()
+        if user.get("quota_date") != today:
+            try:
+                supabase.table("users") \
+                    .update({
+                        "daily_quota_used": 0,
+                        "quota_date": today
+                    }) \
+                    .eq("id", user["id"]) \
+                    .execute()
+
+                user["daily_quota_used"] = 0
+                user["quota_date"] = today
+                print("✅ Daily quota reset for user:", supabase_id)
+
+            except Exception as e:
+                print("Quota reset error:", e)
+
+        return user
+
+    except Exception as e:
+        print("get_user_by_supabase_id error:", e)
+        return None
+
+
+# --------------------------------------------------
 # 🔥 QUOTA CHECK
 # --------------------------------------------------
 
 def check_user_quota(user):
     if not user:
-        return True  # allow if no user
+        return True  # allow if no user (anonymous)
 
     plan = user.get("plan", "free")
     used = user.get("daily_quota_used", 0)
 
     if plan == "plus":
-        return True  # unlimited
-
-    limit = 10  # free plan
+        limit = 100
+    else:
+        limit = 10  # free plan
 
     return used < limit
 
@@ -122,6 +169,9 @@ def increment_quota(user):
             }) \
             .eq("id", user["id"]) \
             .execute()
+
+        # Also update local dict so caller has fresh value
+        user["daily_quota_used"] = new_value
 
     except Exception as e:
         print("Quota increment error:", e)
