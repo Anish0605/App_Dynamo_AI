@@ -39,8 +39,10 @@ async def generate_image_base64(prompt: str):
                     json=payload,
                     timeout=60
                 ) as resp:
+                    print(f"OpenAI Status: {resp.status}")
                     if resp.status == 200:
                         data = await resp.json()
+                        print(f"OpenAI Response: {data}")
                         
                         img_b64 = data.get("data", [{}])[0].get("b64_json")
                         if img_b64:
@@ -50,8 +52,11 @@ async def generate_image_base64(prompt: str):
                                 "prompt": prompt,
                                 "source": "openai"
                             }
+                    else:
+                        error_text = await resp.text()
+                        print(f"OpenAI Error ({resp.status}): {error_text}")
             except Exception as e:
-                print("OpenAI image generation failed:", str(e))
+                print(f"OpenAI image generation exception: {str(e)}")
 
         # ===============================
         # 2️⃣ FALLBACK – STABILITY AI (SDXL)
