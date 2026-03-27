@@ -199,9 +199,19 @@ window.sendFromInput = async () => {
   showThinking();
 
   try {
+    // Filter out quiz/json content from history to prevent contamination
+    const cleanHistory = window.chatHistory
+      .slice(-15)
+      .filter(msg => {
+        const content = msg.content || "";
+        // Skip messages that are quiz JSON or technical formatting
+        return !(content.startsWith("{") && content.includes("quiz"));
+      })
+      .slice(-10);
+
     const payload = {
       message: isQuizPrompt(msg) ? buildQuizPrompt(msg) : msg,
-      history: window.chatHistory.slice(-10),
+      history: cleanHistory,
       use_search: true,
       deep_dive: true,
       force_image: isImagePrompt(msg),
