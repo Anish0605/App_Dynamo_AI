@@ -687,49 +687,88 @@ window.sendFromInput = async () => {
             downloadBtn.disabled = true;
             downloadBtn.innerHTML = "⏳ Generating...";
             
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            canvas.width = 600;
-            canvas.height = 800;
-            
-            ctx.fillStyle = "#1a1a1a";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            function drawNode(node, x, y, level = 0) {
-              const nodeHeight = 40;
-              const nodeWidth = 200;
-              const verticalSpacing = 80;
-              
-              ctx.fillStyle = level === 0 ? "#EAB308" : "#444";
-              ctx.strokeStyle = "#EAB308";
-              ctx.lineWidth = 2;
-              ctx.fillRect(x - nodeWidth / 2, y, nodeWidth, nodeHeight);
-              ctx.strokeRect(x - nodeWidth / 2, y, nodeWidth, nodeHeight);
-              
-              ctx.fillStyle = level === 0 ? "#111" : "#fff";
-              ctx.font = (level === 0 ? "bold 14px" : "12px") + " Arial";
-              ctx.textAlign = "center";
-              ctx.textBaseline = "middle";
-              const label = (node.label || "Node").substring(0, 20);
-              ctx.fillText(label, x, y + nodeHeight / 2);
-              
-              let childX = x - 150;
+            // Calculate tree dimensions first
+            function getTreeDimensions(node, level = 0) {
+              let height = 1;
+              let width = 1;
               if (node.children && Array.isArray(node.children)) {
                 node.children.forEach(child => {
-                  ctx.strokeStyle = "#EAB308";
-                  ctx.lineWidth = 1;
-                  ctx.beginPath();
-                  ctx.moveTo(x, y + nodeHeight);
-                  ctx.lineTo(childX + 100, y + verticalSpacing);
-                  ctx.stroke();
-                  
-                  drawNode(child, childX + 100, y + verticalSpacing, level + 1);
-                  childX += 250;
+                  const childDim = getTreeDimensions(child, level + 1);
+                  height += childDim.height;
+                  width = Math.max(width, childDim.width + 1);
                 });
               }
+              return { height, width };
             }
             
-            drawNode(res.root, canvas.width / 2, 50);
+            const treeDim = getTreeDimensions(res.root);
+            const nodeHeight = 50;
+            const nodeWidth = 220;
+            const horizontalSpacing = 280;
+            const verticalSpacing = 120;
+            const padding = 60;
+            
+            const canvasHeight = Math.max(800, (treeDim.height * verticalSpacing) + padding * 2);
+            const canvasWidth = Math.max(1000, (treeDim.width * horizontalSpacing) + padding * 2);
+            
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            
+            // White background for better clarity
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            function drawNode(node, x, y, level = 0, childrenCount = 1, childIndex = 0) {
+              const nodeH = nodeHeight;
+              const nodeW = nodeWidth;
+              
+              // Draw connecting lines first
+              if (node.children && Array.isArray(node.children) && node.children.length > 0) {
+                const totalChildren = node.children.length;
+                const startX = x;
+                const startY = y + nodeH;
+                
+                let childX = x - ((totalChildren - 1) * horizontalSpacing) / 2;
+                
+                node.children.forEach((child, idx) => {
+                  const childY = y + verticalSpacing;
+                  
+                  // Draw line
+                  ctx.strokeStyle = "#EAB308";
+                  ctx.lineWidth = 2;
+                  ctx.beginPath();
+                  ctx.moveTo(startX, startY);
+                  ctx.lineTo(childX, childY);
+                  ctx.stroke();
+                  
+                  drawNode(child, childX, childY, level + 1, totalChildren, idx);
+                  childX += horizontalSpacing;
+                });
+              }
+              
+              // Draw node box
+              ctx.fillStyle = level === 0 ? "#EAB308" : "#f0f0f0";
+              ctx.strokeStyle = "#EAB308";
+              ctx.lineWidth = 2;
+              ctx.fillRect(x - nodeW / 2, y, nodeW, nodeH);
+              ctx.strokeRect(x - nodeW / 2, y, nodeW, nodeH);
+              
+              // Draw text
+              ctx.fillStyle = level === 0 ? "#111" : "#222";
+              ctx.font = (level === 0 ? "bold 15px" : "14px") + " Arial";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              
+              const label = node.label || "Node";
+              const maxChars = level === 0 ? 25 : 28;
+              const displayLabel = label.length > maxChars ? label.substring(0, maxChars - 3) + "..." : label;
+              
+              ctx.fillText(displayLabel, x, y + nodeH / 2);
+            }
+            
+            drawNode(res.root, canvas.width / 2, padding);
             
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
