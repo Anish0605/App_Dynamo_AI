@@ -90,6 +90,17 @@ async def chat(req: ChatReq):
 
     msg_lower = req.message.lower()
 
+    # 📊 Flowchart Detection (CHECK FIRST)
+    FLOWCHART_KEYWORDS = [
+        "flowchart",
+        "process flow",
+        "workflow",
+        "steps"
+    ]
+
+    if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
+        return flowchart.generate_flowchart(req.message)
+
     # 🖼 Image Detection (FLEXIBLE)
     IMAGE_KEYWORDS = [
         "create an image",
@@ -115,17 +126,6 @@ async def chat(req: ChatReq):
     # 🖼 Image (NO CHANGE)
     if is_image_prompt:
         return await image.generate_image_base64(req.message)
-
-    # 📊 Flowchart Detection (ADDED NOW)
-    FLOWCHART_KEYWORDS = [
-        "flowchart",
-        "process flow",
-        "workflow",
-        "steps"
-    ]
-
-    if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
-        return flowchart.generate_flowchart(req.message)
 
     # -------------------------
     # 🧠 1. USER HANDLING
