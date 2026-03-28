@@ -98,6 +98,19 @@ async def chat(req: ChatReq):
     if any(k in msg_lower for k in VIDEO_KEYWORDS):
     import video
     return await video.generate_video(req.message)
+
+    # MINDMAPS (ADDED NOW)
+    MINDMAP_KEYWORDS = [
+    "mindmap",
+    "mind map",
+    "idea map",
+    "brainstorm"
+    ]
+
+    if any(k in msg_lower for k in MINDMAP_KEYWORDS):
+    import mindmap
+    return mindmap.generate_mindmap(req.message)
+
     # FLOWCHART (ADDED NOW)
     FLOWCHART_KEYWORDS = [
         "flowchart",
