@@ -197,27 +197,6 @@ def create_chat(user_id, title="New Chat"):
         return None
 
 
-def update_chat_file_info(chat_id, filename, file_size=None):
-    """Store file metadata with a chat (PDF Plan)"""
-    if not supabase:
-        return None
-
-    try:
-        res = supabase.table("chats").update({
-            "file_info": {
-                "filename": filename,
-                "file_size": file_size,
-                "uploaded_at": datetime.utcnow().isoformat()
-            }
-        }).eq("id", chat_id).execute()
-
-        return res.data[0] if res.data else None
-
-    except Exception as e:
-        print("Update chat file info error:", e)
-        return None
-
-
 def list_user_chats(user_id):
     if not supabase:
         return []

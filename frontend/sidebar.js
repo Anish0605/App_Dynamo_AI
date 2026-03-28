@@ -136,10 +136,7 @@ function renderSidebarItem(chat, box) {
     wrapper.appendChild(badge);
   }
 
-  /* --- Title + File Info --- */
-  const titleContainer = document.createElement("div");
-  titleContainer.className = "flex-1 min-w-0";
-  
+  /* --- Title --- */
   const title = document.createElement("div");
   title.className = [
     "flex-1 text-[13px] font-semibold truncate",
@@ -153,16 +150,6 @@ function renderSidebarItem(chat, box) {
     await window.loadChatHistory();
     await window.loadChatSidebar();
   };
-  
-  titleContainer.appendChild(title);
-  
-  // 📄 PDF PLAN: Show file info if available
-  if (chat.file_info && chat.file_info.filename) {
-    const fileLabel = document.createElement("div");
-    fileLabel.className = "text-[11px] text-gray-500 dark:text-gray-400 truncate";
-    fileLabel.innerHTML = `📄 ${chat.file_info.filename}`;
-    titleContainer.appendChild(fileLabel);
-  }
 
   /* --- Action buttons --- */
   const actions = document.createElement("div");
@@ -229,7 +216,7 @@ function renderSidebarItem(chat, box) {
   actions.appendChild(smartBtn);
   actions.appendChild(delBtn);
 
-  wrapper.appendChild(titleContainer);
+  wrapper.appendChild(title);
   wrapper.appendChild(actions);
   box.appendChild(wrapper);
 }
