@@ -34,8 +34,7 @@ async def generate_video(prompt: str, duration: int = 5) -> dict:
                 json={
                     "promptText": prompt,
                     "duration": duration,   # 5s — cost controlled
-                    "ratio": "1280:720",
-                    "model": "gen3a_turbo"
+                    "model": "gen3"
                 }
             )
         except Exception as e:
