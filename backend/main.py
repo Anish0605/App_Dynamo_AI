@@ -17,6 +17,7 @@ import analysis
 import export
 import video
 import supabase_client
+import flowchart
 
 from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
@@ -114,6 +115,17 @@ async def chat(req: ChatReq):
     # 🖼 Image (NO CHANGE)
     if is_image_prompt:
         return await image.generate_image_base64(req.message)
+
+    # 📊 Flowchart Detection (ADDED NOW)
+    FLOWCHART_KEYWORDS = [
+        "flowchart",
+        "process flow",
+        "workflow",
+        "steps"
+    ]
+
+    if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
+        return flowchart.generate_flowchart(req.message)
 
     # -------------------------
     # 🧠 1. USER HANDLING

@@ -458,6 +458,48 @@ window.sendFromInput = async () => {
       return;
     }
 
+    // ---------------- FLOWCHART ----------------
+    if (res?.type === "flowchart" && res.nodes) {
+      hideHero();
+      
+      const container = document.createElement("div");
+      container.style.display = "flex";
+      container.style.flexDirection = "column";
+      container.style.alignItems = "center";
+
+      res.nodes.forEach((node, index) => {
+        const box = document.createElement("div");
+        box.innerText = node.label;
+        box.style.padding = "10px 15px";
+        box.style.border = "2px solid #EAB308";
+        box.style.borderRadius = "8px";
+        box.style.margin = "10px";
+        box.style.background = "#111";
+        box.style.color = "#fff";
+        box.style.fontWeight = "500";
+
+        container.appendChild(box);
+
+        if (index < res.nodes.length - 1) {
+          const arrow = document.createElement("div");
+          arrow.innerText = "↓";
+          arrow.style.fontSize = "20px";
+          arrow.style.color = "#EAB308";
+          container.appendChild(arrow);
+        }
+      });
+
+      const div = document.createElement("div");
+      div.className = "flex justify-start mb-4";
+      div.appendChild(container);
+      chatContainer.appendChild(div);
+      scrollToBottom();
+
+      window.chatHistory.push({ role: "assistant", content: "[Flowchart Generated]" });
+      if (window.appState?.supabaseUserId) saveMessage("assistant", "[Flowchart Generated]");
+      return;
+    }
+
     // ---------------- QUIZ ----------------
     if (res.content && res.content.includes('"quiz"')) {
       try {
