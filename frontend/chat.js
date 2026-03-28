@@ -312,11 +312,14 @@ window.sendFromInput = async () => {
     }
     else {
       // Regular JSON send (no file)
+      const isSearchMode = window.dynamoUI?.tools?.has('search') || false;
+      const isDeepMode = window.dynamoUI?.tools?.has('deep') || window.dynamoUI?.model === 'research' || false;
+
       const payload = {
         message: isQuizPrompt(msg) ? buildQuizPrompt(msg) : msg,
         history: cleanHistory,
-        use_search: true,
-        deep_dive: true,
+        use_search: isSearchMode,
+        deep_dive: isDeepMode,
         force_image: isImagePrompt(msg),
         chat_id: currentChatId,
         user_id: window.appState?.supabaseUserId
@@ -861,7 +864,7 @@ window.sendFromInput = async () => {
     }
 
     // ---------------- SINGLE RESPONSE (FIX) ----------------
-    renderAssistantMessage(res.content || "", res.content);
+    renderAssistantMessage(res.content || "", res.content, true, res.sources || []);
   } catch (e) {
   console.error("Chat error:", e);
   hideThinking();
@@ -920,17 +923,18 @@ function renderUserMessage(text, save = true) {
 window.renderUserMessage = renderUserMessage;
 
 // ---------------- ASSISTANT MESSAGE ----------------
-function renderAssistantMessage(html, rawText = "", save = true) {
+function renderAssistantMessage(html, rawText = "", save = true, sources = []) {
   hideHero();
 
   const div = document.createElement("div");
   div.className = "flex justify-start mb-4";
 
-  // ✅ SINGLE message box (FIXED)
   div.innerHTML = `
     <div class="flex items-start gap-2">
 
-      <div class="bg-gray-100 dark:bg-gray-700 dark:text-white dark:border dark:border-gray-600 px-4 py-2 rounded-2xl max-w-[75%] text-sm shadow assistant-msg">
+      <div class="bg-gray-100 dark:bg-gray-700 dark:text-white dark:border dark:border-gray-600 px-4 py-2 rounded-2xl max-w-[75%] text-sm shadow assistant-msg-wrapper">
+        <div class="assistant-msg"></div>
+        <div class="sources-badge-container"></div>
       </div>
 
       <div class="flex flex-col gap-1 mt-1">
@@ -947,22 +951,57 @@ function renderAssistantMessage(html, rawText = "", save = true) {
 
   chatContainer.appendChild(div);
 
-  // ✅ USE SAME BOX (NO DOUBLE BOX)
   const messageBox = div.querySelector(".assistant-msg");
+  const sourcesBadgeContainer = div.querySelector(".sources-badge-container");
 
   const text = rawText || html || "";
 
   const stopTyping = typeText(messageBox, text);
 
-    setTimeout(() => {
-  stopTyping(); // 🔥 STOP typing loop
+  setTimeout(() => {
+    stopTyping();
+    try {
+      messageBox.innerHTML = marked.parse(text);
+    } catch {
+      messageBox.innerText = text;
+    }
 
-  try {
-    messageBox.innerHTML = marked.parse(text);
-  } catch {
-    messageBox.innerText = text;
-  }
-}, Math.min(800, text.length * 5));
+    // 🔗 SOURCES BADGE (Perplexity-style) — show after text renders
+    if (sources && sources.length > 0) {
+      const query = window.chatHistory
+        .filter(m => m.role === "user")
+        .slice(-1)[0]?.content || "";
+
+      const badge = document.createElement("button");
+      badge.className = [
+        "inline-flex items-center gap-1.5 mt-3 px-3 py-1.5",
+        "bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40",
+        "border border-blue-200 dark:border-blue-700 rounded-full",
+        "text-xs font-semibold text-blue-700 dark:text-blue-300",
+        "transition-all duration-150 group"
+      ].join(" ");
+
+      badge.innerHTML = `
+        <span class="flex -space-x-1 mr-0.5">
+          ${sources.slice(0, 3).map(s => {
+            const domain = (() => { try { return new URL(s.url || "").hostname.replace(/^www\./, ""); } catch { return ""; } })();
+            return domain
+              ? `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=16" class="w-3.5 h-3.5 rounded-full border border-white dark:border-gray-800" alt="">`
+              : `<span class="w-3.5 h-3.5 rounded-full bg-blue-300 border border-white dark:border-gray-800"></span>`;
+          }).join("")}
+        </span>
+        <span>${sources.length} source${sources.length !== 1 ? "s" : ""}</span>
+        <i data-lucide="chevron-right" class="w-3 h-3 opacity-60 group-hover:translate-x-0.5 transition-transform"></i>
+      `;
+
+      badge.addEventListener("click", () => {
+        window.openSourcesPanel(sources, query);
+      });
+
+      sourcesBadgeContainer.appendChild(badge);
+      if (window.lucide) window.lucide.createIcons();
+    }
+  }, Math.min(800, text.length * 5));
 
   lucide.createIcons();
 
@@ -972,14 +1011,9 @@ function renderAssistantMessage(html, rawText = "", save = true) {
   // 🔊 PLAY AUDIO (SAFE)
   playBtn?.addEventListener("click", () => {
     if (!text) return;
-
     playBtn.classList.add("scale-110");
-
     readAloud(text, playBtn);
-
-    setTimeout(() => {
-      playBtn.classList.remove("scale-110");
-    }, 200);
+    setTimeout(() => playBtn.classList.remove("scale-110"), 200);
   });
 
   // ⬇️ DOWNLOAD AUDIO (FIXED)
