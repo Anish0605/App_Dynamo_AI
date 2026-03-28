@@ -1,93 +1,107 @@
-# video.py — Dynamo AI Video Generation (Runway ML Gen-3)
+# video.py — Dynamo AI Video Generation (Runway ML)
 
 import httpx
 import asyncio
 import config
 
 RUNWAY_BASE = "https://api.dev.runwayml.com/v1"
-RUNWAY_VERSION = "2024-11-06"
 
 
 async def generate_video(prompt: str, duration: int = 5) -> dict:
     """
-    Generate a short video using Runway Gen-3 Turbo.
-    Duration is kept at 5s by default for cost control.
+    Generate a short video using Runway Gen-3a Turbo.
+    Duration is capped at 5s for cost control.
     """
     if not config.RUNWAY_API_KEY:
         return {
             "type": "error",
-            "content": "Video generation is not configured. Please add RUNWAY_API_KEY."
+            "content": "Video generation is not configured. RUNWAY_API_KEY missing."
         }
 
     headers = {
         "Authorization": f"Bearer {config.RUNWAY_API_KEY}",
         "Content-Type": "application/json",
-        "X-Runway-Version": RUNWAY_VERSION
+        "X-Runway-Version": "2024-11-06"
     }
 
+    # Clamp duration to valid Runway values (5 or 10)
+    safe_duration = 5 if duration <= 5 else 10
+
+    payload = {
+        "model": "gen4.5",
+        "promptText": prompt,
+        "duration": safe_duration,
+        "ratio": "1280:720"
+    }
+
+    print(f"🎬 Runway request → model: gen4.5 | duration: {safe_duration}s")
+    print(f"🎬 Payload: {payload}")
+
     async with httpx.AsyncClient(timeout=180) as client:
-        # Submit text-to-video task
+
+        # ── Step 1: Submit job ──────────────────────────────────────────────
         try:
             resp = await client.post(
                 f"{RUNWAY_BASE}/text_to_video",
                 headers=headers,
-                json={
-                    "promptText": prompt,
-                    "duration": duration,   # 5s — cost controlled
-                    "model": "gen3_turbo"
-                }
+                json=payload
             )
         except Exception as e:
-            return {"type": "error", "content": f"Failed to reach Runway API: {str(e)}"}
+            return {"type": "error", "content": f"Network error reaching Runway: {str(e)}"}
+
+        print(f"🎬 Runway status code: {resp.status_code}")
+        print(f"🎬 Runway response body: {resp.text[:500]}")
 
         if resp.status_code not in (200, 201):
             return {
                 "type": "error",
-                "content": f"Runway API error ({resp.status_code}): {resp.text[:300]}"
+                "content": f"Runway API error ({resp.status_code}): {resp.text[:400]}"
             }
 
         task_data = resp.json()
         task_id = task_data.get("id")
+        print(f"🎬 Task ID: {task_id}")
 
         if not task_id:
-            return {"type": "error", "content": "No task ID returned from Runway."}
+            return {"type": "error", "content": f"No task ID from Runway. Response: {task_data}"}
 
-        # Poll for completion — max ~3 minutes (36 * 5s)
-        for _ in range(36):
+        # ── Step 2: Poll for result ─────────────────────────────────────────
+        for attempt in range(36):   # max 3 min (36 × 5s)
             await asyncio.sleep(5)
 
             try:
-                status_resp = await client.get(
+                poll = await client.get(
                     f"{RUNWAY_BASE}/tasks/{task_id}",
                     headers=headers
                 )
             except Exception:
                 continue
 
-            if status_resp.status_code != 200:
+            if poll.status_code != 200:
                 continue
 
-            task = status_resp.json()
+            task = poll.json()
             status = task.get("status")
+            print(f"🎬 Poll {attempt+1}: status={status}")
 
             if status == "SUCCEEDED":
                 outputs = task.get("output", [])
                 video_url = outputs[0] if outputs else None
-
                 if video_url:
+                    print(f"✅ Video URL: {video_url[:80]}...")
                     return {
                         "type": "video",
                         "url": video_url,
-                        "content": f"Here's your generated video for: {prompt}"
+                        "content": f"Your video is ready: {prompt[:60]}"
                     }
-                return {"type": "error", "content": "Video succeeded but no URL returned."}
+                return {"type": "error", "content": "Video succeeded but no URL in response."}
 
             elif status in ("FAILED", "CANCELLED"):
-                error_msg = task.get("failure", "Unknown error")
-                return {"type": "error", "content": f"Video generation failed: {error_msg}"}
+                reason = task.get("failure") or task.get("error") or "Unknown"
+                print(f"❌ Runway failed: {reason}")
+                return {"type": "error", "content": f"Video generation failed: {reason}"}
 
-        # Timeout
         return {
             "type": "error",
-            "content": "⏱ Video generation timed out. Please try again."
+            "content": "⏱ Video generation timed out after 3 minutes. Please try again."
         }
