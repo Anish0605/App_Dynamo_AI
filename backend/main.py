@@ -181,8 +181,10 @@ async def chat(req: ChatReq):
     # 🔍 4. SEARCH
     # -------------------------
     context = ""
+    sources = []
     if req.use_search:
         context = search.get_web_context(req.message, req.deep_dive)
+        sources = search.get_sources(req.message, req.deep_dive)
 
     # -------------------------
     # 🤖 5. AI RESPONSE
@@ -212,7 +214,8 @@ async def chat(req: ChatReq):
     return {
         "type": "text",
         "content": response,
-        "chat_id": chat_id
+        "chat_id": chat_id,
+        "sources": sources if req.use_search else []
     }
 
 # --------------------------------------------------

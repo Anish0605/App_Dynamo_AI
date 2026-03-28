@@ -57,3 +57,36 @@ def get_web_context(query, deep_dive=False):
     except Exception as e:
         print("Search Error:", e)
         return ""
+
+
+def get_sources(query, deep_dive=False):
+    """
+    Fetches sources for research mode (returns structured JSON)
+    Returns list of {title, url, snippet}
+    """
+    if not tavily_client or not isinstance(query, str):
+        return []
+
+    safe_query = query.strip()[:350]
+
+    try:
+        search_depth = "advanced" if deep_dive else "basic"
+        results = tavily_client.search(
+            query=safe_query,
+            search_depth=search_depth,
+            max_results=10
+        )
+
+        sources = []
+        for r in results.get("results", []):
+            sources.append({
+                "title": str(r.get("title", ""))[:150],
+                "url": str(r.get("url", "")),
+                "snippet": str(r.get("content", ""))[:300]
+            })
+
+        return sources
+
+    except Exception as e:
+        print("Sources fetch error:", e)
+        return []
