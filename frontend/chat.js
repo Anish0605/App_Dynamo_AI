@@ -314,13 +314,17 @@ window.sendFromInput = async () => {
       // Regular JSON send (no file)
       const isSearchMode = window.dynamoUI?.tools?.has('search') || false;
       const isDeepMode = window.dynamoUI?.tools?.has('deep') || window.dynamoUI?.model === 'research' || false;
+      const isResearchMode = window.dynamoUI?.model === 'research' || false;
+
+      // Don't force image generation in Research Mode (prioritize sources/search)
+      const forceImage = isImagePrompt(msg) && !isResearchMode;
 
       const payload = {
         message: isQuizPrompt(msg) ? buildQuizPrompt(msg) : msg,
         history: cleanHistory,
         use_search: isSearchMode,
         deep_dive: isDeepMode,
-        force_image: isImagePrompt(msg),
+        force_image: forceImage,
         chat_id: currentChatId,
         user_id: window.appState?.supabaseUserId
       };
