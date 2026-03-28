@@ -31,7 +31,7 @@ function isImagePrompt(text) {
 
 /* ---------------- VIDEO INTENT ---------------- */
 function isVideoPrompt(text) {
-  return /(generate a video|create a video|make a video|create video|generate video|make video|video of|video about|cinematic video|short video|animate|animation)/i.test(text);
+  return /(generate.*video|create.*video|make.*video|video of|video about|cinematic|short video|animate|animation|generate animation)/i.test(text);
 }
 
 /* ---------------- QUIZ INTENT ---------------- */

@@ -413,10 +413,14 @@ async def generate_video(req: VideoReq):
     Generate a short cinematic video using Runway Gen-3 Turbo.
     Duration locked at 5s for cost control.
     """
-    return await video.generate_video(
+    print(f"🎬 Video request: {req.message[:50]}...")
+    print(f"🎬 Runway API Key configured: {bool(config.RUNWAY_API_KEY)}")
+    result = await video.generate_video(
         prompt=req.message,
         duration=min(req.duration, 5)   # Hard cap at 5s
     )
+    print(f"🎬 Video result: {result.get('type')}")
+    return result
 
 # --------------------------------------------------
 # STATIC FILES (frontend — must come last)
