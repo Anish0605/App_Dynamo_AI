@@ -98,6 +98,17 @@ async def chat(req: ChatReq):
     if any(k in msg_lower for k in VIDEO_KEYWORDS):
     import video
     return await video.generate_video(req.message)
+    # FLOWCHART (ADDED NOW)
+    FLOWCHART_KEYWORDS = [
+        "flowchart",
+        "process flow",
+        "workflow",
+        "steps"
+        ]
+
+    if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
+    import flowchart
+    return flowchart.generate_flowchart(req.message)    
     
     # -------------------------
     # 🧠 1. USER HANDLING
