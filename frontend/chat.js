@@ -186,17 +186,16 @@ async function checkMessageLimit() {
 window.triggerRadioModeInterview = async (filename) => {
   if (!filename || !window.pendingUploadFile) return;
   
-  // Build an interview-style prompt that asks AI to start asking questions
-  const interviewPrompt = `I've uploaded a document: "${filename}". Please ask me conversational questions to understand this document better, as if you're interviewing me. Start with the first question.`;
+  // Build an interview-style prompt (for /chat-with-file endpoint to use)
+  const interviewPrompt = `You have just received a document. Act as a professional interviewer conducting an interview. Ask me conversational, engaging questions to understand the content of this document better. Start with your first question, as if you're interviewing me about it. Make it conversational, not analytical.`;
   
   console.log("🎙️ Starting radio mode interview:", filename);
   
-  // Show user's action
-  renderUserMessage(`📎 File: ${filename}`);
-  
-  // Auto-send the interview prompt
+  // Show user's action - set the input value to trigger the send
   chatInput.value = interviewPrompt;
-  await sendFromInput();
+  
+  // Trigger send which will use /chat-with-file endpoint with the special prompt
+  await window.sendFromInput();
 };
 
 /* =========================================================
@@ -291,14 +290,14 @@ window.sendFromInput = async () => {
       });
       videoLoadingEl?.remove();
     }
-    // If file is attached AND radio mode is NOT active, use FormData for analysis
-    else if (hasFile && !isRadioMode) {
+    // If file is attached, use FormData for analysis/dialogue
+    else if (hasFile) {
       const fd = new FormData();
       fd.append("file", window.pendingUploadFile);
       fd.append("message", msg);
       fd.append("history", JSON.stringify(cleanHistory));
-      fd.append("use_search", "true");
-      fd.append("deep_dive", "true");
+      fd.append("use_search", isRadioMode ? "false" : "true");
+      fd.append("deep_dive", isRadioMode ? "false" : "true");
       fd.append("chat_id", currentChatId || "");
       fd.append("user_id", window.appState?.supabaseUserId || "");
       
@@ -311,28 +310,8 @@ window.sendFromInput = async () => {
       window.pendingUploadFile = null;
       window.clearUploadFile?.();
     }
-    // If file is attached AND radio mode IS active, use normal chat (dialogue mode)
-    else if (hasFile && isRadioMode) {
-      // In radio mode, include file context but use regular chat endpoint
-      // The file content will be mentioned in the message or user will ask about it
-      const payload = {
-        message: msg || `Please discuss the uploaded file: ${window.pendingUploadFile.name}`,
-        history: cleanHistory,
-        use_search: true,
-        deep_dive: true,
-        force_image: false,
-        chat_id: currentChatId,
-        user_id: window.appState?.supabaseUserId
-      };
-
-      res = await window.callBackend("/chat", payload);
-      
-      // Clear file after sending
-      window.pendingUploadFile = null;
-      window.clearUploadFile?.();
-    }
     else {
-      // Regular JSON send
+      // Regular JSON send (no file)
       const payload = {
         message: isQuizPrompt(msg) ? buildQuizPrompt(msg) : msg,
         history: cleanHistory,
@@ -1010,6 +989,14 @@ function renderAssistantMessage(html, rawText = "", save = true) {
   });
 
   scrollToBottom();
+
+  // 🎙️ AUTO-PLAY AUDIO IN RADIO MODE
+  if (window.dynamoUI?.tools?.has('radio') && text && typeof readAloud === 'function') {
+    setTimeout(() => {
+      console.log("🎙️ Auto-playing AI response in radio mode");
+      readAloud(text, playBtn);
+    }, 500);
+  }
 
   window.chatHistory.push({ role: "assistant", content: text });
   if (save) saveMessage("assistant", text);

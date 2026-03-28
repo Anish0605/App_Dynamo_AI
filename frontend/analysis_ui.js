@@ -27,21 +27,29 @@ if (fileInput) {
     // Store file for later send (ChatGPT style)
     window.pendingUploadFile = file;
     
+    // Check radio mode status
+    const radioModeActive = isRadioModeActive();
+    console.log("📎 File ready:", file.name, "| Radio mode:", radioModeActive);
+    console.log("🔍 Debug - dynamoUI.tools:", [...(window.dynamoUI?.tools || [])]);
+    
     // If radio mode is active, show chip and AUTO-SEND initial prompt
-    if (isRadioModeActive()) {
+    if (radioModeActive) {
       console.log("🎧 Radio mode active - initiating dialogue with file");
       showUploadChip(file.name, true); // true = radio mode
       
       // Auto-trigger the initial question prompt after a short delay
-      setTimeout(() => {
-        window.triggerRadioModeInterview(file.name);
+      setTimeout(async () => {
+        console.log("🎙️ Triggering radio mode interview for:", file.name);
+        if (window.triggerRadioModeInterview) {
+          await window.triggerRadioModeInterview(file.name);
+        } else {
+          console.error("❌ triggerRadioModeInterview function not found!");
+        }
       }, 500);
     } else {
       // Normal mode: show chip and optional analysis buttons
       showUploadChip(file.name, false);
     }
-    
-    console.log("📎 File ready:", file.name);
   });
 } else {
   console.warn("analyze-file-input element not found");
