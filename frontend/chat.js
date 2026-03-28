@@ -195,13 +195,20 @@ window.sendFromInput = async () => {
     return;
   }
 
+  // Check if radio mode is active
+  const isRadioMode = window.dynamoUI && window.dynamoUI.tools && window.dynamoUI.tools.has('radio');
+
   const isVideoReq = !hasFile && isVideoPrompt(msg);
 
   const userId = window.appState?.supabaseUserId;
 
   // ✅ ALWAYS SHOW USER MESSAGE
   if (msg) renderUserMessage(msg);
-  if (hasFile) renderUserMessage(`📎 Analyzing: ${window.pendingUploadFile.name}`);
+  // In radio mode, show file indicator differently (no "Analyzing" - just "File loaded")
+  if (hasFile) {
+    const fileLabel = isRadioMode ? `📎 Discussing: ${window.pendingUploadFile.name}` : `📎 Analyzing: ${window.pendingUploadFile.name}`;
+    renderUserMessage(fileLabel);
+  }
 
   // 🔒 LOGIN CHECK
   if (!userId) {
@@ -265,8 +272,8 @@ window.sendFromInput = async () => {
       });
       videoLoadingEl?.remove();
     }
-    // If file is attached, use FormData
-    else if (hasFile) {
+    // If file is attached AND radio mode is NOT active, use FormData for analysis
+    else if (hasFile && !isRadioMode) {
       const fd = new FormData();
       fd.append("file", window.pendingUploadFile);
       fd.append("message", msg);
@@ -284,7 +291,28 @@ window.sendFromInput = async () => {
       // Clear file after sending
       window.pendingUploadFile = null;
       window.clearUploadFile?.();
-    } else {
+    }
+    // If file is attached AND radio mode IS active, use normal chat (dialogue mode)
+    else if (hasFile && isRadioMode) {
+      // In radio mode, include file context but use regular chat endpoint
+      // The file content will be mentioned in the message or user will ask about it
+      const payload = {
+        message: msg || `Please discuss the uploaded file: ${window.pendingUploadFile.name}`,
+        history: cleanHistory,
+        use_search: true,
+        deep_dive: true,
+        force_image: false,
+        chat_id: currentChatId,
+        user_id: window.appState?.supabaseUserId
+      };
+
+      res = await window.callBackend("/chat", payload);
+      
+      // Clear file after sending
+      window.pendingUploadFile = null;
+      window.clearUploadFile?.();
+    }
+    else {
       // Regular JSON send
       const payload = {
         message: isQuizPrompt(msg) ? buildQuizPrompt(msg) : msg,

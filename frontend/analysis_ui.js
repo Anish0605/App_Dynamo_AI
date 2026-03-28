@@ -1,4 +1,4 @@
-// analysis_ui.js — Dynamo AI (CHATGPT-STYLE FILE UPLOAD)
+// analysis_ui.js — Dynamo AI (CHATGPT-STYLE FILE UPLOAD + RADIO MODE AWARE)
 console.log("analysis_ui.js loaded");
 
 let lastAnalysisData = null;
@@ -6,6 +6,11 @@ let lastAnalyzedFile = null;
 
 // Store pending file for ChatGPT-style UX (upload → type → send)
 window.pendingUploadFile = null;
+
+// ===== RADIO MODE CHECK =====
+function isRadioModeActive() {
+  return window.dynamoUI && window.dynamoUI.tools && window.dynamoUI.tools.has('radio');
+}
 
 // Initialize file input handler immediately (not in DOMContentLoaded)
 const fileInput = document.getElementById("analyze-file-input");
@@ -22,8 +27,14 @@ if (fileInput) {
     // Store file for later send (ChatGPT style)
     window.pendingUploadFile = file;
     
-    // Show file chip in input area
-    showUploadChip(file.name);
+    // If radio mode is active, just show the chip and skip analysis buttons
+    if (isRadioModeActive()) {
+      console.log("🎧 Radio mode active - file ready for dialogue (no analysis)");
+      showUploadChip(file.name, true); // true = radio mode
+    } else {
+      // Normal mode: show chip and optional analysis buttons
+      showUploadChip(file.name, false);
+    }
     
     console.log("📎 File ready:", file.name);
   });
@@ -32,7 +43,7 @@ if (fileInput) {
 }
 
 // Show file attachment chip
-function showUploadChip(filename) {
+function showUploadChip(filename, isRadioMode = false) {
   let chipContainer = document.getElementById("file-chip-container");
   
   if (!chipContainer) {
@@ -62,6 +73,19 @@ function showUploadChip(filename) {
   `;
   
   chipContainer.appendChild(chip);
+  
+  // Only show analysis suggestions if NOT in radio mode
+  if (!isRadioMode) {
+    const suggestionDiv = document.createElement("div");
+    suggestionDiv.className = "flex flex-wrap gap-2 mb-2 px-4";
+    suggestionDiv.innerHTML = `
+      <button onclick="window.suggestAnalyzeFile('${filename}')" class="px-3 py-1.5 bg-yellow-300 dark:bg-yellow-600 text-gray-900 dark:text-white rounded-full text-sm font-medium hover:bg-yellow-400 dark:hover:bg-yellow-500 transition">
+        📊 Analysis my resume
+      </button>
+    `;
+    chipContainer.parentElement?.insertBefore(suggestionDiv, chipContainer.nextSibling);
+  }
+  
   lucide.createIcons();
 }
 
