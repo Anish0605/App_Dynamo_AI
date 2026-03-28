@@ -609,6 +609,162 @@ window.sendFromInput = async () => {
       }
     }
 
+    // ---------------- MINDMAP ----------------
+    if (res?.type === "mindmap" && res.root) {
+      hideHero();
+      
+      try {
+        const container = document.createElement("div");
+        container.style.padding = "20px";
+        container.style.background = "#111";
+        container.style.borderRadius = "8px";
+        container.id = "mindmap-container-" + Date.now();
+
+        function createNode(node, level = 0) {
+          const el = document.createElement("div");
+          el.style.marginLeft = (level * 30) + "px";
+          el.style.padding = "8px 0";
+
+          const label = document.createElement("div");
+          label.innerText = (level === 0 ? "🎯 " : "→ ") + (node.label || "Node");
+          label.style.fontWeight = level === 0 ? "bold" : "500";
+          label.style.fontSize = level === 0 ? "16px" : "14px";
+          label.style.color = level === 0 ? "#EAB308" : "#fff";
+          label.style.padding = "5px";
+          label.style.borderRadius = "4px";
+          label.style.backgroundColor = level === 0 ? "#1a1a1a" : "transparent";
+
+          el.appendChild(label);
+
+          if (node.children && Array.isArray(node.children)) {
+            node.children.forEach(child => {
+              el.appendChild(createNode(child, level + 1));
+            });
+          }
+
+          return el;
+        }
+
+        container.appendChild(createNode(res.root));
+
+        const div = document.createElement("div");
+        div.className = "flex justify-start mb-4";
+        
+        // Wrapper for mindmap and download button
+        const wrapper = document.createElement("div");
+        wrapper.style.display = "flex";
+        wrapper.style.flexDirection = "column";
+        wrapper.style.gap = "10px";
+        
+        wrapper.appendChild(container);
+        
+        // Download button
+        const downloadBtn = document.createElement("button");
+        downloadBtn.className = "text-xs text-yellow-500 hover:underline flex items-center gap-1";
+        downloadBtn.innerHTML = "⬇️ Download Mindmap";
+        downloadBtn.style.padding = "8px 12px";
+        downloadBtn.style.border = "1px solid #EAB308";
+        downloadBtn.style.borderRadius = "6px";
+        downloadBtn.style.background = "transparent";
+        downloadBtn.style.color = "#EAB308";
+        downloadBtn.style.cursor = "pointer";
+        downloadBtn.style.fontSize = "12px";
+        downloadBtn.style.fontWeight = "500";
+        downloadBtn.style.transition = "all 0.2s";
+        
+        downloadBtn.addEventListener("mouseover", () => {
+          downloadBtn.style.background = "#EAB308";
+          downloadBtn.style.color = "#111";
+        });
+        
+        downloadBtn.addEventListener("mouseout", () => {
+          downloadBtn.style.background = "transparent";
+          downloadBtn.style.color = "#EAB308";
+        });
+        
+        downloadBtn.addEventListener("click", async () => {
+          try {
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = "⏳ Generating...";
+            
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = 600;
+            canvas.height = 800;
+            
+            ctx.fillStyle = "#1a1a1a";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            function drawNode(node, x, y, level = 0) {
+              const nodeHeight = 40;
+              const nodeWidth = 200;
+              const verticalSpacing = 80;
+              
+              ctx.fillStyle = level === 0 ? "#EAB308" : "#444";
+              ctx.strokeStyle = "#EAB308";
+              ctx.lineWidth = 2;
+              ctx.fillRect(x - nodeWidth / 2, y, nodeWidth, nodeHeight);
+              ctx.strokeRect(x - nodeWidth / 2, y, nodeWidth, nodeHeight);
+              
+              ctx.fillStyle = level === 0 ? "#111" : "#fff";
+              ctx.font = (level === 0 ? "bold 14px" : "12px") + " Arial";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              const label = (node.label || "Node").substring(0, 20);
+              ctx.fillText(label, x, y + nodeHeight / 2);
+              
+              let childX = x - 150;
+              if (node.children && Array.isArray(node.children)) {
+                node.children.forEach(child => {
+                  ctx.strokeStyle = "#EAB308";
+                  ctx.lineWidth = 1;
+                  ctx.beginPath();
+                  ctx.moveTo(x, y + nodeHeight);
+                  ctx.lineTo(childX + 100, y + verticalSpacing);
+                  ctx.stroke();
+                  
+                  drawNode(child, childX + 100, y + verticalSpacing, level + 1);
+                  childX += 250;
+                });
+              }
+            }
+            
+            drawNode(res.root, canvas.width / 2, 50);
+            
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = `mindmap-${Date.now()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            downloadBtn.disabled = false;
+            downloadBtn.innerHTML = "⬇️ Download Mindmap";
+          } catch (e) {
+            console.error("Mindmap download error:", e);
+            downloadBtn.innerHTML = "❌ Download failed";
+            downloadBtn.disabled = false;
+            setTimeout(() => {
+              downloadBtn.innerHTML = "⬇️ Download Mindmap";
+            }, 2000);
+          }
+        });
+        
+        wrapper.appendChild(downloadBtn);
+        div.appendChild(wrapper);
+        chatContainer.appendChild(div);
+        scrollToBottom();
+
+        window.chatHistory.push({ role: "assistant", content: "[Mindmap Generated]" });
+        if (window.appState?.supabaseUserId) saveMessage("assistant", "[Mindmap Generated]");
+        return;
+      } catch (e) {
+        console.error("Mindmap render error:", e);
+        renderAssistantMessage("⚠️ Error rendering mindmap. Please try again.");
+        return;
+      }
+    }
+
     // ---------------- QUIZ ----------------
     if (res.content && res.content.includes('"quiz"')) {
       try {

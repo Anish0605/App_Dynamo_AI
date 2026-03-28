@@ -18,6 +18,7 @@ import export
 import video
 import supabase_client
 import flowchart
+import mindmap
 
 from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
@@ -100,6 +101,17 @@ async def chat(req: ChatReq):
 
     if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
         return flowchart.generate_flowchart(req.message)
+
+    # 🧠 Mindmap Detection
+    MINDMAP_KEYWORDS = [
+        "mindmap",
+        "mind map",
+        "idea map",
+        "brainstorm"
+    ]
+
+    if any(k in msg_lower for k in MINDMAP_KEYWORDS):
+        return mindmap.generate_mindmap(req.message)
 
     # 🖼 Image Detection (FLEXIBLE)
     IMAGE_KEYWORDS = [
