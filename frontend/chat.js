@@ -459,45 +459,56 @@ window.sendFromInput = async () => {
     }
 
     // ---------------- FLOWCHART ----------------
-    if (res?.type === "flowchart" && res.nodes) {
+    if (res?.type === "flowchart" && Array.isArray(res.nodes) && res.nodes.length > 0) {
       hideHero();
       
-      const container = document.createElement("div");
-      container.style.display = "flex";
-      container.style.flexDirection = "column";
-      container.style.alignItems = "center";
+      try {
+        const container = document.createElement("div");
+        container.style.display = "flex";
+        container.style.flexDirection = "column";
+        container.style.alignItems = "center";
+        container.style.padding = "20px";
+        container.style.gap = "10px";
 
-      res.nodes.forEach((node, index) => {
-        const box = document.createElement("div");
-        box.innerText = node.label;
-        box.style.padding = "10px 15px";
-        box.style.border = "2px solid #EAB308";
-        box.style.borderRadius = "8px";
-        box.style.margin = "10px";
-        box.style.background = "#111";
-        box.style.color = "#fff";
-        box.style.fontWeight = "500";
+        res.nodes.forEach((node, index) => {
+          const box = document.createElement("div");
+          box.innerText = node.label || node.id || "Step";
+          box.style.padding = "10px 15px";
+          box.style.border = "2px solid #EAB308";
+          box.style.borderRadius = "8px";
+          box.style.margin = "10px";
+          box.style.background = "#111";
+          box.style.color = "#fff";
+          box.style.fontWeight = "500";
+          box.style.minWidth = "150px";
+          box.style.textAlign = "center";
 
-        container.appendChild(box);
+          container.appendChild(box);
 
-        if (index < res.nodes.length - 1) {
-          const arrow = document.createElement("div");
-          arrow.innerText = "↓";
-          arrow.style.fontSize = "20px";
-          arrow.style.color = "#EAB308";
-          container.appendChild(arrow);
-        }
-      });
+          if (index < res.nodes.length - 1) {
+            const arrow = document.createElement("div");
+            arrow.innerText = "↓";
+            arrow.style.fontSize = "20px";
+            arrow.style.color = "#EAB308";
+            arrow.style.lineHeight = "1";
+            container.appendChild(arrow);
+          }
+        });
 
-      const div = document.createElement("div");
-      div.className = "flex justify-start mb-4";
-      div.appendChild(container);
-      chatContainer.appendChild(div);
-      scrollToBottom();
+        const div = document.createElement("div");
+        div.className = "flex justify-start mb-4";
+        div.appendChild(container);
+        chatContainer.appendChild(div);
+        scrollToBottom();
 
-      window.chatHistory.push({ role: "assistant", content: "[Flowchart Generated]" });
-      if (window.appState?.supabaseUserId) saveMessage("assistant", "[Flowchart Generated]");
-      return;
+        window.chatHistory.push({ role: "assistant", content: "[Flowchart Generated]" });
+        if (window.appState?.supabaseUserId) saveMessage("assistant", "[Flowchart Generated]");
+        return;
+      } catch (e) {
+        console.error("Flowchart render error:", e);
+        renderAssistantMessage("⚠️ Error rendering flowchart. Please try again.");
+        return;
+      }
     }
 
     // ---------------- QUIZ ----------------
