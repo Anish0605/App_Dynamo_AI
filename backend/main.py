@@ -20,7 +20,7 @@ import supabase_client
 import flowchart
 import mindmap
 
-from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
+from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages,update_chat_file_info)
 from export_routes import router as export_router
 from presentation_engine import build_presentation
 
@@ -254,6 +254,15 @@ async def chat_with_file(
             context="",
             deep_dive=False
         )
+
+        # 📄 PDF PLAN: Store file info with chat
+        if user_id and chat_id:
+            update_chat_file_info(
+                chat_id=chat_id,
+                filename=file.filename,
+                file_size=len(file_bytes)
+            )
+            print(f"📄 File metadata stored: {file.filename} ({len(file_bytes)} bytes)")
 
         return {
             "type": "text",
