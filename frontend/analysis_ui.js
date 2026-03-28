@@ -27,10 +27,15 @@ if (fileInput) {
     // Store file for later send (ChatGPT style)
     window.pendingUploadFile = file;
     
-    // If radio mode is active, just show the chip and skip analysis buttons
+    // If radio mode is active, show chip and AUTO-SEND initial prompt
     if (isRadioModeActive()) {
-      console.log("🎧 Radio mode active - file ready for dialogue (no analysis)");
+      console.log("🎧 Radio mode active - initiating dialogue with file");
       showUploadChip(file.name, true); // true = radio mode
+      
+      // Auto-trigger the initial question prompt after a short delay
+      setTimeout(() => {
+        window.triggerRadioModeInterview(file.name);
+      }, 500);
     } else {
       // Normal mode: show chip and optional analysis buttons
       showUploadChip(file.name, false);

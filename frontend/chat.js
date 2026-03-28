@@ -181,6 +181,25 @@ async function checkMessageLimit() {
 }
 
 /* =========================================================
+   🎙️ RADIO MODE INTERVIEW (AUTO-TRIGGER WITH FILE)
+========================================================= */
+window.triggerRadioModeInterview = async (filename) => {
+  if (!filename || !window.pendingUploadFile) return;
+  
+  // Build an interview-style prompt that asks AI to start asking questions
+  const interviewPrompt = `I've uploaded a document: "${filename}". Please ask me conversational questions to understand this document better, as if you're interviewing me. Start with the first question.`;
+  
+  console.log("🎙️ Starting radio mode interview:", filename);
+  
+  // Show user's action
+  renderUserMessage(`📎 File: ${filename}`);
+  
+  // Auto-send the interview prompt
+  chatInput.value = interviewPrompt;
+  await sendFromInput();
+};
+
+/* =========================================================
    🚀 SEND MESSAGE (FIXED - NO DUPLICATES)
 ========================================================= */
 window.sendFromInput = async () => {
