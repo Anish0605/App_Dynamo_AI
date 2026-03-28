@@ -469,6 +469,7 @@ window.sendFromInput = async () => {
         container.style.alignItems = "center";
         container.style.padding = "20px";
         container.style.gap = "10px";
+        container.id = "flowchart-container-" + Date.now();
 
         res.nodes.forEach((node, index) => {
           const box = document.createElement("div");
@@ -497,7 +498,104 @@ window.sendFromInput = async () => {
 
         const div = document.createElement("div");
         div.className = "flex justify-start mb-4";
-        div.appendChild(container);
+        
+        // Wrapper for flowchart and download button
+        const wrapper = document.createElement("div");
+        wrapper.style.display = "flex";
+        wrapper.style.flexDirection = "column";
+        wrapper.style.gap = "10px";
+        
+        wrapper.appendChild(container);
+        
+        // Download button
+        const downloadBtn = document.createElement("button");
+        downloadBtn.className = "text-xs text-yellow-500 hover:underline flex items-center gap-1";
+        downloadBtn.innerHTML = "⬇️ Download Flowchart";
+        downloadBtn.style.padding = "8px 12px";
+        downloadBtn.style.border = "1px solid #EAB308";
+        downloadBtn.style.borderRadius = "6px";
+        downloadBtn.style.background = "transparent";
+        downloadBtn.style.color = "#EAB308";
+        downloadBtn.style.cursor = "pointer";
+        downloadBtn.style.fontSize = "12px";
+        downloadBtn.style.fontWeight = "500";
+        downloadBtn.style.transition = "all 0.2s";
+        
+        downloadBtn.addEventListener("mouseover", () => {
+          downloadBtn.style.background = "#EAB308";
+          downloadBtn.style.color = "#111";
+        });
+        
+        downloadBtn.addEventListener("mouseout", () => {
+          downloadBtn.style.background = "transparent";
+          downloadBtn.style.color = "#EAB308";
+        });
+        
+        downloadBtn.addEventListener("click", async () => {
+          try {
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = "⏳ Generating...";
+            
+            // Use html2canvas or canvas API
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const nodeHeight = 60;
+            const nodeWidth = 200;
+            const padding = 40;
+            const totalHeight = res.nodes.length * nodeHeight + (res.nodes.length - 1) * 30 + padding * 2;
+            
+            canvas.width = nodeWidth + padding * 2;
+            canvas.height = totalHeight;
+            
+            ctx.fillStyle = "#1a1a1a";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            let yPos = padding;
+            res.nodes.forEach((node, index) => {
+              ctx.fillStyle = "#111";
+              ctx.strokeStyle = "#EAB308";
+              ctx.lineWidth = 2;
+              ctx.fillRect(padding, yPos, nodeWidth, nodeHeight);
+              ctx.strokeRect(padding, yPos, nodeWidth, nodeHeight);
+              
+              ctx.fillStyle = "#fff";
+              ctx.font = "bold 14px Arial";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              const label = node.label || node.id || "Step";
+              ctx.fillText(label, padding + nodeWidth / 2, yPos + nodeHeight / 2);
+              
+              yPos += nodeHeight;
+              
+              if (index < res.nodes.length - 1) {
+                ctx.fillStyle = "#EAB308";
+                ctx.font = "20px Arial";
+                ctx.fillText("↓", padding + nodeWidth / 2, yPos + 15);
+                yPos += 30;
+              }
+            });
+            
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = `flowchart-${Date.now()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            downloadBtn.disabled = false;
+            downloadBtn.innerHTML = "⬇️ Download Flowchart";
+          } catch (e) {
+            console.error("Download error:", e);
+            downloadBtn.innerHTML = "❌ Download failed";
+            downloadBtn.disabled = false;
+            setTimeout(() => {
+              downloadBtn.innerHTML = "⬇️ Download Flowchart";
+            }, 2000);
+          }
+        });
+        
+        wrapper.appendChild(downloadBtn);
+        div.appendChild(wrapper);
         chatContainer.appendChild(div);
         scrollToBottom();
 
