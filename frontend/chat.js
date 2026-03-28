@@ -864,7 +864,10 @@ window.sendFromInput = async () => {
     }
 
     // ---------------- SINGLE RESPONSE (FIX) ----------------
-    renderAssistantMessage(res.content || "", res.content, true, res.sources || []);
+    // Sources only show in Research Mode + Web Search combo
+    const showSources = (window.dynamoUI?.model === 'research' && window.dynamoUI?.tools?.has('search')) || false;
+    const sources = showSources ? (res.sources || []) : [];
+    renderAssistantMessage(res.content || "", res.content, true, sources);
   } catch (e) {
   console.error("Chat error:", e);
   hideThinking();
