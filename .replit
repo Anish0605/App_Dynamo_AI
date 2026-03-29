@@ -40,7 +40,7 @@ exposeLocalhost = true
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5000"]
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "--workers=2", "-k", "uvicorn.workers.UvicornWorker", "app:app"]
 
 [userenv]
 
