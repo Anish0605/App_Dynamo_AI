@@ -95,127 +95,130 @@
     </div>
   </header>
 
+  <div id="payment-toast" class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-full text-sm font-semibold shadow-lg transition-all duration-300"></div>
+
   <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <section class="text-center mb-10">
       <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">Plans built for creators & researchers</h1>
-      <p class="mt-3 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Use Dynamo AI to chat, analyze documents, generate images and extract insights — start for free or upgrade for unlimited power.</p>
+      <p class="mt-3 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Chat, analyze documents, generate images and videos — start for free or upgrade for more power.</p>
     </section>
 
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-      
-      <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-white">Compare plans</h2>
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch mb-10">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-100 dark:border-gray-700">
-            <div class="flex items-start justify-between">
-              <div>
-                <div class="text-sm text-gray-500 dark:text-gray-400 uppercase mb-2">Free</div>
-                <div class="text-2xl font-bold text-gray-900 dark:text-white">Free</div>
-                <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Perfect for casual users</div>
-              </div>
-              <div class="text-right">
-                <div class="text-xs text-gray-500 dark:text-gray-400">Limit</div>
-                <div class="text-lg font-semibold text-gray-900 dark:text-white">10 / day</div>
-              </div>
-            </div>
-            <ul class="mt-4 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500"></i> Llama 3 (8B) Chat</li>
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500"></i> Standard Web Search</li>
-              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500"></i> Basic Voice Mode</li>
-            </ul>
-          </div>
-
-          <div class="bg-black dark:bg-yellow-500 text-white dark:text-black rounded-lg p-4 shadow-lg">
-            <div class="flex items-start justify-between">
-              <div>
-                <div class="text-sm text-yellow-300 dark:text-black/70 uppercase mb-2 font-bold">Plus</div>
-                <div class="text-2xl font-bold">₹99 / mo</div>
-                <div class="text-sm text-yellow-200 dark:text-black/80 mt-1">Unlimited usage</div>
-              </div>
-              <div class="text-right">
-                <div class="text-xs text-yellow-200 dark:text-black/80">Perks</div>
-                <div class="text-lg font-semibold">Unlimited</div>
-              </div>
-            </div>
-            <ul class="mt-4 space-y-2 text-sm text-yellow-100 dark:text-black/90">
-              <li class="flex items-center gap-2"><i data-lucide="cpu" class="w-4 h-4"></i> 70B & Mixtral Models</li>
-              <li class="flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4"></i> PDF Reports</li>
-              <li class="flex items-center gap-2"><i data-lucide="eye" class="w-4 h-4"></i> Vision & Uploads</li>
-              <li class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4"></i> Unlimited History</li>
-            </ul>
-          </div>
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col">
+        <div class="mb-4">
+          <div class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Free</div>
+          <div class="text-3xl font-extrabold text-gray-900 dark:text-white">₹0</div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Perfect for casual users</div>
         </div>
-
-        <div class="mt-6 overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="text-left text-gray-500 dark:text-gray-400">
-                <th class="py-2">Feature</th>
-                <th class="py-2">Free</th>
-                <th class="py-2">Plus</th>
-              </tr>
-            </thead>
-            <tbody class="text-gray-700 dark:text-gray-300">
-              <tr class="border-t border-gray-100 dark:border-gray-700">
-                <td class="py-3">AI Models</td>
-                <td class="py-3">Standard (8B)</td>
-                <td class="py-3 font-bold text-yellow-600 dark:text-yellow-400">Premium (70B, Mixtral)</td>
-              </tr>
-              <tr class="border-t border-gray-100 dark:border-gray-700">
-                <td class="py-3">PDF Report Export</td>
-                <td class="py-3">—</td>
-                <td class="py-3 text-green-600 dark:text-green-400">✔</td>
-              </tr>
-              <tr class="border-t border-gray-100 dark:border-gray-700">
-                <td class="py-3">Deep Dive Mode</td>
-                <td class="py-3">—</td>
-                <td class="py-3 text-green-600 dark:text-green-400">✔</td>
-              </tr>
-              <tr class="border-t border-gray-100 dark:border-gray-700">
-                <td class="py-3">Daily responses</td>
-                <td class="py-3">10 / day</td>
-                <td class="py-3 font-bold">Unlimited</td>
-              </tr>
-            </tbody>
-          </table>
+        <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300 flex-1">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 shrink-0"></i> 10 chats / day</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 shrink-0"></i> Standard Web Search</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 shrink-0"></i> Basic Voice Mode</li>
+          <li class="flex items-center gap-2"><i data-lucide="x" class="w-4 h-4 text-gray-300 shrink-0"></i> <span class="text-gray-400">Image Generation</span></li>
+          <li class="flex items-center gap-2"><i data-lucide="x" class="w-4 h-4 text-gray-300 shrink-0"></i> <span class="text-gray-400">Video Generation</span></li>
+        </ul>
+        <div class="mt-6">
+          <div class="w-full text-center py-2.5 text-sm font-medium text-gray-400 border border-gray-200 dark:border-gray-600 rounded-lg">Current Plan</div>
         </div>
       </div>
 
-      <aside class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm flex flex-col gap-4 border border-gray-100 dark:border-gray-700">
-        <div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Start free, upgrade anytime</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Buy Plus to unlock advanced analysis, vision, and unlimited usage.</p>
+      <div class="bg-black text-white rounded-xl shadow-xl border-2 border-yellow-400 p-6 flex flex-col relative">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Most Popular</div>
+        <div class="mb-4">
+          <div class="text-xs font-bold uppercase tracking-widest text-yellow-400 mb-2">Plus</div>
+          <div class="text-3xl font-extrabold">₹199<span class="text-lg font-normal text-gray-400">/mo</span></div>
+          <div class="text-sm text-gray-400 mt-1">For power users & students</div>
         </div>
-
-        <div class="space-y-3">
-          <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg flex justify-between items-center">
-            <div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">Monthly</div>
-              <div class="text-xl font-bold text-gray-900 dark:text-white">₹99</div>
-            </div>
-            <button id="buy-monthly" class="px-4 py-2 bg-yellow-400 text-black rounded-md font-semibold hover:bg-yellow-300 transition">Buy Monthly</button>
-          </div>
-
-          <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg flex justify-between items-center">
-            <div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">Yearly</div>
-              <div class="text-xl font-bold text-gray-900 dark:text-white">₹999</div>
-            </div>
-            <button id="buy-yearly" class="px-4 py-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition">Buy Yearly</button>
-          </div>
-
-          <div id="pricing-status" class="text-sm text-gray-600 dark:text-gray-400"></div>
+        <ul class="space-y-2 text-sm text-gray-200 flex-1">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400 shrink-0"></i> 100 chats / day</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400 shrink-0"></i> Premium AI Models</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400 shrink-0"></i> PDF Reports & Exports</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400 shrink-0"></i> 25 images / month</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400 shrink-0"></i> 5 videos / month</li>
+        </ul>
+        <div class="mt-6">
+          <button id="btn-upgrade-plus" class="w-full py-2.5 bg-yellow-400 hover:bg-yellow-300 text-black font-bold rounded-lg transition active:scale-95">Upgrade to Plus</button>
         </div>
-        
-        <div class="mt-auto text-sm text-gray-600 dark:text-gray-400">
-            <ul class="space-y-1">
-              <li><a href="privacy.html" class="hover:underline">Privacy Policy</a></li>
-              <li><a href="terms.html" class="hover:underline">Terms & Conditions</a></li>
-              <li><a href="refund.html" class="hover:underline">Refund Policy</a></li>
-            </ul>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col">
+        <div class="mb-4">
+          <div class="text-xs font-bold uppercase tracking-widest text-purple-500 mb-2">Pro</div>
+          <div class="text-3xl font-extrabold text-gray-900 dark:text-white">₹499<span class="text-lg font-normal text-gray-400">/mo</span></div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">For creators & professionals</div>
         </div>
-      </aside>
+        <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300 flex-1">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-500 shrink-0"></i> 100 chats / day</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-500 shrink-0"></i> All Premium Models</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-500 shrink-0"></i> PDF Reports & Exports</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-500 shrink-0"></i> 100 images / month</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-500 shrink-0"></i> 25 videos / month</li>
+        </ul>
+        <div class="mt-6">
+          <button id="btn-upgrade-pro" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition active:scale-95">Upgrade to Pro</button>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Full feature comparison</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
+              <th class="pb-3">Feature</th>
+              <th class="pb-3 text-center">Free</th>
+              <th class="pb-3 text-center text-yellow-600 dark:text-yellow-400">Plus</th>
+              <th class="pb-3 text-center text-purple-600">Pro</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700 dark:text-gray-300">
+            <tr class="border-t border-gray-100 dark:border-gray-700">
+              <td class="py-3">Chat messages / day</td>
+              <td class="py-3 text-center">10</td>
+              <td class="py-3 text-center font-semibold">100</td>
+              <td class="py-3 text-center font-semibold">100</td>
+            </tr>
+            <tr class="border-t border-gray-100 dark:border-gray-700">
+              <td class="py-3">Image generation / month</td>
+              <td class="py-3 text-center text-gray-400">—</td>
+              <td class="py-3 text-center font-semibold">25</td>
+              <td class="py-3 text-center font-semibold">100</td>
+            </tr>
+            <tr class="border-t border-gray-100 dark:border-gray-700">
+              <td class="py-3">Video generation / month</td>
+              <td class="py-3 text-center text-gray-400">—</td>
+              <td class="py-3 text-center font-semibold">5</td>
+              <td class="py-3 text-center font-semibold">25</td>
+            </tr>
+            <tr class="border-t border-gray-100 dark:border-gray-700">
+              <td class="py-3">PDF Report Export</td>
+              <td class="py-3 text-center text-gray-400">—</td>
+              <td class="py-3 text-center text-green-600 dark:text-green-400">✔</td>
+              <td class="py-3 text-center text-green-600 dark:text-green-400">✔</td>
+            </tr>
+            <tr class="border-t border-gray-100 dark:border-gray-700">
+              <td class="py-3">Deep Dive Search</td>
+              <td class="py-3 text-center text-gray-400">—</td>
+              <td class="py-3 text-center text-green-600 dark:text-green-400">✔</td>
+              <td class="py-3 text-center text-green-600 dark:text-green-400">✔</td>
+            </tr>
+            <tr class="border-t border-gray-100 dark:border-gray-700">
+              <td class="py-3">Vision & File Uploads</td>
+              <td class="py-3 text-center text-gray-400">—</td>
+              <td class="py-3 text-center text-green-600 dark:text-green-400">✔</td>
+              <td class="py-3 text-center text-green-600 dark:text-green-400">✔</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-4 text-xs text-gray-400 text-right">
+        <a href="privacy.html" class="hover:underline mr-3">Privacy Policy</a>
+        <a href="terms.html" class="hover:underline mr-3">Terms & Conditions</a>
+        <a href="refund.html" class="hover:underline">Refund Policy</a>
+      </div>
     </section>
   </main>
 
@@ -258,12 +261,26 @@
       </div>
   </div>
 
+  <script>
+    window.appState = window.appState || { user: null, supabaseUser: null, supabaseUserId: null };
+    window.setAppUser = window.setAppUser || function(u) { window.appState.user = u; };
+    window.setSupabaseUser = window.setSupabaseUser || async function(u) { window.appState.supabaseUser = u; window.appState.supabaseUserId = u?.id || null; };
+    window.loadChatSidebar = window.loadChatSidebar || function() {};
+    window.dumpState = window.dumpState || function() {};
+    window.closeAuthModal = window.closeAuthModal || function() {
+      document.getElementById("auth-modal")?.classList.add("hidden");
+    };
+    window.openAuthModal = window.openAuthModal || function(mode) {
+      window.authMode = mode || "login";
+      document.getElementById("auth-modal")?.classList.remove("hidden");
+    };
+  </script>
+
   <script src="auth.js"></script>
 
   <script>
-    const BACKEND_URL = "https://dynamo-ai.onrender.com"; 
+    const BACKEND_URL = "";
 
-    // Theme Toggle
     const themeToggleBtn = document.getElementById('theme-toggle');
     if (themeToggleBtn) {
       themeToggleBtn.addEventListener('click', () => {
@@ -277,75 +294,167 @@
       });
     }
 
-    async function isAuthenticated() {
-      const t = localStorage.getItem("dynamo_id_token");
-      return !!t;
+    function showToast(message, type) {
+      const el = document.getElementById("payment-toast");
+      if (!el) return;
+      el.textContent = message;
+      el.className = [
+        "fixed top-6 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-full text-sm font-semibold shadow-lg transition-all duration-300",
+        type === "success"
+          ? "bg-green-500 text-white"
+          : type === "error"
+            ? "bg-red-500 text-white"
+            : "bg-gray-800 text-white"
+      ].join(" ");
+      el.classList.remove("hidden");
+      setTimeout(() => el.classList.add("hidden"), 5000);
     }
 
-    async function getAuthHeaders() {
-      const t = localStorage.getItem("dynamo_id_token");
-      return t ? { "Authorization": "Bearer " + t } : {};
+    function isAuthenticated() {
+      const fbUser = typeof firebase !== "undefined" && firebase.apps?.length
+        ? firebase.auth().currentUser
+        : null;
+      return !!fbUser;
     }
 
-    async function handleBuy(amount_inr) {
-      const statusEl = document.getElementById("pricing-status");
-      if (statusEl) statusEl.textContent = "";
+    async function getSupabaseUserId() {
+      try {
+        const fbUser = firebase.auth().currentUser;
+        if (!fbUser || !window.SUPABASE_URL_PUBLIC || !window.SUPABASE_ANON_KEY) return null;
 
-      const authed = await isAuthenticated();
-      if (!authed) {
-        // Trigger Auth
+        const supabaseCl = window.supabase.createClient(window.SUPABASE_URL_PUBLIC, window.SUPABASE_ANON_KEY);
+        const { data } = await supabaseCl
+          .from("users")
+          .select("id")
+          .eq("firebase_uid", fbUser.uid)
+          .single();
+        return data?.id || null;
+      } catch (e) {
+        console.error("getSupabaseUserId:", e);
+        return null;
+      }
+    }
+
+    async function handleUpgrade(plan) {
+      const fbUser = typeof firebase !== "undefined" && firebase.apps?.length
+        ? firebase.auth().currentUser
+        : null;
+
+      if (!fbUser) {
         const loginBtn = document.getElementById("open-login");
-        if(loginBtn) loginBtn.click(); 
+        if (loginBtn) loginBtn.click();
         return;
       }
 
-      // GET EMAIL
-      const userEmail = localStorage.getItem("dynamo_user_email");
-      if (!userEmail) {
-          alert("Error: Please log out and log in again.");
-          return;
+      const userEmail = fbUser.email || "";
+
+      showToast("Looking up your account…", "info");
+      const userId = await getSupabaseUserId();
+
+      if (!userId) {
+        showToast("Could not verify your account. Please log out and log in again.", "error");
+        return;
       }
 
+      showToast("Creating order…", "info");
+
+      let order;
       try {
-        if (statusEl) statusEl.textContent = "Creating order...";
-        
-        const res = await fetch(`${BACKEND_URL}/create-razorpay-order`, {
+        const res = await fetch(`${BACKEND_URL}/create-order`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount_inr: amount_inr, email: userEmail })
+          body: JSON.stringify({ plan, user_id: userId, email: userEmail })
         });
-        
-        if (!res.ok) throw new Error("Failed to create order");
-        const order = await res.json();
-        
-        const options = {
-          key: order.key_id,
-          amount: order.amount,
-          currency: "INR",
-          name: "Dynamo AI",
-          description: "Plus Plan Upgrade",
-          order_id: order.order_id,
-          prefill: { email: userEmail },
-          handler: function (resp) {
-            if (statusEl) statusEl.textContent = "Payment successful! Refreshing...";
-            setTimeout(() => window.location.reload(), 2000); 
-          },
-          theme: { color: "#FFC107" }
-        };
-        const rzp = new Razorpay(options);
-        rzp.open();
-        
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || "Failed to create order");
+        }
+        order = await res.json();
       } catch (err) {
-        console.error(err);
-        if (statusEl) statusEl.textContent = "Error: " + err.message;
+        console.error("create-order error:", err);
+        showToast("Could not create order: " + err.message, "error");
+        return;
       }
+
+      const planLabel = plan === "plus" ? "Plus — ₹199/mo" : "Pro — ₹499/mo";
+
+      const options = {
+        key: order.key_id,
+        amount: order.amount,
+        currency: order.currency || "INR",
+        name: "Dynamo AI",
+        description: planLabel,
+        order_id: order.order_id,
+        prefill: { email: userEmail },
+        theme: { color: plan === "plus" ? "#FACC15" : "#9333EA" },
+        modal: {
+          ondismiss: function () {
+            showToast("Payment cancelled. No charge was made.", "error");
+          }
+        },
+        handler: async function (response) {
+          showToast("Verifying payment…", "info");
+          try {
+            const vRes = await fetch(`${BACKEND_URL}/verify-payment`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                plan,
+                user_id: userId
+              })
+            });
+
+            if (!vRes.ok) {
+              const vErr = await vRes.json().catch(() => ({}));
+              throw new Error(vErr.detail || "Verification failed");
+            }
+
+            const result = await vRes.json();
+            if (result.success) {
+              localStorage.setItem("dynamo_plan", result.plan);
+              showToast(`You are now on the ${result.plan.charAt(0).toUpperCase() + result.plan.slice(1)} plan!`, "success");
+              updatePlanBadge(result.plan);
+              setTimeout(() => window.location.reload(), 2500);
+            } else {
+              showToast("Payment verification failed. Contact support.", "error");
+            }
+          } catch (err) {
+            console.error("verify-payment error:", err);
+            showToast("Verification error: " + err.message, "error");
+          }
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.on("payment.failed", function () {
+        showToast("Payment failed. No charge was made.", "error");
+      });
+      rzp.open();
     }
 
-    document.getElementById("buy-monthly").addEventListener("click", () => handleBuy(99));
-    document.getElementById("buy-yearly").addEventListener("click", () => handleBuy(999));
+    function updatePlanBadge(plan) {
+      const badges = document.querySelectorAll(".plan-badge");
+      badges.forEach(b => {
+        b.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+      });
+    }
 
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
       lucide.createIcons();
+
+      document.getElementById("btn-upgrade-plus").addEventListener("click", () => handleUpgrade("plus"));
+      document.getElementById("btn-upgrade-pro").addEventListener("click", () => handleUpgrade("pro"));
+
+      document.getElementById("open-login")?.addEventListener("click", () => window.openAuthModal("login"));
+      document.getElementById("open-signup")?.addEventListener("click", () => window.openAuthModal("signup"));
+      document.getElementById("auth-close")?.addEventListener("click", () => window.closeAuthModal());
+      document.getElementById("auth-toggle-mode")?.addEventListener("click", () => {
+        window.authMode = window.authMode === "login" ? "signup" : "login";
+        if (typeof applyAuthModeUI === "function") applyAuthModeUI();
+      });
     });
   </script>
   

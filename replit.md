@@ -29,6 +29,34 @@ Dynamo AI is a professional-grade Research Operating System. It combines a FastA
 - **Firebase** — Authentication
 - **Pollinations AI** — Image generation
 - **Edge TTS** — Text to speech
+- **Razorpay** — Payment processing (Plus ₹199/mo, Pro ₹499/mo)
+
+## Payment Integration
+Razorpay integration in `backend/payments.py`. Endpoints:
+- `POST /create-order` — Creates a Razorpay order (Plus/Pro plan)
+- `POST /verify-payment` — Verifies HMAC-SHA256 signature, updates `users.plan`, inserts into `subscriptions`
+- `POST /webhook` — Handles Razorpay async events (secondary safety net)
+
+**Supabase migration needed** — Run this SQL in Supabase Dashboard (see `backend/init_db.sql`):
+```sql
+CREATE TABLE IF NOT EXISTS subscriptions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id),
+    plan TEXT,
+    razorpay_order_id TEXT,
+    razorpay_payment_id TEXT,
+    amount INTEGER,
+    status TEXT,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    expires_at TIMESTAMPTZ
+);
+```
+Dashboard URL: https://supabase.com/dashboard/project/jbulnpcqxtbjobrclsqq/sql/new
+
+## Secrets Required
+- `RAZORPAY_KEY_ID` — Razorpay public key
+- `RAZORPAY_KEY_SECRET` — Razorpay secret key (for HMAC verification)
+- `RAZORPAY_WEBHOOK_SECRET` — Razorpay webhook secret
 
 ## Quota / Freemium System
 

@@ -23,6 +23,7 @@ import mindmap
 from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
 from presentation_engine import build_presentation
+from payments import router as payments_router
 
 # --------------------------------------------------
 # FASTAPI APP
@@ -40,6 +41,7 @@ app.add_middleware(
 )
 
 app.include_router(export_router)
+app.include_router(payments_router)
 
 # --------------------------------------------------
 # MODELS
