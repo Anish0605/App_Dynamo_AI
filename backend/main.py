@@ -113,6 +113,10 @@ async def chat(req: ChatReq):
     if any(k in msg_lower for k in MINDMAP_KEYWORDS):
         return mindmap.generate_mindmap(req.message)
 
+    # 🧩 Quiz Detection (MUST BE BEFORE IMAGE)
+    QUIZ_KEYWORDS = ["quiz", "mcq", "multiple choice", "test me", "questions", "exam"]
+    is_quiz_request = any(k in msg_lower for k in QUIZ_KEYWORDS)
+    
     # 🖼 Image Detection (FLEXIBLE)
     IMAGE_KEYWORDS = [
         "create an image",
@@ -130,9 +134,9 @@ async def chat(req: ChatReq):
     SINGLE_WORD_KEYWORDS = ["image", "photo", "artwork", "drawing"]
     
     is_image_prompt = (
-        any(k in msg_lower for k in IMAGE_KEYWORDS) or
+        (any(k in msg_lower for k in IMAGE_KEYWORDS) or
         any(k in msg_lower.split() for k in SINGLE_WORD_KEYWORDS) or
-        req.force_image
+        req.force_image) and not is_quiz_request  # Don't generate image if quiz requested
     )
 
     # 🖼 Image (NO CHANGE)
