@@ -1116,6 +1116,8 @@ window.startNewChat = () => {
   window.setChatId(null);
   currentChatId = null;   // ✅ ADD THIS
   window.chatHistory = [];
+  window.pendingUploadFile = null;
+  window.clearUploadFile?.();
   chatContainer.innerHTML = "";
   showHero();
   window.loadChatSidebar();
