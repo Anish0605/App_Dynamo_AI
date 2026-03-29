@@ -946,11 +946,11 @@ function renderAssistantMessage(html, rawText = "", save = true, sources = []) {
       </div>
 
       <div class="flex flex-col gap-1 mt-1">
-        <button class="play-btn text-yellow-400 hover:text-yellow-500 transition">
-          <i data-lucide="play"></i>
+        <button class="play-btn w-8 h-8 flex items-center justify-center rounded-full hover:bg-yellow-50 dark:hover:bg-gray-800 text-yellow-400 hover:text-yellow-500 transition" title="Play audio">
+          <i data-lucide="play" class="w-4 h-4"></i>
         </button>
-        <button class="download-btn text-yellow-400 hover:text-yellow-500 transition">
-          <i data-lucide="download"></i>
+        <button class="download-btn w-8 h-8 flex items-center justify-center rounded-full hover:bg-yellow-50 dark:hover:bg-gray-800 text-yellow-400 hover:text-yellow-500 transition" title="Download audio">
+          <i data-lucide="download" class="w-4 h-4"></i>
         </button>
       </div>
 
