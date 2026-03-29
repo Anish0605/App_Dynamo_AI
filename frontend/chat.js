@@ -164,8 +164,8 @@ async function checkMessageLimit() {
 
   let limit = 10;
 
-  if (plan === "plus") {
-    limit = 100; // or Infinity if you want
+  if (plan === "plus" || plan === "pro") {
+    limit = 100;
   }
 
   const used = user.daily_quota_used || 0;
@@ -382,6 +382,69 @@ window.sendFromInput = async () => {
 
     if (res?.type === "video") {
       renderAssistantMessage("⚠️ Video generation failed. Please try again.");
+      return;
+    }
+
+    // ---------------- QUOTA ERRORS ----------------
+    if (res?.type === "error" && res?.code) {
+      hideHero();
+      const errorMessages = {
+        no_image_free: {
+          title: "Images require a paid plan",
+          body: "Free users cannot generate images. Upgrade to Plus to get 25 images/month."
+        },
+        image_quota_exceeded: {
+          title: "Monthly image limit reached",
+          body: "You've used all your image generations for this month. Upgrade to Pro for 100 images/month."
+        },
+        no_video_free: {
+          title: "Videos require a paid plan",
+          body: "Free users cannot generate videos. Upgrade to Plus to get 5 videos/month."
+        },
+        video_quota_exceeded: {
+          title: "Monthly video limit reached",
+          body: "You've used all your video generations for this month. Upgrade to Pro for 25 videos/month."
+        }
+      };
+
+      const info = errorMessages[res.code] || {
+        title: "Limit reached",
+        body: "You have reached your usage limit."
+      };
+
+      const div = document.createElement("div");
+      div.className = "flex justify-start mb-4";
+      div.innerHTML = `
+        <div style="
+          background: linear-gradient(135deg, #1a1200 0%, #221a00 100%);
+          border: 1px solid #EAB308;
+          border-radius: 14px;
+          padding: 16px 20px;
+          max-width: 400px;
+        ">
+          <div style="font-weight:700; color:#EAB308; font-size:14px; margin-bottom:6px;">
+            ${info.title}
+          </div>
+          <div style="color:#e5e5e5; font-size:13px; margin-bottom:14px; line-height:1.5;">
+            ${info.body}
+          </div>
+          <a href="/pricing.html" style="
+            display: inline-block;
+            background: #EAB308;
+            color: #111;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: opacity 0.2s;
+          " onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+            Upgrade Plan
+          </a>
+        </div>
+      `;
+      chatContainer.appendChild(div);
+      scrollToBottom();
       return;
     }
 

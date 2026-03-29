@@ -24,7 +24,80 @@ else:
 
 
 # --------------------------------------------------
-# USERS (WITH DAILY RESET)
+# STARTUP: verify new columns exist
+# --------------------------------------------------
+
+def check_migration_status():
+    """Check if quota columns exist; log warning if not."""
+    if not supabase:
+        return
+    try:
+        supabase.table("users") \
+            .select("image_count_used, video_count_used, quota_month") \
+            .limit(1) \
+            .execute()
+        print("Quota columns verified OK")
+    except Exception as e:
+        print("WARNING: Quota columns missing — run backend/migrate_quota_columns.sql in Supabase Dashboard.")
+        print("  SQL Editor: https://supabase.com/dashboard/project/jbulnpcqxtbjobrclsqq/sql")
+
+
+check_migration_status()
+
+
+# --------------------------------------------------
+# PLAN LIMITS
+# --------------------------------------------------
+
+PLAN_LIMITS = {
+    "free":  {"daily_chat": 10,  "images_month": 0,   "videos_month": 0},
+    "plus":  {"daily_chat": 100, "images_month": 25,  "videos_month": 5},
+    "pro":   {"daily_chat": 100, "images_month": 100, "videos_month": 25},
+}
+
+
+def _current_month():
+    return date.today().strftime("%Y-%m")
+
+
+def _apply_monthly_reset(user):
+    """If user's quota_month != current month, reset image/video counters.
+    Mutates the dict in place and updates Supabase.
+    Handles missing columns gracefully (columns added via migration)."""
+    if not supabase or not user:
+        return user
+
+    current_month = _current_month()
+    quota_month = user.get("quota_month")
+
+    # If columns don't exist in the row (None means not fetched), treat as needing reset
+    if quota_month != current_month:
+        try:
+            supabase.table("users") \
+                .update({
+                    "image_count_used": 0,
+                    "video_count_used": 0,
+                    "quota_month": current_month
+                }) \
+                .eq("id", user["id"]) \
+                .execute()
+
+            user["image_count_used"] = 0
+            user["video_count_used"] = 0
+            user["quota_month"] = current_month
+            print("Monthly quota reset for user:", user["id"])
+
+        except Exception as e:
+            # If columns don't exist yet (migration not run), log but don't crash
+            print("Monthly reset error (columns may need migration):", e)
+            user.setdefault("image_count_used", 0)
+            user.setdefault("video_count_used", 0)
+
+    return user
+
+
+# --------------------------------------------------
+# USERS (WITH DAILY + MONTHLY RESET)
 # --------------------------------------------------
 
 def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
@@ -46,9 +119,8 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
         if res.data:
             user = res.data[0]
 
-            # 🔥 DAILY RESET LOGIC
+            # Daily reset
             today = date.today().isoformat()
-
             if user.get("quota_date") != today:
                 try:
                     supabase.table("users") \
@@ -61,11 +133,13 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
 
                     user["daily_quota_used"] = 0
                     user["quota_date"] = today
-
-                    print("✅ Daily quota reset")
+                    print("Daily quota reset")
 
                 except Exception as e:
                     print("Quota reset error:", e)
+
+            # Monthly reset
+            user = _apply_monthly_reset(user)
 
             return user
 
@@ -79,7 +153,10 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
             "phone": phone,
             "created_at": datetime.utcnow().isoformat(),
             "daily_quota_used": 0,
-            "quota_date": date.today().isoformat()
+            "quota_date": date.today().isoformat(),
+            "image_count_used": 0,
+            "video_count_used": 0,
+            "quota_month": _current_month()
         }
 
         res = supabase.table("users").insert(insert).execute()
@@ -90,12 +167,12 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
         return None
 
 # --------------------------------------------------
-# 🔥 GET USER BY SUPABASE ID (for backend quota checks)
+# GET USER BY SUPABASE ID (for backend quota checks)
 # --------------------------------------------------
 
 def get_user_by_supabase_id(supabase_id):
     """Look up a user by their Supabase UUID (the 'id' column).
-    Also runs daily quota reset if needed."""
+    Also runs daily and monthly quota reset if needed."""
     if not supabase or not supabase_id:
         return None
 
@@ -124,10 +201,13 @@ def get_user_by_supabase_id(supabase_id):
 
                 user["daily_quota_used"] = 0
                 user["quota_date"] = today
-                print("✅ Daily quota reset for user:", supabase_id)
+                print("Daily quota reset for user:", supabase_id)
 
             except Exception as e:
                 print("Quota reset error:", e)
+
+        # Monthly reset
+        user = _apply_monthly_reset(user)
 
         return user
 
@@ -137,7 +217,7 @@ def get_user_by_supabase_id(supabase_id):
 
 
 # --------------------------------------------------
-# 🔥 QUOTA CHECK
+# CHAT QUOTA CHECK
 # --------------------------------------------------
 
 def check_user_quota(user):
@@ -146,17 +226,12 @@ def check_user_quota(user):
 
     plan = user.get("plan", "free")
     used = user.get("daily_quota_used", 0)
-
-    if plan == "plus":
-        limit = 100
-    else:
-        limit = 10  # free plan
-
-    return used < limit
+    limits = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])
+    return used < limits["daily_chat"]
 
 
 # --------------------------------------------------
-# 🔥 INCREMENT QUOTA
+# INCREMENT CHAT QUOTA
 # --------------------------------------------------
 
 def increment_quota(user):
@@ -170,11 +245,85 @@ def increment_quota(user):
             .eq("id", user["id"]) \
             .execute()
 
-        # Also update local dict so caller has fresh value
         user["daily_quota_used"] = new_value
 
     except Exception as e:
         print("Quota increment error:", e)
+
+
+# --------------------------------------------------
+# IMAGE QUOTA
+# --------------------------------------------------
+
+def check_image_quota(user):
+    """Returns True if user is allowed to generate an image.
+    Free users are never allowed. Plus/Pro users have monthly caps."""
+    if not user:
+        return False
+
+    plan = user.get("plan", "free")
+    limits = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])
+    monthly_limit = limits["images_month"]
+
+    if monthly_limit == 0:
+        return False
+
+    # Default to 0 if column not yet present (migration pending)
+    used = user.get("image_count_used") or 0
+    return used < monthly_limit
+
+
+def increment_image_quota(user):
+    try:
+        new_value = (user.get("image_count_used") or 0) + 1
+
+        supabase.table("users") \
+            .update({"image_count_used": new_value}) \
+            .eq("id", user["id"]) \
+            .execute()
+
+        user["image_count_used"] = new_value
+
+    except Exception as e:
+        print("Image quota increment error (column may need migration):", e)
+
+
+# --------------------------------------------------
+# VIDEO QUOTA
+# --------------------------------------------------
+
+def check_video_quota(user):
+    """Returns True if user is allowed to generate a video.
+    Free users are never allowed. Plus/Pro users have monthly caps."""
+    if not user:
+        return False
+
+    plan = user.get("plan", "free")
+    limits = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])
+    monthly_limit = limits["videos_month"]
+
+    if monthly_limit == 0:
+        return False
+
+    # Default to 0 if column not yet present (migration pending)
+    used = user.get("video_count_used") or 0
+    return used < monthly_limit
+
+
+def increment_video_quota(user):
+    try:
+        new_value = (user.get("video_count_used") or 0) + 1
+
+        supabase.table("users") \
+            .update({"video_count_used": new_value}) \
+            .eq("id", user["id"]) \
+            .execute()
+
+        user["video_count_used"] = new_value
+
+    except Exception as e:
+        print("Video quota increment error (column may need migration):", e)
+
 
 # --------------------------------------------------
 # CHATS

@@ -139,16 +139,24 @@ async def chat(req: ChatReq):
         req.force_image) and not is_quiz_request  # Don't generate image if quiz requested
     )
 
-    # 🖼 Image (NO CHANGE)
-    if is_image_prompt:
-        return await image.generate_image_base64(req.message)
-
     # -------------------------
     # 🧠 1. USER HANDLING
     # -------------------------
     user = None
     if req.user_id:
         user = get_user_by_supabase_id(req.user_id)
+
+    # 🖼 Image — check plan & quota before generating
+    if is_image_prompt:
+        plan = user.get("plan", "free") if user else "free"
+        if plan == "free":
+            return {"type": "error", "code": "no_image_free"}
+        if not supabase_client.check_image_quota(user):
+            return {"type": "error", "code": "image_quota_exceeded"}
+        result = await image.generate_image_base64(req.message)
+        if result.get("type") == "image_v2":
+            supabase_client.increment_image_quota(user)
+        return result
     # -------------------------
     # 🚫 1.1 QUOTA CHECK
     # -------------------------
@@ -444,6 +452,17 @@ async def generate_video(req: VideoReq):
     Generate a short cinematic video using Runway Gen-3 Turbo.
     Duration locked at 5s for cost control.
     """
+    # Fetch user and enforce video quota
+    user = None
+    if req.user_id:
+        user = get_user_by_supabase_id(req.user_id)
+
+    plan = user.get("plan", "free") if user else "free"
+    if plan == "free":
+        return {"type": "error", "code": "no_video_free"}
+    if not supabase_client.check_video_quota(user):
+        return {"type": "error", "code": "video_quota_exceeded"}
+
     print(f"🎬 Video request: {req.message[:50]}...")
     print(f"🎬 Runway API Key configured: {bool(config.RUNWAY_API_KEY)}")
     result = await video.generate_video(
@@ -451,6 +470,8 @@ async def generate_video(req: VideoReq):
         duration=min(req.duration, 5)   # Hard cap at 5s
     )
     print(f"🎬 Video result: {result.get('type')}")
+    if result.get("type") == "video":
+        supabase_client.increment_video_quota(user)
     return result
 
 # --------------------------------------------------

@@ -30,6 +30,20 @@ Dynamo AI is a professional-grade Research Operating System. It combines a FastA
 - **Pollinations AI** — Image generation
 - **Edge TTS** — Text to speech
 
+## Quota / Freemium System
+
+| Plan | Daily Chat | Images/Month | Videos/Month | Price |
+|------|-----------|-------------|-------------|-------|
+| Free | 10 | 0 | 0 | Free |
+| Plus | 100 | 25 | 5 | ₹199/mo |
+| Pro | 100 | 100 | 25 | ₹499/mo |
+
+Quota enforcement is in `backend/supabase_client.py` (`check_image_quota`, `check_video_quota`, `check_user_quota`).
+Image/video enforcement runs in `backend/main.py` before generation.
+Frontend shows styled quota error cards with an "Upgrade Plan" link to `/pricing.html`.
+
+**DB Migration Required**: The `users` table needs three new columns. Run `backend/migrate_quota_columns.sql` in the Supabase Dashboard SQL Editor.
+
 ## Development
 The workflow `Start application` runs `bash start.sh` which:
 1. Starts uvicorn (FastAPI) on localhost:8000
