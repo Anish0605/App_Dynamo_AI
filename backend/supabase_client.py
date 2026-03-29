@@ -52,7 +52,7 @@ check_migration_status()
 PLAN_LIMITS = {
     "free":  {"daily_chat": 10,  "images_month": 0,   "videos_month": 0},
     "plus":  {"daily_chat": 100, "images_month": 25,  "videos_month": 5},
-    "pro":   {"daily_chat": 100, "images_month": 100, "videos_month": 25},
+    "pro":   {"daily_chat": 300, "images_month": 100, "videos_month": 25},
 }
 
 
