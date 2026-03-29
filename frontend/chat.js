@@ -315,12 +315,13 @@ window.sendFromInput = async () => {
       const isSearchMode = window.dynamoUI?.tools?.has('search') || false;
       const isDeepMode = window.dynamoUI?.tools?.has('deep') || window.dynamoUI?.model === 'research' || false;
       const isResearchMode = window.dynamoUI?.model === 'research' || false;
+      const isQuiz = isQuizPrompt(msg);
 
-      // Don't force image generation in Research Mode (prioritize sources/search)
-      const forceImage = isImagePrompt(msg) && !isResearchMode;
+      // Don't force image if it's a quiz request or in Research Mode (prioritize quiz/sources)
+      const forceImage = !isQuiz && isImagePrompt(msg) && !isResearchMode;
 
       const payload = {
-        message: isQuizPrompt(msg) ? buildQuizPrompt(msg) : msg,
+        message: isQuiz ? buildQuizPrompt(msg) : msg,
         history: cleanHistory,
         use_search: isSearchMode,
         deep_dive: isDeepMode,
