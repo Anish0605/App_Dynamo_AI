@@ -39,7 +39,7 @@ def normalize_history(history):
 # CORE AI ROUTER
 # --------------------------------------------------
 
-def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
+def get_ai_response(prompt, history, model_name, context="", deep_dive=False, memories=None):
     msg_lower = prompt.lower()
 
     # -------------------------
@@ -76,6 +76,19 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False):
             "Use headings, bullet points, or sections ONLY when helpful.\n"
             "DO NOT force any fixed format like executive summaries.\n"
     )
+
+    # -------------------------
+    # MEMORY INJECTION
+    # -------------------------
+    if memories:
+        from memory import format_for_prompt
+        mem_block = format_for_prompt(memories)
+        if mem_block:
+            sys_prompt += (
+                "\n\nWhat you remember about this user:\n"
+                + mem_block +
+                "\nUse this context naturally — don't announce it unless directly relevant."
+            )
 
     # -------------------------
     # FULL PROMPT

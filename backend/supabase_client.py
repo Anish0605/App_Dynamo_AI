@@ -42,7 +42,20 @@ def check_migration_status():
         print("  SQL Editor: https://supabase.com/dashboard/project/jbulnpcqxtbjobrclsqq/sql")
 
 
+def check_memory_table():
+    """Check if user_memories table exists; log warning if not."""
+    if not supabase:
+        return
+    try:
+        supabase.table("user_memories").select("id").limit(1).execute()
+        print("user_memories table verified OK")
+    except Exception as e:
+        print("WARNING: user_memories table missing — run backend/migrate_memory.sql in Supabase Dashboard.")
+        print("  SQL Editor: https://supabase.com/dashboard/project/jbulnpcqxtbjobrclsqq/sql")
+
+
 check_migration_status()
+check_memory_table()
 
 
 # --------------------------------------------------

@@ -8,8 +8,10 @@ from pydantic import BaseModel
 import uvicorn
 import os
 
+import asyncio
 import config
 import model
+import memory as memory_module
 import search
 import image
 import voice
@@ -192,6 +194,13 @@ async def chat(req: ChatReq):
             })
 
     # -------------------------
+    # 🧠 3.5 LOAD MEMORIES
+    # -------------------------
+    memories = []
+    if user:
+        memories = memory_module.fetch_memories(supabase_client.supabase, user["id"])
+
+    # -------------------------
     # 🔍 4. SEARCH
     # -------------------------
     context = ""
@@ -208,7 +217,8 @@ async def chat(req: ChatReq):
         history=history,
         model_name=req.model,
         context=context,
-        deep_dive=req.deep_dive
+        deep_dive=req.deep_dive,
+        memories=memories
     )
 
     # -------------------------
@@ -217,8 +227,23 @@ async def chat(req: ChatReq):
     if chat_id:
         save_message(chat_id, "user", req.message)
         save_message(chat_id, "assistant", response)
+
     # -------------------------
-    # 🔥 6.1 INCREMENT QUOTA
+    # 🧠 6.5 EXTRACT MEMORIES (background)
+    # -------------------------
+    if user:
+        def _extract_and_save():
+            try:
+                new_memories = memory_module.extract_memories(req.message, response)
+                if new_memories:
+                    memory_module.save_memories(supabase_client.supabase, user["id"], new_memories)
+            except Exception as e:
+                print(f"Background memory extraction error: {e}")
+        loop = asyncio.get_event_loop()
+        loop.run_in_executor(None, _extract_and_save)
+
+    # -------------------------
+    # 🔥 6.6 INCREMENT QUOTA
     # -------------------------
     if user:
         supabase_client.increment_quota(user)
@@ -272,6 +297,25 @@ async def follow_ups(req: FollowUpReq):
     except Exception as e:
         print(f"❌ Follow-ups error: {e}")
         return {"follow_ups": []}
+
+# --------------------------------------------------
+# MEMORY ENDPOINTS
+# --------------------------------------------------
+
+@app.get("/memory")
+async def get_memories(user_id: str):
+    mems = memory_module.fetch_memories(supabase_client.supabase, user_id)
+    return {"memories": mems}
+
+@app.delete("/memory/{memory_id}")
+async def delete_memory(memory_id: str):
+    ok = memory_module.delete_memory(supabase_client.supabase, memory_id)
+    return {"success": ok}
+
+@app.delete("/memory")
+async def clear_memories(user_id: str):
+    ok = memory_module.clear_all_memories(supabase_client.supabase, user_id)
+    return {"success": ok}
 
 # --------------------------------------------------
 # CHAT WITH FILE (FormData — separate endpoint)
