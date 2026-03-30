@@ -244,31 +244,33 @@ class FollowUpReq(BaseModel):
 async def follow_ups(req: FollowUpReq):
     import google.generativeai as genai
     import config as cfg
+    import json
+    import re
     genai.configure(api_key=cfg.GEMINI_KEY)
     prompt = (
-        f"The user asked: \"{req.message}\"\n\n"
-        f"The AI answered: \"{req.response[:600]}\"\n\n"
-        "Generate exactly 4 short, natural follow-up questions the user might want to ask next. "
-        "Return ONLY a JSON array of strings, no explanation, no markdown. Example: "
-        "[\"Question 1?\", \"Question 2?\", \"Question 3?\", \"Question 4?\"]"
+        f"User asked: {req.message}\n\n"
+        f"AI answered: {req.response[:500]}\n\n"
+        "List 4 short follow-up questions the user might ask next.\n"
+        "Rules: Return ONLY a valid JSON array of 4 strings. No markdown. No explanation.\n"
+        "Output format: [\"Question 1?\", \"Question 2?\", \"Question 3?\", \"Question 4?\"]"
     )
     try:
-        m = genai.GenerativeModel("gemini-2.0-flash-lite")
+        m = genai.GenerativeModel("gemini-2.0-flash")
         r = m.generate_content(prompt)
         text = r.text.strip()
-        # Strip markdown code fences if present
-        if text.startswith("```"):
-            text = text.split("```")[1]
-            if text.startswith("json"):
-                text = text[4:]
-        import json
-        questions = json.loads(text.strip())
+        # Find JSON array in the response (handles markdown code fences too)
+        match = re.search(r'\[.*?\]', text, re.DOTALL)
+        if match:
+            text = match.group(0)
+        questions = json.loads(text)
         if isinstance(questions, list):
-            questions = [q for q in questions if isinstance(q, str)][:4]
+            questions = [str(q).strip() for q in questions if q][:4]
         else:
             questions = []
+        print(f"✅ Follow-ups generated: {questions}")
         return {"follow_ups": questions}
     except Exception as e:
+        print(f"❌ Follow-ups error: {e}")
         return {"follow_ups": []}
 
 # --------------------------------------------------
