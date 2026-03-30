@@ -946,12 +946,11 @@ window.sendFromInput = async () => {
     const sources = showSources ? (res.sources || []) : [];
     const msgDiv = renderAssistantMessage(res.content || "", res.content, true, sources);
 
-    // 🔁 Generate follow-ups after response renders (async, non-blocking)
-    // Disabled for now — will re-enable in deepthink mode with better debugging
-    // const lastUserMsg = window.chatHistory.filter(m => m.role === "user").slice(-1)[0]?.content || "";
-    // if (lastUserMsg && res.content) {
-    //   setTimeout(() => generateFollowUps(lastUserMsg, res.content, msgDiv), 800);
-    // }
+    // 🔁 Follow-ups — only in DeepThink mode, uses msg directly (reliable)
+    const isDeepThinkActive = window.dynamoUI?.tools?.has('deep') || false;
+    if (isDeepThinkActive && msg && res.content) {
+      generateFollowUps(msg, res.content, msgDiv);
+    }
   } catch (e) {
   console.error("Chat error:", e);
   hideThinking();
