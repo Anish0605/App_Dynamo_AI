@@ -784,29 +784,39 @@ window.sendFromInput = async () => {
             downloadBtn.disabled = true;
             downloadBtn.innerHTML = "⏳ Generating...";
             
-            // Calculate tree dimensions first
+            // Calculate tree dimensions first - now includes breadth
             function getTreeDimensions(node, level = 0) {
               let height = 1;
               let width = 1;
+              let maxBreadth = node.children && Array.isArray(node.children) ? node.children.length : 1;
               if (node.children && Array.isArray(node.children)) {
+                let totalChildWidth = 0;
                 node.children.forEach(child => {
                   const childDim = getTreeDimensions(child, level + 1);
-                  height += childDim.height;
-                  width = Math.max(width, childDim.width + 1);
+                  height = Math.max(height, childDim.height + 1);
+                  totalChildWidth += childDim.width;
+                  maxBreadth = Math.max(maxBreadth, childDim.breadth);
                 });
+                width = Math.max(maxBreadth, totalChildWidth / node.children.length);
               }
-              return { height, width };
+              return { height, width, breadth: maxBreadth };
             }
             
             const treeDim = getTreeDimensions(res.root);
             const nodeHeight = 50;
-            const nodeWidth = 220;
-            const horizontalSpacing = 280;
-            const verticalSpacing = 120;
+            const nodeWidth = 180;
+            const horizontalSpacing = 240;
+            const verticalSpacing = 100;
             const padding = 60;
             
-            const canvasHeight = Math.max(800, (treeDim.height * verticalSpacing) + padding * 2);
-            const canvasWidth = Math.max(1000, (treeDim.width * horizontalSpacing) + padding * 2);
+            // Force landscape: width should be at least 1.5x height
+            let canvasHeight = Math.max(600, (treeDim.height * verticalSpacing) + padding * 2);
+            let canvasWidth = Math.max(1200, (treeDim.breadth * horizontalSpacing) + padding * 2);
+            
+            // Ensure landscape orientation (width > height)
+            if (canvasWidth < canvasHeight) {
+              canvasWidth = canvasHeight * 1.5;
+            }
             
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
