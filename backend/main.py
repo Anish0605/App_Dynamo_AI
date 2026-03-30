@@ -233,6 +233,45 @@ async def chat(req: ChatReq):
     }
 
 # --------------------------------------------------
+# FOLLOW-UPS ENDPOINT
+# --------------------------------------------------
+
+class FollowUpReq(BaseModel):
+    message: str
+    response: str
+
+@app.post("/follow-ups")
+async def follow_ups(req: FollowUpReq):
+    import google.generativeai as genai
+    import config as cfg
+    genai.configure(api_key=cfg.GEMINI_KEY)
+    prompt = (
+        f"The user asked: \"{req.message}\"\n\n"
+        f"The AI answered: \"{req.response[:600]}\"\n\n"
+        "Generate exactly 4 short, natural follow-up questions the user might want to ask next. "
+        "Return ONLY a JSON array of strings, no explanation, no markdown. Example: "
+        "[\"Question 1?\", \"Question 2?\", \"Question 3?\", \"Question 4?\"]"
+    )
+    try:
+        m = genai.GenerativeModel("gemini-2.0-flash-lite")
+        r = m.generate_content(prompt)
+        text = r.text.strip()
+        # Strip markdown code fences if present
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        import json
+        questions = json.loads(text.strip())
+        if isinstance(questions, list):
+            questions = [q for q in questions if isinstance(q, str)][:4]
+        else:
+            questions = []
+        return {"follow_ups": questions}
+    except Exception as e:
+        return {"follow_ups": []}
+
+# --------------------------------------------------
 # CHAT WITH FILE (FormData — separate endpoint)
 # --------------------------------------------------
 

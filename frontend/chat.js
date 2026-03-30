@@ -944,7 +944,13 @@ window.sendFromInput = async () => {
     // Sources only show in Research Mode + Web Search combo
     const showSources = (window.dynamoUI?.model === 'research' && window.dynamoUI?.tools?.has('search')) || false;
     const sources = showSources ? (res.sources || []) : [];
-    renderAssistantMessage(res.content || "", res.content, true, sources);
+    const msgDiv = renderAssistantMessage(res.content || "", res.content, true, sources);
+
+    // 🔁 Generate follow-ups after response renders (async, non-blocking)
+    const lastUserMsg = window.chatHistory.filter(m => m.role === "user").slice(-1)[0]?.content || "";
+    if (lastUserMsg && res.content) {
+      setTimeout(() => generateFollowUps(lastUserMsg, res.content, msgDiv), 800);
+    }
   } catch (e) {
   console.error("Chat error:", e);
   hideThinking();
@@ -1114,8 +1120,67 @@ function renderAssistantMessage(html, rawText = "", save = true, sources = []) {
 
   window.chatHistory.push({ role: "assistant", content: text });
   if (save) saveMessage("assistant", text);
+
+  return div;
 }
 window.renderAssistantMessage = renderAssistantMessage;
+
+/* =========================================================
+   🔁 FOLLOW-UPS (Perplexity-style)
+========================================================= */
+
+async function generateFollowUps(userQuestion, aiResponse, parentDiv) {
+  if (!userQuestion || !aiResponse || !parentDiv) return;
+
+  try {
+    const res = await fetch(`${window.BACKEND_URL}/follow-ups`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: userQuestion, response: aiResponse })
+    });
+    const data = await res.json();
+    const questions = data?.follow_ups;
+    if (!questions || questions.length === 0) return;
+
+    const bubbleWrapper = parentDiv.querySelector(".assistant-msg-wrapper");
+    if (!bubbleWrapper) return;
+
+    const section = document.createElement("div");
+    section.className = "mt-4 pt-3 border-t border-gray-200 dark:border-gray-600";
+
+    section.innerHTML = `
+      <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 mb-2 tracking-wide uppercase">Follow-ups</p>
+      <div class="follow-up-list flex flex-col gap-1.5"></div>
+    `;
+
+    const list = section.querySelector(".follow-up-list");
+    questions.forEach(q => {
+      const btn = document.createElement("button");
+      btn.className = [
+        "flex items-start gap-2 text-left text-sm w-full",
+        "py-2 px-0 border-b border-gray-100 dark:border-gray-700",
+        "text-gray-700 dark:text-gray-300 hover:text-yellow-500 dark:hover:text-yellow-400",
+        "transition-colors duration-150 group last:border-b-0"
+      ].join(" ");
+      btn.innerHTML = `
+        <span class="mt-0.5 text-gray-400 group-hover:text-yellow-500 text-base leading-none select-none">↳</span>
+        <span class="leading-snug">${q}</span>
+      `;
+      btn.addEventListener("click", () => {
+        if (typeof window.sendFromInputWithText === "function") {
+          window.sendFromInputWithText(q);
+        }
+      });
+      list.appendChild(btn);
+    });
+
+    bubbleWrapper.appendChild(section);
+    scrollToBottom();
+  } catch {
+    // Silently ignore — follow-ups are optional
+  }
+}
+window.generateFollowUps = generateFollowUps;
 
 /* =========================================================
    ➕ NEW CHAT
