@@ -53,7 +53,7 @@ class ChatReq(BaseModel):
     use_search: bool = True
     deep_dive: bool = False
     force_image: bool = False
-    model: str = "gemini-2.0-flash"
+    model: str = "gemini-3.1-flash-lite-preview"
     chat_id: str | None = None
     user_id: str | None = None
 # --------------------------------------------------
@@ -308,7 +308,7 @@ async def chat_with_file(
         response = model.get_ai_response(
             prompt=combined_prompt,
             history=parsed_history,
-            model_name="gemini-2.0-flash",
+            model_name="gemini-3.1-flash-lite-preview",
             context="",
             deep_dive=False
         )
@@ -342,7 +342,7 @@ async def transcribe_audio(audio: UploadFile = File(...)):
         
         # Use Gemini's audio understanding (free & fast)
         genai.configure(api_key=config.GEMINI_KEY)
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
         
         # Convert audio to base64
         import base64
@@ -426,7 +426,7 @@ CONVERSATION:
 """
 
     try:
-        ai_model = genai.GenerativeModel("gemini-2.0-flash")
+        ai_model = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
         resp = ai_model.generate_content(slide_prompt)
         raw = resp.text.strip()
 
