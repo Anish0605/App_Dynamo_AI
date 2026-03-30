@@ -60,6 +60,14 @@ window.selectModel = (modelId, btn) => {
 
   btn?.classList.add("active");
 
+  if (modelId === 'research') {
+    if (!window.dynamoUI.tools.has('search')) {
+      window.dynamoUI.tools.add('search');
+      const searchBtn = document.querySelector('[data-tool-btn="search"]');
+      searchBtn?.classList.add('active');
+    }
+  }
+
   console.log("✅ Model selected:", modelId);
 };
 
