@@ -158,7 +158,17 @@ window.clearAllMemories = async () => {
 /* =====================================================
    CLOSE ON OUTSIDE CLICK
 ===================================================== */
+let _memoryModalJustOpened = false;
+
+const _origOpen = window.openMemoryModal;
+window.openMemoryModal = async (...args) => {
+  _memoryModalJustOpened = true;
+  setTimeout(() => { _memoryModalJustOpened = false; }, 50);
+  return _origOpen(...args);
+};
+
 document.addEventListener("click", (e) => {
+  if (_memoryModalJustOpened) return;
   const modal = document.getElementById("memory-modal");
   const inner = document.getElementById("memory-modal-inner");
   if (modal && !modal.classList.contains("hidden") && inner && !inner.contains(e.target)) {

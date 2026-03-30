@@ -435,7 +435,7 @@
         <span class="profile-arrow">›</span>
       </div>
 
-      <div class="profile-item" id="memory-btn" onclick="window.openMemoryModal(); document.getElementById('profile-modal').classList.add('hidden');">
+      <div class="profile-item" id="memory-btn" onclick="event.stopPropagation(); document.getElementById('profile-modal').classList.add('hidden'); window.openMemoryModal();">
         <div class="profile-item-left">
           <i data-lucide="brain" class="text-gray-700 dark:text-gray-300"></i>
           <span>AI Memory</span>
