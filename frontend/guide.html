@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to Use Dynamo AI - Complete User Guide</title>
+  <meta name="description" content="Learn how to use Dynamo AI. Step-by-step guide for all features: Radio Mode, Web Search, Deep Dive, Image Analysis, PDF Chat, Voice Input, and more." />
+  <meta name="keywords" content="Dynamo AI guide, user tutorial, how to use AI, Radio Mode, Web Search, AI research guide" />
+  <meta name="author" content="Dynamo AI" />
+  <meta name="robots" content="index, follow" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: { gray: { 850: "#1f2937" } },
+        },
+      },
+    };
+    if (
+      localStorage.theme === "dark" ||
+      (!("theme" in localStorage) &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      document.documentElement.classList.add("dark");
+    }
+  </script>
+
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    .guide-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+      margin-bottom: 5rem;
+      padding: 3rem;
+    }
+    .guide-section.reverse { direction: rtl; }
+    .guide-section.reverse > * { direction: ltr; }
+    .guide-section.alt { grid-template-columns: 1fr 1fr; }
+    
+    @media (max-width: 768px) {
+      .guide-section {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+      }
+    }
+
+    .feature-card {
+      background: linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 193, 7, 0.02) 100%);
+      border: 1px solid rgba(255, 193, 7, 0.1);
+      border-radius: 1.5rem;
+      padding: 2rem;
+    }
+    .dark .feature-card {
+      background: linear-gradient(135deg, rgba(255, 193, 7, 0.08) 0%, rgba(255, 193, 7, 0.03) 100%);
+      border-color: rgba(255, 193, 7, 0.15);
+    }
+
+    .screenshot-placeholder {
+      width: 100%;
+      height: 400px;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      border-radius: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      font-weight: 600;
+      border: 2px dashed #d1d5db;
+    }
+    .dark .screenshot-placeholder {
+      background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+      border-color: #4b5563;
+      color: #6b7280;
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      background: #FFC107;
+      color: black;
+      border-radius: 0.75rem;
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+    .feature-list li {
+      padding: 0.75rem 0;
+      padding-left: 2rem;
+      position: relative;
+      color: #374151;
+    }
+    .dark .feature-list li { color: #d1d5db; }
+    .feature-list li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      font-weight: 800;
+      color: #FFC107;
+      font-size: 1.25rem;
+    }
+  </style>
+</head>
+
+<body class="bg-white dark:bg-gray-900">
+  <!-- Navigation -->
+  <header class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur border-b border-gray-100 dark:border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 text-xl font-black text-black dark:text-white">
+        <div class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
+          <i data-lucide="zap" class="w-5 h-5 text-black fill-current"></i>
+        </div>
+        Dynamo AI
+      </a>
+      <div class="flex items-center gap-4">
+        <button id="theme-toggle" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-black dark:text-white">
+          <i data-lucide="moon" class="w-5 h-5"></i>
+        </button>
+        <a href="/" class="px-4 py-2 rounded-full bg-yellow-400 text-black font-bold text-sm hover:bg-yellow-500 transition">
+          Back to App
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="bg-gradient-to-b from-yellow-50 to-white dark:from-gray-800 dark:to-gray-900 px-4 md:px-6 py-12 md:py-20">
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-4xl md:text-5xl font-black text-black dark:text-white mb-4">How to Use Dynamo AI</h1>
+      <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">Master every feature with our step-by-step guide. Learn how to unlock the full power of AI research.</p>
+      
+      <!-- Quick Navigation -->
+      <div class="flex flex-wrap justify-center gap-3 mb-8">
+        <a href="#radio-mode" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">🎧 Radio Mode</a>
+        <a href="#web-search" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">🔍 Web Search</a>
+        <a href="#deep-dive" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">🧠 Deep Dive</a>
+        <a href="#pdf-chat" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">📄 PDF Chat</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <div class="max-w-6xl mx-auto px-4 md:px-6 py-12">
+
+    <!-- 1. RADIO MODE -->
+    <section id="radio-mode" class="guide-section">
+      <div class="feature-card">
+        <div class="step-number">1</div>
+        <h2 class="text-3xl font-black text-black dark:text-white mb-4">🎧 Radio Mode - Listen to Responses</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">Transform your research into an immersive audio experience. Perfect for commutes, workouts, or when you prefer to listen instead of read.</p>
+        
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
+        <ol class="space-y-3">
+          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Click the <strong>Tools button</strong> in the input bar</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Toggle <strong>"🎧 Radio Mode"</strong> on</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Type your question and send</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> AI response plays automatically as audio</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Control playback with play/pause buttons</li>
+        </ol>
+
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3 mt-6">Benefits:</h3>
+        <ul class="feature-list">
+          <li>Hands-free learning while on-the-go</li>
+          <li>Natural speech synthesis for better understanding</li>
+          <li>Adjustable playback speed</li>
+          <li>Works in dark mode for late-night study</li>
+        </ul>
+      </div>
+
+      <div class="screenshot-placeholder">
+        📱 Radio Mode Screenshot<br/>
+        <span class="text-sm">(Shows: Tools menu with Radio Mode toggle enabled)</span>
+      </div>
+    </section>
+
+    <!-- 2. WEB SEARCH -->
+    <section id="web-search" class="guide-section reverse">
+      <div class="screenshot-placeholder">
+        📱 Web Search Screenshot<br/>
+        <span class="text-sm">(Shows: Search enabled in Tools, live web results)</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="step-number">2</div>
+        <h2 class="text-3xl font-black text-black dark:text-white mb-4">🔍 Web Search - Real-Time Information</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">Get the latest information from the internet. Perfect for current events, latest trends, breaking news, and up-to-date data.</p>
+        
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
+        <ol class="space-y-3">
+          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Click <strong>Tools</strong> button</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Under "Research Tools", enable <strong>Web Search</strong></li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Ask any question about recent events</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Dynamo searches the web and provides fresh answers</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Sources are cited in the response</li>
+        </ol>
+
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3 mt-6">Example Queries:</h3>
+        <ul class="feature-list">
+          <li>"Latest AI news March 2024"</li>
+          <li>"Bitcoin price today"</li>
+          <li>"Current weather trends"</li>
+          <li>"Breaking news today"</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3. DEEP DIVE (DeepThink) -->
+    <section id="deep-dive" class="guide-section">
+      <div class="feature-card">
+        <div class="step-number">3</div>
+        <h2 class="text-3xl font-black text-black dark:text-white mb-4">🧠 Deep Dive - Advanced Analysis</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">Enable advanced thinking mode for complex problems. The AI takes more time to analyze and provide comprehensive, detailed answers.</p>
+        
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
+        <ol class="space-y-3">
+          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Open the <strong>Tools menu</strong></li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Click <strong>"DeepThink"</strong> button</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Ask a complex question</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Wait for detailed analysis (takes slightly longer)</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Get comprehensive, well-reasoned responses</li>
+        </ol>
+
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3 mt-6">Best For:</h3>
+        <ul class="feature-list">
+          <li>Complex problem solving</li>
+          <li>Research and analysis</li>
+          <li>Strategy and planning</li>
+          <li>Critical thinking tasks</li>
+          <li>Academic essays and reports</li>
+        </ul>
+      </div>
+
+      <div class="screenshot-placeholder">
+        📱 Deep Dive Screenshot<br/>
+        <span class="text-sm">(Shows: DeepThink toggle enabled, detailed response)</span>
+      </div>
+    </section>
+
+    <!-- 4. DOCUMENT ANALYSIS -->
+    <section id="pdf-chat" class="guide-section reverse">
+      <div class="screenshot-placeholder">
+        📱 PDF Chat Screenshot<br/>
+        <span class="text-sm">(Shows: Document uploaded, Q&A interface)</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="step-number">4</div>
+        <h2 class="text-3xl font-black text-black dark:text-white mb-4">📄 Chat with Documents - PDF Analysis</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">Upload PDFs, Word docs, or any document and ask questions about their content. Get instant answers backed by your documents.</p>
+        
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
+        <ol class="space-y-3">
+          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Click the <strong>📎 paperclip icon</strong> in input bar</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Select document from your device</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Upload will process automatically</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Ask questions about the content</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Get answers with exact locations in document</li>
+        </ol>
+
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3 mt-6">Supported Formats:</h3>
+        <ul class="feature-list">
+          <li>PDF documents</li>
+          <li>Microsoft Word (.docx)</li>
+          <li>Text files (.txt)</li>
+          <li>Images with text</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 5. IMAGE ANALYSIS -->
+    <section id="image-analysis" class="guide-section">
+      <div class="feature-card">
+        <div class="step-number">5</div>
+        <h2 class="text-3xl font-black text-black dark:text-white mb-4">🖼️ Image Analysis - Visual Understanding</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">Upload images and ask questions about them. Perfect for research, data extraction, and visual analysis.</p>
+        
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
+        <ol class="space-y-3">
+          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Click the <strong>📎 attach button</strong></li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Choose an image file</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Upload image automatically</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Ask what you want to know about the image</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Get detailed visual analysis</li>
+        </ol>
+
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3 mt-6">Use Cases:</h3>
+        <ul class="feature-list">
+          <li>Extract text from images (OCR)</li>
+          <li>Analyze charts and graphs</li>
+          <li>Describe photos in detail</li>
+          <li>Identify objects and items</li>
+          <li>Analyze screenshots</li>
+        </ul>
+      </div>
+
+      <div class="screenshot-placeholder">
+        📱 Image Analysis Screenshot<br/>
+        <span class="text-sm">(Shows: Image uploaded with analysis)</span>
+      </div>
+    </section>
+
+    <!-- 6. VOICE INPUT -->
+    <section id="voice-input" class="guide-section reverse">
+      <div class="screenshot-placeholder">
+        📱 Voice Input Screenshot<br/>
+        <span class="text-sm">(Shows: Microphone recording state)</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="step-number">6</div>
+        <h2 class="text-3xl font-black text://twitter.com/dynamoai_in
+black dark:text-white mb-4">🎤 Voice Input - Speak Your Query</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">Use voice to ask questions instead of typing. Great for quick queries and hands-free interaction.</p>
+        
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
+        <ol class="space-y-3">
+          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Click the <strong>🎤 mic button</strong> (red icon)</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Speak your question clearly</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Voice is transcribed to text</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Click send or wait for auto-send</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Get instant response</li>
+        </ol>
+
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3 mt-6">Tips:</h3>
+        <ul class="feature-list">
+          <li>Speak slowly and clearly</li>
+          <li>Ensure microphone permissions are granted</li>
+          <li>Works best in quiet environments</li>
+          <li>Edit transcription before sending if needed</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 7. MODEL SELECTION -->
+    <section id="models" class="guide-section">
+      <div class="feature-card">
+        <div class="step-number">7</div>
+        <h2 class="text-3xl font-black text-black dark:text-white mb-4">⚡ Model Selection - Choose Your Speed</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">Switch between different AI models. Fast Mode for quick answers, Research Mode for comprehensive analysis.</p>
+        
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3">Available Models:</h3>
+        
+        <div class="bg-yellow-50 dark:bg-gray-800 p-4 rounded-lg mb-4">
+          <h4 class="font-bold text-black dark:text-white mb-2">⚡ Fast Mode (Default)</h4>
+          <p class="text-gray-700 dark:text-gray-300">Super quick responses, perfect for casual questions and brainstorming. Instant results.</p>
+        </div>
+
+        <div class="bg-purple-50 dark:bg-gray-800 p-4 rounded-lg">
+          <h4 class="font-bold text-black dark:text-white mb-2">🔬 Research Mode</h4>
+          <p class="text-gray-700 dark:text-gray-300">Advanced model for deep analysis. Best used with DeepThink and Web Search for comprehensive research.</p>
+        </div>
+
+        <p class="text-gray-600 dark:text-gray-300 mt-4">Switch models in the <strong>Tools</strong> menu under "🧠 Model Selection"</p>
+      </div>
+
+      <div class="screenshot-placeholder">
+        📱 Model Selection Screenshot<br/>
+        <span class="text-sm">(Shows: Fast Mode and Research Mode options)</span>
+      </div>
+    </section>
+
+    <!-- 8. EXPORT & SAVE -->
+    <section id="export" class="guide-section reverse">
+      <div class="screenshot-placeholder">
+        📱 Export Menu Screenshot<br/>
+        <span class="text-sm">(Shows: PowerPoint, Word, PDF export options)</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="step-number">8</div>
+        <h2 class="text-3xl font-black text-black dark:text-white mb-4">💾 Export & Save - Create Reports</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">Convert your chat conversations into professional documents. Perfect for presentations and sharing.</p>
+        
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3">Export Formats:</h3>
+        <ol class="space-y-3">
+          <li class="text-gray-700 dark:text-gray-400"><strong>📊 PowerPoint:</strong> Professional presentation with formatted slides</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>📄 Word Doc:</strong> Editable document with full conversation</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>📋 PDF File:</strong> Print-ready document</li>
+        </ol>
+
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3 mt-6">How to Export:</h3>
+        <ol class="space-y-2">
+          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Look for <strong>"Quick Tools"</strong> section in sidebar</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Click <strong>"Export / Save"</strong></li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Choose your format</li>
+          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Document downloads automatically</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 9. SMART ACTIONS -->
+    <section id="smart-actions" class="guide-section">
+      <div class="feature-card">
+        <div class="step-number">9</div>
+        <h2 class="text-3xl font-black text-black dark:text-white mb-4">✨ Smart Actions - One-Click Operations</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">Perform common tasks with a single click. Found in the sidebar under "Smart Actions".</p>
+        
+        <h3 class="text-xl font-bold text-black dark:text-white mb-3">Available Actions:</h3>
+        
+        <div class="space-y-3">
+          <div class="bg-blue-50 dark:bg-gray-800 p-3 rounded-lg">
+            <h4 class="font-bold text-black dark:text-white">📝 Summarise</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300">Create a quick summary of the last AI response</p>
+          </div>
+
+          <div class="bg-green-50 dark:bg-gray-800 p-3 rounded-lg">
+            <h4 class="font-bold text-black dark:text-white">💡 Explain Simply</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300">Get an easy-to-understand explanation of complex ideas</p>
+          </div>
+
+          <div class="bg-orange-50 dark:bg-gray-800 p-3 rounded-lg">
+            <h4 class="font-bold text-black dark:text-white">📊 Create Executive Deck</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300">Generate a professional PowerPoint presentation from your conversation</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="screenshot-placeholder">
+        📱 Smart Actions Screenshot<br/>
+        <span class="text-sm">(Shows: Sidebar with all smart actions)</span>
+      </div>
+    </section>
+
+    <!-- 10. TIPS & TRICKS -->
+    <section id="tips" class="py-12">
+      <div class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-800 dark:to-gray-750 rounded-3xl p-8 md:p-12">
+        <h2 class="text-3xl md:text-4xl font-black text-black dark:text-white mb-8 text-center">💡 Pro Tips & Tricks</h2>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
+            <h3 class="font-bold text-lg text-black dark:text-white mb-2">Combine Tools</h3>
+            <p class="text-gray-600 dark:text-gray-300">Use Web Search + DeepThink together for the best research results with real-time data and deep analysis.</p>
+          </div>
+
+          <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
+            <h3 class="font-bold text-lg text-black dark:text-white mb-2">Use History</h3>
+            <p class="text-gray-600 dark:text-gray-300">Access past conversations from the sidebar history. Search for specific chats using the search box.</p>
+          </div>
+
+          <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
+            <h3 class="font-bold text-lg text-black dark:text-white mb-2">Model + Mode</h3>
+            <p class="text-gray-600 dark:text-gray-300">Use Research Mode with Deep Dive for the most comprehensive answers. Fast Mode for quick brainstorms.</p>
+          </div>
+
+          <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
+            <h3 class="font-bold text-lg text-black dark:text-white mb-2">Voice + Radio</h3>
+            <p class="text-gray-600 dark:text-gray-300">Enable Radio Mode, then use voice input for a completely hands-free, audio-first experience.</p>
+          </div>
+
+          <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
+            <h3 class="font-bold text-lg text-black dark:text-white mb-2">Export Early</h3>
+            <p class="text-gray-600 dark:text-gray-300">Export important conversations to PowerPoint or PDF right away to preserve your work.</p>
+          </div>
+
+          <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
+            <h3 class="font-bold text-lg text-black dark:text-white mb-2">Multiple Uploads</h3>
+            <p class="text-gray-600 dark:text-gray-300">Upload images, PDFs, and documents in one conversation for comprehensive analysis.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-12">
+      <h2 class="text-3xl md:text-4xl font-black text-black dark:text-white mb-8 text-center">❓ Frequently Asked Questions</h2>
+      
+      <div class="space-y-6">
+        <details class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer">
+          <summary class="flex items-center justify-between font-bold text-lg text-black dark:text-white">
+            Can I use Dynamo AI offline?
+            <i data-lucide="chevron-down" class="w-5 h-5 group-open:rotate-180 transition"></i>
+          </summary>
+          <p class="text-gray-600 dark:text-gray-300 mt-4">Dynamo AI requires an internet connection to function as it connects to AI servers. However, your history is saved locally.</p>
+        </details>
+
+        <details class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer">
+          <summary class="flex items-center justify-between font-bold text-lg text-black dark:text-white">
+            How much data can I upload at once?
+            <i data-lucide="chevron-down" class="w-5 h-5 group-open:rotate-180 transition"></i>
+          </summary>
+          <p class="text-gray-600 dark:text-gray-300 mt-4">You can upload documents up to 25MB per file. For best results, keep files under 10MB for faster processing.</p>
+        </details>
+
+        <details class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer">
+          <summary class="flex items-center justify-between font-bold text-lg text-black dark:text-white">
+            Is my data private and secure?
+            <i data-lucide="chevron-down" class="w-5 h-5 group-open:rotate-180 transition"></i>
+          </summary>
+          <p class="text-gray-600 dark:text-gray-300 mt-4">Yes! Your data is encrypted and stored securely. We don't share your information with third parties. Conversations are tied to your account only.</p>
+        </details>
+
+        <details class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer">
+          <summary class="flex items-center justify-between font-bold text-lg text-black dark:text-white">
+            What's the difference between Fast and Research modes?
+            <i data-lucide="chevron-down" class="w-5 h-5 group-open:rotate-180 transition"></i>
+          </summary>
+          <p class="text-gray-600 dark:text-gray-300 mt-4"><strong>Fast Mode:</strong> Instant responses, great for brainstorming. <strong>Research Mode:</strong> More detailed analysis, perfect with Web Search and DeepThink for comprehensive research.</p>
+        </details>
+
+        <details class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer">
+          <summary class="flex items-center justify-between font-bold text-lg text-black dark:text-white">
+            How do I contact support?
+            <i data-lucide="chevron-down" class="w-5 h-5 group-open:rotate-180 transition"></i>
+          </summary>
+          <p class="text-gray-600 dark:text-gray-300 mt-4">Click on your profile (bottom of sidebar) and select "Support". You can also email us directly or reach out through social media @dynamoai_in</p>
+        </details>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 md:px-6 py-12">
+    <div class="max-w-6xl mx-auto text-center">
+      <p class="text-gray-600 dark:text-gray-400 mb-4">
+        Ready to get started? <a href="/" class="font-bold text-yellow-600 dark:text-yellow-400 hover:underline">Launch Dynamo AI</a>
+      </p>
+      <p class="text-sm text-gray-500 dark:text-gray-500">
+        Made with ❤️ by Dynamo AI | © 2024 All rights reserved
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    });
+    
+    lucide.createIcons();
+  </script>
+</body>
+</html>
