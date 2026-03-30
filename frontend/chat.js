@@ -1162,10 +1162,18 @@ async function generateFollowUps(userQuestion, aiResponse, parentDiv) {
         "text-gray-700 dark:text-gray-300 hover:text-yellow-500 dark:hover:text-yellow-400",
         "transition-colors duration-150 group last:border-b-0"
       ].join(" ");
-      btn.innerHTML = `
-        <span class="mt-0.5 text-gray-400 group-hover:text-yellow-500 text-base leading-none select-none">↳</span>
-        <span class="leading-snug">${q}</span>
-      `;
+      
+      const arrow = document.createElement("span");
+      arrow.className = "mt-0.5 text-gray-400 group-hover:text-yellow-500 text-base leading-none select-none";
+      arrow.textContent = "↳";
+      
+      const text = document.createElement("span");
+      text.className = "leading-snug";
+      text.textContent = q;
+      
+      btn.appendChild(arrow);
+      btn.appendChild(text);
+      
       btn.addEventListener("click", () => {
         if (typeof window.sendFromInputWithText === "function") {
           window.sendFromInputWithText(q);
