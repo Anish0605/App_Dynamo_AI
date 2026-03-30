@@ -948,7 +948,9 @@ window.sendFromInput = async () => {
 
     // 🔁 Follow-ups — only in DeepThink mode, uses msg directly (reliable)
     const isDeepThinkActive = window.dynamoUI?.tools?.has('deep') || false;
+    console.log("🔍 DeepThink check:", { isDeepThinkActive, msg: !!msg, content: !!res.content });
     if (isDeepThinkActive && msg && res.content) {
+      console.log("✅ Calling generateFollowUps with msg:", msg.substring(0, 50));
       generateFollowUps(msg, res.content, msgDiv);
     }
   } catch (e) {
@@ -1130,20 +1132,34 @@ window.renderAssistantMessage = renderAssistantMessage;
 ========================================================= */
 
 async function generateFollowUps(userQuestion, aiResponse, parentDiv) {
-  if (!userQuestion || !aiResponse || !parentDiv) return;
+  console.log("🚀 generateFollowUps called with:", { userQuestion: !!userQuestion, aiResponse: !!aiResponse, parentDiv: !!parentDiv });
+  if (!userQuestion || !aiResponse || !parentDiv) {
+    console.log("⚠️ Missing params, returning");
+    return;
+  }
 
   try {
+    console.log("📡 Fetching follow-ups from backend...");
     const res = await fetch(`${window.BACKEND_URL}/follow-ups`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: userQuestion, response: aiResponse })
     });
+    console.log("📍 Response status:", res.status);
     const data = await res.json();
+    console.log("📋 Follow-ups data:", data);
     const questions = data?.follow_ups;
-    if (!questions || questions.length === 0) return;
+    if (!questions || questions.length === 0) {
+      console.log("⚠️ No questions returned");
+      return;
+    }
 
     const bubbleWrapper = parentDiv.querySelector(".assistant-msg-wrapper");
-    if (!bubbleWrapper) return;
+    console.log("🎯 Found wrapper:", !!bubbleWrapper);
+    if (!bubbleWrapper) {
+      console.log("⚠️ No wrapper found");
+      return;
+    }
 
     const section = document.createElement("div");
     section.className = "mt-4 pt-3 border-t border-gray-200 dark:border-gray-600";
