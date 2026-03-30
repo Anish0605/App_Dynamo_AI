@@ -944,14 +944,19 @@ window.sendFromInput = async () => {
     // Sources only show in Research Mode + Web Search combo
     const showSources = (window.dynamoUI?.model === 'research' && window.dynamoUI?.tools?.has('search')) || false;
     const sources = showSources ? (res.sources || []) : [];
-    const msgDiv = renderAssistantMessage(res.content || "", res.content, true, sources);
+    renderAssistantMessage(res.content || "", res.content, true, sources);
 
-    // 🔁 Follow-ups — only in DeepThink mode, uses msg directly (reliable)
+    // 🔁 Follow-ups — only in DeepThink mode
     const isDeepThinkActive = window.dynamoUI?.tools?.has('deep') || false;
-    console.log("🔍 DeepThink check:", { isDeepThinkActive, msg: !!msg, content: !!res.content });
     if (isDeepThinkActive && msg && res.content) {
-      console.log("✅ Calling generateFollowUps with msg:", msg.substring(0, 50));
-      generateFollowUps(msg, res.content, msgDiv);
+      // Wait for DOM to settle, then find the last bubble directly
+      setTimeout(() => {
+        const allWrappers = chatContainer.querySelectorAll(".assistant-msg-wrapper");
+        const lastWrapper = allWrappers[allWrappers.length - 1];
+        if (lastWrapper) {
+          generateFollowUps(msg, res.content, lastWrapper);
+        }
+      }, 300);
     }
   } catch (e) {
   console.error("Chat error:", e);
@@ -1131,35 +1136,18 @@ window.renderAssistantMessage = renderAssistantMessage;
    🔁 FOLLOW-UPS (Perplexity-style)
 ========================================================= */
 
-async function generateFollowUps(userQuestion, aiResponse, parentDiv) {
-  console.log("🚀 generateFollowUps called with:", { userQuestion: !!userQuestion, aiResponse: !!aiResponse, parentDiv: !!parentDiv });
-  if (!userQuestion || !aiResponse || !parentDiv) {
-    console.log("⚠️ Missing params, returning");
-    return;
-  }
+async function generateFollowUps(userQuestion, aiResponse, bubbleWrapper) {
+  if (!userQuestion || !aiResponse || !bubbleWrapper) return;
 
   try {
-    console.log("📡 Fetching follow-ups from backend...");
     const res = await fetch(`${window.BACKEND_URL}/follow-ups`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: userQuestion, response: aiResponse })
     });
-    console.log("📍 Response status:", res.status);
     const data = await res.json();
-    console.log("📋 Follow-ups data:", data);
     const questions = data?.follow_ups;
-    if (!questions || questions.length === 0) {
-      console.log("⚠️ No questions returned");
-      return;
-    }
-
-    const bubbleWrapper = parentDiv.querySelector(".assistant-msg-wrapper");
-    console.log("🎯 Found wrapper:", !!bubbleWrapper);
-    if (!bubbleWrapper) {
-      console.log("⚠️ No wrapper found");
-      return;
-    }
+    if (!questions || questions.length === 0) return;
 
     const section = document.createElement("div");
     section.className = "mt-4 pt-3 border-t border-gray-200 dark:border-gray-600";
