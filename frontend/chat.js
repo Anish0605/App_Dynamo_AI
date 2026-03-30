@@ -947,18 +947,11 @@ window.sendFromInput = async () => {
     const msgDiv = renderAssistantMessage(res.content || "", res.content, true, sources);
 
     // 🔁 Generate follow-ups after response renders (async, non-blocking)
-    const lastUserMsg = window.chatHistory.filter(m => m.role === "user").slice(-1)[0]?.content || "";
-    console.log("🎯 After response - lastUserMsg:", lastUserMsg.substring(0, 50));
-    console.log("🎯 msgDiv exists:", !!msgDiv);
-    if (lastUserMsg && res.content) {
-      console.log("🎯 Scheduling follow-ups in 800ms");
-      setTimeout(() => {
-        console.log("⏰ Follow-ups timer fired!");
-        generateFollowUps(lastUserMsg, res.content, msgDiv);
-      }, 800);
-    } else {
-      console.log("🎯 Skipping follow-ups: lastUserMsg=" + !!lastUserMsg + " res.content=" + !!res.content);
-    }
+    // Disabled for now — will re-enable in deepthink mode with better debugging
+    // const lastUserMsg = window.chatHistory.filter(m => m.role === "user").slice(-1)[0]?.content || "";
+    // if (lastUserMsg && res.content) {
+    //   setTimeout(() => generateFollowUps(lastUserMsg, res.content, msgDiv), 800);
+    // }
   } catch (e) {
   console.error("Chat error:", e);
   hideThinking();
@@ -1138,13 +1131,9 @@ window.renderAssistantMessage = renderAssistantMessage;
 ========================================================= */
 
 async function generateFollowUps(userQuestion, aiResponse, parentDiv) {
-  if (!userQuestion || !aiResponse || !parentDiv) {
-    console.log("❌ Follow-ups skipped: missing params", { userQuestion: !!userQuestion, aiResponse: !!aiResponse, parentDiv: !!parentDiv });
-    return;
-  }
+  if (!userQuestion || !aiResponse || !parentDiv) return;
 
   try {
-    console.log("🔁 Generating follow-ups...");
     const res = await fetch(`${window.BACKEND_URL}/follow-ups`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1152,18 +1141,10 @@ async function generateFollowUps(userQuestion, aiResponse, parentDiv) {
     });
     const data = await res.json();
     const questions = data?.follow_ups;
-    console.log("📋 Follow-ups response:", questions);
-    if (!questions || questions.length === 0) {
-      console.log("❌ No follow-ups returned");
-      return;
-    }
+    if (!questions || questions.length === 0) return;
 
     const bubbleWrapper = parentDiv.querySelector(".assistant-msg-wrapper");
-    console.log("🔍 Found bubbleWrapper:", !!bubbleWrapper);
-    if (!bubbleWrapper) {
-      console.log("❌ Could not find .assistant-msg-wrapper in parentDiv");
-      return;
-    }
+    if (!bubbleWrapper) return;
 
     const section = document.createElement("div");
     section.className = "mt-4 pt-3 border-t border-gray-200 dark:border-gray-600";
