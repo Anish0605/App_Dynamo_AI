@@ -63,8 +63,12 @@ window.selectModel = (modelId, btn) => {
   if (modelId === 'research') {
     if (!window.dynamoUI.tools.has('search')) {
       window.dynamoUI.tools.add('search');
-      const searchBtn = document.querySelector('[data-tool-btn="search"]');
+      const searchBtn = document.querySelector('[data-tool-btn="search"]') ||
+        Array.from(document.querySelectorAll('.tool-pill')).find(b =>
+          b.getAttribute('onclick')?.includes("'search'")
+        );
       searchBtn?.classList.add('active');
+      console.log("🔍 Auto-enabled Web Search:", !!searchBtn);
     }
   }
 
