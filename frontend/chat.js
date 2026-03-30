@@ -784,38 +784,33 @@ window.sendFromInput = async () => {
             downloadBtn.disabled = true;
             downloadBtn.innerHTML = "⏳ Generating...";
             
-            // Calculate tree dimensions first - now includes breadth
-            function getTreeDimensions(node, level = 0) {
-              let height = 1;
-              let width = 1;
-              let maxBreadth = node.children && Array.isArray(node.children) ? node.children.length : 1;
-              if (node.children && Array.isArray(node.children)) {
-                let totalChildWidth = 0;
-                node.children.forEach(child => {
-                  const childDim = getTreeDimensions(child, level + 1);
-                  height = Math.max(height, childDim.height + 1);
-                  totalChildWidth += childDim.width;
-                  maxBreadth = Math.max(maxBreadth, childDim.breadth);
-                });
-                width = Math.max(maxBreadth, totalChildWidth / node.children.length);
-              }
-              return { height, width, breadth: maxBreadth };
+            // Count total leaf nodes (widest row) to correctly size canvas width
+            function countLeaves(node) {
+              if (!node.children || node.children.length === 0) return 1;
+              return node.children.reduce((sum, child) => sum + countLeaves(child), 0);
             }
-            
-            const treeDim = getTreeDimensions(res.root);
+
+            function getTreeDepth(node) {
+              if (!node.children || node.children.length === 0) return 1;
+              return 1 + Math.max(...node.children.map(getTreeDepth));
+            }
+
+            const totalLeaves = countLeaves(res.root);
+            const treeDepth = getTreeDepth(res.root);
+
             const nodeHeight = 50;
-            const nodeWidth = 180;
-            const horizontalSpacing = 240;
-            const verticalSpacing = 100;
-            const padding = 60;
-            
-            // Force landscape: width should be at least 1.5x height
-            let canvasHeight = Math.max(600, (treeDim.height * verticalSpacing) + padding * 2);
-            let canvasWidth = Math.max(1200, (treeDim.breadth * horizontalSpacing) + padding * 2);
-            
-            // Ensure landscape orientation (width > height)
-            if (canvasWidth < canvasHeight) {
-              canvasWidth = canvasHeight * 1.5;
+            const nodeWidth = 200;
+            const horizontalSpacing = 260;  // space per leaf node
+            const verticalSpacing = 110;
+            const padding = 80;
+
+            // Canvas sized to fit ALL leaf nodes across + guaranteed landscape
+            let canvasWidth = Math.max(1400, totalLeaves * horizontalSpacing + padding * 2);
+            let canvasHeight = Math.max(500, treeDepth * verticalSpacing + padding * 2);
+
+            // Guarantee landscape (width always > height)
+            if (canvasWidth < canvasHeight * 1.4) {
+              canvasWidth = Math.ceil(canvasHeight * 1.4);
             }
             
             const canvas = document.createElement("canvas");
@@ -827,55 +822,59 @@ window.sendFromInput = async () => {
             ctx.fillStyle = "#fff";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            function drawNode(node, x, y, level = 0, childrenCount = 1, childIndex = 0) {
+            // drawNode uses leaf-proportional layout so every node gets enough room
+            // startX/endX define the horizontal band this subtree owns
+            function drawNode(node, startX, endX, y, level = 0) {
+              const centerX = (startX + endX) / 2;
               const nodeH = nodeHeight;
               const nodeW = nodeWidth;
-              
-              // Draw connecting lines first
+
+              // Draw children first (so lines appear behind boxes)
               if (node.children && Array.isArray(node.children) && node.children.length > 0) {
-                const totalChildren = node.children.length;
-                const startX = x;
-                const startY = y + nodeH;
-                
-                let childX = x - ((totalChildren - 1) * horizontalSpacing) / 2;
-                
-                node.children.forEach((child, idx) => {
-                  const childY = y + verticalSpacing;
-                  
-                  // Draw line
+                const childY = y + verticalSpacing;
+                const myLeaves = countLeaves(node);
+
+                let curX = startX;
+                node.children.forEach(child => {
+                  const childLeaves = countLeaves(child);
+                  // Give this child a band proportional to its leaf share
+                  const bandWidth = (childLeaves / myLeaves) * (endX - startX);
+                  const childCenterX = curX + bandWidth / 2;
+
+                  // Draw connecting line
                   ctx.strokeStyle = "#EAB308";
                   ctx.lineWidth = 2;
                   ctx.beginPath();
-                  ctx.moveTo(startX, startY);
-                  ctx.lineTo(childX, childY);
+                  ctx.moveTo(centerX, y + nodeH);
+                  ctx.lineTo(childCenterX, childY);
                   ctx.stroke();
-                  
-                  drawNode(child, childX, childY, level + 1, totalChildren, idx);
-                  childX += horizontalSpacing;
+
+                  drawNode(child, curX, curX + bandWidth, childY, level + 1);
+                  curX += bandWidth;
                 });
               }
-              
+
               // Draw node box
               ctx.fillStyle = level === 0 ? "#EAB308" : "#f0f0f0";
               ctx.strokeStyle = "#EAB308";
               ctx.lineWidth = 2;
-              ctx.fillRect(x - nodeW / 2, y, nodeW, nodeH);
-              ctx.strokeRect(x - nodeW / 2, y, nodeW, nodeH);
-              
-              // Draw text
+              const bx = centerX - nodeW / 2;
+              ctx.fillRect(bx, y, nodeW, nodeH);
+              ctx.strokeRect(bx, y, nodeW, nodeH);
+
+              // Draw label (wrap if too long)
               ctx.fillStyle = level === 0 ? "#111" : "#222";
               ctx.font = (level === 0 ? "bold 15px" : "14px") + " Arial";
               ctx.textAlign = "center";
               ctx.textBaseline = "middle";
-              
+
               const label = node.label || "Node";
-              const maxChars = level === 0 ? 25 : 28;
+              const maxChars = 24;
               const displayLabel = label.length > maxChars ? label.substring(0, maxChars - 3) + "..." : label;
-              
-              ctx.fillText(displayLabel, x, y + nodeH / 2);
+              ctx.fillText(displayLabel, centerX, y + nodeH / 2);
             }
-            
-            drawNode(res.root, canvas.width / 2, padding);
+
+            drawNode(res.root, padding, canvasWidth - padding, padding);
             
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
