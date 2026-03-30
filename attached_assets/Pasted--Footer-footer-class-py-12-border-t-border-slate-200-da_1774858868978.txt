@@ -1,0 +1,36 @@
+<!-- Footer -->
+    <footer class="py-12 border-t border-slate-200 dark:border-white/10 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col gap-8">
+            <!-- Top Row: Brand & Main Links -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-6 text-center sm:text-left">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-md bg-brand flex items-center justify-center">
+                        <svg class="w-4 h-4 text-black" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                        </svg>
+                    </div>
+                    <span class="font-bold text-sm">Dynamo AI</span>
+                </div>
+                
+                <div class="flex flex-wrap justify-center sm:justify-end gap-x-6 gap-y-2 text-sm font-medium">
+                    <a href="https://app.dynamoai.in/features.html" class="text-slate-500 hover:text-brand transition-colors">Features</a>
+                    <a href="https://app.dynamoai.in/pricing.html" class="text-slate-500 hover:text-brand transition-colors">Pricing</a>
+                    <a href="https://dynamoai.in/terms.html" class="text-slate-500 hover:text-brand transition-colors">Terms</a>
+                    <a href="https://dynamoai.in/privacy.html" class="text-slate-500 hover:text-brand transition-colors">Privacy</a>
+                    <a href="https://dynamoai.in/refund.html" class="text-slate-500 hover:text-brand transition-colors">Refund</a>
+                    <a href="https://app.dynamoai.in" class="text-slate-500 hover:text-brand transition-colors">Sign In</a>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Copyright & Support -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-slate-200 dark:border-white/10 text-sm font-medium text-slate-500">
+                <div>&copy; 2026 Dynamo AI. All rights reserved.</div>
+                
+                <div class="flex items-center gap-3">
+                    <a href="mailto:support@dynamoai.in" class="hover:text-brand transition-colors">support@dynamoai.in</a>
+                    <span class="w-px h-4 bg-slate-300 dark:bg-slate-700"></span>
+                    <span>Made in India 🇮🇳</span>
+                </div>
+            </div>
+        </div>
+    </footer>
