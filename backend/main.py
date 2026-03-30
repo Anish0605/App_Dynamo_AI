@@ -255,7 +255,7 @@ async def follow_ups(req: FollowUpReq):
         "Output format: [\"Question 1?\", \"Question 2?\", \"Question 3?\", \"Question 4?\"]"
     )
     try:
-        m = genai.GenerativeModel("gemini-2.0-flash")
+        m = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
         r = m.generate_content(prompt)
         text = r.text.strip()
         # Find JSON array in the response (handles markdown code fences too)
