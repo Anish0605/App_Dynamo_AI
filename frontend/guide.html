@@ -178,7 +178,7 @@
   <div class="max-w-6xl mx-auto px-4 md:px-6 py-12">
 
     <!-- 1. RADIO MODE -->
-    <section id="radio-mode" class="guide-section">
+    <section id="radio-mode" class="guide-section" style="align-items: flex-start;">
       <div class="feature-card">
         <div class="step-number">1</div>
         <h2 class="text-3xl font-black text-black dark:text-white mb-4">🎧 Radio Mode - Listen to Responses</h2>
@@ -192,22 +192,28 @@
           <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> AI response plays automatically as audio</li>
           <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Control playback with play/pause buttons</li>
         </ol>
-
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3 mt-6">Benefits:</h3>
-        <ul class="feature-list">
-          <li>Hands-free learning while on-the-go</li>
-          <li>Natural speech synthesis for better understanding</li>
-          <li>Adjustable playback speed</li>
-          <li>Works in dark mode for late-night study</li>
-        </ul>
       </div>
 
-      <!-- Radio Mode Demo Video -->
-      <div class="video-container">
-        <video autoplay loop muted playsinline controls style="width: 100%; height: auto; border-radius: 1rem; max-height: 500px;">
-          <source src="video/radio-mode.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
+      <!-- Right Column: Video and Benefits -->
+      <div style="display: flex; flex-direction: column; gap: 2rem;">
+        <!-- Radio Mode Demo Video -->
+        <div class="video-container">
+          <video autoplay loop muted playsinline controls style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
+            <source src="video/radio-mode.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+
+        <!-- Benefits -->
+        <div class="feature-card">
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Benefits:</h3>
+          <ul class="feature-list">
+            <li>Hands-free learning while on-the-go</li>
+            <li>Natural speech synthesis for better understanding</li>
+            <li>Adjustable playback speed</li>
+            <li>Works in dark mode for late-night study</li>
+          </ul>
+        </div>
       </div>
     </section>
 
