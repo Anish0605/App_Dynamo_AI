@@ -344,7 +344,10 @@ window.loadChatHistory = async () => {
   window.chatHistory = [];
 
   data?.forEach(msg => {
-    const text = msg.content?.text || "";
+    // Handle both storage formats: plain string OR {text: "..."} JSON object
+    const rawContent = msg.content;
+    const text = (typeof rawContent === "string" ? rawContent : rawContent?.text) || "";
+    if (!text) return; // skip empty messages
     if (msg.role === "user") {
       window.renderUserMessage(text, false);
     } else {

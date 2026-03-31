@@ -144,6 +144,7 @@ window.smartSummarise = async () => {
       use_search: false,
       deep_dive: false,
       force_image: false,
+      smart_action: true,
       chat_id: window.appState?.chatId,
       user_id: window.appState?.supabaseUserId
     };
@@ -173,6 +174,7 @@ window.smartExplain = async () => {
       use_search: false,
       deep_dive: false,
       force_image: false,
+      smart_action: true,
       chat_id: window.appState?.chatId,
       user_id: window.appState?.supabaseUserId
     };

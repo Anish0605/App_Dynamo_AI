@@ -58,6 +58,7 @@ class ChatReq(BaseModel):
     model: str = "gemini-3.1-flash-lite-preview"
     chat_id: str | None = None
     user_id: str | None = None
+    smart_action: bool = False  # True = skip keyword routing (Summarise, Explain, etc.)
 # --------------------------------------------------
 # HEALTH
 # --------------------------------------------------
@@ -95,27 +96,30 @@ async def chat(req: ChatReq):
 
     msg_lower = req.message.lower()
 
-    # 📊 Flowchart Detection (CHECK FIRST)
-    FLOWCHART_KEYWORDS = [
-        "flowchart",
-        "process flow",
-        "workflow",
-        "steps"
-    ]
+    # ⚡ Smart actions (Summarise, Explain, Executive Deck) bypass keyword routing
+    if not req.smart_action:
 
-    if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
-        return flowchart.generate_flowchart(req.message)
+        # 📊 Flowchart Detection (CHECK FIRST)
+        FLOWCHART_KEYWORDS = [
+            "flowchart",
+            "process flow",
+            "workflow",
+            "steps"
+        ]
 
-    # 🧠 Mindmap Detection
-    MINDMAP_KEYWORDS = [
-        "mindmap",
-        "mind map",
-        "idea map",
-        "brainstorm"
-    ]
+        if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
+            return flowchart.generate_flowchart(req.message)
 
-    if any(k in msg_lower for k in MINDMAP_KEYWORDS):
-        return mindmap.generate_mindmap(req.message)
+        # 🧠 Mindmap Detection
+        MINDMAP_KEYWORDS = [
+            "mindmap",
+            "mind map",
+            "idea map",
+            "brainstorm"
+        ]
+
+        if any(k in msg_lower for k in MINDMAP_KEYWORDS):
+            return mindmap.generate_mindmap(req.message)
 
     # 🧩 Quiz Detection (MUST BE BEFORE IMAGE)
     QUIZ_KEYWORDS = ["quiz", "mcq", "multiple choice", "test me", "questions", "exam"]
@@ -138,6 +142,7 @@ async def chat(req: ChatReq):
     SINGLE_WORD_KEYWORDS = ["image", "photo", "artwork", "drawing"]
     
     is_image_prompt = (
+        not req.smart_action and  # Smart actions never generate images
         (any(k in msg_lower for k in IMAGE_KEYWORDS) or
         any(k in msg_lower.split() for k in SINGLE_WORD_KEYWORDS) or
         req.force_image) and not is_quiz_request  # Don't generate image if quiz requested

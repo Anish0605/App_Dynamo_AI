@@ -162,18 +162,20 @@ async function checkMessageLimit() {
 
   const plan = user.plan || "free";
 
-  let limit = 10;
+  // Must match backend PLAN_LIMITS in supabase_client.py
+  const PLAN_LIMITS = {
+    free: 10,
+    plus: 100,
+    pro: 300
+  };
 
-  if (plan === "plus" || plan === "pro") {
-    limit = 100;
-  }
-
+  const limit = PLAN_LIMITS[plan] ?? 10;
   const used = user.daily_quota_used || 0;
 
   if (used >= limit) {
     return {
       allowed: false,
-      message: `⚠️ You have reached your daily limit of ${limit} messages.`
+      message: `⚠️ You have reached your daily limit of ${limit} messages. ${plan === "free" ? "Upgrade to Plus for 100 messages/day." : "Your limit resets tomorrow."}`
     };
   }
 

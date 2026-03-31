@@ -64,11 +64,26 @@ Dashboard URL: https://supabase.com/dashboard/project/jbulnpcqxtbjobrclsqq/sql/n
 |------|-----------|-------------|-------------|-------|
 | Free | 10 | 0 | 0 | Free |
 | Plus | 100 | 25 | 5 | ₹199/mo |
-| Pro | 100 | 100 | 25 | ₹499/mo |
+| Pro | 300 | 100 | 25 | ₹499/mo |
 
 Quota enforcement is in `backend/supabase_client.py` (`check_image_quota`, `check_video_quota`, `check_user_quota`).
 Image/video enforcement runs in `backend/main.py` before generation.
 Frontend shows styled quota error cards with an "Upgrade Plan" link to `/pricing.html`.
+Frontend `checkMessageLimit` in `chat.js` uses PLAN_LIMITS matching backend (free=10, plus=100, pro=300).
+
+## Bug Fixes (Pre-Launch - March 2026)
+
+### Summarise Smart Action Fix
+- **Root cause 1**: Backend keyword detection for flowchart (`steps`, `workflow`) / mindmap (`brainstorm`) ran on the FULL message payload including the text being summarized, causing misrouting.
+- **Root cause 2**: Backend image keyword detection (`picture`, `visual`, etc.) also ran on full payload.
+- **Fix**: Added `smart_action: bool = False` field to `ChatReq`. When `True`, skips all keyword routing (flowchart, mindmap, image detection). Smart action functions in `ui.js` (`smartSummarise`, `smartExplain`) now pass `smart_action: true`.
+- **Root cause 3**: `loadChatHistory` in `sidebar.js` used `msg.content?.text` which only worked for `{text: "..."}` format, not plain string format. Messages sent by new backend code are plain strings, so chatHistory was populated with empty strings.
+- **Fix**: Updated `sidebar.js` to handle both formats: `typeof rawContent === "string" ? rawContent : rawContent?.text`.
+
+### Daily Quota Fix
+- **Root cause**: Free test account had `plan: 'plus'` in DB (accidentally upgraded during testing), giving 100 msg/day limit instead of 10.
+- **Fix**: Reset `anishkrisna6@gmail.com` plan to `free` via database update.
+- **Secondary fix**: Frontend `checkMessageLimit` now uses correct limits (pro: 300, not 100).
 
 **DB Migration Required**: The `users` table needs three new columns. Run `backend/migrate_quota_columns.sql` in the Supabase Dashboard SQL Editor.
 
