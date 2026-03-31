@@ -56,15 +56,23 @@
     }
   </script>
   <style>
-    body { font-family: Inter, system-ui, sans-serif; }
+    body { font-family: Inter, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
+    
+    /* Mobile Touch Optimization */
+    button { min-height: 44px; min-width: 44px; }
+    @media (max-width: 640px) {
+      button { min-height: 48px; min-width: 48px; }
+    }
+    
     .tool-pill {
       width: 100%; text-align: left; padding: 0.7rem 0.9rem; border-radius: 1rem;
       background: #f3f4f6; font-size: 0.85rem; font-weight: 600; color: #111827;
       margin-bottom: 0.4rem; transition: all 0.25s ease;
+      -webkit-tap-highlight-color: transparent;
     }
     .dark .tool-pill { background: #1f2937; color: #e5e7eb; }
-    .tool-pill:hover { transform: translateY(-1px); background: #fde68a; color: #000; }
+    .tool-pill:hover, .tool-pill:active { transform: translateY(-1px); background: #fde68a; color: #000; }
     .tool-pill.active { background: #facc15; color: #000; box-shadow: 0 8px 24px rgba(250, 204, 21, 0.35); }
     
     /* Smooth transitions for mobile sidebar */
@@ -295,10 +303,84 @@
     color: #9ca3af;
   }
 
+  /* Mobile-specific improvements */
+  @media (max-width: 768px) {
+    /* Prevent zoom on input focus - 16px font prevents auto-zoom */
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+
+    /* Better sidebar width on mobile */
+    #main-sidebar {
+      width: 85vw;
+      max-width: 90%;
+    }
+
+    /* Improve modal positioning on mobile */
+    .profile-modal {
+      bottom: auto;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90vw;
+      max-width: 320px;
+    }
+
+    /* Better touch targets on mobile */
+    .profile-item {
+      padding: 12px 10px;
+    }
+
+    /* Improved scroll behavior */
+    #chat-area {
+      padding-bottom: 80px;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Better bounce animation visibility */
+    .animate-bounce {
+      animation: bounce-mobile 2s infinite;
+    }
+
+    @keyframes bounce-mobile {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* Hero section spacing */
+    #hero-section {
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
+  }
+
+  /* Landscape orientation fixes */
+  @media (max-height: 500px) {
+    #hero-section {
+      padding: 0.75rem !important;
+    }
+
+    h1 {
+      font-size: 1.5rem !important;
+    }
+
+    .h-16 {
+      height: 40px !important;
+    }
+
+    .hidden.md\\:hidden {
+      display: none !important;
+    }
+  }
+
   </style>
 </head>
 
 <body class="bg-white dark:bg-gray-900 h-screen w-full flex overflow-hidden">
+
+  <!-- Mobile Overlay -->
+  <div id="mobile-overlay" class="hidden fixed inset-0 bg-black/50 md:hidden z-40 backdrop-blur-sm" onclick="window.toggleMobileSidebar(false)"></div>
 
   <!-- 1. SIDEBAR (Left Side) -->
   <aside id="main-sidebar" class="fixed md:relative inset-y-0 left-0 z-50 w-72 bg-gray-50 dark:bg-gray-850 border-r border-gray-200 dark:border-gray-700 flex flex-col transform -translate-x-full md:translate-x-0">
@@ -548,22 +630,23 @@
         </div>
 
         <!-- MAIN INPUT ROW -->
-        <div class="flex items-end gap-2 md:gap-3 border-2 border-yellow-400 rounded-2xl md:rounded-3xl bg-white dark:bg-gray-900 px-2 md:px-4 py-2 md:py-3 shadow-xl">
-          <button id="tools-btn" onclick="window.toggleTools(event)" class="flex items-center justify-center gap-2 h-10 px-2 md:px-3 rounded-lg md:rounded-xl border border-yellow-400 bg-gray-50 dark:bg-gray-800 text-[10px] font-black uppercase text-black dark:text-white shrink-0 hover:bg-yellow-50 transition">
+        <div class="flex items-end gap-2 md:gap-3 border-2 border-yellow-400 rounded-2xl md:rounded-3xl bg-white dark:bg-gray-900 px-2 sm:px-3 md:px-4 py-2 md:py-3 shadow-xl">
+          <button id="tools-btn" onclick="window.toggleTools(event)" class="flex items-center justify-center gap-2 h-12 sm:h-10 px-2 sm:px-3 md:px-3 rounded-lg md:rounded-xl border border-yellow-400 bg-gray-50 dark:bg-gray-800 text-[10px] font-black uppercase text-black dark:text-white shrink-0 active:bg-yellow-100 dark:active:bg-yellow-900 transition">
             <i data-lucide="settings" class="w-4 h-4"></i>
             <span class="hidden sm:inline">Tools</span>
           </button>
           <!-- UPLOAD -->
-          <button type="button" onclick="window.openAnalyzeFile()" class="w-10 h-10 flex items-center justify-center rounded-lg  md:rounded-xl border border-blue-400 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition shrink-0"> <i data-lucide="paperclip" class="w-5 h-5 text-gray-600 dark:text-gray-300"></i>
+          <button type="button" onclick="window.openAnalyzeFile()" title="Upload file" class="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg md:rounded-xl border border-blue-400 bg-gray-100 dark:bg-gray-800 active:bg-blue-200 dark:active:bg-blue-900 transition shrink-0"> 
+            <i data-lucide="paperclip" class="w-5 h-5 text-gray-600 dark:text-gray-300"></i>
           </button>
           <!-- VOICE -->
-          <button id="mic-btn" onclick="window.startVoice()" class="w-10 h-10 flex items-center justify-center rounded-lg md:rounded-xl bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 transition shrink-0">
+          <button id="mic-btn" onclick="window.startVoice()" title="Voice input" class="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg md:rounded-xl bg-red-100 dark:bg-red-900/30 active:bg-red-200 dark:active:bg-red-800 transition shrink-0">
             <i data-lucide="mic" class="w-5 h-5 text-red-600 dark:text-red-400"></i>
           </button>
           <!-- TEXTAREA -->
-          <textarea id="chat-input" rows="1" placeholder="Ask anything..." class="flex-1 resize-none bg-transparent outline-none py-2 px-1 text-sm md:text-base text-gray-900 dark:text-white max-h-32 md:max-h-48 scrollbar-hide" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
+          <textarea id="chat-input" rows="1" placeholder="Ask anything..." class="flex-1 resize-none bg-transparent outline-none py-2 px-2 sm:px-1 text-sm sm:text-base md:text-base text-gray-900 dark:text-white max-h-32 md:max-h-48 scrollbar-hide" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
           <!-- SEND -->
-          <button onclick="window.sendFromInput()" class="w-10 h-10 flex items-center justify-center rounded-lg md:rounded-xl bg-yellow-400 hover:bg-yellow-500 transition shadow-md shrink-0">
+          <button onclick="window.sendFromInput()" title="Send message" class="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg md:rounded-xl bg-yellow-400 active:bg-yellow-500 transition shadow-md shrink-0">
             <i data-lucide="arrow-up" class="w-5 h-5 text-black"></i>
           </button>
         </div>
@@ -716,5 +799,44 @@
 
  <!-- AUTH MUST BE LAST -->
  <script src="auth.js?v=20260337"></script>
+
+ <!-- MOBILE OPTIMIZATIONS -->
+ <script>
+   // Prevent double-tap zoom on buttons while keeping pinch zoom
+   document.addEventListener('touchend', (e) => {
+     if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+       e.preventDefault();
+     }
+   }, { passive: false });
+
+   // Optimize viewport on orientation change
+   window.addEventListener('orientationchange', () => {
+     const viewport = document.querySelector('meta[name="viewport"]');
+     if (viewport) {
+       viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
+     }
+     setTimeout(() => {
+       window.scrollTo(0, 0);
+     }, 100);
+   });
+
+   // Lock scroll when modals are open
+   function lockScroll() {
+     document.body.style.overflow = 'hidden';
+   }
+
+   function unlockScroll() {
+     document.body.style.overflow = '';
+   }
+
+   // Fix for iOS Safari vh units
+   const setVh = () => {
+     const vh = window.innerHeight * 0.01;
+     document.documentElement.style.setProperty('--vh', `${vh}px`);
+   };
+   setVh();
+   window.addEventListener('resize', setVh);
+   window.addEventListener('orientationchange', setVh);
+ </script>
 </body>
 </html>
