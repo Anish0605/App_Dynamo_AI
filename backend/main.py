@@ -4,8 +4,6 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
 from pydantic import BaseModel
 import uvicorn
 import os
@@ -30,16 +28,6 @@ from presentation_engine import build_presentation
 from payments import router as payments_router
 
 # --------------------------------------------------
-# COOP MIDDLEWARE (for Google Sign-in popup support)
-# --------------------------------------------------
-
-class COOPMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        response = await call_next(request)
-        response.headers["Cross-Origin-Opener-Policy"] = "allow-pop-ups"
-        return response
-
-# --------------------------------------------------
 # FASTAPI APP
 # --------------------------------------------------
 
@@ -53,8 +41,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.add_middleware(COOPMiddleware)
 
 app.include_router(export_router)
 app.include_router(payments_router)
