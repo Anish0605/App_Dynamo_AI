@@ -211,60 +211,192 @@
       </div>
     </section>
     
-    <section class="py-12 px-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-800 dark:to-gray-850 transition-colors duration-200">
-      <div class="max-w-7xl mx-auto">
+    <!-- ══════════════════════════════════════════════════════════════
+         AI MEMORY BANK — STORY-DRIVEN SECTION
+    ══════════════════════════════════════════════════════════════ -->
+
+    <!-- 1. HOOK: Stop Repeating Yourself -->
+    <section style="background: linear-gradient(135deg, #0f1724 0%, #1a2540 50%, #0f1724 100%); padding: 5rem 1rem;">
+      <div class="max-w-4xl mx-auto text-center">
+        <span style="display:inline-block; background:rgba(255,193,7,0.15); color:#FFC107; border:1px solid rgba(255,193,7,0.3); border-radius:999px; padding:0.35rem 1rem; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:1.5rem;">🧠 AI Memory — New</span>
+        <h2 style="font-size:clamp(2rem,5vw,3.5rem); font-weight:900; color:#fff; line-height:1.1; margin-bottom:1rem;">
+          The First AI That <span style="background:linear-gradient(90deg,#FFC107,#FF9800);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Truly Knows You</span>
+        </h2>
+        <p style="color:#94a3b8; font-size:1.1rem; max-width:36rem; margin:0 auto 2rem;">Stop repeating yourself. Start being understood.</p>
+        <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+          <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:0.75rem 1.5rem; color:#cbd5e1; font-size:0.9rem;">Not just chats</div>
+          <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:0.75rem 1.5rem; color:#cbd5e1; font-size:0.9rem;">Not just history</div>
+          <div style="background:rgba(255,193,7,0.15); border:1px solid rgba(255,193,7,0.4); border-radius:12px; padding:0.75rem 1.5rem; color:#FFC107; font-size:0.9rem; font-weight:600;">Real understanding ✦</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. THE PROBLEM: Other AI forgets you -->
+    <section style="background:#f8fafc; padding:4rem 1rem;" class="dark:bg-gray-900">
+      <div class="max-w-5xl mx-auto">
         <div class="text-center mb-10">
-          <span class="text-sm font-semibold uppercase tracking-widest text-yellow-600 dark:text-yellow-400">Smart Learning</span>
-          <h2 class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">AI That Remembers You</h2>
-          <p class="mt-3 text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">Dynamo's Memory Bank learns about you from every conversation, personalizing responses and improving over time. Your AI assistant that truly gets to know you.</p>
+          <h3 style="font-size:1.75rem; font-weight:800; color:#0f172a;" class="dark:text-white">⚡ Why This Changes Everything</h3>
+          <p style="color:#64748b; margin-top:0.75rem; max-width:36rem; margin-left:auto; margin-right:auto;" class="dark:text-gray-400">Most AI tools are stateless — they reset every time you start a new chat. You keep repeating yourself, again and again.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-          <div class="rounded-xl p-6 border border-yellow-200 dark:border-yellow-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition">
-            <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center mb-4 text-yellow-600 dark:text-yellow-400">
-              <i data-lucide="brain" class="w-6 h-6"></i>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Before: Other tools -->
+          <div style="border-radius:16px; border:1px solid #fee2e2; background:#fff9f9; padding:2rem;" class="dark:bg-gray-800 dark:border-red-900">
+            <p style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#ef4444; margin-bottom:1rem;">❌ Other AI Tools</p>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem;">
+              <li style="display:flex; align-items:flex-start; gap:0.75rem; font-size:0.9rem; color:#64748b;" class="dark:text-gray-400">
+                <span style="color:#ef4444; font-weight:700; flex-shrink:0;">✗</span> ChatGPT — limited memory, often inconsistent
+              </li>
+              <li style="display:flex; align-items:flex-start; gap:0.75rem; font-size:0.9rem; color:#64748b;" class="dark:text-gray-400">
+                <span style="color:#ef4444; font-weight:700; flex-shrink:0;">✗</span> Claude — mostly project-based or restricted memory
+              </li>
+              <li style="display:flex; align-items:flex-start; gap:0.75rem; font-size:0.9rem; color:#64748b;" class="dark:text-gray-400">
+                <span style="color:#ef4444; font-weight:700; flex-shrink:0;">✗</span> Gemini — session-based or imported memory
+              </li>
+              <li style="display:flex; align-items:flex-start; gap:0.75rem; font-size:0.9rem; color:#64748b;" class="dark:text-gray-400">
+                <span style="color:#ef4444; font-weight:700; flex-shrink:0;">✗</span> Grok — basic recall, not deeply personalized
+              </li>
+            </ul>
+            <div style="margin-top:1.5rem; padding:1rem; background:#fee2e2; border-radius:10px;" class="dark:bg-red-900/20">
+              <p style="font-size:0.85rem; color:#b91c1c; font-style:italic;">"Explain again… I'm a beginner… I'm preparing for UPSC…"</p>
             </div>
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Automatic Learning</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Share personal facts naturally in conversations. AI extracts and organizes them—no manual input needed.</p>
           </div>
 
-          <div class="rounded-xl p-6 border border-yellow-200 dark:border-yellow-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition">
-            <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center mb-4 text-yellow-600 dark:text-yellow-400">
-              <i data-lucide="sparkles" class="w-6 h-6"></i>
+          <!-- After: Dynamo AI -->
+          <div style="border-radius:16px; border:1px solid #bbf7d0; background:linear-gradient(135deg,#f0fdf4,#ecfdf5); padding:2rem;" class="dark:bg-gray-800 dark:border-green-900">
+            <p style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#16a34a; margin-bottom:1rem;">✅ Dynamo AI</p>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem;">
+              <li style="display:flex; align-items:flex-start; gap:0.75rem; font-size:0.9rem; color:#374151;" class="dark:text-gray-300">
+                <span style="color:#16a34a; font-weight:700; flex-shrink:0;">✓</span> No repetition — ever
+              </li>
+              <li style="display:flex; align-items:flex-start; gap:0.75rem; font-size:0.9rem; color:#374151;" class="dark:text-gray-300">
+                <span style="color:#16a34a; font-weight:700; flex-shrink:0;">✓</span> No re-explaining your context
+              </li>
+              <li style="display:flex; align-items:flex-start; gap:0.75rem; font-size:0.9rem; color:#374151;" class="dark:text-gray-300">
+                <span style="color:#16a34a; font-weight:700; flex-shrink:0;">✓</span> No lost context between sessions
+              </li>
+              <li style="display:flex; align-items:flex-start; gap:0.75rem; font-size:0.9rem; color:#374151;" class="dark:text-gray-300">
+                <span style="color:#16a34a; font-weight:700; flex-shrink:0;">✓</span> Compounds intelligence over time
+              </li>
+            </ul>
+            <div style="margin-top:1.5rem; padding:1rem; background:linear-gradient(90deg,rgba(21,128,61,0.08),rgba(22,163,74,0.12)); border-radius:10px; border-left:3px solid #16a34a;" class="dark:bg-green-900/20">
+              <p style="font-size:0.85rem; color:#15803d; font-weight:600;">"Let's continue your UPSC prep — I'll simplify this based on your last session." 🎯</p>
             </div>
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Personalized Responses</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">AI uses your memories to provide contextual, relevant answers tailored to your goals and preferences.</p>
-          </div>
-
-          <div class="rounded-xl p-6 border border-yellow-200 dark:border-yellow-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition">
-            <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center mb-4 text-yellow-600 dark:text-yellow-400">
-              <i data-lucide="lock" class="w-6 h-6"></i>
-            </div>
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Full Control</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">View, edit, or delete any memory anytime. You have complete control over what Dynamo remembers.</p>
           </div>
         </div>
 
-        <div class="mt-8 p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Tool → Thinking partner callout -->
+        <div style="margin-top:2rem; background:linear-gradient(90deg,#0f1724,#1a2540); border-radius:16px; padding:1.5rem 2rem; display:flex; align-items:center; justify-content:center; gap:2rem; flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:0.25rem;">Before Dynamo Memory</p>
+            <p style="color:#f1f5f9; font-weight:700;">🔧 A tool</p>
+          </div>
+          <div style="color:#FFC107; font-size:1.5rem;">→</div>
+          <div style="text-align:center;">
+            <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:0.25rem;">After Dynamo Memory</p>
+            <p style="color:#FFC107; font-weight:700;">🧠 A thinking partner</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. HOW IT WORKS: 4-step process -->
+    <section style="background:#fff; padding:4rem 1rem;" class="dark:bg-gray-950">
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-12">
+          <span style="display:inline-block; background:rgba(255,193,7,0.1); color:#d97706; border:1px solid rgba(255,193,7,0.2); border-radius:999px; padding:0.3rem 1rem; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:1rem;">How It Works</span>
+          <h3 style="font-size:1.75rem; font-weight:800; color:#0f172a;" class="dark:text-white">🧬 Dynamo AI Memory in 4 Steps</h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div style="position:relative; border-radius:16px; border:1px solid #e2e8f0; padding:1.75rem; background:#fff;" class="dark:bg-gray-800 dark:border-gray-700">
+            <div style="width:40px; height:40px; background:linear-gradient(135deg,#FFC107,#FF9800); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+              <span style="color:#000; font-weight:900; font-size:0.9rem;">01</span>
+            </div>
+            <h4 style="font-weight:700; color:#0f172a; margin-bottom:0.5rem;" class="dark:text-white">Learns Automatically</h4>
+            <p style="font-size:0.875rem; color:#64748b; line-height:1.6;" class="dark:text-gray-400">Captures important signals from your conversations without any manual input.</p>
+          </div>
+
+          <div style="border-radius:16px; border:1px solid #e2e8f0; padding:1.75rem; background:#fff;" class="dark:bg-gray-800 dark:border-gray-700">
+            <div style="width:40px; height:40px; background:linear-gradient(135deg,#6366f1,#8b5cf6); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+              <span style="color:#fff; font-weight:900; font-size:0.9rem;">02</span>
+            </div>
+            <h4 style="font-weight:700; color:#0f172a; margin-bottom:0.5rem;" class="dark:text-white">Organizes Intelligently</h4>
+            <p style="font-size:0.875rem; color:#64748b; line-height:1.6;" class="dark:text-gray-400">Separates facts, preferences, and intent into structured, searchable memory.</p>
+          </div>
+
+          <div style="border-radius:16px; border:1px solid #e2e8f0; padding:1.75rem; background:#fff;" class="dark:bg-gray-800 dark:border-gray-700">
+            <div style="width:40px; height:40px; background:linear-gradient(135deg,#0ea5e9,#06b6d4); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+              <span style="color:#fff; font-weight:900; font-size:0.9rem;">03</span>
+            </div>
+            <h4 style="font-weight:700; color:#0f172a; margin-bottom:0.5rem;" class="dark:text-white">Evolves Continuously</h4>
+            <p style="font-size:0.875rem; color:#64748b; line-height:1.6;" class="dark:text-gray-400">Improves every response based on your past behavior and learning patterns.</p>
+          </div>
+
+          <div style="border-radius:16px; border:1px solid #e2e8f0; padding:1.75rem; background:#fff;" class="dark:bg-gray-800 dark:border-gray-700">
+            <div style="width:40px; height:40px; background:linear-gradient(135deg,#10b981,#059669); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+              <span style="color:#fff; font-weight:900; font-size:0.9rem;">04</span>
+            </div>
+            <h4 style="font-weight:700; color:#0f172a; margin-bottom:0.5rem;" class="dark:text-white">Stays in Your Control</h4>
+            <p style="font-size:0.875rem; color:#64748b; line-height:1.6;" class="dark:text-gray-400">View, edit, or delete any memory, anytime. You are always in command.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. WHO IT'S BUILT FOR: Real Users -->
+    <section style="background:#f8fafc; padding:4rem 1rem;" class="dark:bg-gray-900">
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-12">
+          <h3 style="font-size:1.75rem; font-weight:800; color:#0f172a;" class="dark:text-white">🧑‍🎓 Built for Real Users</h3>
+          <p style="color:#64748b; margin-top:0.5rem;" class="dark:text-gray-400">Not just tech demos. Real memory for real people.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div style="border-radius:16px; background:#fff; border:1px solid #e2e8f0; padding:2rem; display:flex; gap:1.25rem; align-items:flex-start;" class="dark:bg-gray-800 dark:border-gray-700">
+            <div style="font-size:2rem; flex-shrink:0;">🎓</div>
             <div>
-              <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-4">What Gets Remembered:</h4>
-              <ul class="space-y-2">
-                <li class="text-sm text-gray-600 dark:text-gray-400">✨ Your name, location & background</li>
-                <li class="text-sm text-gray-600 dark:text-gray-400">✨ Career goals & professional interests</li>
-                <li class="text-sm text-gray-600 dark:text-gray-400">✨ Hobbies, skills & learning goals</li>
-                <li class="text-sm text-gray-600 dark:text-gray-400">✨ Preferences & communication style</li>
-                <li class="text-sm text-gray-600 dark:text-gray-400">✨ Personal milestones & achievements</li>
+              <h4 style="font-weight:700; color:#0f172a; margin-bottom:0.75rem;" class="dark:text-white">Students</h4>
+              <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.5rem;">
+                <li style="font-size:0.875rem; color:#64748b;" class="dark:text-gray-400">Remembers your subjects, weak areas & exam goals</li>
+                <li style="font-size:0.875rem; color:#64748b;" class="dark:text-gray-400">Adapts explanations to your level</li>
+                <li style="font-size:0.875rem; color:#64748b;" class="dark:text-gray-400">Tracks your learning journey over time</li>
               </ul>
             </div>
+          </div>
+
+          <div style="border-radius:16px; background:#fff; border:1px solid #e2e8f0; padding:2rem; display:flex; gap:1.25rem; align-items:flex-start;" class="dark:bg-gray-800 dark:border-gray-700">
+            <div style="font-size:2rem; flex-shrink:0;">🔬</div>
             <div>
-              <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-4">How It Helps:</h4>
-              <ul class="space-y-2">
-                <li class="text-sm text-gray-600 dark:text-gray-400">✅ Faster, more relevant responses</li>
-                <li class="text-sm text-gray-600 dark:text-gray-400">✅ Better understanding of context</li>
-                <li class="text-sm text-gray-600 dark:text-gray-400">✅ Tailored advice & recommendations</li>
-                <li class="text-sm text-gray-600 dark:text-gray-400">✅ Consistent across all conversations</li>
-                <li class="text-sm text-gray-600 dark:text-gray-400">✅ Privacy-first approach</li>
+              <h4 style="font-weight:700; color:#0f172a; margin-bottom:0.75rem;" class="dark:text-white">Researchers</h4>
+              <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.5rem;">
+                <li style="font-size:0.875rem; color:#64748b;" class="dark:text-gray-400">Stores research topics, papers & frameworks</li>
+                <li style="font-size:0.875rem; color:#64748b;" class="dark:text-gray-400">Builds long-term knowledge graphs</li>
+                <li style="font-size:0.875rem; color:#64748b;" class="dark:text-gray-400">Avoids repeating context in every session</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style="border-radius:16px; background:#fff; border:1px solid #e2e8f0; padding:2rem; display:flex; gap:1.25rem; align-items:flex-start;" class="dark:bg-gray-800 dark:border-gray-700">
+            <div style="font-size:2rem; flex-shrink:0;">💼</div>
+            <div>
+              <h4 style="font-weight:700; color:#0f172a; margin-bottom:0.75rem;" class="dark:text-white">Professionals</h4>
+              <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.5rem;">
+                <li style="font-size:0.875rem; color:#64748b;" class="dark:text-gray-400">Remembers your projects, tone & workflows</li>
+                <li style="font-size:0.875rem; color:#64748b;" class="dark:text-gray-400">Helps with continuity across tasks</li>
+                <li style="font-size:0.875rem; color:#64748b;" class="dark:text-gray-400">Speeds up execution dramatically</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style="border-radius:16px; background:#fff; border:1px solid #e2e8f0; padding:2rem; display:flex; gap:1.25rem; align-items:flex-start;" class="dark:bg-gray-800 dark:border-gray-700">
+            <div style="font-size:2rem; flex-shrink:0;">🌍</div>
+            <div>
+              <h4 style="font-weight:700; color:#0f172a; margin-bottom:0.75rem;" class="dark:text-white">Everyday Users</h4>
+              <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.5rem;">
+                <li style="font-size:0.875rem; color:#64748b;" class="dark:text-gray-400">Learns your preferences naturally</li>
+                <li style="font-size:0.875rem; color:#64748b;" class="dark:text-gray-400">Personalizes every response automatically</li>
+                <li style="font-size:0.875rem; color:#64748b;" class="dark:text-gray-400">Feels like a real assistant — not a chatbot</li>
               </ul>
             </div>
           </div>
@@ -272,40 +404,122 @@
       </div>
     </section>
 
-    <section class="py-10 px-4 bg-white dark:bg-gray-900 transition-colors duration-200">
-      <div class="max-w-7xl mx-auto">
-        <div class="text-center mb-8">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Real use-cases</h2>
-          <p class="mt-2 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">What Dynamo helps you accomplish every day.</p>
+    <!-- 5. COMPARISON TABLE -->
+    <section style="background:#fff; padding:4rem 1rem;" class="dark:bg-gray-950">
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-10">
+          <h3 style="font-size:1.75rem; font-weight:800; color:#0f172a;" class="dark:text-white">How We Compare</h3>
+          <p style="color:#64748b; margin-top:0.5rem;" class="dark:text-gray-400">While competitors are adding memory slowly, Dynamo AI built it as the foundation.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="rounded-xl p-6 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-            <h4 class="font-semibold mb-2 text-gray-900 dark:text-white">Researchers & Students</h4>
-            <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
-              <li>Summarize and extract citations from papers</li>
-              <li>Ask contextual questions about uploaded PDFs</li>
-              <li>Create study notes & explainers</li>
+        <div style="overflow-x:auto; border-radius:20px; border:1px solid #e2e8f0; box-shadow:0 4px 24px rgba(15,23,36,0.06);" class="dark:border-gray-700">
+          <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+            <thead>
+              <tr style="background:linear-gradient(135deg,#0f1724,#1a2540);">
+                <th style="text-align:left; padding:1rem 1.25rem; color:#94a3b8; font-weight:600; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; width:35%;">Feature</th>
+                <th style="padding:1rem 1.25rem; text-align:center; color:#FFC107; font-weight:700;">Dynamo AI</th>
+                <th style="padding:1rem 1.25rem; text-align:center; color:#94a3b8; font-weight:600;">ChatGPT</th>
+                <th style="padding:1rem 1.25rem; text-align:center; color:#94a3b8; font-weight:600;">Gemini</th>
+                <th style="padding:1rem 1.25rem; text-align:center; color:#94a3b8; font-weight:600;">Claude</th>
+                <th style="padding:1rem 1.25rem; text-align:center; color:#94a3b8; font-weight:600;">Grok</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-top:1px solid #f1f5f9;" class="dark:border-gray-800 hover:bg-yellow-50 dark:hover:bg-gray-800 transition">
+                <td style="padding:1rem 1.25rem; font-weight:600; color:#374151;" class="dark:text-gray-300">Cross-chat memory</td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#dcfce7; color:#16a34a; border-radius:6px; padding:0.25rem 0.6rem; font-weight:700; font-size:0.85rem;">✅</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fef9c3; color:#a16207; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">⚠️ Limited</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fef9c3; color:#a16207; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">⚠️ Partial</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fef9c3; color:#a16207; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">⚠️ Paid</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fef9c3; color:#a16207; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">⚠️ Basic</span></td>
+              </tr>
+              <tr style="border-top:1px solid #f1f5f9; background:#fafafa;" class="dark:bg-gray-900 dark:border-gray-800 hover:bg-yellow-50 dark:hover:bg-gray-800 transition">
+                <td style="padding:1rem 1.25rem; font-weight:600; color:#374151;" class="dark:text-gray-300">Automatic learning</td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#dcfce7; color:#16a34a; border-radius:6px; padding:0.25rem 0.6rem; font-weight:700; font-size:0.85rem;">✅</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+              </tr>
+              <tr style="border-top:1px solid #f1f5f9;" class="dark:border-gray-800 hover:bg-yellow-50 dark:hover:bg-gray-800 transition">
+                <td style="padding:1rem 1.25rem; font-weight:600; color:#374151;" class="dark:text-gray-300">Structured memory</td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#dcfce7; color:#16a34a; border-radius:6px; padding:0.25rem 0.6rem; font-weight:700; font-size:0.85rem;">✅</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+              </tr>
+              <tr style="border-top:1px solid #f1f5f9; background:#fafafa;" class="dark:bg-gray-900 dark:border-gray-800 hover:bg-yellow-50 dark:hover:bg-gray-800 transition">
+                <td style="padding:1rem 1.25rem; font-weight:600; color:#374151;" class="dark:text-gray-300">Continuous improvement</td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#dcfce7; color:#16a34a; border-radius:6px; padding:0.25rem 0.6rem; font-weight:700; font-size:0.85rem;">✅</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+              </tr>
+              <tr style="border-top:1px solid #f1f5f9;" class="dark:border-gray-800 hover:bg-yellow-50 dark:hover:bg-gray-800 transition">
+                <td style="padding:1rem 1.25rem; font-weight:600; color:#374151;" class="dark:text-gray-300">Built for students & researchers</td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#dcfce7; color:#16a34a; border-radius:6px; padding:0.25rem 0.6rem; font-weight:700; font-size:0.85rem;">✅</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+                <td style="padding:1rem; text-align:center;"><span style="background:#fee2e2; color:#dc2626; border-radius:6px; padding:0.25rem 0.6rem; font-size:0.85rem;">❌</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p style="text-align:center; margin-top:1.5rem; font-size:0.85rem; color:#94a3b8;">
+          While competitors are adding memory slowly — it's still platform-locked, limited in scope, and not deeply personalized.<br>
+          <strong style="color:#FFC107;">Dynamo AI built memory as the foundation — not as an afterthought.</strong>
+        </p>
+      </div>
+    </section>
+
+    <!-- 6. PRIVACY FIRST + BOTTOM LINE -->
+    <section style="background:linear-gradient(135deg,#0f1724,#1a2540); padding:4rem 1rem;">
+      <div class="max-w-4xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div>
+            <span style="display:inline-block; background:rgba(255,193,7,0.15); color:#FFC107; border-radius:999px; padding:0.3rem 1rem; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:1rem;">🔐 Privacy First</span>
+            <h3 style="font-size:1.75rem; font-weight:800; color:#fff; margin-bottom:1rem;">You are Always in Control</h3>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem;">
+              <li style="display:flex; align-items:center; gap:0.75rem; color:#cbd5e1; font-size:0.9rem;">
+                <span style="width:24px; height:24px; background:rgba(255,193,7,0.2); border-radius:6px; display:flex; align-items:center; justify-content:center; color:#FFC107; flex-shrink:0; font-size:0.75rem;">✓</span>
+                View exactly what Dynamo remembers
+              </li>
+              <li style="display:flex; align-items:center; gap:0.75rem; color:#cbd5e1; font-size:0.9rem;">
+                <span style="width:24px; height:24px; background:rgba(255,193,7,0.2); border-radius:6px; display:flex; align-items:center; justify-content:center; color:#FFC107; flex-shrink:0; font-size:0.75rem;">✓</span>
+                Delete any memory instantly
+              </li>
+              <li style="display:flex; align-items:center; gap:0.75rem; color:#cbd5e1; font-size:0.9rem;">
+                <span style="width:24px; height:24px; background:rgba(255,193,7,0.2); border-radius:6px; display:flex; align-items:center; justify-content:center; color:#FFC107; flex-shrink:0; font-size:0.75rem;">✓</span>
+                Turn memory off anytime
+              </li>
+              <li style="display:flex; align-items:center; gap:0.75rem; color:#cbd5e1; font-size:0.9rem;">
+                <span style="width:24px; height:24px; background:rgba(255,193,7,0.2); border-radius:6px; display:flex; align-items:center; justify-content:center; color:#FFC107; flex-shrink:0; font-size:0.75rem;">✓</span>
+                Your data is yours. Period.
+              </li>
             </ul>
           </div>
 
-          <div class="rounded-xl p-6 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-            <h4 class="font-semibold mb-2 text-gray-900 dark:text-white">Product & Marketing</h4>
-            <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
-              <li>Generate copy & campaign ideas</li>
-              <li>Analyze CSVs and produce visual charts</li>
-              <li>Mockup images & visuals via prompts</li>
-            </ul>
+          <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:2rem; text-align:center;">
+            <p style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:1rem;">The Future of AI</p>
+            <div style="display:flex; flex-direction:column; gap:0.75rem; align-items:center;">
+              <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); border-radius:10px; padding:0.75rem 1.5rem; color:#fca5a5; font-size:0.9rem; text-decoration:line-through; opacity:0.6;">❌ Stateless chatbots</div>
+              <div style="color:#FFC107; font-size:1.2rem;">↓</div>
+              <div style="background:rgba(255,193,7,0.1); border:1px solid rgba(255,193,7,0.3); border-radius:10px; padding:0.75rem 1.5rem; color:#FFC107; font-size:0.9rem; font-weight:700;">✅ Persistent intelligent systems</div>
+            </div>
+            <p style="color:#94a3b8; font-size:0.85rem; margin-top:1.5rem; line-height:1.6;">Generic answers → <strong style="color:#e2e8f0;">Personalized insights</strong><br>One-time chats → <strong style="color:#e2e8f0;">Long-term relationships</strong><br>Tools → <strong style="color:#FFC107;">Assistants</strong></p>
           </div>
+        </div>
 
-          <div class="rounded-xl p-6 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-            <h4 class="font-semibold mb-2 text-gray-900 dark:text-white">Developers & Teams</h4>
-            <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
-              <li>Extract code from images and refactor</li>
-              <li>Keep exportable chat logs for engineering handoffs</li>
-              <li>Integrate via API for internal automation</li>
-            </ul>
-          </div>
+        <div style="margin-top:3rem; text-align:center; border-top:1px solid rgba(255,255,255,0.08); padding-top:3rem;">
+          <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:0.5rem;">The Bottom Line</p>
+          <h3 style="font-size:1.5rem; font-weight:800; color:#fff; margin-bottom:0.5rem;">Dynamo AI Memory is not just a feature.</h3>
+          <p style="color:#FFC107; font-size:1.1rem; font-weight:600; margin-bottom:2rem;">It's the core reason Dynamo AI exists.</p>
+          <p style="color:#94a3b8; font-size:0.9rem; font-style:italic; margin-bottom:2rem;">Once you use it… you'll never go back to forgetful AI again.</p>
+          <a href="https://app.dynamoai.in/" style="display:inline-flex; align-items:center; gap:0.75rem; background:linear-gradient(90deg,#FFC107,#FF9800); color:#000; font-weight:700; padding:0.9rem 2rem; border-radius:999px; font-size:1rem; text-decoration:none; box-shadow:0 4px 24px rgba(255,193,7,0.3);">🚀 Experience AI That Actually Remembers You</a>
         </div>
       </div>
     </section>
