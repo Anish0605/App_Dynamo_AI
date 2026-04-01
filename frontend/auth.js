@@ -334,17 +334,17 @@ function updateAuthUI(user) {
   const name = user.displayName || user.email?.split("@")[0] || "User";
   const initials = name.substring(0, 2).toUpperCase();
 
-  document.getElementById("user-display-name").textContent = name;
-  document.getElementById("sidebar-avatar").textContent = initials;
+  document.getElementById("user-display-name")?.textContent = name;
+  document.getElementById("sidebar-avatar")?.textContent = initials;
 
   document.getElementById("logged-out-view")?.classList.add("hidden");
   document.getElementById("header-logout-btn")?.classList.remove("hidden");
 }
 
 function resetAuthUI() {
-  document.getElementById("user-display-name").textContent = "Guest";
-  document.getElementById("sidebar-avatar").textContent = "G";
-  document.getElementById("sidebar-plan").textContent = "FREE";
+  document.getElementById("user-display-name")?.textContent = "Guest";
+  document.getElementById("sidebar-avatar")?.textContent = "G";
+  document.getElementById("sidebar-plan")?.textContent = "FREE";
 
   document.getElementById("logged-out-view")?.classList.remove("hidden");
   document.getElementById("header-logout-btn")?.classList.add("hidden");
