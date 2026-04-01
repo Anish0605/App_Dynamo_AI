@@ -87,18 +87,6 @@ function showUploadChip(filename, isRadioMode = false) {
   
   chipContainer.appendChild(chip);
   
-  // Only show analysis suggestions if NOT in radio mode
-  if (!isRadioMode) {
-    const suggestionDiv = document.createElement("div");
-    suggestionDiv.className = "flex flex-wrap gap-2 mb-2 px-4";
-    suggestionDiv.innerHTML = `
-      <button onclick="window.suggestAnalyzeFile('${filename}')" class="px-3 py-1.5 bg-yellow-300 dark:bg-yellow-600 text-gray-900 dark:text-white rounded-full text-sm font-medium hover:bg-yellow-400 dark:hover:bg-yellow-500 transition">
-        📊 Analysis my resume
-      </button>
-    `;
-    chipContainer.parentElement?.insertBefore(suggestionDiv, chipContainer.nextSibling);
-  }
-  
   lucide.createIcons();
 }
 
