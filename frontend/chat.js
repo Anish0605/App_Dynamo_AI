@@ -124,7 +124,7 @@ async function saveMessage(role, text) {
   const chatId = await ensureChat(text);
   if (!chatId) return;
 
-  await supabaseClient.from("messages").insert({
+  await window.supabaseClient.from("messages").insert({
     chat_id: chatId,
     role,
     content: { text },

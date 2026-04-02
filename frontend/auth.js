@@ -38,7 +38,7 @@ async function syncUserWithSupabase(firebaseUser) {
     const today = new Date().toISOString().split("T")[0];
 
     // 1. Check existing user
-    const { data, error } = await supabaseClient
+    const { data, error } = await window.supabaseClient
       .from("users")
       .select("*")
       .eq("firebase_uid", firebaseUser.uid)
@@ -48,7 +48,7 @@ async function syncUserWithSupabase(firebaseUser) {
 
     // 2. Create if not exists
     if (!userData) {
-      const { data: newUser, error: insertError } = await supabaseClient
+      const { data: newUser, error: insertError } = await window.supabaseClient
         .from("users")
         .insert([{
           firebase_uid: firebaseUser.uid,
@@ -71,7 +71,7 @@ async function syncUserWithSupabase(firebaseUser) {
 
     // 2b. Patch full_name if missing in existing record
     if (userData && !userData.full_name && firebaseUser.displayName) {
-      const { data: patched } = await supabaseClient
+      const { data: patched } = await window.supabaseClient
         .from("users")
         .update({ full_name: firebaseUser.displayName })
         .eq("id", userData.id)
@@ -178,7 +178,7 @@ async function handleAuthSubmit() {
 
   if (!email || !password) return;
 
-  errorBox.textContent = "";
+  if (errorBox) errorBox.textContent = "";
 
   try {
     let userCred;
@@ -217,8 +217,8 @@ async function handleAuthSubmit() {
     }
 
   } catch (err) {
-    console.error(err);
-    errorBox.textContent = err.message;
+    console.error("❌ Auth error:", err);
+    if (errorBox) errorBox.textContent = err.message;
   }
 }
 

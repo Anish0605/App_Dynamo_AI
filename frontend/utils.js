@@ -157,7 +157,7 @@ window.getUserChats = async () => {
     const userId = window.appState.supabaseUserId;
     if (!userId) return [];
 
-    const { data, error } = await supabaseClient
+    const { data, error } = await window.supabaseClient
       .from("chats")
       .select("*")
       .eq("user_id", userId)

@@ -164,7 +164,7 @@ function renderSidebarItem(chat, box) {
       : "text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20",
     async (e) => {
       e.stopPropagation();
-      await supabaseClient.from("chats").update({ is_starred: !chat.is_starred }).eq("id", chat.id);
+      await window.supabaseClient.from("chats").update({ is_starred: !chat.is_starred }).eq("id", chat.id);
       window.loadChatSidebar();
     }
   );
@@ -199,8 +199,8 @@ function renderSidebarItem(chat, box) {
     async (e) => {
       e.stopPropagation();
       if (!confirm("Delete this chat?")) return;
-      await supabaseClient.from("messages").delete().eq("chat_id", chat.id);
-      await supabaseClient.from("chats").delete().eq("id", chat.id);
+      await window.supabaseClient.from("messages").delete().eq("chat_id", chat.id);
+      await window.supabaseClient.from("chats").delete().eq("id", chat.id);
       if (window.appState.chatId === chat.id) {
         window.setChatId(null);
         const chatContainer = document.getElementById("chat-messages");
@@ -252,7 +252,7 @@ function startInlineRename(titleEl, chat, wrapper) {
 
   const save = async () => {
     const newTitle = input.value.trim() || currentTitle;
-    await supabaseClient.from("chats").update({ title: newTitle }).eq("id", chat.id);
+    await window.supabaseClient.from("chats").update({ title: newTitle }).eq("id", chat.id);
     chat.title = newTitle;
     titleEl.innerText = newTitle;
     input.replaceWith(titleEl);
@@ -308,7 +308,7 @@ async function smartRename(chat, titleEl) {
 
     const newTitle = (res?.reply || "").trim().replace(/^["']|["']$/g, "").slice(0, 50) || chat.title || "New Chat";
 
-    await supabaseClient.from("chats").update({ title: newTitle }).eq("id", chat.id);
+    await window.supabaseClient.from("chats").update({ title: newTitle }).eq("id", chat.id);
     chat.title = newTitle;
     titleEl.innerText = newTitle;
 
