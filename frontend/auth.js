@@ -130,7 +130,22 @@ firebaseAuth?.onAuthStateChanged(async (user) => {
    SUBMIT HANDLER
 -------------------------------------------------- */
 document.addEventListener("click", (e) => {
-  if (e.target?.id === "auth-submit") handleAuthSubmit();
+  if (e.target?.id === "auth-submit") {
+    console.log("🔐 Auth submit clicked");
+    handleAuthSubmit();
+  }
+});
+
+// Also add direct onclick listener as backup
+document.addEventListener("DOMContentLoaded", () => {
+  const submitBtn = document.getElementById("auth-submit");
+  if (submitBtn) {
+    submitBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      console.log("🔐 Auth submit (direct listener) clicked");
+      handleAuthSubmit();
+    });
+  }
 });
 
 /* --------------------------------------------------
@@ -145,7 +160,7 @@ window.signInWithGoogle = async () => {
     window.closeAuthModal();
 
   } catch (err) {
-    console.error(err);
+    console.error("❌ Google login error:", err);
     alert(err.message);
   }
 };
