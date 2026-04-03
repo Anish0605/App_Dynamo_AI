@@ -70,7 +70,7 @@ PLAN_LIMITS = {
 
 
 def _current_month():
-    return date.today().strftime("%Y-%m")
+    return datetime.utcnow().date().strftime("%Y-%m")
 
 
 def _apply_monthly_reset(user):
@@ -132,8 +132,8 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
         if res.data:
             user = res.data[0]
 
-            # Daily reset
-            today = date.today().isoformat()
+            # Daily reset (UTC)
+            today = datetime.utcnow().date().isoformat()
             if user.get("quota_date") != today:
                 try:
                     supabase.table("users") \
@@ -146,7 +146,7 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
 
                     user["daily_quota_used"] = 0
                     user["quota_date"] = today
-                    print("Daily quota reset")
+                    print("Daily quota reset (UTC):", today)
 
                 except Exception as e:
                     print("Quota reset error:", e)
@@ -166,7 +166,7 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
             "phone": phone,
             "created_at": datetime.utcnow().isoformat(),
             "daily_quota_used": 0,
-            "quota_date": date.today().isoformat(),
+            "quota_date": datetime.utcnow().date().isoformat(),
             "image_count_used": 0,
             "video_count_used": 0,
             "quota_month": _current_month()
@@ -200,8 +200,8 @@ def get_user_by_supabase_id(supabase_id):
 
         user = res.data[0]
 
-        # Daily reset
-        today = date.today().isoformat()
+        # Daily reset (UTC)
+        today = datetime.utcnow().date().isoformat()
         if user.get("quota_date") != today:
             try:
                 supabase.table("users") \
@@ -214,7 +214,7 @@ def get_user_by_supabase_id(supabase_id):
 
                 user["daily_quota_used"] = 0
                 user["quota_date"] = today
-                print("Daily quota reset for user:", supabase_id)
+                print("Daily quota reset for user (UTC):", supabase_id, "date:", today)
 
             except Exception as e:
                 print("Quota reset error:", e)
