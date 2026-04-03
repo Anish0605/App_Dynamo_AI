@@ -160,20 +160,16 @@ async function checkMessageLimit() {
     return { allowed: false };
   }
 
-  // ✅ REFRESH USER DATA (fix for daily quota reset at midnight)
-  if (window.supabaseClient && user.id) {
+  // ✅ REFRESH USER DATA FROM BACKEND (triggers daily quota reset)
+  if (user.id) {
     try {
-      const { data, error } = await window.supabaseClient
-        .from("users")
-        .select("*")
-        .eq("id", user.id)
-        .single();
+      const res = await window.callBackend("/get-user", { user_id: user.id });
 
-      if (data && !error) {
-        user = data;
-        // Update appState to latest user data
+      if (res && !res.error) {
+        user = res;
+        // Update appState to latest user data with reset applied
         window.appState.supabaseUser = user;
-        console.log("✅ User quota refreshed:", { daily_quota_used: user.daily_quota_used, quota_date: user.quota_date });
+        console.log("✅ User quota refreshed from backend:", { daily_quota_used: user.daily_quota_used, quota_date: user.quota_date });
       }
     } catch (err) {
       console.warn("⚠️ Could not refresh user quota:", err);

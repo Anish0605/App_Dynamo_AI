@@ -86,6 +86,32 @@ async def serve_features():
 @app.get("/pricing.html")
 async def serve_pricing():
     return FileResponse(os.path.join(FRONTEND_DIR, "pricing.html"))
+
+# --------------------------------------------------
+# GET FRESH USER (WITH QUOTA RESET)
+# --------------------------------------------------
+
+class GetUserReq(BaseModel):
+    user_id: str
+
+@app.post("/get-user")
+async def get_user_fresh(req: GetUserReq):
+    """Get fresh user data with daily quota reset applied."""
+    user = supabase_client.get_user_by_supabase_id(req.user_id)
+    
+    if not user:
+        return {"error": "User not found"}
+    
+    return {
+        "id": user.get("id"),
+        "email": user.get("email"),
+        "plan": user.get("plan"),
+        "daily_quota_used": user.get("daily_quota_used", 0),
+        "quota_date": user.get("quota_date"),
+        "image_count_used": user.get("image_count_used", 0),
+        "video_count_used": user.get("video_count_used", 0),
+        "quota_month": user.get("quota_month")
+    }
     
 # --------------------------------------------------
 # CHAT
