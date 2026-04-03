@@ -154,10 +154,31 @@ function hideThinking() {
 ========================================================= */
 
 async function checkMessageLimit() {
-  const user = window.appState?.supabaseUser;
+  let user = window.appState?.supabaseUser;
 
   if (!user) {
     return { allowed: false };
+  }
+
+  // ✅ REFRESH USER DATA (fix for daily quota reset at midnight)
+  if (window.supabaseClient && user.id) {
+    try {
+      const { data, error } = await window.supabaseClient
+        .from("users")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (data && !error) {
+        user = data;
+        // Update appState to latest user data
+        window.appState.supabaseUser = user;
+        console.log("✅ User quota refreshed:", { daily_quota_used: user.daily_quota_used, quota_date: user.quota_date });
+      }
+    } catch (err) {
+      console.warn("⚠️ Could not refresh user quota:", err);
+      // Continue with stale data if refresh fails
+    }
   }
 
   const plan = user.plan || "free";
