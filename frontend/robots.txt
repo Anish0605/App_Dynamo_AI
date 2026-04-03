@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /features.html
+Allow: /pricing.html
+Allow: /guide.html
+Disallow: /api/
+Disallow: /admin/
+Disallow: /chat-with-file
+Disallow: /generate-video
+Disallow: /create-order
+Disallow: /verify-payment
+
+Sitemap: https://app.dynamoai.in/sitemap.xml
