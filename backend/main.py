@@ -87,6 +87,50 @@ async def serve_features():
 async def serve_pricing():
     return FileResponse(os.path.join(FRONTEND_DIR, "pricing.html"))
 
+@app.get("/guide.html")
+async def serve_guide():
+    return FileResponse(os.path.join(FRONTEND_DIR, "guide.html"))
+
+# --------------------------------------------------
+# SITEMAP FOR GOOGLE SEARCH CONSOLE
+# --------------------------------------------------
+
+@app.get("/sitemap.xml")
+async def sitemap():
+    """Sitemap for app.dynamoai.in for Google Search Console"""
+    from datetime import datetime
+    
+    sitemap_xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://app.dynamoai.in/</loc>
+    <lastmod>{datetime.utcnow().strftime('%Y-%m-%d')}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://app.dynamoai.in/features.html</loc>
+    <lastmod>{datetime.utcnow().strftime('%Y-%m-%d')}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://app.dynamoai.in/pricing.html</loc>
+    <lastmod>{datetime.utcnow().strftime('%Y-%m-%d')}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://app.dynamoai.in/guide.html</loc>
+    <lastmod>{datetime.utcnow().strftime('%Y-%m-%d')}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>"""
+    
+    from fastapi.responses import Response
+    return Response(content=sitemap_xml, media_type="application/xml")
+
 # --------------------------------------------------
 # GET FRESH USER (WITH QUOTA RESET)
 # --------------------------------------------------
