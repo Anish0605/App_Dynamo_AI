@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "EWfLPlfaZEAeAa9KQbYO7"
+uri = "file://dynamo-backend-reference.zip"
+type = "unspecified"
+title = "Dynamo AI — Backend Reference (6 files)"
