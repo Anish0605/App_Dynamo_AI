@@ -218,32 +218,39 @@ window.updateCreditsDisplay = () => {
   const imgUsed = user.image_count_used || 0;
   const vidUsed = user.video_count_used || 0;
 
-  // Update counts
-  document.getElementById("msg-count").textContent = `${msgUsed}/${limits.chat}`;
-  document.getElementById("img-count").textContent = `${imgUsed}/${limits.images}`;
-  document.getElementById("vid-count").textContent = `${vidUsed}/${limits.videos}`;
-
-  // Update progress bars
-  const msgPercent = limits.chat > 0 ? (msgUsed / limits.chat) * 100 : 0;
-  const imgPercent = limits.images > 0 ? (imgUsed / limits.images) * 100 : 0;
-  const vidPercent = limits.videos > 0 ? (vidUsed / limits.videos) * 100 : 0;
-
-  document.getElementById("msg-bar").style.width = Math.min(msgPercent, 100) + "%";
-  document.getElementById("img-bar").style.width = Math.min(imgPercent, 100) + "%";
-  document.getElementById("vid-bar").style.width = Math.min(vidPercent, 100) + "%";
-
-  // Update plan badge
   const planNames = { free: "Free", plus: "Plus", pro: "Pro" };
-  document.getElementById("plan-badge").textContent = planNames[plan] || "Free";
+  const displayPlan = planNames[plan] || "Free";
 
-  // Update bar colors based on usage
-  const msgBar = document.getElementById("msg-bar");
-  const imgBar = document.getElementById("img-bar");
-  const vidBar = document.getElementById("vid-bar");
+  // Update counts in profile modal
+  const profileMsgCount = document.getElementById("profile-msg-count");
+  const profileImgCount = document.getElementById("profile-img-count");
+  const profileVidCount = document.getElementById("profile-vid-count");
+  const profilePlanBadge = document.getElementById("profile-plan-badge");
 
-  msgBar.className = msgPercent >= 90 ? "h-full bg-red-500 rounded-full transition-all duration-300" : "h-full bg-green-500 rounded-full transition-all duration-300";
-  imgBar.className = imgPercent >= 90 ? "h-full bg-red-500 rounded-full transition-all duration-300" : "h-full bg-blue-500 rounded-full transition-all duration-300";
-  vidBar.className = vidPercent >= 90 ? "h-full bg-red-500 rounded-full transition-all duration-300" : "h-full bg-purple-500 rounded-full transition-all duration-300";
+  if (profileMsgCount) {
+    profileMsgCount.textContent = `${msgUsed}/${limits.chat}`;
+    profileImgCount.textContent = `${imgUsed}/${limits.images}`;
+    profileVidCount.textContent = `${vidUsed}/${limits.videos}`;
+    profilePlanBadge.textContent = displayPlan;
+
+    // Update progress bars in profile
+    const msgPercent = limits.chat > 0 ? (msgUsed / limits.chat) * 100 : 0;
+    const imgPercent = limits.images > 0 ? (imgUsed / limits.images) * 100 : 0;
+    const vidPercent = limits.videos > 0 ? (vidUsed / limits.videos) * 100 : 0;
+
+    document.getElementById("profile-msg-bar").style.width = Math.min(msgPercent, 100) + "%";
+    document.getElementById("profile-img-bar").style.width = Math.min(imgPercent, 100) + "%";
+    document.getElementById("profile-vid-bar").style.width = Math.min(vidPercent, 100) + "%";
+
+    // Update bar colors based on usage
+    const msgBar = document.getElementById("profile-msg-bar");
+    const imgBar = document.getElementById("profile-img-bar");
+    const vidBar = document.getElementById("profile-vid-bar");
+
+    msgBar.className = msgPercent >= 90 ? "h-full bg-red-500 rounded-full transition-all duration-300" : "h-full bg-green-500 rounded-full transition-all duration-300";
+    imgBar.className = imgPercent >= 90 ? "h-full bg-red-500 rounded-full transition-all duration-300" : "h-full bg-blue-500 rounded-full transition-all duration-300";
+    vidBar.className = vidPercent >= 90 ? "h-full bg-red-500 rounded-full transition-all duration-300" : "h-full bg-purple-500 rounded-full transition-all duration-300";
+  }
 
   console.log("✅ Credits dashboard updated");
 };
