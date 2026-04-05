@@ -131,8 +131,8 @@ function renderSidebarItem(chat, box) {
   /* --- Pin badge (visible when pinned) --- */
   if (chat.is_starred) {
     const badge = document.createElement("span");
-    badge.className = "flex-shrink-0 text-yellow-500";
-    badge.innerHTML = iconPin(true);
+    badge.className = "flex-shrink-0 text-yellow-500 text-xs";
+    badge.innerHTML = "📌";
     wrapper.appendChild(badge);
   }
 
@@ -151,74 +151,86 @@ function renderSidebarItem(chat, box) {
     await window.loadChatSidebar();
   };
 
-  /* --- Action buttons --- */
-  const actions = document.createElement("div");
-  actions.className = "flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0";
-
-  /* Pin / Unpin */
-  const pinBtn = makeActionBtn(
-    iconPin(chat.is_starred),
-    chat.is_starred ? "Unpin" : "Pin",
-    chat.is_starred
-      ? "text-yellow-500 hover:text-yellow-600 hover:bg-yellow-100 dark:hover:bg-yellow-900/30"
-      : "text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20",
-    async (e) => {
-      e.stopPropagation();
-      await window.supabaseClient.from("chats").update({ is_starred: !chat.is_starred }).eq("id", chat.id);
-      window.loadChatSidebar();
-    }
-  );
-
-  /* Rename */
-  const renameBtn = makeActionBtn(
-    iconPencil(),
-    "Rename",
-    "text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30",
-    (e) => {
-      e.stopPropagation();
-      startInlineRename(title, chat, wrapper);
-    }
-  );
-
-  /* Smart AI Rename */
-  const smartBtn = makeActionBtn(
-    iconSparkle(),
-    "Smart Rename",
-    "text-gray-400 hover:text-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/30",
-    async (e) => {
-      e.stopPropagation();
-      await smartRename(chat, title);
-    }
-  );
-
-  /* Delete */
-  const delBtn = makeActionBtn(
-    iconTrash(),
-    "Delete",
-    "text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30",
-    async (e) => {
-      e.stopPropagation();
-      if (!confirm("Delete this chat?")) return;
-      await window.supabaseClient.from("messages").delete().eq("chat_id", chat.id);
-      await window.supabaseClient.from("chats").delete().eq("id", chat.id);
-      if (window.appState.chatId === chat.id) {
-        window.setChatId(null);
-        const chatContainer = document.getElementById("chat-messages");
-        if (chatContainer) chatContainer.innerHTML = "";
-        if (typeof showHero === "function") showHero();
-      }
-      window.loadChatSidebar();
-    }
-  );
-
-  actions.appendChild(pinBtn);
-  actions.appendChild(renameBtn);
-  actions.appendChild(smartBtn);
-  actions.appendChild(delBtn);
+  /* --- Three-dot menu button --- */
+  const menuBtn = document.createElement("button");
+  menuBtn.className = "flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity p-1";
+  menuBtn.innerHTML = "⋯";
+  menuBtn.title = "Options";
+  menuBtn.onclick = (e) => {
+    e.stopPropagation();
+    showChatMenu(e, chat, title, wrapper);
+  };
 
   wrapper.appendChild(title);
-  wrapper.appendChild(actions);
+  wrapper.appendChild(menuBtn);
   box.appendChild(wrapper);
+}
+
+/* =========================================================
+   CHAT MENU POPUP
+========================================================= */
+
+function showChatMenu(e, chat, titleEl, wrapperEl) {
+  // Remove any existing popup
+  const existing = document.getElementById("chat-menu-popup");
+  if (existing) existing.remove();
+
+  // Create menu popup
+  const popup = document.createElement("div");
+  popup.id = "chat-menu-popup";
+  popup.className = "absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 min-w-48";
+  
+  // Pin option
+  const pinItem = document.createElement("button");
+  pinItem.className = "w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 border-b border-gray-200 dark:border-gray-700";
+  pinItem.innerHTML = `${chat.is_starred ? "📌" : "📍"} ${chat.is_starred ? "Unpin" : "Pin"}`;
+  pinItem.onclick = async () => {
+    await window.supabaseClient.from("chats").update({ is_starred: !chat.is_starred }).eq("id", chat.id);
+    popup.remove();
+    window.loadChatSidebar();
+  };
+
+  // Rename option
+  const renameItem = document.createElement("button");
+  renameItem.className = "w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 border-b border-gray-200 dark:border-gray-700";
+  renameItem.innerHTML = `✏️ Rename`;
+  renameItem.onclick = () => {
+    popup.remove();
+    startInlineRename(titleEl, chat, wrapperEl);
+  };
+
+  // Delete option
+  const deleteItem = document.createElement("button");
+  deleteItem.className = "w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3";
+  deleteItem.innerHTML = `🗑️ Delete`;
+  deleteItem.onclick = async () => {
+    popup.remove();
+    if (!confirm("Delete this chat?")) return;
+    await window.supabaseClient.from("messages").delete().eq("chat_id", chat.id);
+    await window.supabaseClient.from("chats").delete().eq("id", chat.id);
+    if (window.appState.chatId === chat.id) {
+      window.setChatId(null);
+      const chatContainer = document.getElementById("chat-messages");
+      if (chatContainer) chatContainer.innerHTML = "";
+      if (typeof showHero === "function") showHero();
+    }
+    window.loadChatSidebar();
+  };
+
+  popup.appendChild(pinItem);
+  popup.appendChild(renameItem);
+  popup.appendChild(deleteItem);
+
+  // Position the popup near the button
+  document.body.appendChild(popup);
+  
+  // Close popup when clicking outside
+  setTimeout(() => {
+    document.addEventListener("click", function closeMenu() {
+      popup.remove();
+      document.removeEventListener("click", closeMenu);
+    });
+  }, 0);
 }
 
 /* =========================================================
