@@ -179,17 +179,18 @@ function showChatMenu(e, chat, titleEl, wrapperEl) {
   // Create menu popup with fixed positioning
   const popup = document.createElement("div");
   popup.id = "chat-menu-popup";
-  popup.className = "fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 min-w-48";
+  popup.className = "fixed bg-white dark:bg-gray-900 rounded-xl shadow-2xl z-50 min-w-56 border border-gray-100 dark:border-gray-700 backdrop-blur-sm";
+  popup.style.boxShadow = "0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1)";
   
   // Get button position for placement
   const rect = e.target.getBoundingClientRect();
-  popup.style.top = (rect.bottom + 4) + "px";
+  popup.style.top = (rect.bottom + 8) + "px";
   popup.style.right = (window.innerWidth - rect.right) + "px";
   
   // Pin option
   const pinItem = document.createElement("button");
-  pinItem.className = "w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 border-b border-gray-200 dark:border-gray-700";
-  pinItem.innerHTML = `${chat.is_starred ? "📌" : "📍"} ${chat.is_starred ? "Unpin" : "Pin"}`;
+  pinItem.className = "w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 flex items-center gap-3 transition-all duration-150 border-b border-gray-100 dark:border-gray-700/50";
+  pinItem.innerHTML = `<span class="text-lg">${chat.is_starred ? "📌" : "📍"}</span><span>${chat.is_starred ? "Unpin" : "Pin"}</span>`;
   pinItem.onclick = async (e2) => {
     e2.stopPropagation();
     await window.supabaseClient.from("chats").update({ is_starred: !chat.is_starred }).eq("id", chat.id);
@@ -199,8 +200,8 @@ function showChatMenu(e, chat, titleEl, wrapperEl) {
 
   // Rename option
   const renameItem = document.createElement("button");
-  renameItem.className = "w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 border-b border-gray-200 dark:border-gray-700";
-  renameItem.innerHTML = `✏️ Rename`;
+  renameItem.className = "w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-3 transition-all duration-150 border-b border-gray-100 dark:border-gray-700/50";
+  renameItem.innerHTML = `<span class="text-lg">✏️</span><span>Rename</span>`;
   renameItem.onclick = (e2) => {
     e2.stopPropagation();
     popup.remove();
@@ -209,8 +210,8 @@ function showChatMenu(e, chat, titleEl, wrapperEl) {
 
   // Delete option
   const deleteItem = document.createElement("button");
-  deleteItem.className = "w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3";
-  deleteItem.innerHTML = `🗑️ Delete`;
+  deleteItem.className = "w-full text-left px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 transition-all duration-150 rounded-b-xl";
+  deleteItem.innerHTML = `<span class="text-lg">🗑️</span><span>Delete</span>`;
   deleteItem.onclick = async (e2) => {
     e2.stopPropagation();
     popup.remove();
