@@ -127,6 +127,7 @@ function renderSidebarItem(chat, box) {
       ? "bg-yellow-100 dark:bg-yellow-900/30 shadow-sm"
       : "hover:bg-gray-200 dark:hover:bg-gray-700/70"
   ].join(" ");
+  wrapper.style.position = "relative";
 
   /* --- Pin badge (visible when pinned) --- */
   if (chat.is_starred) {
@@ -175,16 +176,22 @@ function showChatMenu(e, chat, titleEl, wrapperEl) {
   const existing = document.getElementById("chat-menu-popup");
   if (existing) existing.remove();
 
-  // Create menu popup
+  // Create menu popup with fixed positioning
   const popup = document.createElement("div");
   popup.id = "chat-menu-popup";
-  popup.className = "absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 min-w-48";
+  popup.className = "fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 min-w-48";
+  
+  // Get button position for placement
+  const rect = e.target.getBoundingClientRect();
+  popup.style.top = (rect.bottom + 4) + "px";
+  popup.style.right = (window.innerWidth - rect.right) + "px";
   
   // Pin option
   const pinItem = document.createElement("button");
   pinItem.className = "w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 border-b border-gray-200 dark:border-gray-700";
   pinItem.innerHTML = `${chat.is_starred ? "📌" : "📍"} ${chat.is_starred ? "Unpin" : "Pin"}`;
-  pinItem.onclick = async () => {
+  pinItem.onclick = async (e2) => {
+    e2.stopPropagation();
     await window.supabaseClient.from("chats").update({ is_starred: !chat.is_starred }).eq("id", chat.id);
     popup.remove();
     window.loadChatSidebar();
@@ -194,7 +201,8 @@ function showChatMenu(e, chat, titleEl, wrapperEl) {
   const renameItem = document.createElement("button");
   renameItem.className = "w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 border-b border-gray-200 dark:border-gray-700";
   renameItem.innerHTML = `✏️ Rename`;
-  renameItem.onclick = () => {
+  renameItem.onclick = (e2) => {
+    e2.stopPropagation();
     popup.remove();
     startInlineRename(titleEl, chat, wrapperEl);
   };
@@ -203,7 +211,8 @@ function showChatMenu(e, chat, titleEl, wrapperEl) {
   const deleteItem = document.createElement("button");
   deleteItem.className = "w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3";
   deleteItem.innerHTML = `🗑️ Delete`;
-  deleteItem.onclick = async () => {
+  deleteItem.onclick = async (e2) => {
+    e2.stopPropagation();
     popup.remove();
     if (!confirm("Delete this chat?")) return;
     await window.supabaseClient.from("messages").delete().eq("chat_id", chat.id);
@@ -221,16 +230,20 @@ function showChatMenu(e, chat, titleEl, wrapperEl) {
   popup.appendChild(renameItem);
   popup.appendChild(deleteItem);
 
-  // Position the popup near the button
+  // Append popup to document body
   document.body.appendChild(popup);
   
   // Close popup when clicking outside
-  setTimeout(() => {
-    document.addEventListener("click", function closeMenu() {
+  const closeHandler = (e2) => {
+    if (!popup.contains(e2.target) && e2.target !== e.target) {
       popup.remove();
-      document.removeEventListener("click", closeMenu);
-    });
-  }, 0);
+      document.removeEventListener("click", closeHandler);
+    }
+  };
+  
+  setTimeout(() => {
+    document.addEventListener("click", closeHandler);
+  }, 100);
 }
 
 /* =========================================================
