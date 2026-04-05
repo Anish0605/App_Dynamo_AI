@@ -176,20 +176,21 @@ function showChatMenu(e, chat, titleEl, wrapperEl) {
   const existing = document.getElementById("chat-menu-popup");
   if (existing) existing.remove();
 
-  // Create menu popup with fixed positioning
+  // Create menu popup with fixed positioning - appears ABOVE button
   const popup = document.createElement("div");
   popup.id = "chat-menu-popup";
-  popup.className = "fixed bg-white dark:bg-gray-900 rounded-xl shadow-2xl z-50 min-w-56 border border-gray-100 dark:border-gray-700 backdrop-blur-sm";
-  popup.style.boxShadow = "0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1)";
+  popup.className = "fixed bg-white dark:bg-gray-850 rounded-2xl z-50 min-w-56 shadow-2xl border border-gray-200 dark:border-gray-700";
+  popup.style.boxShadow = "0 25px 50px -12px rgba(0, 0, 0, 0.25)";
   
-  // Get button position for placement
+  // Get button position for placement - ABOVE the button
   const rect = e.target.getBoundingClientRect();
-  popup.style.top = (rect.bottom + 8) + "px";
+  popup.style.top = (rect.top - 12) + "px";
   popup.style.right = (window.innerWidth - rect.right) + "px";
+  popup.style.transform = "translateY(-100%)";
   
   // Pin option
   const pinItem = document.createElement("button");
-  pinItem.className = "w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 flex items-center gap-3 transition-all duration-150 border-b border-gray-100 dark:border-gray-700/50";
+  pinItem.className = "w-full text-left px-5 py-3.5 text-sm font-semibold text-gray-700 dark:text-gray-100 hover:bg-yellow-100 dark:hover:bg-yellow-500/20 hover:text-yellow-700 dark:hover:text-yellow-300 flex items-center gap-3 transition-colors duration-200 rounded-t-2xl";
   pinItem.innerHTML = `<span class="text-lg">${chat.is_starred ? "📌" : "📍"}</span><span>${chat.is_starred ? "Unpin" : "Pin"}</span>`;
   pinItem.onclick = async (e2) => {
     e2.stopPropagation();
@@ -200,7 +201,7 @@ function showChatMenu(e, chat, titleEl, wrapperEl) {
 
   // Rename option
   const renameItem = document.createElement("button");
-  renameItem.className = "w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-3 transition-all duration-150 border-b border-gray-100 dark:border-gray-700/50";
+  renameItem.className = "w-full text-left px-5 py-3.5 text-sm font-semibold text-gray-700 dark:text-gray-100 hover:bg-blue-100 dark:hover:bg-blue-500/20 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-3 transition-colors duration-200 border-y border-gray-200 dark:border-gray-700";
   renameItem.innerHTML = `<span class="text-lg">✏️</span><span>Rename</span>`;
   renameItem.onclick = (e2) => {
     e2.stopPropagation();
@@ -210,7 +211,7 @@ function showChatMenu(e, chat, titleEl, wrapperEl) {
 
   // Delete option
   const deleteItem = document.createElement("button");
-  deleteItem.className = "w-full text-left px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 transition-all duration-150 rounded-b-xl";
+  deleteItem.className = "w-full text-left px-5 py-3.5 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-3 transition-colors duration-200 rounded-b-2xl";
   deleteItem.innerHTML = `<span class="text-lg">🗑️</span><span>Delete</span>`;
   deleteItem.onclick = async (e2) => {
     e2.stopPropagation();
