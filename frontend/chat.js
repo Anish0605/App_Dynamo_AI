@@ -366,6 +366,8 @@ window.sendFromInput = async () => {
     // ✅ Increment local quota count so frontend check stays accurate
     if (window.appState?.supabaseUser) {
       window.appState.supabaseUser.daily_quota_used = (window.appState.supabaseUser.daily_quota_used || 0) + 1;
+      // ✅ Update credits dashboard
+      window.updateCreditsDisplay?.();
     }
 
     // ---------------- VIDEO ----------------

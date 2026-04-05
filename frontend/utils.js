@@ -99,6 +99,11 @@ window.setSupabaseUser = async (user) => {
   window.appState.supabaseUserId = fullUser?.id || null;
 
   console.log("🧠 Supabase User Set (FULL):", fullUser);
+
+  // ✅ Update credits dashboard
+  setTimeout(() => {
+    window.updateCreditsDisplay?.();
+  }, 100);
 };
 
 window.setChatId = (chatId) => {
@@ -193,3 +198,52 @@ setTimeout(() => {
     console.warn("⚠️ No Supabase user yet (login not completed)");
   }
 }, 3000);
+
+/* -----------------------------
+   CREDITS DASHBOARD UPDATE
+----------------------------- */
+window.updateCreditsDisplay = () => {
+  const user = window.appState?.supabaseUser;
+  if (!user) return;
+
+  const plan = user.plan || "free";
+  const PLAN_LIMITS = {
+    free: { chat: 10, images: 0, videos: 0 },
+    plus: { chat: 100, images: 25, videos: 5 },
+    pro: { chat: 300, images: 100, videos: 25 }
+  };
+
+  const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+  const msgUsed = user.daily_quota_used || 0;
+  const imgUsed = user.image_count_used || 0;
+  const vidUsed = user.video_count_used || 0;
+
+  // Update counts
+  document.getElementById("msg-count").textContent = `${msgUsed}/${limits.chat}`;
+  document.getElementById("img-count").textContent = `${imgUsed}/${limits.images}`;
+  document.getElementById("vid-count").textContent = `${vidUsed}/${limits.videos}`;
+
+  // Update progress bars
+  const msgPercent = limits.chat > 0 ? (msgUsed / limits.chat) * 100 : 0;
+  const imgPercent = limits.images > 0 ? (imgUsed / limits.images) * 100 : 0;
+  const vidPercent = limits.videos > 0 ? (vidUsed / limits.videos) * 100 : 0;
+
+  document.getElementById("msg-bar").style.width = Math.min(msgPercent, 100) + "%";
+  document.getElementById("img-bar").style.width = Math.min(imgPercent, 100) + "%";
+  document.getElementById("vid-bar").style.width = Math.min(vidPercent, 100) + "%";
+
+  // Update plan badge
+  const planNames = { free: "Free", plus: "Plus", pro: "Pro" };
+  document.getElementById("plan-badge").textContent = planNames[plan] || "Free";
+
+  // Update bar colors based on usage
+  const msgBar = document.getElementById("msg-bar");
+  const imgBar = document.getElementById("img-bar");
+  const vidBar = document.getElementById("vid-bar");
+
+  msgBar.className = msgPercent >= 90 ? "h-full bg-red-500 rounded-full transition-all duration-300" : "h-full bg-green-500 rounded-full transition-all duration-300";
+  imgBar.className = imgPercent >= 90 ? "h-full bg-red-500 rounded-full transition-all duration-300" : "h-full bg-blue-500 rounded-full transition-all duration-300";
+  vidBar.className = vidPercent >= 90 ? "h-full bg-red-500 rounded-full transition-all duration-300" : "h-full bg-purple-500 rounded-full transition-all duration-300";
+
+  console.log("✅ Credits dashboard updated");
+};
