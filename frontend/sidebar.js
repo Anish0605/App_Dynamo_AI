@@ -153,7 +153,7 @@ function renderSidebarItem(chat, box) {
 
   /* --- Three-dot menu button --- */
   const menuBtn = document.createElement("button");
-  menuBtn.className = "flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity p-1";
+  menuBtn.className = "flex-shrink-0 text-yellow-500 font-bold text-lg hover:text-yellow-600 dark:hover:text-yellow-400 p-1 cursor-pointer";
   menuBtn.innerHTML = "⋯";
   menuBtn.title = "Options";
   menuBtn.onclick = (e) => {
