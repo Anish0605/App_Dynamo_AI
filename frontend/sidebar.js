@@ -176,76 +176,149 @@ function showChatMenu(e, chat, titleEl, wrapperEl) {
   const existing = document.getElementById("chat-menu-popup");
   if (existing) existing.remove();
 
-  // Create menu popup with fixed positioning - appears ABOVE button
+  const isDark = document.documentElement.classList.contains("dark");
+
+  // Popup container
   const popup = document.createElement("div");
   popup.id = "chat-menu-popup";
-  popup.className = "fixed bg-white dark:bg-gray-850 rounded-2xl z-50 min-w-56 shadow-2xl border border-gray-200 dark:border-gray-700";
-  popup.style.boxShadow = "0 25px 50px -12px rgba(0, 0, 0, 0.25)";
-  
-  // Get button position for placement - ABOVE the button
+  Object.assign(popup.style, {
+    position: "fixed",
+    zIndex: "9999",
+    minWidth: "200px",
+    background: isDark ? "#1e1e2e" : "#ffffff",
+    border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)",
+    borderRadius: "16px",
+    boxShadow: isDark
+      ? "0 24px 48px rgba(0,0,0,0.6), 0 8px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)"
+      : "0 24px 48px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.06)",
+    overflow: "hidden",
+    animation: "popupFadeIn 0.15s ease-out",
+    padding: "6px"
+  });
+
+  // Inject animation keyframes once
+  if (!document.getElementById("chat-popup-style")) {
+    const style = document.createElement("style");
+    style.id = "chat-popup-style";
+    style.textContent = `
+      @keyframes popupFadeIn {
+        from { opacity: 0; transform: translateY(6px) scale(0.97); }
+        to   { opacity: 1; transform: translateY(0)   scale(1);    }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Position ABOVE the button
   const rect = e.target.getBoundingClientRect();
-  popup.style.top = (rect.top - 12) + "px";
   popup.style.right = (window.innerWidth - rect.right) + "px";
-  popup.style.transform = "translateY(-100%)";
-  
-  // Pin option
-  const pinItem = document.createElement("button");
-  pinItem.className = "w-full text-left px-5 py-3.5 text-sm font-semibold text-gray-700 dark:text-gray-100 hover:bg-yellow-100 dark:hover:bg-yellow-500/20 hover:text-yellow-700 dark:hover:text-yellow-300 flex items-center gap-3 transition-colors duration-200 rounded-t-2xl";
-  pinItem.innerHTML = `<span class="text-lg">${chat.is_starred ? "📌" : "📍"}</span><span>${chat.is_starred ? "Unpin" : "Pin"}</span>`;
-  pinItem.onclick = async (e2) => {
-    e2.stopPropagation();
-    await window.supabaseClient.from("chats").update({ is_starred: !chat.is_starred }).eq("id", chat.id);
-    popup.remove();
-    window.loadChatSidebar();
-  };
 
-  // Rename option
-  const renameItem = document.createElement("button");
-  renameItem.className = "w-full text-left px-5 py-3.5 text-sm font-semibold text-gray-700 dark:text-gray-100 hover:bg-blue-100 dark:hover:bg-blue-500/20 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-3 transition-colors duration-200 border-y border-gray-200 dark:border-gray-700";
-  renameItem.innerHTML = `<span class="text-lg">✏️</span><span>Rename</span>`;
-  renameItem.onclick = (e2) => {
-    e2.stopPropagation();
-    popup.remove();
-    startInlineRename(titleEl, chat, wrapperEl);
-  };
+  // Helper to build a menu item
+  function makeMenuItem({ iconSvg, label, hoverBg, color, borderBottom, onClick }) {
+    const item = document.createElement("button");
+    Object.assign(item.style, {
+      display: "flex",
+      alignItems: "center",
+      gap: "12px",
+      width: "100%",
+      padding: "10px 14px",
+      background: "transparent",
+      border: "none",
+      borderRadius: "10px",
+      cursor: "pointer",
+      fontSize: "13px",
+      fontWeight: "600",
+      color: color || (isDark ? "#e2e8f0" : "#1a1a2e"),
+      transition: "background 0.15s ease, color 0.15s ease",
+      textAlign: "left",
+    });
+    if (borderBottom) item.style.borderBottom = isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.06)";
 
-  // Delete option
-  const deleteItem = document.createElement("button");
-  deleteItem.className = "w-full text-left px-5 py-3.5 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-3 transition-colors duration-200 rounded-b-2xl";
-  deleteItem.innerHTML = `<span class="text-lg">🗑️</span><span>Delete</span>`;
-  deleteItem.onclick = async (e2) => {
-    e2.stopPropagation();
-    popup.remove();
-    if (!confirm("Delete this chat?")) return;
-    await window.supabaseClient.from("messages").delete().eq("chat_id", chat.id);
-    await window.supabaseClient.from("chats").delete().eq("id", chat.id);
-    if (window.appState.chatId === chat.id) {
-      window.setChatId(null);
-      const chatContainer = document.getElementById("chat-messages");
-      if (chatContainer) chatContainer.innerHTML = "";
-      if (typeof showHero === "function") showHero();
+    item.innerHTML = `
+      <span style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}">
+        ${iconSvg}
+      </span>
+      <span>${label}</span>
+    `;
+
+    item.onmouseenter = () => { item.style.background = hoverBg; };
+    item.onmouseleave = () => { item.style.background = "transparent"; };
+    item.onclick = (e2) => { e2.stopPropagation(); onClick(); };
+    return item;
+  }
+
+  // Pin / Unpin
+  const pinIcon = chat.is_starred
+    ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>`
+    : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>`;
+
+  const renameIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>`;
+
+  const deleteIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+
+  const pinItem = makeMenuItem({
+    iconSvg: pinIcon,
+    label: chat.is_starred ? "Unpin" : "Pin",
+    hoverBg: isDark ? "rgba(245,158,11,0.12)" : "rgba(245,158,11,0.08)",
+    color: isDark ? "#fcd34d" : "#b45309",
+    borderBottom: true,
+    onClick: async () => {
+      await window.supabaseClient.from("chats").update({ is_starred: !chat.is_starred }).eq("id", chat.id);
+      popup.remove();
+      window.loadChatSidebar();
     }
-    window.loadChatSidebar();
-  };
+  });
+
+  const renameItem = makeMenuItem({
+    iconSvg: renameIcon,
+    label: "Rename",
+    hoverBg: isDark ? "rgba(59,130,246,0.12)" : "rgba(59,130,246,0.08)",
+    color: isDark ? "#93c5fd" : "#1d4ed8",
+    borderBottom: true,
+    onClick: () => {
+      popup.remove();
+      startInlineRename(titleEl, chat, wrapperEl);
+    }
+  });
+
+  const deleteItem = makeMenuItem({
+    iconSvg: deleteIcon,
+    label: "Delete",
+    hoverBg: isDark ? "rgba(239,68,68,0.12)" : "rgba(239,68,68,0.08)",
+    color: "#ef4444",
+    borderBottom: false,
+    onClick: async () => {
+      popup.remove();
+      if (!confirm("Delete this chat?")) return;
+      await window.supabaseClient.from("messages").delete().eq("chat_id", chat.id);
+      await window.supabaseClient.from("chats").delete().eq("id", chat.id);
+      if (window.appState.chatId === chat.id) {
+        window.setChatId(null);
+        const chatContainer = document.getElementById("chat-messages");
+        if (chatContainer) chatContainer.innerHTML = "";
+        if (typeof showHero === "function") showHero();
+      }
+      window.loadChatSidebar();
+    }
+  });
 
   popup.appendChild(pinItem);
   popup.appendChild(renameItem);
   popup.appendChild(deleteItem);
-
-  // Append popup to document body
   document.body.appendChild(popup);
-  
-  // Close popup when clicking outside
+
+  // Position after appending so height is known
+  const popupH = popup.offsetHeight || 140;
+  popup.style.top = (rect.top - popupH - 8) + "px";
+
+  // Close on outside click
   const closeHandler = (e2) => {
     if (!popup.contains(e2.target) && e2.target !== e.target) {
       popup.remove();
       document.removeEventListener("click", closeHandler);
     }
   };
-  
-  setTimeout(() => {
-    document.addEventListener("click", closeHandler);
-  }, 100);
+  setTimeout(() => document.addEventListener("click", closeHandler), 100);
 }
 
 /* =========================================================
