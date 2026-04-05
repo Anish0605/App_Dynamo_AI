@@ -225,13 +225,11 @@ window.updateCreditsDisplay = () => {
   const profileMsgCount = document.getElementById("profile-msg-count");
   const profileImgCount = document.getElementById("profile-img-count");
   const profileVidCount = document.getElementById("profile-vid-count");
-  const profilePlanBadge = document.getElementById("profile-plan-badge");
 
   if (profileMsgCount) {
     profileMsgCount.textContent = `${msgUsed}/${limits.chat}`;
     profileImgCount.textContent = `${imgUsed}/${limits.images}`;
     profileVidCount.textContent = `${vidUsed}/${limits.videos}`;
-    profilePlanBadge.textContent = displayPlan;
 
     // Update progress bars in profile
     const msgPercent = limits.chat > 0 ? (msgUsed / limits.chat) * 100 : 0;
