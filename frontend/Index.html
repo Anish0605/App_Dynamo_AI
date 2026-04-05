@@ -161,11 +161,111 @@
   box-shadow: 0 2px 8px rgba(249, 204, 51, 0.3);
   }
 
+  /* EMAIL DISPLAY */
+  .profile-email-display {
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+  font-weight: 500;
+  }
+
   /* DIVIDER */
   .profile-divider {
   height: 1px;
   background: #eee;
-  margin: 14px 0;
+  margin: 12px 0;
+  }
+
+  /* COMPACT CREDITS */
+  .compact-credits {
+  padding: 4px 0 8px;
+  }
+  .compact-credits-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  }
+  .compact-credit-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 20px;
+  background: #f4f4f5;
+  color: #444;
+  }
+  .compact-credit-bar {
+  width: 100%;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 4px;
+  }
+  .compact-reset-text {
+  font-size: 10px;
+  color: #aaa;
+  text-align: right;
+  }
+
+  /* EDIT SECTION */
+  .profile-edit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  }
+  .profile-edit-item:hover {
+  background: #fff9db;
+  }
+  .profile-edit-form {
+  padding: 10px 8px 12px;
+  border-radius: 10px;
+  background: #fafafa;
+  margin-bottom: 4px;
+  }
+  .profile-edit-form input {
+  width: 100%;
+  font-size: 13px;
+  padding: 8px 12px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  outline: none;
+  margin-bottom: 8px;
+  color: #111;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  }
+  .profile-edit-form input:focus {
+  border-color: #F9CC33;
+  }
+  .profile-edit-save-btn {
+  width: 100%;
+  padding: 8px;
+  background: #F9CC33;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #000;
+  transition: background 0.15s;
+  }
+  .profile-edit-save-btn:hover {
+  background: #f0c020;
+  }
+  .profile-edit-msg {
+  font-size: 11px;
+  margin-top: 6px;
+  text-align: center;
+  font-weight: 600;
   }
 
   /* MENU ITEMS */
@@ -249,6 +349,47 @@
 
   .dark .profile-item.logout span {
   color: #f87171;
+  }
+
+  .dark .profile-email-display {
+  color: #64748b;
+  }
+
+  .dark .compact-credit-pill {
+  background: #2d3748;
+  color: #cbd5e1;
+  }
+
+  .dark .compact-credit-bar {
+  background: #374151;
+  }
+
+  .dark .compact-reset-text {
+  color: #64748b;
+  }
+
+  .dark .profile-edit-item {
+  color: #e2e8f0;
+  }
+  .dark .profile-edit-item span {
+  color: #e2e8f0;
+  }
+  .dark .profile-edit-item:hover {
+  background: #2d3748;
+  }
+
+  .dark .profile-edit-form {
+  background: #2d3748;
+  }
+
+  .dark .profile-edit-form input {
+  background: #1e2433;
+  border-color: #4b5563;
+  color: #f1f5f9;
+  }
+
+  .dark .profile-edit-form input:focus {
+  border-color: #F9CC33;
   }
 
   /* SIDEBAR PLAN BADGE */
@@ -488,64 +629,80 @@
     <!-- HEADER -->
     <div class="profile-header">
       <div class="profile-avatar" id="profile-avatar">U</div>
-
       <div>
         <div id="profile-name" class="profile-name">User</div>
+        <div id="profile-email-display" class="profile-email-display">—</div>
         <div id="profile-plan" class="profile-plan">FREE</div>
       </div>
+    </div>
+
+    <div class="profile-divider"></div>
+
+    <!-- COMPACT CREDITS -->
+    <div id="profile-credits" class="compact-credits px-2">
+      <div class="compact-credits-row">
+        <span id="compact-msg" class="compact-credit-pill">💬 0/10</span>
+        <span id="compact-img" class="compact-credit-pill">🖼️ 0/0</span>
+        <span id="compact-vid" class="compact-credit-pill">🎬 0/0</span>
+      </div>
+      <div class="compact-credit-bar">
+        <div id="profile-msg-bar" style="height:100%;width:0%;background:#22c55e;border-radius:99px;transition:width 0.3s ease;"></div>
+      </div>
+      <div class="compact-reset-text">Resets daily at 5:30 AM IST</div>
+    </div>
+
+    <div class="profile-divider"></div>
+
+    <!-- EDIT PROFILE SECTION -->
+    <div class="profile-menu">
+
+      <!-- Edit Full Name -->
+      <div class="profile-edit-item" onclick="window.toggleProfileEdit('name-edit')">
+        <div class="profile-item-left">
+          <i data-lucide="pencil" style="width:16px;height:16px;color:#f59e0b;"></i>
+          <span>Edit Full Name</span>
+        </div>
+        <span class="profile-arrow" id="arrow-name-edit">›</span>
+      </div>
+      <div id="name-edit" class="profile-edit-form hidden">
+        <input id="new-name-input" type="text" placeholder="Enter new full name" autocomplete="off" />
+        <button class="profile-edit-save-btn" onclick="window.saveProfileName()">Save Name</button>
+        <div id="name-edit-msg" class="profile-edit-msg"></div>
+      </div>
+
+      <!-- Change Email -->
+      <div class="profile-edit-item" onclick="window.toggleProfileEdit('email-edit')">
+        <div class="profile-item-left">
+          <i data-lucide="mail" style="width:16px;height:16px;color:#3b82f6;"></i>
+          <span>Change Email</span>
+        </div>
+        <span class="profile-arrow" id="arrow-email-edit">›</span>
+      </div>
+      <div id="email-edit" class="profile-edit-form hidden">
+        <input id="new-email-input" type="email" placeholder="Enter new email address" autocomplete="off" />
+        <button class="profile-edit-save-btn" onclick="window.saveProfileEmail()">Save Email</button>
+        <div id="email-edit-msg" class="profile-edit-msg"></div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="profile-edit-item" onclick="window.toggleProfileEdit('password-edit')">
+        <div class="profile-item-left">
+          <i data-lucide="key-round" style="width:16px;height:16px;color:#22c55e;"></i>
+          <span>Change Password</span>
+        </div>
+        <span class="profile-arrow" id="arrow-password-edit">›</span>
+      </div>
+      <div id="password-edit" class="profile-edit-form hidden">
+        <input id="new-password-input" type="password" placeholder="New password (min 6 chars)" autocomplete="new-password" />
+        <button class="profile-edit-save-btn" onclick="window.saveProfilePassword()">Save Password</button>
+        <div id="password-edit-msg" class="profile-edit-msg"></div>
+      </div>
 
     </div>
 
     <div class="profile-divider"></div>
 
-    <!-- CREDITS DASHBOARD -->
-    <div id="profile-credits" class="px-4 py-3">
-      <div class="flex items-center justify-between mb-3">
-        <p class="text-xs font-bold uppercase text-gray-600 dark:text-gray-300">Credits</p>
-      </div>
-      
-      <!-- Messages -->
-      <div class="mb-2.5">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">💬 Messages</span>
-          <span id="profile-msg-count" class="text-xs font-bold text-gray-600 dark:text-gray-400">0/10</span>
-        </div>
-        <div class="w-full h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div id="profile-msg-bar" class="h-full bg-green-500 rounded-full transition-all duration-300" style="width: 0%"></div>
-        </div>
-      </div>
-
-      <!-- Images -->
-      <div class="mb-2.5">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">🖼️ Images</span>
-          <span id="profile-img-count" class="text-xs font-bold text-gray-600 dark:text-gray-400">0/0</span>
-        </div>
-        <div class="w-full h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div id="profile-img-bar" class="h-full bg-blue-500 rounded-full transition-all duration-300" style="width: 0%"></div>
-        </div>
-      </div>
-
-      <!-- Videos -->
-      <div class="mb-3">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">🎬 Videos</span>
-          <span id="profile-vid-count" class="text-xs font-bold text-gray-600 dark:text-gray-400">0/0</span>
-        </div>
-        <div class="w-full h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div id="profile-vid-bar" class="h-full bg-purple-500 rounded-full transition-all duration-300" style="width: 0%"></div>
-        </div>
-      </div>
-
-      <!-- Reset Info -->
-      <div class="text-xs text-gray-600 dark:text-gray-400 text-center py-2 border-t border-gray-300 dark:border-gray-700 mt-2">
-        Resets daily at 5:30 AM IST
-      </div>
-    </div>
-
-    <div class="profile-divider"></div>
-
-    <!-- MENU -->
+    <!-- ACTION MENU -->
     <div class="profile-menu">
 
       <div class="profile-item" id="upgrade-btn">
@@ -574,15 +731,15 @@
 
       <div class="profile-item logout" id="logout-btn">
         <div class="profile-item-left">
-          <i data-lucide="log-out" class="text-red-600 dark:text-red-400"></i>
+          <i data-lucide="log-out" class="text-red-600"></i>
           <span>Log out</span>
         </div>
       </div>
 
     </div>
 
-  </div> <!-- ✅ FIX 1 -->
-</div>   <!-- ✅ FIX 2 -->
+  </div>
+</div>
   </aside>
 
   <!-- 2. CONTENT AREA -->

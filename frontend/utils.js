@@ -218,36 +218,20 @@ window.updateCreditsDisplay = () => {
   const imgUsed = user.image_count_used || 0;
   const vidUsed = user.video_count_used || 0;
 
-  const planNames = { free: "Free", plus: "Plus", pro: "Pro" };
-  const displayPlan = planNames[plan] || "Free";
+  // Update compact credit pills
+  const compactMsg = document.getElementById("compact-msg");
+  const compactImg = document.getElementById("compact-img");
+  const compactVid = document.getElementById("compact-vid");
+  const msgBar     = document.getElementById("profile-msg-bar");
 
-  // Update counts in profile modal
-  const profileMsgCount = document.getElementById("profile-msg-count");
-  const profileImgCount = document.getElementById("profile-img-count");
-  const profileVidCount = document.getElementById("profile-vid-count");
+  if (compactMsg) compactMsg.textContent = `💬 ${msgUsed}/${limits.chat}`;
+  if (compactImg) compactImg.textContent = `🖼️ ${imgUsed}/${limits.images}`;
+  if (compactVid) compactVid.textContent = `🎬 ${vidUsed}/${limits.videos}`;
 
-  if (profileMsgCount) {
-    profileMsgCount.textContent = `${msgUsed}/${limits.chat}`;
-    profileImgCount.textContent = `${imgUsed}/${limits.images}`;
-    profileVidCount.textContent = `${vidUsed}/${limits.videos}`;
-
-    // Update progress bars in profile
+  if (msgBar) {
     const msgPercent = limits.chat > 0 ? (msgUsed / limits.chat) * 100 : 0;
-    const imgPercent = limits.images > 0 ? (imgUsed / limits.images) * 100 : 0;
-    const vidPercent = limits.videos > 0 ? (vidUsed / limits.videos) * 100 : 0;
-
-    document.getElementById("profile-msg-bar").style.width = Math.min(msgPercent, 100) + "%";
-    document.getElementById("profile-img-bar").style.width = Math.min(imgPercent, 100) + "%";
-    document.getElementById("profile-vid-bar").style.width = Math.min(vidPercent, 100) + "%";
-
-    // Update bar colors based on usage
-    const msgBar = document.getElementById("profile-msg-bar");
-    const imgBar = document.getElementById("profile-img-bar");
-    const vidBar = document.getElementById("profile-vid-bar");
-
-    msgBar.className = msgPercent >= 90 ? "h-full bg-red-500 rounded-full transition-all duration-300" : "h-full bg-green-500 rounded-full transition-all duration-300";
-    imgBar.className = imgPercent >= 90 ? "h-full bg-red-500 rounded-full transition-all duration-300" : "h-full bg-blue-500 rounded-full transition-all duration-300";
-    vidBar.className = vidPercent >= 90 ? "h-full bg-red-500 rounded-full transition-all duration-300" : "h-full bg-purple-500 rounded-full transition-all duration-300";
+    msgBar.style.width    = Math.min(msgPercent, 100) + "%";
+    msgBar.style.background = msgPercent >= 90 ? "#ef4444" : "#22c55e";
   }
 
   console.log("✅ Credits dashboard updated");
