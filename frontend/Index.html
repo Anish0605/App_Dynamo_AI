@@ -693,7 +693,15 @@
         <span class="profile-arrow" id="arrow-password-edit">›</span>
       </div>
       <div id="password-edit" class="profile-edit-form hidden">
-        <input id="new-password-input" type="password" placeholder="New password (min 6 chars)" autocomplete="new-password" />
+        <div class="relative w-full">
+          <input id="new-password-input" type="password" placeholder="New password (min 6 chars)" autocomplete="new-password" style="padding-right:2.5rem;width:100%;"/>
+          <button type="button" onclick="window.togglePwdVis('new-password-input', this)" tabindex="-1" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:0;display:flex;align-items:center;" aria-label="Toggle password visibility">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+          </button>
+        </div>
         <button class="profile-edit-save-btn" onclick="window.saveProfilePassword()">Save Password</button>
         <div id="password-edit-msg" class="profile-edit-msg"></div>
       </div>
@@ -924,7 +932,15 @@
         <input id="auth-name" type="text" placeholder="Full Name" class="hidden w-full px-4 py-2.5 md:py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"/>
         <input id="auth-phone" type="tel" placeholder="Phone Number" class="hidden w-full px-4 py-2.5 md:py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"/>
         <input id="auth-email" type="email" placeholder="Email Address" class="w-full px-4 py-2.5 md:py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"/>
-        <input id="auth-password" type="password" placeholder="Password" class="w-full px-4 py-2.5 md:py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"/>
+        <div class="relative w-full">
+          <input id="auth-password" type="password" placeholder="Password" class="w-full px-4 py-2.5 md:py-3 pr-11 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"/>
+          <button type="button" onclick="window.togglePwdVis('auth-password', this)" tabindex="-1" class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-black dark:hover:text-white transition" aria-label="Toggle password visibility">
+            <svg id="auth-password-eye" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+          </button>
+        </div>
         <p id="auth-error" class="text-xs text-red-500"></p>     
         <!-- 🔥 FORGOT PASSWORD (CONTROLLED BY JS) -->
         <div id="forgot-password-box" class="text-right text-xs text-gray-500 mt-1 hidden">
@@ -976,7 +992,7 @@
     lucide.createIcons();
   </script>
  <!-- CORE (must be first) -->
- <script src="utils.js?v=20260337"></script>
+ <script src="utils.js?v=20260405"></script>
 
  <!-- AUDIO ENGINE -->
  <script src="audio_engine.js?v=20260337"></script>
