@@ -77,10 +77,15 @@ window.hideHero = hideHero;
 window.showHero = showHero;
 
 function scrollToBottom() {
-  chatContainer?.scrollTo({
-    top: chatContainer.scrollHeight,
-    behavior: "smooth"
-  });
+  const chatArea = document.getElementById("chat-area");
+  if (chatArea) {
+    setTimeout(() => {
+      chatArea.scrollTo({
+        top: chatArea.scrollHeight,
+        behavior: "smooth"
+      });
+    }, 50);
+  }
 }
 
 /* =========================================================
