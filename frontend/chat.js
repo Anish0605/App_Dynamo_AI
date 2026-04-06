@@ -260,6 +260,7 @@ window.sendFromInput = async () => {
   }
 
   chatInput.value = "";
+  chatInput.style.height = "";
 
   const limit = await checkMessageLimit();
   if (!limit.allowed) {
