@@ -18,6 +18,7 @@ except Exception as e:
 # HISTORY NORMALIZER
 # --------------------------------------------------
 
+
 def normalize_history(history):
     clean = []
     if not isinstance(history, list):
@@ -29,28 +30,27 @@ def normalize_history(history):
             and m.get("role") in ("user", "assistant")
             and isinstance(m.get("content"), str)
         ):
-            clean.append({
-                "role": m["role"],
-                "content": m["content"]
-            })
+            clean.append({"role": m["role"], "content": m["content"]})
     return clean
+
 
 # --------------------------------------------------
 # CORE AI ROUTER
 # --------------------------------------------------
 
-def get_ai_response(prompt, history, model_name, context="", deep_dive=False, memories=None):
+
+def get_ai_response(
+    prompt, history, model_name, context="", deep_dive=False, memories=None
+):
     msg_lower = prompt.lower()
 
     # -------------------------
     # IDENTITY GUARD
     # -------------------------
-    if any(q in msg_lower for q in (
-        "who are you",
-        "your name",
-        "what is your name",
-        "who made you"
-    )):
+    if any(
+        q in msg_lower
+        for q in ("who are you", "your name", "what is your name", "who made you")
+    ):
         return config.DYNAMO_IDENTITY
 
     history = normalize_history(history)
@@ -59,10 +59,10 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False, me
     # SYSTEM PROMPT (BASE)
     # -------------------------
     sys_prompt = (
-    "You are Dynamo AI, an advanced research and reasoning system. "
-    + config.DYNAMO_IDENTITY +
-    " Respond in a clear, natural, and helpful way. "
-    "Use structure only when it improves clarity. Avoid rigid formats."
+        "You are Dynamo AI, an advanced research and reasoning system. "
+        + config.DYNAMO_IDENTITY
+        + " Respond in a clear, natural, and helpful way. "
+        "Use structure only when it improves clarity. Avoid rigid formats."
     )
 
     # -------------------------
@@ -75,19 +75,20 @@ def get_ai_response(prompt, history, model_name, context="", deep_dive=False, me
             "Adapt the response style naturally based on the question.\n"
             "Use headings, bullet points, or sections ONLY when helpful.\n"
             "DO NOT force any fixed format like executive summaries.\n"
-    )
+        )
 
     # -------------------------
     # MEMORY INJECTION
     # -------------------------
     if memories:
         from memory import format_for_prompt
+
         mem_block = format_for_prompt(memories)
         if mem_block:
             sys_prompt += (
                 "\n\nWhat you remember about this user:\n"
-                + mem_block +
-                "\nUse this context naturally — don't announce it unless directly relevant."
+                + mem_block
+                + "\nUse this context naturally — don't announce it unless directly relevant."
             )
 
     # -------------------------

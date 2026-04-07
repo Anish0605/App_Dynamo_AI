@@ -218,6 +218,43 @@ async def chat(req: ChatReq):
         req.force_image) and not is_quiz_request  # Don't generate image if quiz requested
     )
 
+    #  Video (ADD RECENTLY)
+    VIDEO_KEYWORDS = [
+    "create video",
+    "generate video",
+    "make video",
+    "animation",
+    "video"
+    ]
+
+    if any(k in msg_lower for k in VIDEO_KEYWORDS):
+    import video
+    return await video.generate_video(req.message)
+
+    # MINDMAPS (ADDED NOW)
+    MINDMAP_KEYWORDS = [
+    "mindmap",
+    "mind map",
+    "idea map",
+    "brainstorm"
+    ]
+
+    if any(k in msg_lower for k in MINDMAP_KEYWORDS):
+    import mindmap
+    return mindmap.generate_mindmap(req.message)
+
+    # FLOWCHART (ADDED NOW)
+    FLOWCHART_KEYWORDS = [
+        "flowchart",
+        "process flow",
+        "workflow",
+        "steps"
+        ]
+
+    if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
+    import flowchart
+    return flowchart.generate_flowchart(req.message)    
+    
     # -------------------------
     # 🧠 1. USER HANDLING
     # -------------------------

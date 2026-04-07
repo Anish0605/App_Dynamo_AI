@@ -15,13 +15,13 @@ async def generate_video(prompt: str, duration: int = 5) -> dict:
     if not config.RUNWAY_API_KEY:
         return {
             "type": "error",
-            "content": "Video generation is not configured. RUNWAY_API_KEY missing."
+            "content": "Video generation is not configured. RUNWAY_API_KEY missing.",
         }
 
     headers = {
         "Authorization": f"Bearer {config.RUNWAY_API_KEY}",
         "Content-Type": "application/json",
-        "X-Runway-Version": "2024-11-06"
+        "X-Runway-Version": "2024-11-06",
     }
 
     # Clamp duration to valid Runway values (5 or 10)
@@ -31,23 +31,23 @@ async def generate_video(prompt: str, duration: int = 5) -> dict:
         "model": "gen4.5",
         "promptText": prompt,
         "duration": safe_duration,
-        "ratio": "1280:720"
+        "ratio": "1280:720",
     }
 
     print(f"🎬 Runway request → model: gen4.5 | duration: {safe_duration}s")
     print(f"🎬 Payload: {payload}")
 
     async with httpx.AsyncClient(timeout=180) as client:
-
         # ── Step 1: Submit job ──────────────────────────────────────────────
         try:
             resp = await client.post(
-                f"{RUNWAY_BASE}/text_to_video",
-                headers=headers,
-                json=payload
+                f"{RUNWAY_BASE}/text_to_video", headers=headers, json=payload
             )
         except Exception as e:
-            return {"type": "error", "content": f"Network error reaching Runway: {str(e)}"}
+            return {
+                "type": "error",
+                "content": f"Network error reaching Runway: {str(e)}",
+            }
 
         print(f"🎬 Runway status code: {resp.status_code}")
         print(f"🎬 Runway response body: {resp.text[:500]}")
@@ -55,7 +55,7 @@ async def generate_video(prompt: str, duration: int = 5) -> dict:
         if resp.status_code not in (200, 201):
             return {
                 "type": "error",
-                "content": f"Runway API error ({resp.status_code}): {resp.text[:400]}"
+                "content": f"Runway API error ({resp.status_code}): {resp.text[:400]}",
             }
 
         task_data = resp.json()
@@ -63,16 +63,18 @@ async def generate_video(prompt: str, duration: int = 5) -> dict:
         print(f"🎬 Task ID: {task_id}")
 
         if not task_id:
-            return {"type": "error", "content": f"No task ID from Runway. Response: {task_data}"}
+            return {
+                "type": "error",
+                "content": f"No task ID from Runway. Response: {task_data}",
+            }
 
         # ── Step 2: Poll for result ─────────────────────────────────────────
-        for attempt in range(36):   # max 3 min (36 × 5s)
+        for attempt in range(36):  # max 3 min (36 × 5s)
             await asyncio.sleep(5)
 
             try:
                 poll = await client.get(
-                    f"{RUNWAY_BASE}/tasks/{task_id}",
-                    headers=headers
+                    f"{RUNWAY_BASE}/tasks/{task_id}", headers=headers
                 )
             except Exception:
                 continue
@@ -82,7 +84,7 @@ async def generate_video(prompt: str, duration: int = 5) -> dict:
 
             task = poll.json()
             status = task.get("status")
-            print(f"🎬 Poll {attempt+1}: status={status}")
+            print(f"🎬 Poll {attempt + 1}: status={status}")
 
             if status == "SUCCEEDED":
                 outputs = task.get("output", [])
@@ -92,16 +94,22 @@ async def generate_video(prompt: str, duration: int = 5) -> dict:
                     return {
                         "type": "video",
                         "url": video_url,
-                        "content": f"Your video is ready: {prompt[:60]}"
+                        "content": f"Your video is ready: {prompt[:60]}",
                     }
-                return {"type": "error", "content": "Video succeeded but no URL in response."}
+                return {
+                    "type": "error",
+                    "content": "Video succeeded but no URL in response.",
+                }
 
             elif status in ("FAILED", "CANCELLED"):
                 reason = task.get("failure") or task.get("error") or "Unknown"
                 print(f"❌ Runway failed: {reason}")
-                return {"type": "error", "content": f"Video generation failed: {reason}"}
+                return {
+                    "type": "error",
+                    "content": f"Video generation failed: {reason}",
+                }
 
         return {
             "type": "error",
-            "content": "⏱ Video generation timed out after 3 minutes. Please try again."
+            "content": "⏱ Video generation timed out after 3 minutes. Please try again.",
         }

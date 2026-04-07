@@ -8,7 +8,6 @@ import model
 # 🎯 FLOWCHART PROMPT TEMPLATE
 # --------------------------------------------------
 def build_flowchart_prompt(user_input: str):
-
     return f"""
 Convert the following request into a structured flowchart.
 
@@ -46,14 +45,11 @@ User Request:
 # 🧠 GENERATE FLOWCHART
 # --------------------------------------------------
 def generate_flowchart(prompt: str):
-
     system_prompt = build_flowchart_prompt(prompt)
 
     try:
         response = model.get_ai_response(
-            prompt=system_prompt,
-            history=[],
-            model_name="gemini-2.0-flash"
+            prompt=system_prompt, history=[], model_name="gemini-2.0-flash"
         )
 
         # -------------------------
@@ -74,17 +70,14 @@ def generate_flowchart(prompt: str):
         except Exception:
             return {
                 "type": "text",
-                "content": "AI returned invalid format. Please try again."
+                "content": "AI returned invalid format. Please try again.",
             }
 
         # -------------------------
         # ✅ VALIDATION
         # -------------------------
         if "nodes" not in data or "edges" not in data:
-            return {
-                "type": "text",
-                "content": "Invalid flowchart structure returned."
-            }
+            return {"type": "text", "content": "Invalid flowchart structure returned."}
 
         return data
 
@@ -92,5 +85,5 @@ def generate_flowchart(prompt: str):
         return {
             "type": "text",
             "content": "Failed to generate flowchart.",
-            "error": str(e)
+            "error": str(e),
         }
