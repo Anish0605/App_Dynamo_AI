@@ -37,7 +37,7 @@ app = FastAPI(title="Dynamo AI Hub")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://app.dynamoai.in","https://dynamoai.in"]
     allow_methods=["*"],
     allow_headers=["*"],
 )
