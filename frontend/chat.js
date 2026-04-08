@@ -348,9 +348,10 @@ window.sendFromInput = async () => {
       const payload = {
         message: isQuiz ? buildQuizPrompt(msg) : msg,
         history: cleanHistory,
-        use_search: isSearchMode,
-        deep_dive: isDeepMode,
+        use_search: isSearchMode || isResearchMode,
+        deep_dive: isDeepMode && !isResearchMode,
         force_image: forceImage,
+        mode: isResearchMode ? "research" : "chat",
         chat_id: currentChatId,
         user_id: window.appState?.supabaseUserId
       };
@@ -982,7 +983,7 @@ window.sendFromInput = async () => {
 
       scrollToBottom();
       window.chatHistory.push({ role: "assistant", content: data.content || "" });
-      if (save) saveMessage("assistant", data.content || "");
+      if (window.appState?.supabaseUserId) saveMessage("assistant", data.content || "");
       return;
     }
 

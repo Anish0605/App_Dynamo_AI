@@ -21,6 +21,7 @@ import video
 import supabase_client
 import flowchart
 import mindmap
+import multi_model_router
 
 from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
@@ -56,6 +57,7 @@ class ChatReq(BaseModel):
     deep_dive: bool = False
     force_image: bool = False
     model: str = "gemini-3.1-flash-lite-preview"
+    mode: str = "chat"  # "chat" | "research" — explicit mode flag
     chat_id: str | None = None
     user_id: str | None = None
     smart_action: bool = False  # True = skip keyword routing (Summarise, Explain, etc.)
@@ -313,7 +315,38 @@ async def chat(req: ChatReq):
         memories = memory_module.fetch_memories(supabase_client.supabase, user["id"])
 
     # -------------------------
-    # 🔍 4. SEARCH
+    # 🔬 4. RESEARCH MODE — multi-model pipeline
+    # -------------------------
+    is_research_mode = (req.mode == "research")
+
+    if is_research_mode:
+        print("RESEARCH MODE TRIGGERED")
+        try:
+            result = multi_model_router.research_pipeline(req.message)
+        except Exception as e:
+            print(f"[Research Pipeline] Fatal error: {e}")
+            result = {
+                "type": "research",
+                "content": (
+                    f"## Research Error\n\n"
+                    f"The research pipeline encountered an error: **{e}**\n\n"
+                    f"Please check your APIMart API key and try again."
+                ),
+                "sources": []
+            }
+
+        # Increment quota and save message for research mode too
+        if user:
+            supabase_client.increment_quota(user)
+        if chat_id:
+            save_message(chat_id, "user", req.message)
+            save_message(chat_id, "assistant", result.get("content", ""))
+
+        result["chat_id"] = chat_id
+        return result
+
+    # -------------------------
+    # 🔍 5. SEARCH (non-research modes)
     # -------------------------
     context = ""
     sources = []
@@ -322,7 +355,7 @@ async def chat(req: ChatReq):
         sources = search.get_sources(req.message, req.deep_dive)
 
     # -------------------------
-    # 🤖 5. AI RESPONSE
+    # 🤖 6. AI RESPONSE
     # -------------------------
     response = model.get_ai_response(
         prompt=req.message,
