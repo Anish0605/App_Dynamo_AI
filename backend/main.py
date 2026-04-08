@@ -418,7 +418,7 @@ async def test_apimart():
     url = f"{multi_model_router.APIMART_BASE_URL}/chat/completions"
     headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
     payload = {
-        "model": "claude-sonnet-4.5",
+        "model": "claude-opus-4-6",
         "messages": [{"role": "user", "content": "Say hello in one word."}],
         "max_tokens": 10
     }

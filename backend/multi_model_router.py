@@ -57,7 +57,8 @@ def _call_apimart(model: str, system: str, user_content: str, max_tokens: int = 
                 {"role": "user", "content": user_content}
             ],
             "max_tokens": max_tokens,
-            "temperature": 0.7
+            "temperature": 0.7,
+            "stream": False
         }
         try:
             response = requests.post(
@@ -136,7 +137,7 @@ def research_pipeline(query: str) -> dict:
     extracted_facts = ""
     try:
         extracted_facts = _call_apimart(
-            model="Claude Sonnet 4.5",
+            model="claude-opus-4-6",
             system=claude_system,
             user_content=claude_user,
             max_tokens=1200
@@ -162,7 +163,7 @@ def research_pipeline(query: str) -> dict:
     analysis_insights = ""
     try:
         analysis_insights = _call_apimart(
-            model="Gemini 3.1",
+            model="gemini-2.0-flash",
             system=gemini_system,
             user_content=gemini_user,
             max_tokens=1200
@@ -200,7 +201,7 @@ def research_pipeline(query: str) -> dict:
     final_report = ""
     try:
         final_report = _call_apimart(
-            model="GPT-5.4",
+            model="gpt-4o",
             system=gpt_system,
             user_content=gpt_user,
             max_tokens=2000
