@@ -321,6 +321,17 @@ async def chat(req: ChatReq):
     if req.use_search:
         context = search.get_web_context(req.message, req.deep_dive)
         sources = search.get_sources(req.message, req.deep_dive)
+        # 🔬 NEW RESEARCH MODE (ADD THIS BLOCK)
+            if req.use_search and not req.deep_dive:
+            report = multi_model_router.research_pipeline(
+            topic=req.message,
+            web_context=context
+            )
+            return {
+            "type": "research",
+            "content": report,
+            "sources": sources   # ✅ keep sources (important for UI)
+            }
 
     # -------------------------
     # 🤖 5. AI RESPONSE
