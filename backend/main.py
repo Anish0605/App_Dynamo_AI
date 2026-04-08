@@ -403,6 +403,38 @@ async def chat(req: ChatReq):
     }
 
 # --------------------------------------------------
+# TEST APIMART CONNECTIVITY
+# --------------------------------------------------
+
+@app.get("/test-apimart")
+async def test_apimart():
+    """Quick diagnostic endpoint to verify APIMart key + URL are working."""
+    import config as cfg
+    key = cfg.APIMART_API_KEY
+    if not key:
+        return {"status": "error", "reason": "APIMART_API_KEY is not set in secrets"}
+
+    import requests as req_lib
+    url = f"{multi_model_router.APIMART_BASE_URL}/chat/completions"
+    headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+    payload = {
+        "model": "claude-sonnet-4.5",
+        "messages": [{"role": "user", "content": "Say hello in one word."}],
+        "max_tokens": 10
+    }
+    try:
+        r = req_lib.post(url, headers=headers, json=payload, timeout=15)
+        return {
+            "status": "ok" if r.status_code == 200 else "error",
+            "http_status": r.status_code,
+            "url": url,
+            "key_prefix": key[:8] + "...",
+            "response_preview": r.text[:300]
+        }
+    except Exception as e:
+        return {"status": "connection_error", "url": url, "error": str(e)}
+
+# --------------------------------------------------
 # FOLLOW-UPS ENDPOINT
 # --------------------------------------------------
 

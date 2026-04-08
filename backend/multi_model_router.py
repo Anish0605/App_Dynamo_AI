@@ -1,54 +1,85 @@
 # multi_model_router.py — Dynamo AI Research Pipeline
 # Flow: Tavily (search) → Claude (extract) → Gemini (analyze) → GPT (write paper)
+# APIMart is tried first; Gemini is used as reliable fallback for each stage.
 
 import requests
 import config
 import search as search_module
 
-APIMART_BASE_URL = "https://api.apimart.dev/v1"
+APIMART_BASE_URL = "https://api.apimart.ai/v1"
+
+# Print key status at import time so it shows in startup logs
+def _startup_check():
+    key = config.APIMART_API_KEY
+    if key:
+        print(f"[APIMart] Key loaded ✅ — starts with: {key[:8]}...")
+    else:
+        print("[APIMart] ❌ Key NOT loaded — check APIMART_API_KEY secret")
+
+_startup_check()
+
 
 # --------------------------------------------------
-# APIMART CALL HELPER
+# GEMINI FALLBACK (always available)
+# --------------------------------------------------
+
+def _call_gemini(system: str, user_content: str, max_tokens: int = 2000) -> str:
+    """Direct Gemini call using the existing GEMINI_KEY. Always available."""
+    import google.generativeai as genai
+    genai.configure(api_key=config.GEMINI_KEY)
+    model = genai.GenerativeModel("gemini-2.0-flash-lite")
+    full_prompt = f"{system}\n\n{user_content}"
+    response = model.generate_content(full_prompt)
+    return response.text.strip()
+
+
+# --------------------------------------------------
+# APIMART CALL HELPER (with Gemini fallback)
 # --------------------------------------------------
 
 def _call_apimart(model: str, system: str, user_content: str, max_tokens: int = 2000) -> str:
     """
-    Calls APIMart's OpenAI-compatible endpoint.
-    Raises on failure so callers can handle gracefully.
+    Tries APIMart first. Falls back to Gemini if APIMart fails.
+    Raises only if BOTH fail.
     """
     api_key = config.APIMART_API_KEY
-    if not api_key:
-        raise ValueError("APIMart API key is not configured. Check APIMart_API_key in your secrets.")
 
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
+    # ── Attempt APIMart ───────────────────────────────────────────────────────
+    if api_key:
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": model,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user_content}
+            ],
+            "max_tokens": max_tokens,
+            "temperature": 0.7
+        }
+        try:
+            response = requests.post(
+                f"{APIMART_BASE_URL}/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=60
+            )
+            if response.status_code == 200:
+                data = response.json()
+                print(f"[APIMart] ✅ {model} responded OK")
+                return data["choices"][0]["message"]["content"].strip()
+            else:
+                print(f"[APIMart] ⚠️ {model} returned {response.status_code} — falling back to Gemini")
+        except Exception as e:
+            print(f"[APIMart] ⚠️ {model} connection error: {e} — falling back to Gemini")
+    else:
+        print(f"[APIMart] ⚠️ No API key — using Gemini for {model} stage")
 
-    payload = {
-        "model": model,
-        "messages": [
-            {"role": "system", "content": system},
-            {"role": "user", "content": user_content}
-        ],
-        "max_tokens": max_tokens,
-        "temperature": 0.7
-    }
-
-    response = requests.post(
-        f"{APIMART_BASE_URL}/chat/completions",
-        headers=headers,
-        json=payload,
-        timeout=60
-    )
-
-    if response.status_code != 200:
-        raise RuntimeError(
-            f"APIMart [{model}] returned {response.status_code}: {response.text[:300]}"
-        )
-
-    data = response.json()
-    return data["choices"][0]["message"]["content"].strip()
+    # ── Gemini fallback ───────────────────────────────────────────────────────
+    print(f"[Research Pipeline] Using Gemini fallback for {model} stage")
+    return _call_gemini(system, user_content, max_tokens)
 
 
 # --------------------------------------------------
@@ -62,6 +93,8 @@ def research_pipeline(query: str) -> dict:
     2. Claude   → extract and synthesise key facts from sources
     3. Gemini   → deep analysis and critical insights
     4. GPT      → write the final structured research paper
+
+    Falls back to Gemini for any stage where APIMart fails.
 
     Returns:
         {
@@ -87,7 +120,7 @@ def research_pipeline(query: str) -> dict:
 
     context_block = raw_context if raw_context else "No live web context available."
 
-    # ── STEP 2: Claude — extract key facts ───────────────────────────────────
+    # ── STEP 2: Claude stage — extract key facts ──────────────────────────────
     claude_system = (
         "You are a meticulous research analyst. "
         "Given web search results, extract the most important facts, data points, "
@@ -103,17 +136,17 @@ def research_pipeline(query: str) -> dict:
     extracted_facts = ""
     try:
         extracted_facts = _call_apimart(
-            model="claude-sonnet-4.5",
+            model="Claude Sonnet 4.5",
             system=claude_system,
             user_content=claude_user,
             max_tokens=1200
         )
-        print("[Research Pipeline] Claude extraction complete")
+        print("[Research Pipeline] Extraction stage complete")
     except Exception as e:
-        print(f"[Research Pipeline] Claude error: {e}")
-        extracted_facts = f"Claude extraction unavailable: {e}\n\nFalling back to raw context:\n{context_block[:1000]}"
+        print(f"[Research Pipeline] Extraction stage failed entirely: {e}")
+        extracted_facts = context_block[:2000]
 
-    # ── STEP 3: Gemini — deep analysis ───────────────────────────────────────
+    # ── STEP 3: Gemini stage — deep analysis ─────────────────────────────────
     gemini_system = (
         "You are a strategic analyst and domain expert. "
         "Given extracted research facts, provide deep analytical insights, "
@@ -129,17 +162,17 @@ def research_pipeline(query: str) -> dict:
     analysis_insights = ""
     try:
         analysis_insights = _call_apimart(
-            model="gemini-3.1",
+            model="Gemini 3.1",
             system=gemini_system,
             user_content=gemini_user,
             max_tokens=1200
         )
-        print("[Research Pipeline] Gemini analysis complete")
+        print("[Research Pipeline] Analysis stage complete")
     except Exception as e:
-        print(f"[Research Pipeline] Gemini error: {e}")
-        analysis_insights = f"Gemini analysis unavailable: {e}"
+        print(f"[Research Pipeline] Analysis stage failed entirely: {e}")
+        analysis_insights = "Analysis unavailable."
 
-    # ── STEP 4: GPT — write the final paper ──────────────────────────────────
+    # ── STEP 4: GPT stage — write the final paper ─────────────────────────────
     source_list = "\n".join(
         [f"- {s.get('title', 'Untitled')} ({s.get('url', '')})" for s in sources[:8]]
     ) if sources else "No sources available."
@@ -167,24 +200,22 @@ def research_pipeline(query: str) -> dict:
     final_report = ""
     try:
         final_report = _call_apimart(
-            model="gpt-5.4",
+            model="GPT-5.4",
             system=gpt_system,
             user_content=gpt_user,
             max_tokens=2000
         )
-        print("[Research Pipeline] GPT paper complete")
+        print("[Research Pipeline] Writing stage complete")
     except Exception as e:
-        print(f"[Research Pipeline] GPT error: {e}")
-        # Graceful fallback: assemble from what we have
+        print(f"[Research Pipeline] Writing stage failed entirely: {e}")
         final_report = (
             f"## Research: {query}\n\n"
             f"## Key Facts\n{extracted_facts}\n\n"
             f"## Analysis\n{analysis_insights}\n\n"
-            f"## Sources\n{source_list}\n\n"
-            f"_(Note: Final paper generation unavailable — {e})_"
+            f"## Sources\n{source_list}"
         )
 
-    print("[Research Pipeline] Pipeline complete")
+    print("[Research Pipeline] Pipeline complete ✅")
 
     return {
         "type": "research",
