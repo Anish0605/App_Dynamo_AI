@@ -21,6 +21,7 @@ import video
 import supabase_client
 import flowchart
 import mindmap
+import multi_model_router.py
 
 from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
