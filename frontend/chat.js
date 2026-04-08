@@ -1005,11 +1005,12 @@ window.sendFromInput = async () => {
       }, 300);
     }
   } catch (e) {
-  console.error("Chat error:", e);
-  hideThinking();
-  renderAssistantMessage("⚠️ Something went wrong. Please try again.");
-} finally {
-  window.isSending = false;
+    console.error("Chat error:", e);
+    hideThinking();
+    renderAssistantMessage("⚠️ Something went wrong. Please try again.");
+  } finally {
+    window.isSending = false;
+  }
 };
 
 /* =========================================================
@@ -1283,4 +1284,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, 300);
 });
-}
