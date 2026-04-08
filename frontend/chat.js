@@ -971,26 +971,53 @@ window.sendFromInput = async () => {
     // ---------------- SINGLE RESPONSE (FIX) ----------------
     const data = res;
     if (data?.type === "research") {
-      const formatted = (data.content || "")
-        .replace(/## (.*?)\n/g, "<h2>$1</h2>")
-        .replace(/\n/g, "<br>");
+      // Clean raw text before parsing
+      const rawText = (data.content || "")
+        .replace(/^---+\s*$/gm, "")
+        .replace(/^#{1,6}\s*$/gm, "")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
 
-      chatContainer.innerHTML += `
-        <div class="research-output">
-          ${formatted}
-        </div>
-      `;
+      // Use marked for full markdown → HTML conversion
+      const parsedHtml = (typeof marked !== "undefined")
+        ? marked.parse(rawText)
+        : rawText.replace(/\n/g, "<br>");
 
+      const wrapper = document.createElement("div");
+      wrapper.className = "research-output";
+      wrapper.innerHTML = parsedHtml;
+
+      // Add sources badge button if sources are available
+      if (data.sources?.length > 0) {
+        const srcRow = document.createElement("div");
+        srcRow.className = "research-sources-row";
+        const srcBtn = document.createElement("button");
+        srcBtn.className = "research-sources-badge";
+        srcBtn.innerHTML = `🔗 ${data.sources.length} Sources Retrieved`;
+        const capturedSources = data.sources;
+        const capturedMsg = msg;
+        srcBtn.addEventListener("click", () => window.openSourcesPanel(capturedSources, capturedMsg));
+        srcRow.appendChild(srcBtn);
+        wrapper.appendChild(srcRow);
+      }
+
+      chatContainer.appendChild(wrapper);
       scrollToBottom();
       window.chatHistory.push({ role: "assistant", content: data.content || "" });
       if (window.appState?.supabaseUserId) saveMessage("assistant", data.content || "");
       return;
     }
 
-    // Sources only show in Research Mode + Web Search combo
-    const showSources = (window.dynamoUI?.model === 'research' && window.dynamoUI?.tools?.has('search')) || false;
+    // Sources: show whenever web search is active and sources returned
+    const isSearchActive = window.dynamoUI?.tools?.has('search') || false;
+    const showSources = isSearchActive && (res.sources?.length > 0);
     const sources = showSources ? (res.sources || []) : [];
     renderAssistantMessage(res.content || "", res.content, true, sources);
+
+    // Auto-open sources panel for Fast Mode + Web Search (non-research)
+    if (isSearchActive && sources.length > 0) {
+      setTimeout(() => window.openSourcesPanel(sources, msg), 600);
+    }
 
     // 🔁 Follow-ups — only in DeepThink mode
     const isDeepThinkActive = window.dynamoUI?.tools?.has('deep') || false;

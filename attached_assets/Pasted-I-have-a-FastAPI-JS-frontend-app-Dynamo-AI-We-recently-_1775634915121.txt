@@ -1,0 +1,117 @@
+I have a FastAPI + JS frontend app (Dynamo AI).
+
+We recently upgraded Research Mode to generate structured academic research papers using a multi-model pipeline.
+
+Now I want to improve BOTH Research Mode and Fast Mode behavior.
+
+-----------------------------------
+🔬 1. RESEARCH MODE (UPDATE + IMPROVE)
+-----------------------------------
+
+Current:
+- Research Mode already returns structured research paper
+
+Upgrade it:
+
+1. Ensure output ALWAYS follows strict academic structure:
+
+## Title
+## Abstract
+## 1. Introduction
+## 2. Research Gap
+## 3. Objectives / Hypothesis
+## 4. Literature Review
+## 5. Methodology
+## 6. Key Findings / Results
+## 7. Discussion
+## 8. Conclusion
+## 9. References
+
+2. Improve GPT prompt:
+- Formal academic tone
+- No conversational text
+- Add 5–8 references minimum
+
+3. Clean output:
+- Remove unwanted symbols like "#" alone or "---"
+- Ensure proper spacing and formatting
+
+4. Frontend (chat.js):
+- Render research output in a separate styled container
+- Convert "##" into headings (<h2>)
+- Add spacing between sections
+
+-----------------------------------
+⚡ 2. FAST MODE + WEB SEARCH (NEW FEATURE)
+-----------------------------------
+
+Requirement:
+
+When:
+- Fast Mode = ON
+- Web Search = ON
+
+Then:
+- DO NOT use research pipeline
+- DO NOT generate research paper
+
+Instead:
+
+1. Use current Gemini response (fast)
+2. Keep response SHORT, clean, conversational
+
+3. ALSO show:
+   - "Top 10 Sources" panel (already exists)
+
+4. Add NEW UI layout:
+
+👉 Show sources in a separate structured layout (like research mode panel)
+👉 Keep it visually clean and readable
+
+-----------------------------------
+🎨 FRONTEND REQUIREMENTS (IMPORTANT)
+-----------------------------------
+
+1. Add condition in chat.js:
+
+IF:
+data.type === "research"
+→ Render research paper layout
+
+ELSE:
+→ Render normal chat response
+
+2. For Fast Mode + Web Search:
+- Show:
+   ✔ Chat response
+   ✔ Sources panel (right side)
+
+3. Improve source UI:
+- Title
+- Domain
+- Short preview
+- Clean card layout
+
+-----------------------------------
+⚠️ IMPORTANT RULES
+-----------------------------------
+
+DO NOT BREAK:
+- Fast Mode without search
+- DeepThink mode
+- Existing chat system
+
+-----------------------------------
+🎯 GOAL
+-----------------------------------
+
+Research Mode → Full academic paper (structured UI)
+
+Fast Mode + Search → Chat answer + clean "Top 10 Sources" layout
+
+-----------------------------------
+📎 I will attach screenshots for reference:
+- Research mode UI
+- Fast mode UI with sources panel
+
+Use those as design reference.

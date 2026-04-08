@@ -175,27 +175,39 @@ def research_pipeline(query: str) -> dict:
 
     # ── STEP 4: GPT stage — write the final paper ─────────────────────────────
     source_list = "\n".join(
-        [f"- {s.get('title', 'Untitled')} ({s.get('url', '')})" for s in sources[:8]]
-    ) if sources else "No sources available."
+        [f"{i+1}. {s.get('title', 'Untitled')} — {s.get('url', '')}" for i, s in enumerate(sources[:10])]
+    ) if sources else "No live sources available."
 
     gpt_system = (
-        "You are an expert academic research writer. "
-        "Write a clear, well-structured research report using the provided facts and analysis. "
-        "Use this exact structure:\n"
+        "You are a senior academic research writer producing a formal peer-reviewed paper.\n"
+        "You MUST output ALL of the following sections in order, using EXACTLY these headings:\n\n"
         "## Title\n"
         "## Abstract\n"
-        "## Key Findings\n"
-        "## Analysis & Insights\n"
-        "## Conclusion\n"
-        "## Sources\n\n"
-        "Be professional, insightful, and thorough. Avoid filler content."
+        "## 1. Introduction\n"
+        "## 2. Research Gap\n"
+        "## 3. Objectives / Hypothesis\n"
+        "## 4. Literature Review\n"
+        "## 5. Methodology\n"
+        "## 6. Key Findings / Results\n"
+        "## 7. Discussion\n"
+        "## 8. Conclusion\n"
+        "## 9. References\n\n"
+        "MANDATORY RULES:\n"
+        "- Use strictly formal academic language throughout — no casual or conversational text\n"
+        "- Never use first person (I, we) — write in third person passive voice\n"
+        "- No filler phrases ('Great question', 'Certainly', 'Of course')\n"
+        "- Do NOT use horizontal dividers (---) or lone hash symbols (#)\n"
+        "- Abstract must be 150–200 words\n"
+        "- References section must contain a minimum of 6 numbered entries in APA format\n"
+        "- Each section must have substantive, information-dense content\n"
+        "- Bold key terms using **term** syntax where appropriate"
     )
     gpt_user = (
         f"Research query: {query}\n\n"
-        f"Extracted facts:\n{extracted_facts}\n\n"
-        f"Expert analysis:\n{analysis_insights}\n\n"
-        f"Sources:\n{source_list}\n\n"
-        "Write the full structured research paper now."
+        f"Extracted facts and data:\n{extracted_facts}\n\n"
+        f"Expert analysis and insights:\n{analysis_insights}\n\n"
+        f"Live web sources retrieved:\n{source_list}\n\n"
+        "Write the complete academic research paper now following ALL required sections."
     )
 
     final_report = ""
@@ -204,16 +216,23 @@ def research_pipeline(query: str) -> dict:
             model="gpt-4o",
             system=gpt_system,
             user_content=gpt_user,
-            max_tokens=2000
+            max_tokens=3000
         )
+        # Post-process: remove any stray dividers or lone # symbols
+        import re
+        final_report = re.sub(r'^---+\s*$', '', final_report, flags=re.MULTILINE)
+        final_report = re.sub(r'^#{1,6}\s*$', '', final_report, flags=re.MULTILINE)
+        final_report = re.sub(r'\n{3,}', '\n\n', final_report)
+        final_report = final_report.strip()
         print("[Research Pipeline] Writing stage complete")
     except Exception as e:
         print(f"[Research Pipeline] Writing stage failed entirely: {e}")
         final_report = (
             f"## Research: {query}\n\n"
-            f"## Key Facts\n{extracted_facts}\n\n"
-            f"## Analysis\n{analysis_insights}\n\n"
-            f"## Sources\n{source_list}"
+            f"## Abstract\n{extracted_facts[:400]}\n\n"
+            f"## 6. Key Findings / Results\n{extracted_facts}\n\n"
+            f"## 7. Discussion\n{analysis_insights}\n\n"
+            f"## 9. References\n{source_list}"
         )
 
     print("[Research Pipeline] Pipeline complete ✅")
