@@ -968,6 +968,24 @@ window.sendFromInput = async () => {
     }
 
     // ---------------- SINGLE RESPONSE (FIX) ----------------
+    const data = res;
+    if (data?.type === "research") {
+      const formatted = (data.content || "")
+        .replace(/## (.*?)\n/g, "<h2>$1</h2>")
+        .replace(/\n/g, "<br>");
+
+      chatContainer.innerHTML += `
+        <div class="research-output">
+          ${formatted}
+        </div>
+      `;
+
+      scrollToBottom();
+      window.chatHistory.push({ role: "assistant", content: data.content || "" });
+      if (save) saveMessage("assistant", data.content || "");
+      return;
+    }
+
     // Sources only show in Research Mode + Web Search combo
     const showSources = (window.dynamoUI?.model === 'research' && window.dynamoUI?.tools?.has('search')) || false;
     const sources = showSources ? (res.sources || []) : [];
