@@ -25,7 +25,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 # APIMart (Multi-Model Research Pipeline)
-APIMART_API_KEY = os.getenv("APIMart_API_key")
+APIMART_API_KEY = os.getenv("APIMART_API_KEY")
 
 # Razorpay Config
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
