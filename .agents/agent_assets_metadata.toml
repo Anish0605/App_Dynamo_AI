@@ -2,7 +2,7 @@ uploads = []
 generated = []
 
 [[outputs]]
-id = "EWfLPlfaZEAeAa9KQbYO7"
-uri = "file://dynamo-backend-reference.zip"
+id = "shhbIHeadF42jWOUQURLy"
+uri = "file://dynamo-ai.zip"
 type = "unspecified"
-title = "Dynamo AI — Backend Reference (6 files)"
+title = "Dynamo AI — Full Project"
