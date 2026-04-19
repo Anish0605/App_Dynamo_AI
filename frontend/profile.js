@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn   = document.getElementById("logout-btn");
 
   if (upgradeBtn) upgradeBtn.onclick = () => { window.location.href = "https://dynamoai.in/pricing.html"; };
-  if (supportBtn) supportBtn.onclick = () => { window.location.href = "mailto:support@dynamoai.in"; };
+  if (supportBtn) supportBtn.onclick = () => { window.location.href = "https://dynamoai.in/contact.html"; };
   if (logoutBtn) {
     logoutBtn.onclick = async () => {
       try {
