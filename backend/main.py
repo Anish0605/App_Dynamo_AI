@@ -21,7 +21,7 @@ import video
 import supabase_client
 import flowchart
 import mindmap
-import multi_model_router.py
+import multi_model_router
 
 from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
@@ -353,17 +353,6 @@ async def chat(req: ChatReq):
     if req.use_search:
         context = search.get_web_context(req.message, req.deep_dive)
         sources = search.get_sources(req.message, req.deep_dive)
-        # 🔬 NEW RESEARCH MODE (ADD THIS BLOCK)
-            if req.use_search and not req.deep_dive:
-            report = multi_model_router.research_pipeline(
-            topic=req.message,
-            web_context=context
-            )
-            return {
-            "type": "research",
-            "content": report,
-            "sources": sources   # ✅ keep sources (important for UI)
-            }
 
     # -------------------------
     # 🤖 6. AI RESPONSE
