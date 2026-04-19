@@ -1000,7 +1000,7 @@
         <span class="profile-arrow">›</span>
       </div>
 
-      <div class="profile-item" id="support-btn">
+      <div class="profile-item" id="support-btn" onclick="event.stopPropagation(); document.getElementById('profile-modal').classList.add('hidden'); window.open('https://dynamoai.in/contact.html', '_blank');">
         <div class="profile-item-left">
           <i data-lucide="mail" class="text-blue-500"></i>
           <span>Support</span>
