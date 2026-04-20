@@ -3,6 +3,7 @@
 from supabase import create_client
 import config
 from datetime import datetime, date
+from brevo import send_email
 
 # --------------------------------------------------
 # INIT SUPABASE CLIENT
@@ -173,7 +174,26 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
         }
 
         res = supabase.table("users").insert(insert).execute()
-        return res.data[0] if res.data else None
+        new_user = res.data[0] if res.data else None
+
+        # Send welcome email to new user
+        if new_user and email:
+            try:
+                send_email(
+                    email,
+                    "Welcome to Dynamo AI 🚀",
+                    f"""
+                    <h2>Welcome to Dynamo AI</h2>
+                    <p>Hey there 👋</p>
+                    <p>You've just joined the most powerful AI research tool.</p>
+                    <p>👉 Try Research Mode today.</p>
+                    """
+                )
+                print(f"Welcome email sent to: {email}")
+            except Exception as mail_err:
+                print(f"Welcome email failed (non-blocking): {mail_err}")
+
+        return new_user
 
     except Exception as e:
         print("User fetch/create error:", e)
