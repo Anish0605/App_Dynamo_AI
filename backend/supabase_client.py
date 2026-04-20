@@ -4,7 +4,7 @@ from supabase import create_client
 import config
 import requests
 from datetime import datetime, date
-from brevo import send_email
+from brevo import add_contact, send_welcome_email
 
 
 def track_event(email, event="user_signup"):
@@ -190,22 +190,14 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
         res = supabase.table("users").insert(insert).execute()
         new_user = res.data[0] if res.data else None
 
-        # Send welcome email to new user
+        # Add to Brevo list + send welcome email for new user
         if new_user and email:
             try:
-                send_email(
-                    email,
-                    "Welcome to Dynamo AI 🚀",
-                    f"""
-                    <h2>Welcome to Dynamo AI</h2>
-                    <p>Hey there 👋</p>
-                    <p>You've just joined the most powerful AI research tool.</p>
-                    <p>👉 Try Research Mode today.</p>
-                    """
-                )
-                print(f"Welcome email sent to: {email}")
+                add_contact(email)
+                send_welcome_email(email)
+                print(f"Brevo: contact added + welcome email sent to {email}")
             except Exception as mail_err:
-                print(f"Welcome email failed (non-blocking): {mail_err}")
+                print(f"Brevo error (non-blocking): {mail_err}")
 
             # Track signup event in PostHog
             track_event(email, "user_signup")
