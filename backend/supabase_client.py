@@ -2,8 +2,22 @@
 
 from supabase import create_client
 import config
+import requests
 from datetime import datetime, date
 from brevo import send_email
+
+
+def track_event(email, event="user_signup"):
+    if not config.POSTHOG_API_KEY:
+        return
+    try:
+        requests.post("https://app.posthog.com/capture/", json={
+            "api_key": config.POSTHOG_API_KEY,
+            "event": event,
+            "distinct_id": email
+        })
+    except Exception as e:
+        print("PostHog tracking error:", e)
 
 # --------------------------------------------------
 # INIT SUPABASE CLIENT
@@ -192,6 +206,9 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
                 print(f"Welcome email sent to: {email}")
             except Exception as mail_err:
                 print(f"Welcome email failed (non-blocking): {mail_err}")
+
+            # Track signup event in PostHog
+            track_event(email, "user_signup")
 
         return new_user
 

@@ -35,6 +35,9 @@ RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET")
 # APIMart Config
 APIMART_API_KEY = os.getenv("APIMART_API_KEY")
 
+# PostHog Analytics
+POSTHOG_API_KEY = os.getenv("POSTHOG_API_KEY")
+
 # Brevo Email Config
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 BREVO_SENDER_EMAIL = "support@dynamoai.in"
