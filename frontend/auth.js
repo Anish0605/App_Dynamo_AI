@@ -105,6 +105,14 @@ firebaseAuth?.onAuthStateChanged(async (user) => {
     updateAuthUI(user);
     window.setAppUser(user);
 
+    // PostHog: identify logged-in user
+    if (window.posthog) {
+      window.posthog.identify(user.uid, {
+        email: user.email,
+        name: user.displayName || user.email?.split("@")[0] || "User"
+      });
+    }
+
     // ✅ sync user
     await syncUserWithSupabase(user);
 
@@ -121,6 +129,9 @@ firebaseAuth?.onAuthStateChanged(async (user) => {
 
     window.setAppUser(null);
     window.setSupabaseUser(null);
+
+    // PostHog: reset on logout
+    if (window.posthog) window.posthog.reset();
 
     window.loadChatSidebar?.();
   }
