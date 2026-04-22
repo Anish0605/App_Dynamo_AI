@@ -56,7 +56,7 @@ class ChatReq(BaseModel):
     use_search: bool = True
     deep_dive: bool = False
     force_image: bool = False
-    model: str = "gemini-3.1-flash-lite-preview"
+    model: str = "gemini-2.0-flash"
     mode: str = "chat"  # "chat" | "research" — explicit mode flag
     chat_id: str | None = None
     user_id: str | None = None
