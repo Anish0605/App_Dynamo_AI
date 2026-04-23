@@ -9,6 +9,7 @@ import uvicorn
 import os
 
 import asyncio
+import traceback
 import config
 import model
 import memory as memory_module
@@ -180,7 +181,12 @@ async def chat(req: ChatReq):
         ]
 
         if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
-            return flowchart.generate_flowchart(req.message)
+            try:
+                return flowchart.generate_flowchart(req.message)
+            except Exception as e:
+                print(f"[FLOWCHART ERROR] {type(e).__name__}: {e}")
+                traceback.print_exc()
+                return {"type": "text", "content": "Flowchart generation failed. Please try again."}
 
         # 🧠 Mindmap Detection
         MINDMAP_KEYWORDS = [
@@ -191,7 +197,12 @@ async def chat(req: ChatReq):
         ]
 
         if any(k in msg_lower for k in MINDMAP_KEYWORDS):
-            return mindmap.generate_mindmap(req.message)
+            try:
+                return mindmap.generate_mindmap(req.message)
+            except Exception as e:
+                print(f"[MINDMAP ERROR] {type(e).__name__}: {e}")
+                traceback.print_exc()
+                return {"type": "text", "content": "Mindmap generation failed. Please try again."}
 
     # 🧩 Quiz Detection (MUST BE BEFORE IMAGE)
     QUIZ_KEYWORDS = ["quiz", "mcq", "multiple choice", "test me", "questions", "exam"]
@@ -242,8 +253,12 @@ async def chat(req: ChatReq):
     ]
 
     if any(k in msg_lower for k in MINDMAP_KEYWORDS):
-        import mindmap
-        return mindmap.generate_mindmap(req.message)
+        try:
+            return mindmap.generate_mindmap(req.message)
+        except Exception as e:
+            print(f"[MINDMAP ERROR] {type(e).__name__}: {e}")
+            traceback.print_exc()
+            return {"type": "text", "content": "Mindmap generation failed. Please try again."}
 
     # FLOWCHART (ADDED NOW)
     FLOWCHART_KEYWORDS = [
@@ -254,8 +269,12 @@ async def chat(req: ChatReq):
     ]
 
     if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
-        import flowchart
-        return flowchart.generate_flowchart(req.message)    
+        try:
+            return flowchart.generate_flowchart(req.message)
+        except Exception as e:
+            print(f"[FLOWCHART ERROR] {type(e).__name__}: {e}")
+            traceback.print_exc()
+            return {"type": "text", "content": "Flowchart generation failed. Please try again."}    
     
     # -------------------------
     # 🧠 1. USER HANDLING
