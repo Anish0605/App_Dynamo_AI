@@ -25,7 +25,7 @@ def extract_memories(user_message: str, ai_response: str) -> list:
     )
 
     try:
-        m = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
+        m = genai.GenerativeModel("gemini-2.0-flash")
         r = m.generate_content(prompt)
         text = r.text.strip()
         match = re.search(r'\[.*?\]', text, re.DOTALL)
