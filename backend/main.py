@@ -183,7 +183,7 @@ async def chat(req: ChatReq):
         if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
             try:
                 return flowchart.generate_flowchart(req.message)
-            except Exception as e:
+            except BaseException as e:
                 print(f"[FLOWCHART ERROR] {type(e).__name__}: {e}")
                 traceback.print_exc()
                 return {"type": "text", "content": "Flowchart generation failed. Please try again."}
@@ -199,7 +199,7 @@ async def chat(req: ChatReq):
         if any(k in msg_lower for k in MINDMAP_KEYWORDS):
             try:
                 return mindmap.generate_mindmap(req.message)
-            except Exception as e:
+            except BaseException as e:
                 print(f"[MINDMAP ERROR] {type(e).__name__}: {e}")
                 traceback.print_exc()
                 return {"type": "text", "content": "Mindmap generation failed. Please try again."}
@@ -241,8 +241,13 @@ async def chat(req: ChatReq):
     ]
 
     if any(k in msg_lower for k in VIDEO_KEYWORDS):
-        import video
-        return await video.generate_video(req.message)
+        try:
+            import video
+            return await video.generate_video(req.message)
+        except BaseException as e:
+            print(f"[VIDEO ERROR] {type(e).__name__}: {e}")
+            traceback.print_exc()
+            return {"type": "text", "content": "Video generation failed. Please try again."}
 
     # MINDMAPS (ADDED NOW)
     MINDMAP_KEYWORDS = [
@@ -255,7 +260,7 @@ async def chat(req: ChatReq):
     if any(k in msg_lower for k in MINDMAP_KEYWORDS):
         try:
             return mindmap.generate_mindmap(req.message)
-        except Exception as e:
+        except BaseException as e:
             print(f"[MINDMAP ERROR] {type(e).__name__}: {e}")
             traceback.print_exc()
             return {"type": "text", "content": "Mindmap generation failed. Please try again."}
@@ -271,7 +276,7 @@ async def chat(req: ChatReq):
     if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
         try:
             return flowchart.generate_flowchart(req.message)
-        except Exception as e:
+        except BaseException as e:
             print(f"[FLOWCHART ERROR] {type(e).__name__}: {e}")
             traceback.print_exc()
             return {"type": "text", "content": "Flowchart generation failed. Please try again."}    
@@ -287,9 +292,15 @@ async def chat(req: ChatReq):
     if is_image_prompt:
         plan = user.get("plan", "free") if user else "free"
         if plan == "free":
-            return {"type": "error", "code": "no_image_free"}
+            return {
+                "type": "text",
+                "content": "🔒 Image generation is available on **Plus** and **Pro** plans.\n\nFree users get **10 messages/day** but image generation requires an upgrade. [View Plans](/pricing.html)"
+            }
         if not supabase_client.check_image_quota(user):
-            return {"type": "error", "code": "image_quota_exceeded"}
+            return {
+                "type": "text",
+                "content": "📊 You've used all your image generations for this month. Upgrade to **Pro** for 100 images/month. [View Plans](/pricing.html)"
+            }
         result = await image.generate_image_base64(req.message)
         if result.get("type") == "image_v2":
             supabase_client.increment_image_quota(user)
@@ -742,9 +753,15 @@ async def generate_video(req: VideoReq):
 
     plan = user.get("plan", "free") if user else "free"
     if plan == "free":
-        return {"type": "error", "code": "no_video_free"}
+        return {
+            "type": "text",
+            "content": "🔒 Video generation is available on **Plus** and **Pro** plans.\n\nFree users get **10 messages/day** but video generation requires an upgrade. [View Plans](/pricing.html)"
+        }
     if not supabase_client.check_video_quota(user):
-        return {"type": "error", "code": "video_quota_exceeded"}
+        return {
+            "type": "text",
+            "content": "📊 You've used all your video generations for this month. Upgrade to **Pro** for 25 videos/month. [View Plans](/pricing.html)"
+        }
 
     print(f"🎬 Video request: {req.message[:50]}...")
     print(f"🎬 Runway API Key configured: {bool(config.RUNWAY_API_KEY)}")
