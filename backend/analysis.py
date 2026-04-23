@@ -138,7 +138,7 @@ def process_file_universally(file_bytes: bytes, filename: str):
             }
 
             genai.configure(api_key=config.GEMINI_KEY)
-            model = genai.GenerativeModel("gemini-2.0-flash")
+            model = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
 
             response = model.generate_content(
                 ["Describe this image for research purposes.", image_part]

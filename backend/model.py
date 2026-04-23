@@ -108,7 +108,7 @@ def get_ai_response(
     # GEMINI EXECUTION
     # -------------------------
     try:
-        resolved_model = model_name if model_name else "gemini-2.0-flash"
+        resolved_model = model_name if model_name else "gemini-3.1-flash-lite-preview"
         gemini_model = genai.GenerativeModel(resolved_model)
         response = gemini_model.generate_content(full_prompt)
         return response.text

@@ -94,7 +94,7 @@ Topic:
         response = model.get_ai_response(
             prompt=system_prompt,
             history=[],
-            model_name="gemini-2.0-flash"
+            model_name="gemini-3.1-flash-lite-preview"
         )
 
         data = json.loads(response)
