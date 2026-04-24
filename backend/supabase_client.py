@@ -69,8 +69,21 @@ def check_memory_table():
         print("  SQL Editor: https://supabase.com/dashboard/project/jbulnpcqxtbjobrclsqq/sql")
 
 
+def check_folders_table():
+    """Check if folders table and chats.folder_id column exist."""
+    if not supabase:
+        return
+    try:
+        supabase.table("folders").select("id").limit(1).execute()
+        print("folders table verified OK")
+    except Exception:
+        print("WARNING: folders table missing — run backend/migrate_folders.sql in Supabase Dashboard.")
+        print("  SQL Editor: https://supabase.com/dashboard/project/jbulnpcqxtbjobrclsqq/sql")
+
+
 check_migration_status()
 check_memory_table()
+check_folders_table()
 
 
 # --------------------------------------------------

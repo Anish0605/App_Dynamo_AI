@@ -545,6 +545,53 @@ async def clear_memories(user_id: str):
     return {"success": ok}
 
 # --------------------------------------------------
+# FOLDERS
+# --------------------------------------------------
+
+class FolderCreate(BaseModel):
+    user_id: str
+    name: str
+
+class FolderRename(BaseModel):
+    name: str
+
+class ChatFolderMove(BaseModel):
+    folder_id: str | None = None
+
+@app.get("/folders")
+async def list_folders(user_id: str):
+    sb = supabase_client.supabase
+    res = sb.table("folders").select("*").eq("user_id", user_id).order("created_at", desc=False).execute()
+    return {"folders": res.data or []}
+
+@app.post("/folders")
+async def create_folder(req: FolderCreate):
+    sb = supabase_client.supabase
+    res = sb.table("folders").insert({"user_id": req.user_id, "name": req.name.strip()}).execute()
+    if res.data:
+        return {"folder": res.data[0]}
+    raise HTTPException(status_code=400, detail="Failed to create folder")
+
+@app.patch("/folders/{folder_id}")
+async def rename_folder(folder_id: str, req: FolderRename):
+    sb = supabase_client.supabase
+    res = sb.table("folders").update({"name": req.name.strip()}).eq("id", folder_id).execute()
+    return {"success": bool(res.data)}
+
+@app.delete("/folders/{folder_id}")
+async def delete_folder(folder_id: str):
+    sb = supabase_client.supabase
+    sb.table("chats").update({"folder_id": None}).eq("folder_id", folder_id).execute()
+    sb.table("folders").delete().eq("id", folder_id).execute()
+    return {"success": True}
+
+@app.patch("/chats/{chat_id}/folder")
+async def move_chat_to_folder(chat_id: str, req: ChatFolderMove):
+    sb = supabase_client.supabase
+    res = sb.table("chats").update({"folder_id": req.folder_id}).eq("id", chat_id).execute()
+    return {"success": bool(res.data)}
+
+# --------------------------------------------------
 # CHAT WITH FILE (FormData — separate endpoint)
 # --------------------------------------------------
 

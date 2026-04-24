@@ -906,9 +906,19 @@
       </button>
     </div>
 
+    <!-- FOLDERS -->
+    <div class="px-4 mt-6" id="folders-section" style="display:none;">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-xs font-bold uppercase text-gray-400">Folders</p>
+        <button id="new-folder-btn" onclick="window.createFolderPrompt()" title="New folder"
+          class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition text-base font-bold leading-none">+</button>
+      </div>
+      <div id="folders-list" class="space-y-0.5"></div>
+    </div>
+
     <!-- HISTORY -->
-    <div class="px-4 mt-8 flex-1 overflow-y-auto scrollbar-hide">
-      <p class="text-xs font-bold uppercase text-gray-400 mb-2">History</p>
+    <div class="px-4 mt-4 flex-1 overflow-y-auto scrollbar-hide">
+      <p class="text-xs font-bold uppercase text-gray-400 mb-2" id="history-label">History</p>
       <div id="history-list" class="space-y-2 text-sm text-gray-400 italic">
         No recent chats...
       </div>
@@ -1312,7 +1322,7 @@
  <script src="chat.js?v=20260425"></script>
 
  <!-- SIDERBAR -->
- <script src="sidebar.js?v=20260423"></script>
+ <script src="sidebar.js?v=20260425"></script>
  
   <!-- QUIZ -->
  <script src="quiz.js?v=20260423"></script>

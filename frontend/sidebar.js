@@ -5,6 +5,8 @@ console.log("sidebar.js loaded");
    LOAD SIDEBAR
 ========================================================= */
 
+window.allFolders = [];
+
 window.loadChatSidebar = async () => {
   const userId = window.appState.supabaseUserId;
   const box = document.getElementById("history-list");
@@ -12,32 +14,43 @@ window.loadChatSidebar = async () => {
 
   if (!userId) {
     box.innerHTML = `<div class="text-xs text-gray-400 px-2 py-1">Login to see chats</div>`;
+    document.getElementById("folders-section").style.display = "none";
     return;
   }
 
-  const { data, error } = await supabaseClient
-    .from("chats")
-    .select("*")
-    .eq("user_id", userId)
-    .order("is_starred", { ascending: false })
-    .order("created_at", { ascending: false });
+  const [chatRes, folderRes] = await Promise.all([
+    supabaseClient
+      .from("chats")
+      .select("*")
+      .eq("user_id", userId)
+      .order("is_starred", { ascending: false })
+      .order("created_at", { ascending: false }),
+    fetch(`/folders?user_id=${userId}`).then(r => r.json()).catch(() => ({ folders: [] }))
+  ]);
 
-  if (error) {
-    console.error("❌ Sidebar load error:", error);
+  if (chatRes.error) {
+    console.error("❌ Sidebar load error:", chatRes.error);
     box.innerHTML = `<div class="text-xs text-red-400 px-2 py-1">Failed to load chats</div>`;
     return;
   }
 
-  window.allChats = data || [];
+  window.allChats = chatRes.data || [];
+  window.allFolders = folderRes.folders || [];
+
+  // Render folders section
+  renderFolderSection(window.allFolders, window.allChats);
+
+  // History shows only chats NOT in any folder
+  const unfoldered = window.allChats.filter(c => !c.folder_id);
   box.innerHTML = "";
 
-  if (!data || data.length === 0) {
+  if (unfoldered.length === 0) {
     box.innerHTML = `<div class="text-xs text-gray-400 px-2 py-1">No recent chats</div>`;
     return;
   }
 
-  const pinned = data.filter(c => c.is_starred);
-  const recent = data.filter(c => !c.is_starred);
+  const pinned = unfoldered.filter(c => c.is_starred);
+  const recent = unfoldered.filter(c => !c.is_starred);
 
   if (pinned.length > 0) {
     box.appendChild(sectionLabel("Pinned"));
@@ -302,8 +315,24 @@ function showChatMenu(e, chat, titleEl, wrapperEl) {
     }
   });
 
+  // Move to Folder icon
+  const folderIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`;
+
+  const moveItem = makeMenuItem({
+    iconSvg: folderIcon,
+    label: "Move to Folder",
+    hoverBg: isDark ? "rgba(217,119,6,0.12)" : "rgba(217,119,6,0.08)",
+    color: isDark ? "#fbbf24" : "#b45309",
+    borderBottom: true,
+    onClick: () => {
+      popup.remove();
+      showFolderSubmenu(e, chat);
+    }
+  });
+
   popup.appendChild(pinItem);
   popup.appendChild(renameItem);
+  popup.appendChild(moveItem);
   popup.appendChild(deleteItem);
   document.body.appendChild(popup);
 
@@ -475,3 +504,314 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+/* =========================================================
+   FOLDERS — RENDER SECTION
+========================================================= */
+
+function renderFolderSection(folders, allChats) {
+  const section = document.getElementById("folders-section");
+  const list = document.getElementById("folders-list");
+  if (!section || !list) return;
+
+  if (folders.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+
+  section.style.display = "block";
+  list.innerHTML = "";
+
+  folders.forEach(folder => {
+    const chatsInFolder = allChats.filter(c => c.folder_id === folder.id);
+    list.appendChild(renderFolderItem(folder, chatsInFolder));
+  });
+}
+
+function renderFolderItem(folder, chats) {
+  const isDark = document.documentElement.classList.contains("dark");
+  const wrap = document.createElement("div");
+  const isOpen = (window._folderOpenState || {})[folder.id] !== false; // default open
+
+  // Row
+  const row = document.createElement("div");
+  row.className = "group flex items-center gap-1.5 px-2 py-2 rounded-xl cursor-pointer select-none transition-all";
+  row.style.cssText = isOpen
+    ? "background:rgba(234,179,8,0.08);"
+    : "hover:background:#f9fafb;";
+
+  row.innerHTML = `
+    <span class="folder-chevron text-gray-400 text-[10px] transition-transform duration-200 ${isOpen ? "rotate-90 !text-yellow-600" : ""}" style="transform:${isOpen ? "rotate(90deg)" : "rotate(0deg)"};">›</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${isOpen ? "#d97706" : "#9ca3af"}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    <span class="flex-1 text-[12.5px] font-semibold truncate ${isOpen ? "text-yellow-700 dark:text-yellow-400" : "text-gray-700 dark:text-gray-200"}">${escHtml(folder.name)}</span>
+    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full ${isOpen ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" : "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"}">${chats.length}</span>
+    <button class="folder-opts opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-white text-sm leading-none transition" title="Folder options">⋯</button>
+  `;
+
+  // Chats container
+  const chatsEl = document.createElement("div");
+  chatsEl.style.cssText = `padding-left:22px;overflow:hidden;transition:max-height 0.2s ease;max-height:${isOpen ? "600px" : "0px"};`;
+
+  if (chats.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "text-[11px] text-gray-400 dark:text-gray-500 px-2 py-1.5 italic";
+    empty.textContent = "No chats yet";
+    chatsEl.appendChild(empty);
+  } else {
+    chats.forEach(chat => {
+      const chatRow = document.createElement("div");
+      chatRow.className = [
+        "flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer text-[12px] font-medium truncate transition-all",
+        window.appState.chatId === chat.id
+          ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300"
+          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60"
+      ].join(" ");
+      chatRow.innerHTML = `
+        <span style="width:5px;height:5px;border-radius:50%;background:${window.appState.chatId === chat.id ? "#d97706" : "#d1d5db"};flex-shrink:0;display:inline-block;"></span>
+        <span class="truncate flex-1">${escHtml(chat.title || "New Chat")}</span>
+      `;
+      chatRow.onclick = async () => {
+        window.setChatId(chat.id);
+        await window.loadChatHistory();
+        await window.loadChatSidebar();
+      };
+      chatsEl.appendChild(chatRow);
+    });
+  }
+
+  // Toggle on row click
+  row.onclick = (e) => {
+    if (e.target.closest(".folder-opts")) return;
+    window._folderOpenState = window._folderOpenState || {};
+    const nowOpen = chatsEl.style.maxHeight === "0px";
+    window._folderOpenState[folder.id] = nowOpen;
+    chatsEl.style.maxHeight = nowOpen ? "600px" : "0px";
+    const chevron = row.querySelector(".folder-chevron");
+    if (chevron) chevron.style.transform = nowOpen ? "rotate(90deg)" : "rotate(0deg)";
+  };
+
+  // Folder options button (rename / delete)
+  const optsBtn = row.querySelector(".folder-opts");
+  if (optsBtn) {
+    optsBtn.onclick = (e) => {
+      e.stopPropagation();
+      showFolderMenu(e, folder);
+    };
+  }
+
+  wrap.appendChild(row);
+  wrap.appendChild(chatsEl);
+  return wrap;
+}
+
+function escHtml(str) {
+  const d = document.createElement("div");
+  d.textContent = str || "";
+  return d.innerHTML;
+}
+
+/* =========================================================
+   FOLDER MENU (rename / delete)
+========================================================= */
+
+function showFolderMenu(e, folder) {
+  const existing = document.getElementById("folder-menu-popup");
+  if (existing) existing.remove();
+
+  const isDark = document.documentElement.classList.contains("dark");
+  const popup = document.createElement("div");
+  popup.id = "folder-menu-popup";
+  Object.assign(popup.style, {
+    position: "fixed", zIndex: "9999", minWidth: "160px",
+    background: isDark ? "#1e1e2e" : "#ffffff",
+    border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)",
+    borderRadius: "12px",
+    boxShadow: "0 12px 32px rgba(0,0,0,0.15)",
+    padding: "5px", animation: "popupFadeIn 0.15s ease-out"
+  });
+
+  const mkItem = (label, color, onClick) => {
+    const btn = document.createElement("button");
+    Object.assign(btn.style, {
+      display: "flex", alignItems: "center", gap: "10px",
+      width: "100%", padding: "9px 12px", background: "transparent",
+      border: "none", borderRadius: "8px", cursor: "pointer",
+      fontSize: "13px", fontWeight: "600", color: color || (isDark ? "#e2e8f0" : "#1a1a2e"),
+      textAlign: "left"
+    });
+    btn.textContent = label;
+    btn.onmouseenter = () => btn.style.background = isDark ? "rgba(255,255,255,0.07)" : "#f9fafb";
+    btn.onmouseleave = () => btn.style.background = "transparent";
+    btn.onclick = (ev) => { ev.stopPropagation(); popup.remove(); onClick(); };
+    return btn;
+  };
+
+  popup.appendChild(mkItem("Rename", isDark ? "#93c5fd" : "#1d4ed8", async () => {
+    const newName = prompt("Rename folder:", folder.name);
+    if (!newName || !newName.trim() || newName.trim() === folder.name) return;
+    await fetch(`/folders/${folder.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newName.trim() })
+    });
+    window.loadChatSidebar();
+  }));
+
+  popup.appendChild(mkItem("Delete Folder", "#ef4444", async () => {
+    if (!confirm(`Delete folder "${folder.name}"? Chats inside will move back to History.`)) return;
+    await fetch(`/folders/${folder.id}`, { method: "DELETE" });
+    window.loadChatSidebar();
+  }));
+
+  document.body.appendChild(popup);
+  const rect = e.target.getBoundingClientRect();
+  popup.style.left = rect.left + "px";
+  popup.style.top = (rect.bottom + 4) + "px";
+
+  setTimeout(() => {
+    document.addEventListener("click", function h(ev2) {
+      if (!popup.contains(ev2.target)) { popup.remove(); document.removeEventListener("click", h); }
+    });
+  }, 100);
+}
+
+/* =========================================================
+   FOLDER SUBMENU — pick folder for a chat
+========================================================= */
+
+function showFolderSubmenu(e, chat) {
+  const existing = document.getElementById("folder-sub-popup");
+  if (existing) existing.remove();
+
+  const isDark = document.documentElement.classList.contains("dark");
+  const popup = document.createElement("div");
+  popup.id = "folder-sub-popup";
+  Object.assign(popup.style, {
+    position: "fixed", zIndex: "9999", minWidth: "190px",
+    background: isDark ? "#1e1e2e" : "#ffffff",
+    border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)",
+    borderRadius: "14px",
+    boxShadow: "0 12px 32px rgba(0,0,0,0.15)",
+    padding: "5px", animation: "popupFadeIn 0.15s ease-out"
+  });
+
+  // Header
+  const hdr = document.createElement("div");
+  hdr.style.cssText = "font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#9ca3af;padding:6px 12px 4px;";
+  hdr.textContent = "Move to…";
+  popup.appendChild(hdr);
+
+  const mkRow = (label, icon, onClick) => {
+    const btn = document.createElement("button");
+    Object.assign(btn.style, {
+      display: "flex", alignItems: "center", gap: "9px",
+      width: "100%", padding: "9px 12px", background: "transparent",
+      border: "none", borderRadius: "8px", cursor: "pointer",
+      fontSize: "12.5px", fontWeight: "600",
+      color: isDark ? "#e2e8f0" : "#1a1a2e", textAlign: "left"
+    });
+    btn.innerHTML = `${icon}<span class="truncate">${escHtml(label)}</span>`;
+    btn.onmouseenter = () => btn.style.background = isDark ? "rgba(217,119,6,0.12)" : "rgba(217,119,6,0.06)";
+    btn.onmouseleave = () => btn.style.background = "transparent";
+    btn.onclick = (ev) => { ev.stopPropagation(); popup.remove(); onClick(); };
+    return btn;
+  };
+
+  const folderSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`;
+
+  const folders = window.allFolders || [];
+
+  // Current folder (if any) — show "Remove from folder" option
+  if (chat.folder_id) {
+    const removeBtn = mkRow("Remove from folder", `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`, async () => {
+      await fetch(`/chats/${chat.id}/folder`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ folder_id: null })
+      });
+      window.loadChatSidebar();
+    });
+    removeBtn.style.color = "#9ca3af";
+    popup.appendChild(removeBtn);
+
+    if (folders.length > 0) {
+      const div = document.createElement("div");
+      div.style.cssText = "height:1px;background:rgba(0,0,0,0.06);margin:3px 6px;";
+      popup.appendChild(div);
+    }
+  }
+
+  if (folders.length === 0) {
+    const empty = document.createElement("div");
+    empty.style.cssText = "font-size:12px;color:#9ca3af;padding:8px 12px;";
+    empty.textContent = "No folders yet";
+    popup.appendChild(empty);
+  } else {
+    folders.forEach(f => {
+      if (f.id === chat.folder_id) return; // skip current folder
+      popup.appendChild(mkRow(f.name, folderSvg, async () => {
+        await fetch(`/chats/${chat.id}/folder`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ folder_id: f.id })
+        });
+        window.loadChatSidebar();
+      }));
+    });
+  }
+
+  // New folder option
+  const divider = document.createElement("div");
+  divider.style.cssText = "height:1px;background:rgba(0,0,0,0.06);margin:3px 6px;";
+  popup.appendChild(divider);
+
+  popup.appendChild(mkRow("New Folder", `<span style="font-weight:800;color:#9ca3af;font-size:14px;line-height:1;width:13px;text-align:center;flex-shrink:0;">+</span>`, async () => {
+    const name = prompt("New folder name:");
+    if (!name || !name.trim()) return;
+    const userId = window.appState.supabaseUserId;
+    const res = await fetch("/folders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId, name: name.trim() })
+    });
+    const data = await res.json();
+    if (data.folder) {
+      await fetch(`/chats/${chat.id}/folder`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ folder_id: data.folder.id })
+      });
+    }
+    window.loadChatSidebar();
+  }));
+
+  document.body.appendChild(popup);
+
+  const rect = e.target.getBoundingClientRect();
+  const popH = popup.offsetHeight || 200;
+  popup.style.right = (window.innerWidth - rect.right) + "px";
+  popup.style.top = Math.max(8, rect.top - popH - 4) + "px";
+
+  setTimeout(() => {
+    document.addEventListener("click", function h(ev2) {
+      if (!popup.contains(ev2.target)) { popup.remove(); document.removeEventListener("click", h); }
+    });
+  }, 100);
+}
+
+/* =========================================================
+   CREATE FOLDER (+ button)
+========================================================= */
+
+window.createFolderPrompt = async () => {
+  const name = prompt("New folder name:");
+  if (!name || !name.trim()) return;
+  const userId = window.appState.supabaseUserId;
+  if (!userId) return;
+  await fetch("/folders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id: userId, name: name.trim() })
+  });
+  window.loadChatSidebar();
+};
