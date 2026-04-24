@@ -14,7 +14,8 @@ window.loadChatSidebar = async () => {
 
   if (!userId) {
     box.innerHTML = `<div class="text-xs text-gray-400 px-2 py-1">Login to see chats</div>`;
-    document.getElementById("folders-section").style.display = "none";
+    const fs = document.getElementById("folders-section");
+    if (fs) fs.style.display = "none";
     return;
   }
 
@@ -514,13 +515,16 @@ function renderFolderSection(folders, allChats) {
   const list = document.getElementById("folders-list");
   if (!section || !list) return;
 
-  if (folders.length === 0) {
-    section.style.display = "none";
-    return;
-  }
-
   section.style.display = "block";
   list.innerHTML = "";
+
+  if (folders.length === 0) {
+    const hint = document.createElement("div");
+    hint.style.cssText = "font-size:11px;color:#9ca3af;padding:2px 4px 6px;";
+    hint.textContent = "No folders yet — press + to create one";
+    list.appendChild(hint);
+    return;
+  }
 
   folders.forEach(folder => {
     const chatsInFolder = allChats.filter(c => c.folder_id === folder.id);
