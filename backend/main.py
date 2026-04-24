@@ -62,6 +62,7 @@ class ChatReq(BaseModel):
     chat_id: str | None = None
     user_id: str | None = None
     smart_action: bool = False  # True = skip keyword routing (Summarise, Explain, etc.)
+    citation_format: str = ""   # e.g. "IEEE", "APA7", "MLA", "Harvard", "Vancouver", "Chicago", "Springer", "ACS"
 # --------------------------------------------------
 # HEALTH
 # --------------------------------------------------
@@ -350,11 +351,30 @@ async def chat(req: ChatReq):
     is_research_mode = (req.mode == "research")
 
     if is_research_mode:
-        print("RESEARCH MODE TRIGGERED")
+        print(f"RESEARCH MODE TRIGGERED | citation_format={req.citation_format or 'none'}")
+        # Fetch web context first for the research pipeline
+        research_web_context = ""
+        research_sources = []
         try:
-            result = multi_model_router.research_pipeline(req.message)
+            research_web_context = search.get_web_context(req.message, deep_dive=True)
+            research_sources = search.get_sources(req.message, deep_dive=True)
+        except Exception as e:
+            print(f"[Research] Web search failed: {e}")
+
+        try:
+            paper_content = multi_model_router.research_pipeline(
+                topic=req.message,
+                web_context=research_web_context,
+                citation_format=req.citation_format
+            )
+            result = {
+                "type": "research",
+                "content": paper_content,
+                "sources": research_sources
+            }
         except Exception as e:
             print(f"[Research Pipeline] Fatal error: {e}")
+            import traceback; traceback.print_exc()
             result = {
                 "type": "research",
                 "content": (

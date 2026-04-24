@@ -29,6 +29,88 @@ function isImagePrompt(text) {
   return /(create|generate|draw|image|picture|illustration|visual|art)/i.test(text);
 }
 
+/* ---------------- RESEARCH PAPER INTENT ---------------- */
+function isResearchPaperPrompt(text) {
+  return /(write.*research paper|research paper on|academic paper|write.*paper on|write.*journal|write.*article on|literature review|write.*thesis|write.*dissertation|generate.*paper|create.*research paper)/i.test(text);
+}
+
+/* ---------------- CITATION FORMAT PICKER ---------------- */
+const CITATION_FORMATS = [
+  { code: "IEEE",     label: "IEEE",        desc: "Engineering, CS, IT",          tag: "🇮🇳 Most used in IITs/NITs", color: "#0066CC" },
+  { code: "APA7",     label: "APA 7th",     desc: "Psychology, MBA, Education",   tag: "🇮🇳 IIMs, TISS, Social Sci.", color: "#D4380D" },
+  { code: "MLA",      label: "MLA 9th",     desc: "Humanities, Literature",        tag: "Arts & Languages",            color: "#7B3F00" },
+  { code: "Harvard",  label: "Harvard",     desc: "Management, Sciences",          tag: "UK/India Business Schools",   color: "#A61C00" },
+  { code: "Vancouver",label: "Vancouver",   desc: "Medicine, Life Sciences",       tag: "Medical Colleges, MBBS/MD",   color: "#006400" },
+  { code: "Chicago",  label: "Chicago",     desc: "History, Social Sciences",      tag: "JNU, History Depts",          color: "#4A235A" },
+  { code: "Springer", label: "Springer",    desc: "Springer Journals, Maths",      tag: "Springer Publications",       color: "#CC6600" },
+  { code: "ACS",      label: "ACS",         desc: "Chemistry, Biochemistry",       tag: "Chemical Sciences",           color: "#1A5276" }
+];
+
+function showCitationPickerBubble() {
+  return new Promise((resolve) => {
+    hideHero();
+
+    const wrapper = document.createElement("div");
+    wrapper.id = "citation-picker-bubble";
+    wrapper.className = "flex justify-start mb-4";
+
+    const formatCards = CITATION_FORMATS.map(f => `
+      <button
+        data-format="${f.code}"
+        style="
+          background: #1a1a1a;
+          border: 1.5px solid #333;
+          border-radius: 10px;
+          padding: 10px 12px;
+          text-align: left;
+          cursor: pointer;
+          transition: border-color 0.2s, background 0.2s;
+          min-width: 140px;
+        "
+        onmouseover="this.style.borderColor='${f.color}'; this.style.background='#222';"
+        onmouseout="this.style.borderColor='#333'; this.style.background='#1a1a1a';"
+      >
+        <div style="font-weight:700; font-size:13px; color:#EAB308; margin-bottom:3px;">${f.label}</div>
+        <div style="font-size:11px; color:#ccc; margin-bottom:4px;">${f.desc}</div>
+        <div style="font-size:10px; color:#888; font-style:italic;">${f.tag}</div>
+      </button>
+    `).join("");
+
+    wrapper.innerHTML = `
+      <div style="
+        background: linear-gradient(135deg, #111 0%, #181818 100%);
+        border: 1px solid #EAB308;
+        border-radius: 14px;
+        padding: 18px 20px;
+        max-width: 560px;
+      ">
+        <div style="font-weight:700; color:#EAB308; font-size:14px; margin-bottom:4px;">
+          📑 Choose Citation Format
+        </div>
+        <div style="color:#aaa; font-size:12px; margin-bottom:14px;">
+          Select the citation style for your research paper
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          ${formatCards}
+        </div>
+        <div style="margin-top:12px; font-size:11px; color:#666;">
+          Not sure? Choose <strong style="color:#EAB308;">IEEE</strong> for engineering · <strong style="color:#EAB308;">APA 7th</strong> for social sciences · <strong style="color:#EAB308;">Vancouver</strong> for medical
+        </div>
+      </div>
+    `;
+
+    chatContainer.appendChild(wrapper);
+    scrollToBottom();
+
+    wrapper.querySelectorAll("[data-format]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        wrapper.remove();
+        resolve(btn.dataset.format);
+      });
+    });
+  });
+}
+
 /* ---------------- VIDEO INTENT ---------------- */
 function isVideoPrompt(text) {
   return /(generate.*video|create.*video|make.*video|video of|video about|cinematic|short video|animate|animation|generate animation)/i.test(text);
@@ -271,6 +353,15 @@ window.sendFromInput = async () => {
     return;
   }
 
+  // 📑 Citation Format Picker — Research Mode only, for research paper requests
+  let selectedCitationFormat = "";
+  const isResearchModeNow = window.dynamoUI?.model === "research";
+  if (isResearchModeNow && !hasFile && !isVideoReq && isResearchPaperPrompt(msg)) {
+    window.isSending = false; // Release lock while user picks format
+    selectedCitationFormat = await showCitationPickerBubble();
+    window.isSending = true;  // Re-acquire lock
+  }
+
   // 🎬 Video loading bubble (premium feel)
   let videoLoadingEl = null;
   if (isVideoReq) {
@@ -352,6 +443,7 @@ window.sendFromInput = async () => {
         deep_dive: isDeepMode && !isResearchMode,
         force_image: forceImage,
         mode: isResearchMode ? "research" : "chat",
+        citation_format: selectedCitationFormat || "",
         chat_id: currentChatId,
         user_id: window.appState?.supabaseUserId
       };
