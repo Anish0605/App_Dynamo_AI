@@ -138,24 +138,12 @@ firebaseAuth?.onAuthStateChanged(async (user) => {
 });
 
 /* --------------------------------------------------
-   SUBMIT HANDLER
+   SUBMIT HANDLER  (single listener — no double-fire)
 -------------------------------------------------- */
 document.addEventListener("click", (e) => {
-  if (e.target?.id === "auth-submit") {
-    console.log("🔐 Auth submit clicked");
+  if (e.target?.id === "auth-submit" || e.target?.closest?.("#auth-submit")) {
+    e.preventDefault();
     handleAuthSubmit();
-  }
-});
-
-// Also add direct onclick listener as backup
-document.addEventListener("DOMContentLoaded", () => {
-  const submitBtn = document.getElementById("auth-submit");
-  if (submitBtn) {
-    submitBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      console.log("🔐 Auth submit (direct listener) clicked");
-      handleAuthSubmit();
-    });
   }
 });
 
@@ -179,17 +167,26 @@ window.signInWithGoogle = async () => {
 /* --------------------------------------------------
    LOGIN / SIGNUP
 -------------------------------------------------- */
+let _authSubmitting = false;
+
 async function handleAuthSubmit() {
+  if (_authSubmitting) return;
   if (!firebaseAuth) return alert("Firebase not ready");
 
   const email = document.getElementById("auth-email")?.value.trim();
   const password = document.getElementById("auth-password")?.value;
   const name = document.getElementById("auth-name")?.value;
   const errorBox = document.getElementById("auth-error");
+  const btn = document.getElementById("auth-submit");
 
-  if (!email || !password) return;
+  if (!email || !password) {
+    showAuthError(errorBox, "Please enter your email and password.");
+    return;
+  }
 
-  if (errorBox) errorBox.textContent = "";
+  _authSubmitting = true;
+  if (errorBox) { errorBox.textContent = ""; errorBox.style.cssText = ""; }
+  if (btn) { btn.disabled = true; btn.textContent = "Please wait…"; btn.style.opacity = "0.7"; }
 
   try {
     let userCred;
@@ -197,7 +194,7 @@ async function handleAuthSubmit() {
     if (window.authMode === "signup") {
       const consent = document.getElementById("auth-consent");
       if (!consent || !consent.checked) {
-        errorBox.textContent = "Please accept Terms & Privacy Policy.";
+        showAuthError(errorBox, "Please accept Terms & Privacy Policy.");
         return;
       }
 
@@ -212,7 +209,7 @@ async function handleAuthSubmit() {
       window.closeAuthModal();
 
       setTimeout(() => {
-        alert("📩 Verification email sent.");
+        alert("📩 Verification email sent. Please verify before logging in.");
       }, 400);
 
     } else {
@@ -222,15 +219,39 @@ async function handleAuthSubmit() {
 
       if (!userCred.user.emailVerified) {
         setTimeout(() => {
-          alert("⚠️ Please verify your email.");
+          alert("⚠️ Please verify your email before using the app.");
         }, 400);
       }
     }
 
   } catch (err) {
     console.error("❌ Auth error:", err);
-    if (errorBox) errorBox.textContent = err.message;
+    const msg = friendlyAuthError(err.code || err.message);
+    showAuthError(errorBox, msg);
+  } finally {
+    _authSubmitting = false;
+    if (btn) { btn.disabled = false; btn.textContent = "Continue"; btn.style.opacity = ""; }
   }
+}
+
+function showAuthError(box, msg) {
+  if (!box) return;
+  box.textContent = msg;
+  box.style.cssText = "display:block;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px 12px;font-size:13px;color:#b91c1c;margin-top:4px;font-weight:500;";
+}
+
+function friendlyAuthError(code) {
+  const map = {
+    "auth/user-not-found":       "No account found with this email. Try signing up.",
+    "auth/wrong-password":       "Incorrect password. Please try again.",
+    "auth/invalid-email":        "Please enter a valid email address.",
+    "auth/too-many-requests":    "Too many attempts. Please wait a moment and try again.",
+    "auth/network-request-failed": "Network error. Please check your connection.",
+    "auth/invalid-credential":   "Email or password is incorrect.",
+    "auth/email-already-in-use": "An account with this email already exists. Try logging in.",
+    "auth/weak-password":        "Password must be at least 6 characters.",
+  };
+  return map[code] || "Something went wrong. Please try again.";
 }
 
 /* --------------------------------------------------
