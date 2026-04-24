@@ -1036,7 +1036,10 @@
           <i data-lucide="brain" class="text-purple-500"></i>
           <span>AI Memory</span>
         </div>
-        <span class="profile-arrow">›</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span id="memory-count-badge" style="display:none;background:#ede9fe;color:#6d28d9;font-size:11px;font-weight:700;border-radius:20px;padding:2px 9px;line-height:1.4;"></span>
+          <span class="profile-arrow">›</span>
+        </div>
       </div>
 
       <div class="profile-item logout" id="logout-btn">
@@ -1189,6 +1192,12 @@
         </button>
       </div>
 
+      <!-- MEMORY COUNT ROW (shown when memories exist) -->
+      <div id="memory-count-row" style="display:none;align-items:center;gap:8px;padding:8px 20px 10px;background:#faf8ff;border-bottom:1px solid #f1f5f9;">
+        <i data-lucide="brain" style="width:14px;height:14px;color:#7c3aed;flex-shrink:0;"></i>
+        <span id="memory-count-text" style="font-size:12px;color:#7c3aed;font-weight:600;"></span>
+      </div>
+
       <!-- BODY -->
       <div class="px-5 py-4 max-h-[60vh] overflow-y-auto">
         <!-- EMPTY STATE -->
@@ -1312,13 +1321,13 @@
  <script src="analysis_ui.js?v=20260425"></script>
  <script src="ui.js?v=20260425"></script>
  <script src="export_tools.js?v=20260423"></script>
- <script src="profile.js?v=20260423"></script>
+ <script src="profile.js?v=20260425"></script>
  
  <!-- SOURCES PANEL (Perplexity-style) -->
  <script src="sources_panel.js?v=20260423"></script>
 
  <!-- MEMORY -->
- <script src="memory.js?v=20260423"></script>
+ <script src="memory.js?v=20260425"></script>
 
  <!-- AUTH MUST BE LAST -->
  <script src="auth.js?v=20260425"></script>

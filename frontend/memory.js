@@ -49,6 +49,8 @@ async function loadMemories() {
 
     container.innerHTML = "";
 
+    updateMemoryCounts(memories.length);
+
     if (memories.length === 0) {
       if (emptyState) emptyState.classList.remove("hidden");
       return;
@@ -63,6 +65,47 @@ async function loadMemories() {
     container.innerHTML = `<p class="text-sm text-red-400 text-center py-4">Failed to load memories.</p>`;
   }
 }
+
+/* =====================================================
+   UPDATE MEMORY COUNT UI (badge + modal count row)
+===================================================== */
+function updateMemoryCounts(count) {
+  const badge = document.getElementById("memory-count-badge");
+  const countRow = document.getElementById("memory-count-row");
+  const countText = document.getElementById("memory-count-text");
+
+  if (badge) {
+    if (count > 0) {
+      badge.textContent = `${count} ${count === 1 ? "memory" : "memories"}`;
+      badge.style.display = "inline-block";
+    } else {
+      badge.style.display = "none";
+    }
+  }
+
+  if (countRow && countText) {
+    if (count > 0) {
+      countText.textContent = `Dynamo remembers ${count} thing${count === 1 ? "" : "s"} about you`;
+      countRow.style.display = "flex";
+      if (window.lucide) window.lucide.createIcons();
+    } else {
+      countRow.style.display = "none";
+    }
+  }
+}
+
+/* =====================================================
+   LIGHTWEIGHT COUNT FETCH (for profile modal badge)
+===================================================== */
+window.refreshMemoryCount = async () => {
+  const userId = window.appState?.supabaseUserId;
+  if (!userId) return;
+  try {
+    const res = await fetch(`/memory?user_id=${userId}`);
+    const data = await res.json();
+    updateMemoryCounts((data.memories || []).length);
+  } catch (_) {}
+};
 
 /* =====================================================
    BUILD SINGLE MEMORY ITEM
@@ -124,12 +167,11 @@ window.deleteMemory = async (memoryId) => {
     const el = document.getElementById(`mem-${memoryId}`);
     if (el) el.remove();
 
-    // Show empty state if no more items
     const container = document.getElementById("memory-list");
     const emptyState = document.getElementById("memory-empty");
-    if (container && container.children.length === 0 && emptyState) {
-      emptyState.classList.remove("hidden");
-    }
+    const remaining = container ? container.children.length : 0;
+    if (remaining === 0 && emptyState) emptyState.classList.remove("hidden");
+    updateMemoryCounts(remaining);
   } catch (err) {
     console.error("Delete memory error:", err);
   }
@@ -150,6 +192,7 @@ window.clearAllMemories = async () => {
     if (container) container.innerHTML = "";
     const emptyState = document.getElementById("memory-empty");
     if (emptyState) emptyState.classList.remove("hidden");
+    updateMemoryCounts(0);
   } catch (err) {
     console.error("Clear memories error:", err);
   }
