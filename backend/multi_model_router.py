@@ -4,30 +4,54 @@
 
 import requests
 import config
+import google.generativeai as genai
+
+if config.GEMINI_KEY:
+    genai.configure(api_key=config.GEMINI_KEY)
 
 
 def apimart_call(model, prompt):
+    """Call APIMart API. Raises an exception on any failure so callers can fall back."""
+    res = requests.post(
+        "https://api.apimart.ai/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {config.APIMART_API_KEY}"
+        },
+        json={
+            "model": model,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ]
+        },
+        timeout=30
+    )
+    res.raise_for_status()
+    body = res.text.strip()
+    if not body:
+        raise ValueError(f"APIMart ({model}): empty response body")
+    data = res.json()
+    content = data["choices"][0]["message"]["content"]
+    if not content or not content.strip():
+        raise ValueError(f"APIMart ({model}): empty content in response")
+    return content
 
+
+def gemini_fallback_call(prompt):
+    """Reliable Gemini fallback used when APIMart is unavailable."""
+    model = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
+    response = model.generate_content(prompt)
+    return response.text
+
+
+def pipeline_call(apimart_model, prompt, step_name="step"):
+    """Try APIMart first, fall back to Gemini on any error."""
     try:
-        res = requests.post(
-            "https://api.apimart.ai/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {config.APIMART_API_KEY}"
-            },
-            json={
-                "model": model,
-                "messages": [
-                    {"role": "user", "content": prompt}
-                ]
-            },
-            timeout=30
-        )
-
-        data = res.json()
-        return data["choices"][0]["message"]["content"]
-
+        result = apimart_call(apimart_model, prompt)
+        print(f"[Pipeline] {step_name}: APIMart ({apimart_model}) succeeded")
+        return result
     except Exception as e:
-        return f"Error: {str(e)}"
+        print(f"[Pipeline] {step_name}: APIMart failed ({e}), using Gemini fallback")
+        return gemini_fallback_call(prompt)
 
 
 # --------------------------------------------------
@@ -221,15 +245,17 @@ def research_pipeline(topic: str, web_context: str = "", citation_format: str = 
     ref_example = citation_info["ref_format"] if citation_info else ""
 
     # 1. Claude → extract key insights from web context
-    extracted = apimart_call(
+    extracted = pipeline_call(
         "claude-sonnet-4.5",
-        f"You are a research assistant. Extract key facts, statistics, findings, and insights relevant to the topic.\n\nTOPIC: {topic}\n\nWEB CONTEXT:\n{web_context or 'No web context provided — use your knowledge.'}\n\nProvide structured bullet points of the most important findings."
+        f"You are a research assistant. Extract key facts, statistics, findings, and insights relevant to the topic.\n\nTOPIC: {topic}\n\nWEB CONTEXT:\n{web_context or 'No web context provided — use your knowledge.'}\n\nProvide structured bullet points of the most important findings.",
+        step_name="extract"
     )
 
     # 2. Gemini → analyze trends, gaps, contradictions
-    analysis = apimart_call(
+    analysis = pipeline_call(
         "gemini-3.1",
-        f"Analyze the following research findings. Identify: (1) key themes, (2) research gaps, (3) contradictions or debates, (4) future directions.\n\nFINDINGS:\n{extracted}"
+        f"Analyze the following research findings. Identify: (1) key themes, (2) research gaps, (3) contradictions or debates, (4) future directions.\n\nFINDINGS:\n{extracted}",
+        step_name="analyze"
     )
 
     # 3. GPT → write the full formatted research paper
@@ -241,7 +267,7 @@ Reference format example: {ref_example}
 IMPORTANT: Apply the above citation format throughout the paper. All in-text citations and the References/Works Cited section MUST strictly follow {citation_label} guidelines.
 """ if citation_info else "Use standard academic citation format with numbered references."
 
-    report = apimart_call(
+    report = pipeline_call(
         "gpt-5.4",
         f"""You are an expert academic researcher. Write a HIGH-QUALITY, COMPREHENSIVE academic research paper.
 
