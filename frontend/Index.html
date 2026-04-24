@@ -889,6 +889,21 @@
           <i data-lucide="layers" class="w-4 h-4 text-orange-500"></i> Create Executive Deck
         </button>
       </div>
+
+      <!-- FIND RESEARCH GAPS -->
+      <button
+        id="gap-finder-btn"
+        onclick="window.findResearchGaps()"
+        class="w-full mt-3 flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200"
+        style="border: 1.5px solid #2a2a2a; color: #666; opacity: 0.45; cursor: not-allowed;"
+        title="Enable DeepThink to use this"
+      >
+        <div class="flex items-center gap-3">
+          <span style="font-size:14px;">🔍</span>
+          <span class="text-sm font-semibold">Find Research Gaps</span>
+        </div>
+        <span id="gap-finder-badge" style="font-size:9px; font-weight:800; background:#2a2a2a; color:#666; border-radius:6px; padding:2px 7px; letter-spacing:0.05em;">DEEP</span>
+      </button>
     </div>
 
     <!-- HISTORY -->
@@ -1285,7 +1300,7 @@
  <script src="audio_engine.js?v=20260423"></script>
  
  <!-- CHAT SYSTEM (must load before sidebar so render functions are available) -->
- <script src="chat.js?v=20260424"></script>
+ <script src="chat.js?v=20260425"></script>
 
  <!-- SIDERBAR -->
  <script src="sidebar.js?v=20260423"></script>
@@ -1294,8 +1309,8 @@
  <script src="quiz.js?v=20260423"></script>
 
  <!-- FEATURE LAYERS -->
- <script src="analysis_ui.js?v=20260423"></script>
- <script src="ui.js?v=20260423"></script>
+ <script src="analysis_ui.js?v=20260425"></script>
+ <script src="ui.js?v=20260425"></script>
  <script src="export_tools.js?v=20260423"></script>
  <script src="profile.js?v=20260423"></script>
  

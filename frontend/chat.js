@@ -1391,6 +1391,91 @@ window.sendFromInputWithText = async (text) => {
 };
 
 /* =========================================================
+   FIND RESEARCH GAPS
+========================================================= */
+
+window.updateGapFinderBtn = () => {
+  const btn   = document.getElementById("gap-finder-btn");
+  const badge = document.getElementById("gap-finder-badge");
+  if (!btn) return;
+
+  const isDeep = window.dynamoUI?.tools?.has("deep") || false;
+
+  if (isDeep) {
+    btn.style.border       = "1.5px solid #EAB308";
+    btn.style.color        = "#EAB308";
+    btn.style.opacity      = "1";
+    btn.style.cursor       = "pointer";
+    btn.style.background   = "rgba(234,179,8,0.06)";
+    btn.style.boxShadow    = "0 0 10px rgba(234,179,8,0.12)";
+    btn.title              = "Find unexplored research angles";
+    if (badge) { badge.style.background = "#EAB308"; badge.style.color = "#000"; }
+  } else {
+    btn.style.border       = "1.5px solid #2a2a2a";
+    btn.style.color        = "#666";
+    btn.style.opacity      = "0.45";
+    btn.style.cursor       = "not-allowed";
+    btn.style.background   = "transparent";
+    btn.style.boxShadow    = "none";
+    btn.title              = "Enable DeepThink to use this";
+    if (badge) { badge.style.background = "#2a2a2a"; badge.style.color = "#666"; }
+  }
+};
+
+window.findResearchGaps = async () => {
+  const isDeep = window.dynamoUI?.tools?.has("deep") || false;
+  if (!isDeep) return;
+
+  const userId = window.appState?.supabaseUserId;
+  if (!userId) {
+    renderAssistantMessage("🔒 Please log in to use this feature.");
+    return;
+  }
+
+  const lastReply = [...(window.chatHistory || [])]
+    .reverse()
+    .find(m => m.role === "assistant" && m.content && m.content.length > 50);
+
+  if (!lastReply) {
+    renderAssistantMessage("💡 Send a message first, then click Find Research Gaps to analyse the response.");
+    return;
+  }
+
+  renderUserMessage("🔍 Find Research Gaps");
+  showThinking();
+
+  try {
+    const res = await window.callBackend("/chat", {
+      message: `You are a research analyst. Based on the following content, identify 3–5 significant research gaps, unexplored angles, or underrepresented perspectives. For each gap, give it a clear title and a 1–2 sentence explanation of why it matters and what remains unstudied. Be specific, academic, and actionable.\n\nCONTENT:\n${lastReply.content.slice(0, 4000)}`,
+      history: [],
+      use_search: false,
+      deep_dive: true,
+      force_image: false,
+      mode: "chat",
+      citation_format: "",
+      chat_id: currentChatId,
+      user_id: userId
+    });
+
+    hideThinking();
+
+    if (res?.chat_id) currentChatId = res.chat_id;
+
+    const reply = res?.reply || res?.content || "";
+    if (reply) {
+      renderAssistantMessage(reply);
+      window.chatHistory.push({ role: "assistant", content: reply });
+    } else {
+      renderAssistantMessage("⚠️ Could not identify research gaps. Please try again.");
+    }
+  } catch (err) {
+    hideThinking();
+    renderAssistantMessage("⚠️ Error finding research gaps. Please try again.");
+    console.error("[Gap Finder]", err);
+  }
+};
+
+/* =========================================================
    AUTO LOAD
 ========================================================= */
 

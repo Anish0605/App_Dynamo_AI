@@ -88,6 +88,7 @@ window.toggleTool = (tool, btn) => {
   }
 
   console.log("🧰 Active tools:", [...window.dynamoUI.tools]);
+  window.updateGapFinderBtn?.();
 };
 
 /* --------------------------------------------------
