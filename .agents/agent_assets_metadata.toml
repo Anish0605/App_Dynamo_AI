@@ -17,4 +17,10 @@ title = "Full-Scale Test Prompts — Dynamo AI"
 id = "pYfqFLoR7ogRzbdYM-X0l"
 uri = "file://BLOG_students_researchers.md"
 type = "text"
-title = "Updated Blog — Students & Researchers 2026"
+title = "Updated Blog — with Study Circle modes + Citation table + Who It’s For"
+
+[[outputs]]
+id = "YFeU1HBY_PFbxArd0897y"
+uri = "file://PRICING_RESEARCH_2026.md"
+type = "text"
+title = "Pricing Research 2026 — Competitor analysis + Plan structure for tomorrow"

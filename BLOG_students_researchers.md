@@ -119,11 +119,27 @@ After a DeepThink response, immediately follow up with **Find Research Gaps** to
 
 The newest addition to Dynamo AI's toolkit.
 
-Open the ⚙️ Tools menu and tap **Quick Study Circle**. Give it any topic, chapter, or concept and it generates a complete, structured study guide — key definitions, core ideas, worked examples, and a revision summary.
+Open the ⚙️ Tools menu and tap **Quick Study Circle**. Enter any topic, chapter, or concept — then choose how deep you want to go:
 
-Pair it with **Quiz me** (Tools → Study → More) and you go from passive reading to active recall in one session — the method that research consistently shows is the most effective way to learn.
+### 📘 Full Guide — Start from zero, build up step by step
+Perfect if you're approaching a topic fresh or need a solid foundation before going further. The Full Guide gives you:
+- **Key concepts** — the essential ideas explained clearly
+- **Definitions** — precise, exam-ready definitions for every important term
+- **Examples** — worked examples that show the concept in action
+- **Practice questions** — exercises to test understanding before you move on
 
-**Radio mode** turns any topic into a continuous spoken audio experience — listen while commuting, exercising, or revising before an exam.
+### 🚀 Advanced Only — Skip basics, go deep fast
+For when you already understand the fundamentals and need to push further. Advanced Only skips the introductory material and focuses on:
+- **Edge cases** — the exceptions and nuances that trip people up
+- **Common pitfalls** — mistakes even experienced learners make and how to avoid them
+- **Pro techniques** — higher-order methods used by experts in the field
+- **Hard practice questions** — exam-level and beyond-exam challenges
+
+Choose the depth that matches where you are. Switch between them as your understanding grows.
+
+Pair Quick Study Circle with **Quiz me** (Tools → Study → More) and you go from passive reading to active recall in one session — the method that research consistently shows is the most effective way to retain and apply knowledge.
+
+**Radio mode** turns any study guide into a continuous spoken audio experience — listen while commuting, exercising, or revising before an exam.
 
 ---
 
@@ -189,33 +205,58 @@ AI responses can also be **read aloud** — play, pause, and download the audio.
 
 Dynamo AI routes your request to the right model automatically:
 
-- **Fast Mode** — Gemini Flash for quick everyday questions
-- **DeepThink Mode** — Gemini Pro with built-in reasoning for deep analysis
-- **Research Mode** — Claude + Gemini + GPT pipeline for full academic output with live web search
+- **Fast Mode** — Gemini Flash for quick everyday questions and conversation
+- **DeepThink Mode** — Gemini Pro with built-in chain-of-thought reasoning for deep analysis, complex problems, and structured breakdowns
+- **Research Mode** — Claude + Gemini + GPT pipeline: live web search pulls current sources, Claude extracts evidence, Gemini analyses themes, GPT synthesises into a full structured academic paper — with automatically generated citations
 
-You get the benefit of multiple frontier models without managing multiple subscriptions.
+**Citation generation built-in.** When using Research Mode, you select your citation style before generating and the paper comes out fully formatted — in-text citations and a complete reference list — in any of these formats:
+
+| Format | Best for |
+|--------|----------|
+| **IEEE** | Engineering, CS, IT — most used in IITs/NITs |
+| **APA 7th** | Psychology, MBA, Education — IIMs, TISS, Social Sciences |
+| **MLA 9th** | Humanities, Literature, Arts & Languages |
+| **Harvard** | Management, Sciences — UK/India Business Schools |
+| **Vancouver** | Medicine, Life Sciences — Medical Colleges, MBBS/MD |
+| **Chicago** | History, Social Sciences — JNU, History Departments |
+| **Springer** | Springer Journals, Mathematics, Scientific Publications |
+| **ACS** | Chemistry, Biochemistry, Chemical Sciences |
+
+Not sure which to use? The system recommends: IEEE for engineering · APA 7th for social sciences · Vancouver for medical.
+
+You get the benefit of multiple frontier models — and professional-grade citations — without managing multiple subscriptions or formatting references by hand.
 
 ---
 
-## Pricing — Built for Students
+## Pricing — Built for Everyone
 
-**Free plan:** Real access to AI tools, not a watered-down demo.
+**Free plan:** Real access to AI tools, not a watered-down demo. Chat, voice, export, folders — everything a first-time user needs to see the difference.
 
-**Plus plan:** Research Mode and advanced features — for serious students.
+**Plus plan: ₹199/month.** Research Mode, all 8 citation formats, Quick Study Circle, Find Research Gaps, document intelligence, and priority speed. The plan serious learners and working professionals actually need — at a price that doesn't require justification.
 
-**Pro plan: ₹199/month.** Not ₹2,000. Not $20. ₹199.
+**Pro plan: ₹499/month.** Everything in Plus, plus DeepThink Mode, Advanced Study Circle, longer context windows, higher usage limits, and early access to new features as they ship.
 
-Built in India, priced for the Indian student and researcher — without compromising on the quality of models or features.
+For context: ChatGPT Plus costs ₹1,650/month. Claude Pro costs ₹1,700/month. Gemini Advanced costs ₹1,950/month. Dynamo AI Pro is ₹499.
+
+Built in India. Priced for India. No compromise on model quality or features.
 
 ---
 
 ## Who Dynamo AI Is For
 
-**Students** preparing assignments, dissertations, exam revision, and presentations who need an AI that knows their subject, remembers their context, and produces properly formatted academic output.
+Dynamo AI is not just for students. It is built for anyone who works with information — and needs an AI that remembers, organises, and thinks alongside them.
 
-**Researchers** running literature reviews, identifying gaps, synthesising multi-source findings, and drafting papers who need a tool that works the way research actually works — iterative, organised, and deep.
+**🎓 Students**
+Remembers your subjects, weak areas, and exam goals. Adapts explanations to your level. Tracks your learning journey over time. From secondary school to postgraduate research — Dynamo AI knows where you are and helps you get further.
 
-**Teachers and educators** creating learning materials, analysing student work, and explaining complex concepts in accessible ways.
+**🔬 Researchers**
+Stores your research topics, papers, and frameworks. Builds long-term knowledge across projects. Avoids repeating context in every session. Runs multi-model literature reviews and surfaces gaps no one else is looking for.
+
+**💼 Professionals**
+Remembers your projects, communication tone, and workflows. Helps with continuity across tasks — briefs, reports, analysis, client communications. Speeds up execution and reduces the cognitive load of context-switching.
+
+**🌍 Everyday Users**
+Learns your preferences naturally over time. Personalises every response automatically. Feels like a real assistant — not a chatbot you have to manage. Whether you're planning, writing, researching, or just thinking something through, Dynamo AI is the AI that actually knows you.
 
 ---
 
@@ -225,7 +266,7 @@ Built in India, priced for the Indian student and researcher — without comprom
 
 **→ [app.dynamoai.in](https://app.dynamoai.in)**
 
-Free to start. ₹199/month for Pro.
+Free to start. Plus from ₹199/month. Pro from ₹499/month.
 
 Made in India. Built for thinkers.
 
