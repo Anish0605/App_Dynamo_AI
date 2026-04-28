@@ -1134,69 +1134,114 @@
           }
         </style>
 
-        <!-- TOOLS DROPDOWN — compact modern menu (Claude / ChatGPT style) -->
+        <!-- TOOLS DROPDOWN — matches mockup v2 design (Daily/Thinking/Study/Create) -->
         <style>
-          .menu-row {
-            display: flex; align-items: center; gap: 10px; width: 100%;
-            padding: 7px 10px; border-radius: 8px;
-            font-size: 13px; font-weight: 500; color: #1f2937;
-            background: transparent; border: none; cursor: pointer;
-            transition: background .12s; text-align: left;
+          /* Subtle section label */
+          .menu-section-label {
+            font-size: 10px; font-weight: 700; letter-spacing: 0.10em;
+            color: #b0b0ad; text-transform: uppercase;
+            padding: 8px 12px 4px;
           }
-          .menu-row:hover { background: #f3f4f6; }
-          .menu-row.active { background: #fef3c7; color: #000; font-weight: 600; }
-          .menu-row.active::after { content: "✓"; margin-left: auto; color: #ca8a04; font-weight: 700; }
-          .menu-row .ico { width: 18px; text-align: center; font-size: 14px; flex-shrink: 0; }
+          /* Menu row */
+          .menu-row {
+            display: flex; align-items: center; gap: 12px; width: 100%;
+            padding: 9px 12px; border-radius: 10px;
+            font-size: 13.5px; font-weight: 500; color: #2c2c2a;
+            background: transparent; border: none; cursor: pointer;
+            transition: background .12s, color .12s;
+            text-align: left; position: relative;
+          }
+          .menu-row:hover { background: #f7f7f5; }
+          .menu-row .ico {
+            width: 18px; height: 18px; flex-shrink: 0;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #6b6b69; font-size: 15px;
+          }
+          /* ⭐ Active state — gold left-bar + gold check circle */
+          .menu-row.active {
+            background: #fffbe6; color: #0a0a09; font-weight: 600;
+          }
+          .menu-row.active .ico { color: #eab308; }
+          .menu-row.active::before {
+            content: ""; position: absolute;
+            left: 0; top: 8px; bottom: 8px; width: 3px;
+            background: #facc15; border-radius: 2px;
+          }
+          .menu-row.active::after {
+            content: "✓"; margin-left: auto;
+            width: 18px; height: 18px;
+            background: #facc15; color: #0a0a09;
+            border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 800;
+          }
+          /* Tags */
           .menu-row .tag {
             margin-left: auto; font-size: 9px; font-weight: 800;
-            border-radius: 4px; padding: 2px 5px; letter-spacing: 0.04em;
+            border-radius: 4px; padding: 2.5px 7px; letter-spacing: 0.08em;
           }
-          .menu-row .tag.pro  { background: #1f2937; color: #facc15; }
+          .menu-row .tag.pro  { background: #1a1a18; color: #facc15; }
           .menu-row .tag.soon { background: #d1d5db; color: #6b7280; }
-          .menu-row .tag.new  { background: #fbbf24; color: #000; }
-          .menu-row.sub { padding-left: 32px; font-size: 12px; opacity: 0.85; }
+          .menu-row .tag.new  { background: #facc15; color: #0a0a09; }
+          /* When row is BOTH active AND has a tag, check appears, tag stays beside it */
+          .menu-row.active .tag { margin-left: auto; }
+          .menu-row.active.has-tag::after { margin-left: 6px; }
+          /* Sub-rows (find research gaps under thinking) */
+          .menu-row.sub { padding-left: 36px; font-size: 12.5px; opacity: 0.85; }
           .menu-row.disabled, .menu-row[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; }
           .menu-row.disabled:hover { background: transparent; }
-          .menu-divider { height: 1px; background: #e5e7eb; margin: 4px 6px; }
           .dark .menu-row { color: #e5e7eb; }
+          .dark .menu-row .ico { color: #9ca3af; }
           .dark .menu-row:hover { background: #1f2937; }
-          .dark .menu-row.active { background: #facc15; color: #000; }
-          .dark .menu-divider { background: #374151; }
+          .dark .menu-row.active { background: #422006; color: #facc15; }
+          .dark .menu-row.active .ico { color: #facc15; }
+          .dark .menu-section-label { color: #6b7280; }
         </style>
-        <div id="tools-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-72 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-1.5 z-50 max-h-[70vh] overflow-y-auto">
+        <div id="tools-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-72 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-1.5 z-50 max-h-[75vh] overflow-y-auto">
 
-          <!-- ─── THINKING MODES (mutually exclusive) ─── -->
+          <!-- ─── DAILY (always-available toggles) ─── -->
+          <div class="menu-section-label">Daily</div>
+          <button class="menu-row" data-tool-btn="search" onclick="window.toggleTool('search', this)">
+            <span class="ico">🌐</span><span>Web search</span>
+          </button>
+          <button class="menu-row" onclick="window.openAnalyzeFile?.(); window.closeTools?.();">
+            <span class="ico">📎</span><span>Attach files & photos</span>
+          </button>
+
+          <!-- ─── THINKING (mutually-exclusive modes) ─── -->
+          <div class="menu-section-label">Thinking</div>
           <button class="menu-row active" data-mode-btn data-mode="fast" onclick="window.setMode('fast', this)">
             <span class="ico">⚡</span><span>Fast</span>
           </button>
           <button class="menu-row" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this)">
             <span class="ico">💡</span><span>DeepThink</span>
           </button>
-          <button class="menu-row" data-mode-btn data-mode="research" onclick="window.setMode('research', this)">
-            <span class="ico">🔬</span><span>Research</span><span class="tag pro">PRO</span>
+          <button class="menu-row has-tag" data-mode-btn data-mode="research" onclick="window.setMode('research', this)">
+            <span class="ico">🔬</span><span>Research mode</span><span class="tag pro">PRO</span>
           </button>
           <button id="gap-finder-btn" class="menu-row sub" onclick="window.findResearchGaps()" title="Use after a DeepThink reply to find unexplored angles">
             <span class="ico">🔍</span><span>Find research gaps</span><span id="gap-finder-badge" class="tag soon">DEEP</span>
           </button>
 
-          <div class="menu-divider"></div>
-
-          <!-- ─── SOURCES (toggles) ─── -->
-          <button class="menu-row" data-tool-btn="search" onclick="window.toggleTool('search', this)">
-            <span class="ico">🌐</span><span>Web search</span>
+          <!-- ─── STUDY ─── -->
+          <div class="menu-section-label">Study</div>
+          <button class="menu-row" onclick="window.runCreate('quiz')">
+            <span class="ico">🧩</span><span>Quiz me</span>
+          </button>
+          <button class="menu-row has-tag" onclick="window.openStudyGuideModal()">
+            <span class="ico">📚</span><span>Study guide</span><span class="tag new">NEW</span>
           </button>
           <button class="menu-row" onclick="window.toggleTool('radio', this)">
-            <span class="ico">🎧</span><span>Radio mode</span>
+            <span class="ico">🎧</span><span>Radio tutor</span>
           </button>
-
-          <div class="menu-divider"></div>
 
           <!-- ─── CREATE ─── -->
+          <div class="menu-section-label">Create</div>
           <button class="menu-row" onclick="window.runCreate('image')">
-            <span class="ico">🖼️</span><span>Create image</span>
+            <span class="ico">🖼️</span><span>Generate image</span>
           </button>
           <button class="menu-row" onclick="window.runCreate('video')">
-            <span class="ico">🎬</span><span>Create video</span>
+            <span class="ico">🎬</span><span>Generate video</span>
           </button>
           <button class="menu-row" onclick="window.runCreate('mindmap')">
             <span class="ico">🧠</span><span>Mindmap</span>
@@ -1208,29 +1253,19 @@
             <span class="ico">📑</span><span>Executive deck</span>
           </button>
 
-          <div class="menu-divider"></div>
-
-          <!-- ─── STUDY ─── -->
-          <button class="menu-row" onclick="window.openStudyGuideModal()">
-            <span class="ico">📚</span><span>Study guide</span><span class="tag new">NEW</span>
-          </button>
-          <button class="menu-row" onclick="window.runCreate('quiz')">
-            <span class="ico">🧩</span><span>Quiz me</span>
-          </button>
-
-          <div class="menu-divider"></div>
-
           <!-- ─── COMING SOON ─── -->
-          <button class="menu-row disabled" aria-disabled="true" title="Coming soon">
+          <div class="menu-section-label">Coming soon</div>
+          <button class="menu-row has-tag disabled" aria-disabled="true" title="Coming soon">
             <span class="ico">🤖</span><span>Deep research agent</span><span class="tag soon">SOON</span>
           </button>
         </div>
 
         <!-- MAIN INPUT ROW -->
         <div class="flex items-end gap-2 md:gap-3 border-2 border-yellow-400 rounded-2xl md:rounded-3xl bg-white dark:bg-gray-900 px-2 sm:px-3 md:px-4 py-2 md:py-3 shadow-xl">
-          <button id="tools-btn" onclick="window.toggleTools(event)" class="flex items-center justify-center gap-2 h-12 sm:h-10 px-2 sm:px-3 md:px-3 rounded-lg md:rounded-xl border border-yellow-400 bg-gray-50 dark:bg-gray-800 text-[10px] font-black uppercase text-black dark:text-white shrink-0 active:bg-yellow-100 dark:active:bg-yellow-900 transition">
-            <i data-lucide="settings" class="w-4 h-4"></i>
-            <span class="hidden sm:inline">Tools</span>
+          <!-- "+" Tools button (Gemini / Claude / mockup style) -->
+          <button id="tools-btn" onclick="window.toggleTools(event)" title="Tools & modes"
+                  class="w-10 h-10 sm:w-9 sm:h-9 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-yellow-50 dark:hover:bg-gray-700 active:bg-yellow-100 dark:active:bg-yellow-900 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-yellow-400 transition shrink-0">
+            <i data-lucide="plus" class="w-5 h-5"></i>
           </button>
           <!-- UPLOAD -->
           <button type="button" onclick="window.openAnalyzeFile()" title="Upload file" class="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg md:rounded-xl border border-blue-400 bg-gray-100 dark:bg-gray-800 active:bg-blue-200 dark:active:bg-blue-900 transition shrink-0"> 
@@ -1246,6 +1281,28 @@
           <button onclick="window.sendFromInput()" title="Send message" class="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg md:rounded-xl bg-yellow-400 active:bg-yellow-500 transition shadow-md shrink-0">
             <i data-lucide="arrow-up" class="w-5 h-5 text-black"></i>
           </button>
+        </div>
+
+        <!-- ─── ACTION SUGGESTION CHIPS (only show on empty state, below input) ─── -->
+        <style>
+          .hero-chip {
+            background: #ffffff; border: 1px solid #e8e8e6; border-radius: 100px;
+            padding: 8px 14px; font-size: 12.5px; font-weight: 500; color: #3a3a38;
+            cursor: pointer; transition: all 0.15s;
+            display: inline-flex; align-items: center; gap: 6px;
+          }
+          .hero-chip:hover { background: #fffbe6; border-color: #facc15; transform: translateY(-1px); }
+          .dark .hero-chip { background: #1f2937; border-color: #374151; color: #e5e7eb; }
+          .dark .hero-chip:hover { background: #422006; border-color: #facc15; color: #facc15; }
+          /* Hide chips once user starts chatting */
+          body.chat-active #hero-chips { display: none !important; }
+        </style>
+        <div id="hero-chips" class="flex flex-wrap gap-2 justify-center max-w-2xl mx-auto mt-4 px-2">
+          <button class="hero-chip" onclick="window.openStudyGuideModal()">📚 Make a study guide</button>
+          <button class="hero-chip" onclick="(function(){const m=document.querySelector('[data-mode=\'research\']');if(m)window.setMode('research',m);document.getElementById('chat-input')?.focus();})()">🔬 Research a topic</button>
+          <button class="hero-chip" onclick="window.runCreate('quiz')">🧩 Quiz me</button>
+          <button class="hero-chip" onclick="window.openAnalyzeFile?.()">📄 Summarise a PDF</button>
+          <button class="hero-chip" onclick="(function(){const m=document.querySelector('[data-mode=\'deep\']');if(m)window.setMode('deep',m);const ci=document.getElementById('chat-input');ci.value='Explain ';ci.focus();})()">💡 DeepThink + topic</button>
         </div>
       </div>
     </div>
@@ -1433,7 +1490,7 @@
 
  <!-- FEATURE LAYERS -->
  <script src="analysis_ui.js?v=20260425"></script>
- <script src="ui.js?v=20260428c"></script>
+ <script src="ui.js?v=20260428d"></script>
  <script src="export_tools.js?v=20260423"></script>
  <script src="profile.js?v=20260425"></script>
  
