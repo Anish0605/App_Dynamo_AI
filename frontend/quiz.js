@@ -116,6 +116,7 @@ window.renderQuiz = (quiz) => {
           <button 
             class="quiz-option block w-full text-left px-3 py-2 rounded-lg border hover:bg-gray-200"
             data-correct="${q.answer === idx}"
+            data-index="${idx}"
           >
             ${opt}
           </button>
@@ -150,8 +151,27 @@ window.renderQuiz = (quiz) => {
           }
         });
 
+        // Build explanation block (always show; reveals correct answer if wrong)
+        const correctOption = q.options[q.answer] ?? "";
+        const explanationText = (q.explanation || "").trim();
+
+        const headerHTML = isCorrect
+          ? `<div class="font-semibold text-green-700">✅ Correct!</div>`
+          : `<div class="font-semibold text-red-700">❌ Not quite. Correct answer: <span class="underline">${correctOption}</span></div>`;
+
+        const explanationHTML = explanationText
+          ? `<div class="mt-1.5 text-gray-700 leading-relaxed">
+               <span class="font-semibold text-gray-900">💡 Why:</span> ${explanationText}
+             </div>`
+          : "";
+
         result.classList.remove("hidden");
-        result.innerHTML = isCorrect ? "✅ Correct!" : "❌ Wrong!";
+        result.className = `result text-sm mt-2 p-3 rounded-lg border ${
+          isCorrect
+            ? "bg-green-50 border-green-200"
+            : "bg-red-50 border-red-200"
+        }`;
+        result.innerHTML = headerHTML + explanationHTML;
 
         // FINISHED QUIZ
         if (answeredCount === quiz.length) {
