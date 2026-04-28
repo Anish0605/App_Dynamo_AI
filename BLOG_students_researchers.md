@@ -1,6 +1,6 @@
 # Your AI Study Partner That Actually Remembers You — What Dynamo AI Can Do for Students & Researchers in 2026
 
-*Published by Dynamo AI · app.dynamoai.in*
+*Published by Dynamo AI · [app.dynamoai.in](https://app.dynamoai.in)*
 
 ---
 
@@ -21,6 +21,35 @@ You re-explain your subject, your assignment brief, your preferred writing style
 For a student working on a 6-month dissertation or a researcher running a multi-paper project, this is not just inconvenient — it actively breaks your flow.
 
 Dynamo AI was built to fix this from the ground up.
+
+---
+
+## How Dynamo AI Is Built — The Full Architecture
+
+Here's how the platform works, end-to-end:
+
+**Header bar:** User Guide · Features · Pricing · Light/Dark mode · Login / Signup / Logout
+
+**Left Sidebar:**
+- **Search** your full chat history instantly
+- **New Chat** button
+- **Quick Tools:** Export & Save (PDF, Word, PowerPoint) · Summarise · Explain Simply · Create Executive Deck
+- **Smart Actions:** Pinned Chat · Recent Chat
+- **Folders:** New Folder · User Folders — organise research by topic, module, or project
+- **Profile:** Your name · Plan (Free / Plus / Pro) · Credit system · Edit name, email & password · Plan Upgrade · AI Memory · Support (ticketing — coming soon)
+
+**Main Composer — two menus, one voice button:**
+
+| Button | Opens | What's inside |
+|--------|-------|---------------|
+| **`+`** | Plus menu | **Daily:** Add photos & files · Web search · **Mode Selector:** Fast · Research [Plus] · DeepThink [Pro] · **More →** Find Research Gaps · Deep Research Agent (soon) |
+| **⚙️** | Tools menu | **Study:** Quick Study Circle [NEW] · Radio mode · **More →** Quiz me · Flashcards (soon) · **Create Anything:** Generate Image · Slides (soon) · **More →** Generate Video · Mindmaps · Flowcharts |
+| **🎙️** | Voice input | Speak your question — transcribed in real time |
+| **↑** | Send | Click or press Enter |
+
+The **More** rows open a right-side flyout panel (ChatGPT-style) — the parent menu stays open while the submenu is visible.
+
+**AI responses:** Text-to-speech with Play · Pause · Download audio.
 
 ---
 
@@ -61,7 +90,8 @@ This is what took days. Now it takes minutes.
 
 This might be the most powerful tool for anyone doing original research.
 
-Paste a topic into the **Research Gap Finder** and Dynamo AI runs a deep analysis to surface:
+Run a DeepThink session on your topic, then tap **Find Research Gaps** (in the `+` menu → Mode Selector → More). Dynamo AI analyses the response and surfaces:
+
 - What has already been well-studied
 - Where the contradictions in the literature are
 - What questions remain unanswered
@@ -77,15 +107,29 @@ No other student AI tool does this.
 
 For complex topics — philosophy of science, economic modelling, legal analysis, advanced mathematics — you don't want a fast answer. You want a *thorough* one.
 
-Toggle DeepThink and Dynamo AI shifts into a deeper reasoning mode: structured breakdowns, multiple perspectives, surfaced assumptions, and clear explanations of *why* something is true, not just *that* it is.
+Toggle DeepThink in the `+` menu → Mode Selector. Dynamo AI shifts into a deeper reasoning mode: structured breakdowns, multiple perspectives, surfaced assumptions, and clear explanations of *why* something is true, not just *that* it is.
 
 Think of it as the difference between asking a peer and asking a professor who has time for you.
 
+After a DeepThink response, immediately follow up with **Find Research Gaps** to identify exactly where your next original contribution could sit.
+
 ---
 
-## 5. Document Intelligence — Chat with Your PDFs
+## 5. Quick Study Circle [NEW] — Your On-Demand Tutor
 
-Upload any PDF — a research paper, textbook chapter, lecture notes, case study — and ask questions directly.
+The newest addition to Dynamo AI's toolkit.
+
+Open the ⚙️ Tools menu and tap **Quick Study Circle**. Give it any topic, chapter, or concept and it generates a complete, structured study guide — key definitions, core ideas, worked examples, and a revision summary.
+
+Pair it with **Quiz me** (Tools → Study → More) and you go from passive reading to active recall in one session — the method that research consistently shows is the most effective way to learn.
+
+**Radio mode** turns any topic into a continuous spoken audio experience — listen while commuting, exercising, or revising before an exam.
+
+---
+
+## 6. Document Intelligence — Chat with Your PDFs
+
+Upload any PDF — a research paper, textbook chapter, lecture notes, case study — via the `+` menu → **Add photos & files** and ask questions directly.
 
 - *"What are the key arguments in section 3?"*
 - *"Find all mentions of carbon pricing and summarise the evidence cited."*
@@ -95,7 +139,19 @@ Dynamo AI reads the document and answers with precision. No more skimming 80-pag
 
 ---
 
-## 6. Organised Research — Folders for Your Chat History
+## 7. Create Anything — Visuals Built for Learning
+
+From the ⚙️ Tools menu → **Create Anything** (tap More for the full list):
+
+- **Generate Image** — visualise a concept, create a diagram, produce presentation assets
+- **Mindmaps** — paste a topic and get a structured mind map instantly (perfect for essay planning and lecture notes)
+- **Flowcharts** — turn a process, methodology, or system into a clean flowchart
+- **Generate Video** — animated explainers for complex ideas
+- **Slides** — presentation-ready decks from your research *(coming soon)*
+
+---
+
+## 8. Organised Research — Folders for Your Chat History
 
 Research isn't linear. You're often working on three things at once.
 
@@ -105,35 +161,37 @@ Dynamo AI's **Folders** let you organise your chat history the way your work is 
 - A folder for each subject or module
 - A folder for long-term research projects
 
-Move chats into folders from the sidebar. Each folder shows a live chat count. Expand and collapse them as you work. Your history stays clean, searchable, and structured — not one endless scroll.
+Move chats into folders from the sidebar. Each folder shows a live chat count. Your history stays clean, searchable, and structured — not one endless scroll.
 
 ---
 
-## 7. Export to PDF or Word — Research Ready to Submit
+## 9. Export to PDF, Word, or PowerPoint — Research Ready to Submit
 
-When your research session is done, export it directly to a formatted PDF or Word document.
+When your research session is done, export it directly to a formatted PDF, Word document, or PowerPoint.
 
 No copy-pasting. No reformatting. The research, citations, and structure transfer cleanly.
 
+Access via the sidebar **Quick Tools → Export / Save**.
+
 ---
 
-## 8. Voice Mode — Think Out Loud
+## 10. Voice Mode — Think Out Loud
 
 Sometimes the fastest way to capture an idea is to say it.
 
-Dynamo AI's Voice Mode transcribes your speech in real time using Whisper v3. Ask a question out loud while reading. Dictate a rough paragraph. Explore an idea conversationally.
+Tap the 🎙️ mic button and Dynamo AI transcribes your speech in real time. Ask a question out loud while reading. Dictate a rough paragraph. Explore an idea conversationally.
 
-For students who think better when speaking — or for anyone who spends long hours at a desk — this makes the tool feel genuinely natural.
+AI responses can also be **read aloud** — play, pause, and download the audio. Useful for learning while on the move.
 
 ---
 
-## 9. Multi-Model Intelligence — The Right Model for Every Task
+## 11. Multi-Model Intelligence — The Right Model for Every Task
 
-Not every question needs the same AI. Dynamo AI routes your request to the right model:
+Dynamo AI routes your request to the right model automatically:
 
-- **Gemini 2.0 Flash** for fast, everyday questions
-- **Gemini 1.5 Pro** for longer, more complex reasoning
-- **Claude + GPT** for the research pipeline
+- **Fast Mode** — Gemini Flash for quick everyday questions
+- **DeepThink Mode** — Gemini Pro with built-in reasoning for deep analysis
+- **Research Mode** — Claude + Gemini + GPT pipeline for full academic output with live web search
 
 You get the benefit of multiple frontier models without managing multiple subscriptions.
 
@@ -141,9 +199,9 @@ You get the benefit of multiple frontier models without managing multiple subscr
 
 ## Pricing — Built for Students
 
-This is where Dynamo AI makes a deliberate choice.
-
 **Free plan:** Real access to AI tools, not a watered-down demo.
+
+**Plus plan:** Research Mode and advanced features — for serious students.
 
 **Pro plan: ₹199/month.** Not ₹2,000. Not $20. ₹199.
 
@@ -163,7 +221,7 @@ Built in India, priced for the Indian student and researcher — without comprom
 
 ## Start Today
 
-Your AI study partner is waiting — and it already knows you're serious about your work.
+*How can I help you today?*
 
 **→ [app.dynamoai.in](https://app.dynamoai.in)**
 

@@ -6,3 +6,15 @@ id = "shhbIHeadF42jWOUQURLy"
 uri = "file://dynamo-ai.zip"
 type = "unspecified"
 title = "Dynamo AI — Full Project"
+
+[[outputs]]
+id = "75Wr1tkvxtV8WjFcZ5CmR"
+uri = "file://TEST_PROMPTS_DYNAMO_AI.md"
+type = "text"
+title = "Full-Scale Test Prompts — Dynamo AI"
+
+[[outputs]]
+id = "pYfqFLoR7ogRzbdYM-X0l"
+uri = "file://BLOG_students_researchers.md"
+type = "text"
+title = "Updated Blog — Students & Researchers 2026"
