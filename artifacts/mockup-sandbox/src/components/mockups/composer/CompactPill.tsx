@@ -17,7 +17,10 @@ export function CompactPill() {
   return (
     <div className="min-h-screen bg-[#fafaf9] p-8 flex flex-col items-center justify-center font-sans">
       <div className="w-full max-w-[680px]">
-        <h2 className="text-2xl font-bold text-center mb-6 text-[#0a0a09]">How can I help you?</h2>
+        <div className="flex flex-col items-center mb-5">
+          <img src={`${import.meta.env.BASE_URL}images/dynamo-logo.png`} alt="Dynamo AI" className="w-16 h-16 rounded-2xl shadow-[0_8px_24px_rgba(250,204,21,0.45)] mb-4" />
+          <h2 className="text-2xl font-bold text-[#0a0a09]">How can I help you?</h2>
+        </div>
 
         {/* Composer */}
         <div className="relative">
