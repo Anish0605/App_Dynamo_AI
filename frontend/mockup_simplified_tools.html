@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mockup — Simplified Tools UI · Dynamo AI</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    background: #f7f7f5;
+  }
+  .panel {
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+  }
+  /* Input bar — Gemini/Claude-inspired */
+  .input-bar {
+    background: #ffffff;
+    border: 1px solid #e8e8e6;
+    border-radius: 28px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input-bar:focus-within {
+    border-color: #d4d4d0;
+    box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.08);
+  }
+  .icon-btn {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    transition: background 0.15s;
+    color: #5f5f5d;
+  }
+  .icon-btn:hover { background: #f0f0ee; }
+  .menu {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 0;
+    background: #ffffff;
+    border: 1px solid #e8e8e6;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.05);
+    min-width: 240px;
+    padding: 6px;
+    z-index: 50;
+  }
+  .menu-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    font-size: 14px; color: #2c2c2a;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .menu-item:hover { background: #f5f5f3; }
+  .menu-item .check { margin-left: auto; color: #16a34a; }
+  .menu-item .arrow { margin-left: auto; color: #b0b0ad; }
+  .menu-divider {
+    height: 1px; background: #efefed; margin: 4px 6px;
+  }
+  .menu-item .icon { color: #6b6b69; flex-shrink: 0; }
+  .menu-item.active { color: #1a1a18; font-weight: 500; }
+  .menu-item.active .icon { color: #1a1a18; }
+  .pro-tag {
+    margin-left: auto;
+    font-size: 9px; font-weight: 700;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+  }
+  /* Mode pill (right side, like Gemini "Fast ▼") */
+  .mode-pill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    border-radius: 18px;
+    font-size: 13px; font-weight: 500;
+    color: #4a4a48;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .mode-pill:hover { background: #f0f0ee; }
+  /* Suggestion chips */
+  .chip {
+    background: #ffffff;
+    border: 1px solid #e8e8e6;
+    border-radius: 18px;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: #4a4a48;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chip:hover { background: #f5f5f3; transform: translateY(-1px); }
+  /* BEFORE styles - matches current Dynamo */
+  .before-input {
+    background: #ffffff;
+    border: 2px solid #fbbf24;
+    border-radius: 16px;
+    padding: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .before-tools-btn {
+    background: #fffbe8;
+    border: 1.5px solid #fbbf24;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 11px; font-weight: 700;
+    color: #92580a; letter-spacing: 0.05em;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .before-icon-btn {
+    width: 36px; height: 36px;
+    border: 1.5px solid #d4d4d0;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .before-popup {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    background: #ffffff;
+    border: 1px solid #e8e8e6;
+    border-radius: 16px;
+    padding: 16px;
+    width: 280px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.10);
+  }
+  .before-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+    color: #999; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;
+  }
+  .before-mode-btn {
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 13px; font-weight: 600;
+    border: 1px solid #e8e8e6;
+    flex: 1;
+  }
+  .before-mode-btn.active {
+    background: #fbbf24;
+    color: #1a1a18;
+    border-color: #fbbf24;
+  }
+  /* Annotation labels */
+  .annotation {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    color: #999; text-transform: uppercase;
+  }
+  .annotation-good { color: #16a34a; }
+  .annotation-bad { color: #dc2626; }
+  /* Dot indicator */
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  }
+</style>
+</head>
+<body class="min-h-screen p-8">
+<div class="max-w-7xl mx-auto">
+
+  <!-- Header -->
+  <div class="mb-10">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-xs font-bold tracking-widest text-yellow-600">MOCKUP — NOT BUILT</span>
+      <span class="text-xs text-gray-400">·</span>
+      <span class="text-xs text-gray-400">Tools UI redesign · Apr 28, 2026</span>
+    </div>
+    <h1 class="text-3xl font-bold text-gray-900">Simplified Tools — One Button, Calm Menu</h1>
+    <p class="text-gray-500 mt-2 max-w-2xl">Inspired by ChatGPT, Claude, and Gemini. Replaces the 3 buttons + heavy popup with a single "+" and a clean dropdown. Mode stays on the right (Gemini pattern). Mic stays on the right.</p>
+  </div>
+
+  <!-- ====================== AFTER (PROPOSED) ====================== -->
+  <div class="mb-16">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="annotation annotation-good">✓ AFTER — Proposed</span>
+      <span class="text-xs text-gray-400">Calm · 1 button · 8 tools in a clean menu</span>
+    </div>
+
+    <div class="panel p-12">
+      <!-- Hero -->
+      <div class="text-center mb-10">
+        <div class="text-sm text-gray-500 mb-2">Hi Anish</div>
+        <h2 class="text-3xl font-semibold text-gray-900">What are you working on?</h2>
+      </div>
+
+      <!-- Input bar -->
+      <div class="max-w-3xl mx-auto relative">
+        <div class="input-bar p-3 flex items-center gap-2">
+
+          <!-- LEFT: Single "+" button -->
+          <div class="relative">
+            <button id="plusBtn" class="icon-btn" onclick="toggleMenu('after-menu')" title="Tools">
+              <i data-lucide="plus" class="w-5 h-5"></i>
+            </button>
+
+            <!-- Dropdown menu -->
+            <div id="after-menu" class="menu" style="display:none;">
+              <div class="menu-item">
+                <i data-lucide="paperclip" class="w-4 h-4 icon"></i>
+                <span>Attach files & photos</span>
+              </div>
+              <div class="menu-item active">
+                <i data-lucide="globe" class="w-4 h-4 icon"></i>
+                <span>Web search</span>
+                <i data-lucide="check" class="w-4 h-4 check"></i>
+              </div>
+
+              <div class="menu-divider"></div>
+
+              <div class="menu-item">
+                <i data-lucide="lightbulb" class="w-4 h-4 icon"></i>
+                <span>DeepThink</span>
+              </div>
+              <div class="menu-item">
+                <i data-lucide="microscope" class="w-4 h-4 icon"></i>
+                <span>Research Mode</span>
+                <span class="pro-tag">PRO</span>
+              </div>
+              <div class="menu-item">
+                <i data-lucide="headphones" class="w-4 h-4 icon"></i>
+                <span>Radio Tutor</span>
+                <span class="pro-tag">NEW</span>
+              </div>
+
+              <div class="menu-divider"></div>
+
+              <div class="menu-item">
+                <i data-lucide="image" class="w-4 h-4 icon"></i>
+                <span>Create image</span>
+              </div>
+              <div class="menu-item">
+                <i data-lucide="video" class="w-4 h-4 icon"></i>
+                <span>Create video</span>
+              </div>
+              <div class="menu-item">
+                <i data-lucide="brain" class="w-4 h-4 icon"></i>
+                <span>Quiz me</span>
+              </div>
+
+              <div class="menu-divider"></div>
+
+              <div class="menu-item">
+                <i data-lucide="more-horizontal" class="w-4 h-4 icon"></i>
+                <span>More</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 arrow"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- INPUT -->
+          <input type="text" placeholder="Ask Dynamo anything..." class="flex-1 bg-transparent outline-none text-[15px] text-gray-800 placeholder-gray-400 px-1"/>
+
+          <!-- RIGHT: Mode pill + Mic -->
+          <button class="mode-pill" title="Switch model">
+            <span>Fast</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          </button>
+          <button class="icon-btn" title="Voice">
+            <i data-lucide="mic" class="w-5 h-5"></i>
+          </button>
+          <div class="status-dot ml-1"></div>
+        </div>
+
+        <!-- Suggestion chips -->
+        <div class="flex flex-wrap gap-2 justify-center mt-5">
+          <button class="chip">📚 Make a study guide</button>
+          <button class="chip">🔬 Research a topic</button>
+          <button class="chip">🧩 Quiz me</button>
+          <button class="chip">📄 Summarise PDF</button>
+          <button class="chip">💡 Explain simply</button>
+        </div>
+      </div>
+
+      <!-- Annotations -->
+      <div class="grid grid-cols-3 gap-6 mt-12 max-w-3xl mx-auto text-sm">
+        <div class="border-l-2 border-green-400 pl-3">
+          <div class="font-semibold text-gray-900 mb-1">Single "+" button</div>
+          <div class="text-gray-500">All tools live behind one icon. Matches every modern AI tool.</div>
+        </div>
+        <div class="border-l-2 border-green-400 pl-3">
+          <div class="font-semibold text-gray-900 mb-1">No colored boxes</div>
+          <div class="text-gray-500">No yellow / pink / purple gradients. Calm white menu like Claude.</div>
+        </div>
+        <div class="border-l-2 border-green-400 pl-3">
+          <div class="font-semibold text-gray-900 mb-1">Mode stays separate</div>
+          <div class="text-gray-500">Fast / DeepThink switcher lives on the right (Gemini pattern), not buried in tools.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== BEFORE (CURRENT) ====================== -->
+  <div class="mb-16">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="annotation annotation-bad">✗ BEFORE — Current Dynamo</span>
+      <span class="text-xs text-gray-400">Heavy · 3 buttons · big colored popup</span>
+    </div>
+
+    <div class="panel p-12 bg-gray-50">
+      <!-- Hero -->
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-semibold text-gray-900">How can I help you?</h2>
+      </div>
+
+      <!-- Current input -->
+      <div class="max-w-3xl mx-auto relative">
+        <div class="before-input">
+          <!-- 3 separate buttons -->
+          <div class="relative">
+            <button class="before-tools-btn" onclick="toggleMenu('before-menu')">
+              <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
+              TOOLS
+            </button>
+
+            <!-- BEFORE popup -->
+            <div id="before-menu" class="before-popup" style="display:none;">
+              <div class="before-section-label">
+                🎨 MODEL SELECTION
+              </div>
+              <div class="flex gap-2 mb-4">
+                <button class="before-mode-btn active">Fast Mode</button>
+                <button class="before-mode-btn">Research Mode</button>
+              </div>
+
+              <div class="before-section-label">
+                🔍 RESEARCH TOOLS
+              </div>
+              <div class="flex gap-2 mb-4">
+                <button class="before-mode-btn">DeepThink</button>
+                <button class="before-mode-btn">Web Search</button>
+              </div>
+
+              <div class="before-section-label">
+                🎧 AUDIO EXPERIENCE
+              </div>
+              <button class="before-mode-btn w-full">🎧 Radio Mode</button>
+            </div>
+          </div>
+
+          <button class="before-icon-btn"><i data-lucide="paperclip" class="w-4 h-4 text-gray-500"></i></button>
+          <button class="before-icon-btn" style="border-color:#fca5a5;"><i data-lucide="mic" class="w-4 h-4 text-red-500"></i></button>
+
+          <input type="text" placeholder="Ask anything..." class="flex-1 bg-transparent outline-none text-sm px-2"/>
+          <button class="w-9 h-9 bg-yellow-400 rounded-lg flex items-center justify-center">
+            <i data-lucide="arrow-up" class="w-4 h-4 text-black"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Annotations -->
+      <div class="grid grid-cols-3 gap-6 mt-10 max-w-3xl mx-auto text-sm">
+        <div class="border-l-2 border-red-300 pl-3">
+          <div class="font-semibold text-gray-900 mb-1">Three buttons compete</div>
+          <div class="text-gray-500">TOOLS + 📎 + 🎙 fight for attention. Yellow border around input is loud.</div>
+        </div>
+        <div class="border-l-2 border-red-300 pl-3">
+          <div class="font-semibold text-gray-900 mb-1">Popup is heavy</div>
+          <div class="text-gray-500">Three colored section headers, big yellow Fast pill, mode + tools mixed together.</div>
+        </div>
+        <div class="border-l-2 border-red-300 pl-3">
+          <div class="font-semibold text-gray-900 mb-1">No room to grow</div>
+          <div class="text-gray-500">Adding Quiz / Study Guide / Image would require more popup sections.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== SIDE-BY-SIDE COMPARISON ====================== -->
+  <div class="mb-16">
+    <div class="annotation mb-4">📐 Side-by-side at the same scale</div>
+    <div class="grid grid-cols-2 gap-6">
+
+      <!-- Left: BEFORE -->
+      <div class="panel p-8 bg-gray-50">
+        <div class="annotation annotation-bad mb-4">CURRENT</div>
+        <div class="before-input">
+          <button class="before-tools-btn">
+            <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
+            TOOLS
+          </button>
+          <button class="before-icon-btn"><i data-lucide="paperclip" class="w-4 h-4 text-gray-500"></i></button>
+          <button class="before-icon-btn" style="border-color:#fca5a5;"><i data-lucide="mic" class="w-4 h-4 text-red-500"></i></button>
+          <input type="text" placeholder="Ask anything..." class="flex-1 bg-transparent outline-none text-sm px-2"/>
+          <button class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
+            <i data-lucide="arrow-up" class="w-3.5 h-3.5 text-black"></i>
+          </button>
+        </div>
+        <div class="text-xs text-gray-500 mt-3">3 button widgets · 2px yellow border · loud TOOLS pill</div>
+      </div>
+
+      <!-- Right: AFTER -->
+      <div class="panel p-8">
+        <div class="annotation annotation-good mb-4">PROPOSED</div>
+        <div class="input-bar p-2.5 flex items-center gap-2">
+          <button class="icon-btn"><i data-lucide="plus" class="w-4 h-4"></i></button>
+          <input type="text" placeholder="Ask Dynamo anything..." class="flex-1 bg-transparent outline-none text-sm px-1"/>
+          <button class="mode-pill"><span>Fast</span><i data-lucide="chevron-down" class="w-3 h-3"></i></button>
+          <button class="icon-btn"><i data-lucide="mic" class="w-4 h-4"></i></button>
+        </div>
+        <div class="text-xs text-gray-500 mt-3">1 "+" button · subtle border · model selector kept separate</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================== INTEGRATION NOTES ====================== -->
+  <div class="panel p-8 mb-12">
+    <h3 class="text-lg font-bold text-gray-900 mb-4">📋 What this means for the codebase</h3>
+    <div class="grid grid-cols-2 gap-8 text-sm">
+      <div>
+        <div class="font-semibold text-gray-900 mb-2">Files that would change</div>
+        <ul class="space-y-1.5 text-gray-600">
+          <li>• <code class="text-xs bg-gray-100 px-1.5 py-0.5 rounded">frontend/Index.html</code> — input bar markup (lines ~860-910)</li>
+          <li>• <code class="text-xs bg-gray-100 px-1.5 py-0.5 rounded">frontend/ui.js</code> — dropdown open/close logic</li>
+          <li>• <code class="text-xs bg-gray-100 px-1.5 py-0.5 rounded">frontend/chat.js</code> — wire menu items to existing handlers</li>
+        </ul>
+      </div>
+      <div>
+        <div class="font-semibold text-gray-900 mb-2">What stays the same</div>
+        <ul class="space-y-1.5 text-gray-600">
+          <li>✓ All backend endpoints — no changes needed</li>
+          <li>✓ All existing handlers (web search, deepthink, research)</li>
+          <li>✓ Quiz, image, video flows unchanged</li>
+          <li>✓ Pro plan / quota gating logic intact</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-6 pt-6 border-t border-gray-100 text-sm">
+      <div class="font-semibold text-gray-900 mb-2">Effort estimate</div>
+      <div class="text-gray-600">~2-3 hours of work · pure UI refactor · no backend touched · zero risk to existing features.</div>
+    </div>
+  </div>
+
+  <div class="text-center text-xs text-gray-400 mt-12 mb-8">
+    Mockup file · <code>frontend/mockup_simplified_tools.html</code> · Click the "+" buttons above to toggle the menus
+  </div>
+
+</div>
+
+<script>
+  lucide.createIcons();
+
+  function toggleMenu(id) {
+    document.querySelectorAll('.menu, .before-popup').forEach(m => {
+      if (m.id !== id) m.style.display = 'none';
+    });
+    const el = document.getElementById(id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // Open the AFTER menu by default so users see the design immediately
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('after-menu').style.display = 'block';
+  });
+
+  // Close menus when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.menu') && !e.target.closest('#plusBtn') &&
+        !e.target.closest('.before-popup') && !e.target.closest('.before-tools-btn')) {
+      // intentionally keep AFTER menu open for demo purposes
+    }
+  });
+</script>
+</body>
+</html>
