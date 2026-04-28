@@ -34,24 +34,30 @@ Dynamo AI is a professional-grade Research Operating System. It combines a FastA
 - **DeepThink** (`deep_dive=True`): `gemini-3-flash-preview` — built-in thinking, ~5x intelligence vs lite. `deep_dive` always wins over the default `model_name`. Falls back to lite if unavailable.
 - **Research Mode** (`mode="research"`): APIMart-routed pipeline (Claude Sonnet 4.5 → Gemini 3.1 → GPT-5.4) via `multi_model_router.py` — DO NOT modify
 
-## Composer Architecture (Gemini-style split with right-side More flyouts, April 28, 2026)
-Bottom input bar: textarea on top, action row below, single yellow-bordered wrapper (`frontend/Index.html` ~1359-1400).
+## Composer Architecture (Simplified Tools v3 — single combined menu, April 28, 2026)
+Bottom input bar: textarea on top, action row below, single yellow-bordered wrapper (`frontend/Index.html` ~1352-1381).
 
-**`+` button** (`#plus-btn`, golden border) → `#plus-dropdown`:
-- *Daily*: Add photos & files, Web search
-- *Mode selector*: Fast, Research [PLUS], DeepThink [PRO], **More** ▶ flyout `#mode-more` (Find research gaps, Deep research agent [SOON])
+**Action row** (left → right): `+` button · ⚙️ gear · 🎙️ mic · (spacer) · ↑ send. No Tools pill, no Fast mode pill.
 
-**`Tools` pill** (`#tools-btn`, gear icon) → `#tools-dropdown`:
-- *Study*: Quick Study Guide [NEW], Radio mode, **More** ▶ flyout `#study-more` (Quiz me, Flashcards [SOON])
-- *Create Anything*: Generate image, Slides [SOON], **More** ▶ flyout `#create-more` (Generate video, Mindmaps, Flowcharts)
+**`+` button** (`#plus-btn`, golden border) → opens single combined `#plus-dropdown` with 4 sections:
+- *Daily*: Web search (toggle), Attach files & photos
+- *Thinking*: Fast mode (active), Research Mode [PRO], DeepThink, indented `Find research gaps` + indented `Deep Research agent` [SOON]
+- *Study*: Quiz me, Study guide, Radio tutor [NEW]
+- *Create*: Generate image, Generate video, Mindmap, Flowchart
 
-**Mode pill** (`#mode-pill`, "Fast/DeepThink/Research+") opens `#plus-dropdown` (since modes live there).
+**⚙️ gear** (`#mode-btn`, with always-on gold dot indicator) → opens small `#mode-popover` (Fast / DeepThink / Research [PRO]). Opening one menu auto-closes the other.
 
-**Mic** (`#mic-btn`): light-red (`bg-red-100 text-red-600`). **Send**: yellow.
+**Mode sync**: `setMode(mode, btn)` in `ui.js` updates ALL elements with `[data-mode-btn]` (across both plus menu and gear popover) so selection stays consistent. Also updates `#mode-btn` title attribute (e.g. "Mode: DeepThink").
 
-**Right-side flyouts (ChatGPT-style)**: `.menu-flyout` panels are rendered OUTSIDE the parent dropdown and positioned via `_positionFlyout` in `ui.js` — `left = btnRect.right + 6` so submenus open to the RIGHT of the parent menu, flipping left only if they would overflow the viewport. The parent dropdown remains open while a flyout is shown. Click-outside handler ignores clicks on `.menu-flyout` and `.menu-more-row` so flyout interactions don't accidentally close the parent.
+**Mic** (`#mic-btn`): light-red (`bg-red-100 text-red-600`). **Send**: yellow rounded.
 
-Opening one root menu auto-closes the other plus all open flyouts. Empty-state suggestion chips (`#hero-chips`): Make a study guide, Research a topic, Quiz me, Summarise a PDF. All file uploads route through existing `window.openAnalyzeFile()` — no backend changes. Cache key: `ui.js?v=20260428j`.
+**Suggestion chips** (`#hero-chips`): Make a study guide · Research a topic · Quiz me · Summarise a PDF · 🎨 Create a deck.
+
+**Backend**: Mindmap and Flowchart prefills route through existing `runCreate(kind)` → keyword-routing in `backend/main.py` (already imports `mindmap.py` and `flowchart.py`). No backend changes were needed for this UI.
+
+**Backwards-compat**: `window.toggleTools` / `window.closeTools` still exist as aliases for `togglePlus` / `closePlus`. Hidden `#mode-pill-label` (sr-only) preserved so legacy code that writes to it doesn't break. Old flyout helpers (`toggleSubMenu`, `_closeAllFlyouts`) remain in `ui.js` but are no longer called by markup.
+
+Cache key: `ui.js?v=20260428k`. No backend restart needed (FastAPI serves frontend statically).
 
 ## Brand Asset (April 28, 2026)
 New polished Dynamo bolt mark lives at `frontend/assets/dynamo-logo.png` (also mirrored in `artifacts/mockup-sandbox/public/images/dynamo-logo.png`). Used in:

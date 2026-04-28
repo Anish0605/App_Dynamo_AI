@@ -773,9 +773,10 @@
   .dark #chat-input::placeholder  { color: #4b5563; }
 
   /* ================================================================
-     DARK MODE — TOOLS DROPDOWN (gray-850 CDN fallback)
+     DARK MODE — DROPDOWN MENUS (gray-850 CDN fallback)
      ================================================================ */
-  .dark #tools-dropdown { background: #1f2937; }
+  .dark #plus-dropdown,
+  .dark #mode-popover { background: #1f2937; }
 
   /* ================================================================
      iOS SAFE AREA — input bar clears home indicator
@@ -1225,96 +1226,92 @@
           .dark .menu-row.active .ico { color: #facc15; }
           .dark .menu-section-label { color: #6b7280; }
         </style>
-        <!-- ─── PLUS DROPDOWN (Daily + Mode Selector) ─── -->
-        <div id="plus-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-72 bg-white dark:bg-gray-850 border-2 border-yellow-400 rounded-2xl shadow-2xl p-1.5 z-50 max-h-[75vh] overflow-y-auto">
+        <!-- ─── PLUS DROPDOWN (Single combined menu — Daily / Thinking / Study / Create) ─── -->
+        <div id="plus-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-[290px] bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-1.5 z-50 max-h-[75vh] overflow-y-auto">
 
           <!-- ─── DAILY ─── -->
           <div class="menu-section-label">Daily</div>
-          <button class="menu-row" onclick="window.openAnalyzeFile?.(); window.closePlus?.();">
-            <span class="ico">📎</span><span>Add photos &amp; files</span>
-          </button>
           <button class="menu-row" data-tool-btn="search" onclick="window.toggleTool('search', this)">
             <span class="ico">🌐</span><span>Web search</span>
           </button>
+          <button class="menu-row" onclick="window.openAnalyzeFile?.(); window.closePlus?.();">
+            <span class="ico">📎</span><span>Attach files &amp; photos</span>
+          </button>
 
-          <!-- ─── MODE SELECTOR ─── -->
-          <div class="menu-section-label">Mode selector</div>
+          <!-- ─── THINKING ─── -->
+          <div class="menu-section-label">Thinking</div>
           <button class="menu-row active" data-mode-btn data-mode="fast" onclick="window.setMode('fast', this)">
-            <span class="ico">⚡</span><span>Fast</span>
+            <span class="ico">⚡</span><span>Fast mode</span>
           </button>
           <button class="menu-row has-tag" data-mode-btn data-mode="research" onclick="window.setMode('research', this)">
-            <span class="ico">🔬</span><span>Research</span><span class="tag pro">PLUS</span>
+            <span class="ico">🔬</span><span>Research Mode</span><span class="tag pro">PRO</span>
           </button>
-          <button class="menu-row has-tag" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this)">
-            <span class="ico">💡</span><span>DeepThink</span><span class="tag pro">PRO</span>
+          <button class="menu-row" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this)">
+            <span class="ico">💡</span><span>DeepThink</span>
           </button>
-          <!-- More expander → opens flyout to the RIGHT -->
-          <button type="button" class="menu-row menu-more-row" aria-haspopup="true" aria-expanded="false" aria-controls="mode-more" onclick="window.toggleSubMenu('mode-more', this)">
-            <span class="ico">⋯</span><span>More</span>
-            <i data-lucide="chevron-right" class="chev w-4 h-4"></i>
+          <!-- Indented sub-actions under DeepThink -->
+          <button id="gap-finder-btn" class="menu-row menu-row-sub" onclick="window.findResearchGaps(); window.closePlus?.();" title="Use after a DeepThink reply to find unexplored angles">
+            <span class="ico">🔍</span><span>Find research gaps</span><span id="gap-finder-badge" class="tag soon">DEEP</span>
           </button>
-        </div>
-
-        <!-- ─── TOOLS DROPDOWN (Study + Create Anything) ─── -->
-        <div id="tools-dropdown" class="hidden absolute bottom-full mb-3 left-14 w-72 bg-white dark:bg-gray-850 border-2 border-yellow-400 rounded-2xl shadow-2xl p-1.5 z-50 max-h-[75vh] overflow-y-auto">
+          <button class="menu-row menu-row-sub disabled has-tag" aria-disabled="true" title="Coming soon">
+            <span class="ico">🤖</span><span>Deep Research agent</span><span class="tag soon">SOON</span>
+          </button>
 
           <!-- ─── STUDY ─── -->
           <div class="menu-section-label">Study</div>
-          <button class="menu-row has-tag" onclick="window.openStudyGuideModal()">
-            <span class="ico">📚</span><span>Quick Study Guide</span><span class="tag new">NEW</span>
+          <button class="menu-row" onclick="window.openQuizModal(); window.closePlus?.();">
+            <span class="ico">🧠</span><span>Quiz me</span>
           </button>
-          <button class="menu-row" onclick="window.toggleTool('radio', this)">
-            <span class="ico">🎧</span><span>Radio mode</span>
+          <button class="menu-row" onclick="window.openStudyGuideModal(); window.closePlus?.();">
+            <span class="ico">📖</span><span>Study guide</span>
           </button>
-          <!-- More expander → opens flyout to the RIGHT -->
-          <button type="button" class="menu-row menu-more-row" aria-haspopup="true" aria-expanded="false" aria-controls="study-more" onclick="window.toggleSubMenu('study-more', this)">
-            <span class="ico">⋯</span><span>More</span>
-            <i data-lucide="chevron-right" class="chev w-4 h-4"></i>
+          <button class="menu-row has-tag" onclick="window.toggleTool('radio', this)">
+            <span class="ico">🎧</span><span>Radio tutor</span><span class="tag new">NEW</span>
           </button>
 
-          <!-- ─── CREATE ANYTHING ─── -->
-          <div class="menu-section-label">Create Anything</div>
-          <button class="menu-row" onclick="window.runCreate('image')">
+          <!-- ─── CREATE ─── -->
+          <div class="menu-section-label">Create</div>
+          <button class="menu-row" onclick="window.runCreate('image'); window.closePlus?.();">
             <span class="ico">🖼️</span><span>Generate image</span>
           </button>
-          <button class="menu-row disabled has-tag" aria-disabled="true" title="Coming soon">
-            <span class="ico">📑</span><span>Slides</span><span class="tag soon">SOON</span>
+          <button class="menu-row" onclick="window.runCreate('video'); window.closePlus?.();">
+            <span class="ico">🎬</span><span>Generate video</span>
           </button>
-          <!-- More expander → opens flyout to the RIGHT -->
-          <button type="button" class="menu-row menu-more-row" aria-haspopup="true" aria-expanded="false" aria-controls="create-more" onclick="window.toggleSubMenu('create-more', this)">
-            <span class="ico">⋯</span><span>More</span>
-            <i data-lucide="chevron-right" class="chev w-4 h-4"></i>
+          <button class="menu-row" onclick="window.runCreate('mindmap'); window.closePlus?.();">
+            <span class="ico">🧠</span><span>Mindmap</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('flowchart'); window.closePlus?.();">
+            <span class="ico">📊</span><span>Flowchart</span>
           </button>
         </div>
 
-        <!-- ─── FLYOUT PANELS (rendered OUTSIDE dropdowns so they aren't clipped — open to the RIGHT) ─── -->
-        <div id="mode-more" class="menu-flyout hidden">
-          <button id="gap-finder-btn" class="menu-row" onclick="window.findResearchGaps()" title="Use after a DeepThink reply to find unexplored angles">
-            <span class="ico">🔍</span><span>Find research gaps</span><span id="gap-finder-badge" class="tag soon">DEEP</span>
+        <!-- ─── MODE POPOVER (small, opened by gear icon) ─── -->
+        <div id="mode-popover" class="hidden absolute bottom-full mb-3 left-12 w-[220px] bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-1.5 z-50">
+          <div class="menu-section-label">Current mode</div>
+          <button class="menu-row active" data-mode-btn data-mode="fast" onclick="window.setMode('fast', this); window.closeModePicker?.();">
+            <span class="ico">⚡</span><span>Fast</span>
           </button>
-          <button class="menu-row disabled has-tag" aria-disabled="true" title="Coming soon">
-            <span class="ico">🤖</span><span>Deep research agent</span><span class="tag soon">SOON</span>
+          <button class="menu-row" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this); window.closeModePicker?.();">
+            <span class="ico">💡</span><span>DeepThink</span>
           </button>
-        </div>
-        <div id="study-more" class="menu-flyout hidden">
-          <button class="menu-row" onclick="window.openQuizModal()">
-            <span class="ico">🧩</span><span>Quiz me</span>
-          </button>
-          <button class="menu-row disabled has-tag" aria-disabled="true" title="Coming soon">
-            <span class="ico">🃏</span><span>Flashcards</span><span class="tag soon">SOON</span>
+          <button class="menu-row has-tag" data-mode-btn data-mode="research" onclick="window.setMode('research', this); window.closeModePicker?.();">
+            <span class="ico">🔬</span><span>Research</span><span class="tag pro">PRO</span>
           </button>
         </div>
-        <div id="create-more" class="menu-flyout hidden">
-          <button class="menu-row" onclick="window.runCreate('video')">
-            <span class="ico">🎬</span><span>Generate video</span>
-          </button>
-          <button class="menu-row" onclick="window.runCreate('mindmap')">
-            <span class="ico">🧠</span><span>Mindmaps</span>
-          </button>
-          <button class="menu-row" onclick="window.runCreate('flowchart')">
-            <span class="ico">📊</span><span>Flowcharts</span>
-          </button>
-        </div>
+
+        <!-- Indented sub-row + active checkmark styling -->
+        <style>
+          .menu-row-sub { padding-left: 32px; font-size: 13px; color: #4b5563; }
+          .menu-row-sub .ico { font-size: 14px; }
+          .dark .menu-row-sub { color: #9ca3af; }
+          .menu-row.active .check-mark {
+            margin-left: auto;
+            width: 18px; height: 18px;
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #facc15; color: #0a0a09; border-radius: 50%;
+            font-size: 11px; font-weight: 800;
+          }
+        </style>
 
         <!-- Flyout styles (ChatGPT-style More menus) -->
         <style>
@@ -1356,21 +1353,11 @@
               <i data-lucide="plus" class="w-4 h-4" stroke-width="2.5"></i>
             </button>
 
-            <!-- "Tools" pill (gear icon) — opens STUDY + CREATE menu -->
-            <button id="tools-btn" onclick="window.toggleTools(event)" title="Tools"
-                    class="h-9 px-3 inline-flex items-center gap-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-xs sm:text-sm font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition shrink-0">
-              <i data-lucide="settings" class="w-3.5 h-3.5"></i>
-              <span>Tools</span>
-            </button>
-
-            <!-- spacer -->
-            <div class="flex-1"></div>
-
-            <!-- MODE PILL (shows current mode, click → opens PLUS menu where modes live) -->
-            <button id="mode-pill" onclick="window.togglePlus(event)" title="Switch mode"
-                    class="hidden sm:inline-flex items-center gap-1 px-3 h-9 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-yellow-50 dark:hover:bg-gray-800 hover:text-black dark:hover:text-yellow-400 transition shrink-0">
-              <span id="mode-pill-label">Fast</span>
-              <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+            <!-- ⚙️ MODE PICKER GEAR — shows tiny popover with Fast / DeepThink / Research -->
+            <button id="mode-btn" onclick="window.toggleModePicker(event)" title="Mode: Fast"
+                    class="relative w-9 h-9 flex items-center justify-center rounded-full text-gray-600 dark:text-gray-300 hover:bg-yellow-50 dark:hover:bg-gray-800 hover:text-black dark:hover:text-yellow-400 transition shrink-0">
+              <i data-lucide="settings" class="w-4 h-4"></i>
+              <span class="absolute top-1 right-1 w-2 h-2 bg-yellow-400 rounded-full border border-white dark:border-gray-900"></span>
             </button>
 
             <!-- MIC — light red highlight -->
@@ -1378,6 +1365,12 @@
                     class="w-9 h-9 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition shrink-0">
               <i data-lucide="mic" class="w-4 h-4" stroke-width="2.4"></i>
             </button>
+
+            <!-- spacer -->
+            <div class="flex-1"></div>
+
+            <!-- Hidden compat element — setMode writes to it -->
+            <span id="mode-pill-label" class="sr-only">Fast</span>
 
             <!-- SEND -->
             <button onclick="window.sendFromInput()" title="Send message" class="w-9 h-9 flex items-center justify-center rounded-xl bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 transition shadow-md shrink-0">
@@ -1405,6 +1398,7 @@
           <button class="hero-chip" onclick="(function(){const m=document.querySelector('[data-mode=\'research\']');if(m)window.setMode('research',m);document.getElementById('chat-input')?.focus();})()">🔬 Research a topic</button>
           <button class="hero-chip" onclick="window.openQuizModal()">🧩 Quiz me</button>
           <button class="hero-chip" onclick="window.openAnalyzeFile?.()">📄 Summarise a PDF</button>
+          <button class="hero-chip" onclick="createExecutiveDeck?.()">🎨 Create a deck</button>
         </div>
       </div>
     </div>
@@ -1680,7 +1674,7 @@
 
  <!-- FEATURE LAYERS -->
  <script src="analysis_ui.js?v=20260425"></script>
- <script src="ui.js?v=20260428j"></script>
+ <script src="ui.js?v=20260428l"></script>
  <script src="export_tools.js?v=20260423"></script>
  <script src="profile.js?v=20260425"></script>
  

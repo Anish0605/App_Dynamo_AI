@@ -35,54 +35,48 @@ window.toggleSidebarMenu = (menuId) => {
    "+"   → plus-dropdown   (files / uploads)
    Tools → tools-dropdown  (modes + tools)
 -------------------------------------------------- */
-window.toggleTools = (e) => {
-  e?.stopPropagation();
-  qs("plus-dropdown")?.classList.add("hidden");          // close the other one
-  window._closeAllFlyouts?.();
-  qs("tools-dropdown")?.classList.toggle("hidden");
-};
-
+// "+" opens the combined menu (Daily / Thinking / Study / Create)
 window.togglePlus = (e) => {
   e?.stopPropagation();
-  qs("tools-dropdown")?.classList.add("hidden");         // close the other one
-  window._closeAllFlyouts?.();
+  qs("mode-popover")?.classList.add("hidden");           // close the other one
   qs("plus-dropdown")?.classList.toggle("hidden");
 };
 
 window.closePlus = () => {
   qs("plus-dropdown")?.classList.add("hidden");
-  window._closeAllFlyouts?.();
 };
 
+// ⚙️ gear opens the small mode picker (Fast / DeepThink / Research)
+window.toggleModePicker = (e) => {
+  e?.stopPropagation();
+  qs("plus-dropdown")?.classList.add("hidden");          // close the other one
+  qs("mode-popover")?.classList.toggle("hidden");
+};
+
+window.closeModePicker = () => {
+  qs("mode-popover")?.classList.add("hidden");
+};
+
+// Backwards-compat: anything that still calls toggleTools just opens the combined plus menu
+window.toggleTools = (e) => window.togglePlus(e);
+window.closeTools  = () => window.closePlus();
+
 document.addEventListener("click", (e) => {
-  // Clicks on flyouts or "More" rows belong to the parent dropdown — don't close it
-  const insideFlyout = e.target.closest('.menu-flyout') || e.target.closest('.menu-more-row');
-
-  // tools-dropdown click-outside
-  const toolsDd  = qs("tools-dropdown");
-  const toolsBtn = qs("tools-btn");
-  if (toolsDd && toolsBtn && !toolsDd.classList.contains('hidden')) {
-    const insideTools = toolsDd.contains(e.target) ||
-                        toolsBtn.contains(e.target) ||
-                        insideFlyout;
-    if (!insideTools) {
-      toolsDd.classList.add("hidden");
-      window._closeAllFlyouts?.();
-    }
-  }
-
   // plus-dropdown click-outside
   const plusDd  = qs("plus-dropdown");
   const plusBtn = qs("plus-btn");
-  const modePill = qs("mode-pill");
   if (plusDd && plusBtn && !plusDd.classList.contains('hidden')) {
-    const insidePlus = plusDd.contains(e.target) ||
-                       plusBtn.contains(e.target) ||
-                       modePill?.contains(e.target) ||
-                       insideFlyout;
-    if (!insidePlus) {
+    if (!plusDd.contains(e.target) && !plusBtn.contains(e.target)) {
       plusDd.classList.add("hidden");
-      window._closeAllFlyouts?.();
+    }
+  }
+
+  // mode-popover click-outside
+  const modeDd  = qs("mode-popover");
+  const modeBtn = qs("mode-btn");
+  if (modeDd && modeBtn && !modeDd.classList.contains('hidden')) {
+    if (!modeDd.contains(e.target) && !modeBtn.contains(e.target)) {
+      modeDd.classList.add("hidden");
     }
   }
 });
@@ -123,14 +117,19 @@ window.setMode = (mode, btn) => {
     }
   }
 
-  // Update visual state — only one mode button can be active
-  document.querySelectorAll('[data-mode-btn]').forEach(b => b.classList.remove('active'));
-  btn?.classList.add('active');
+  // Update visual state — sync ALL data-mode-btn elements (across plus menu + mode popover)
+  document.querySelectorAll('[data-mode-btn]').forEach(b => {
+    if (b.getAttribute('data-mode') === mode) b.classList.add('active');
+    else b.classList.remove('active');
+  });
 
-  // Update mode pill label
+  // Update labels (hidden compat label + gear tooltip)
   const labels = { fast: 'Fast', deep: 'DeepThink', research: 'Research+' };
+  const lbl = labels[mode] || 'Fast';
   const pill = qs('mode-pill-label');
-  if (pill) pill.textContent = labels[mode] || 'Fast';
+  if (pill) pill.textContent = lbl;
+  const modeBtn = qs('mode-btn');
+  if (modeBtn) modeBtn.title = `Mode: ${lbl}`;
 
   // Refresh dependent UI (gap-finder badge etc.)
   window.updateGapFinderBtn?.();
@@ -223,10 +222,7 @@ window.addEventListener('resize', _onViewportChange, { passive: true });
 window.addEventListener('orientationchange', _onViewportChange, { passive: true });
 window.addEventListener('scroll', _onViewportChange, { passive: true, capture: true });
 
-window.closeTools = () => {
-  qs('tools-dropdown')?.classList.add('hidden');
-  window._closeAllFlyouts();
-};
+// (window.closeTools is defined earlier as an alias for window.closePlus)
 
 /* --------------------------------------------------
    🆕 RUN CREATE — image / video / mindmap / flowchart / quiz
@@ -255,8 +251,8 @@ window.runCreate = (kind) => {
   // Place caret at end
   input.setSelectionRange(prefix.length, prefix.length);
 
-  // Close dropdown
-  qs("tools-dropdown")?.classList.add("hidden");
+  // Close dropdown (combined plus menu)
+  qs("plus-dropdown")?.classList.add("hidden");
 
   console.log("🎨 Create:", kind);
 };
@@ -378,7 +374,7 @@ window.smartExplain = async () => {
    📚 STUDY GUIDE FLOW (modal → structured prompt)
 -------------------------------------------------- */
 window.openStudyGuideModal = () => {
-  qs("tools-dropdown")?.classList.add("hidden");
+  qs("plus-dropdown")?.classList.add("hidden");
   window._closeAllFlyouts?.();
   const modal = qs("study-guide-modal");
   if (!modal) return;
@@ -409,7 +405,7 @@ window.closeStudyGuideModal = () => {
    🧩 QUIZ MODAL — proper interactive quiz flow
 -------------------------------------------------- */
 window.openQuizModal = () => {
-  qs("tools-dropdown")?.classList.add("hidden");
+  qs("plus-dropdown")?.classList.add("hidden");
   const modal = qs("quiz-modal");
   if (!modal) return;
   modal.classList.remove("hidden");
