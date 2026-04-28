@@ -88,10 +88,29 @@ window.setMode = (mode, btn) => {
   document.querySelectorAll('[data-mode-btn]').forEach(b => b.classList.remove('active'));
   btn?.classList.add('active');
 
+  // Update mode pill label
+  const labels = { fast: 'Fast', deep: 'DeepThink', research: 'Research+' };
+  const pill = qs('mode-pill-label');
+  if (pill) pill.textContent = labels[mode] || 'Fast';
+
   // Refresh dependent UI (gap-finder badge etc.)
   window.updateGapFinderBtn?.();
 
   console.log("🎯 Mode set:", mode, "| tools:", [...window.dynamoUI.tools], "| model:", window.dynamoUI.model);
+};
+
+/* --------------------------------------------------
+   🔽 SUB-MENU TOGGLE (More expanders inside tools dropdown)
+-------------------------------------------------- */
+window.toggleSubMenu = (id, btn) => {
+  const sub = qs(id);
+  if (!sub) return;
+  sub.classList.toggle('hidden');
+  btn?.classList.toggle('expanded');
+};
+
+window.closeTools = () => {
+  qs('tools-dropdown')?.classList.add('hidden');
 };
 
 /* --------------------------------------------------
@@ -104,11 +123,12 @@ window.runCreate = (kind) => {
   if (!input) return;
 
   const prompts = {
-    image:     "Create an image of ",
-    video:     "Create a video of ",
-    mindmap:   "Create a mindmap of ",
-    flowchart: "Create a flowchart for ",
-    quiz:      "Quiz me on "
+    image:      "Create an image of ",
+    video:      "Create a video of ",
+    mindmap:    "Create a mindmap of ",
+    flowchart:  "Create a flowchart for ",
+    quiz:       "Quiz me on ",
+    flashcards: "Create flashcards on "
   };
 
   const prefix = prompts[kind] || "";
@@ -253,6 +273,102 @@ window.openStudyGuideModal = () => {
 
 window.closeStudyGuideModal = () => {
   qs("study-guide-modal")?.classList.add("hidden");
+};
+
+/* --------------------------------------------------
+   🧩 QUIZ MODAL — proper interactive quiz flow
+-------------------------------------------------- */
+window.openQuizModal = () => {
+  qs("tools-dropdown")?.classList.add("hidden");
+  const modal = qs("quiz-modal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  setTimeout(() => qs("quiz-topic")?.focus(), 50);
+  window.lucide?.createIcons();
+};
+
+window.closeQuizModal = () => {
+  qs("quiz-modal")?.classList.add("hidden");
+};
+
+window.submitQuiz = async () => {
+  const topicEl = qs("quiz-topic");
+  const diffEl  = qs("quiz-difficulty");
+  const cntEl   = qs("quiz-count");
+  const topic   = (topicEl?.value || "").trim();
+  if (!topic) {
+    topicEl?.focus();
+    return;
+  }
+  const difficulty = diffEl?.value || "medium";
+  const count      = parseInt(cntEl?.value || "5", 10);
+  window.closeQuizModal();
+
+  const fullPrompt = `Create an interactive multiple-choice quiz on: ${topic}
+
+Difficulty: ${difficulty}
+Number of questions: ${count}
+
+STRICT RULES:
+- Return ONLY valid JSON, no markdown, no commentary
+- Each question must have exactly 4 options
+- "answer" is the index (0-3) of the correct option
+- "explanation" is 1-2 sentences explaining why
+
+{
+  "quiz": [
+    {
+      "question": "string",
+      "options": ["a","b","c","d"],
+      "answer": 0,
+      "explanation": "string"
+    }
+  ]
+}`;
+
+  if (topicEl) topicEl.value = "";
+
+  const userLabel = `🧩 Quiz: ${topic}  (${difficulty}, ${count} questions)`;
+  window.renderUserMessage?.(userLabel);
+  window.showThinking?.();
+
+  try {
+    const payload = {
+      message: fullPrompt,
+      history: [],
+      use_search: false,
+      deep_dive: false,
+      force_image: false,
+      smart_action: false,
+      chat_id: window.appState?.chatId,
+      user_id: window.appState?.supabaseUserId
+    };
+    const res = await window.callBackend("/chat", payload);
+    window.hideThinking?.();
+
+    if (res?.content) {
+      // Try parsing as quiz JSON; fall back to text rendering
+      try {
+        let raw = res.content.trim();
+        raw = raw.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+        const parsed = JSON.parse(raw);
+        if (parsed.quiz && Array.isArray(parsed.quiz) && window.renderQuiz) {
+          window.renderQuiz(parsed.quiz);
+        } else {
+          window.renderAssistantMessage?.(res.content);
+        }
+      } catch (err) {
+        console.warn("Quiz JSON parse failed, rendering as text", err);
+        window.renderAssistantMessage?.(res.content);
+      }
+    } else {
+      window.renderAssistantMessage?.("Sorry, quiz generation failed. Please try again.");
+    }
+  } catch (err) {
+    console.error("🧩 Quiz error:", err);
+    window.hideThinking?.();
+    window.renderAssistantMessage?.("Sorry, quiz generation failed. Please try again.");
+  }
 };
 
 window.submitStudyGuide = async () => {
