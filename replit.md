@@ -28,6 +28,28 @@ Dynamo AI is a professional-grade Research Operating System. It combines a FastA
 - **Supabase** — User data and chat history
 - **Firebase** — Authentication
 - **Pollinations AI** — Image generation
+
+## AI Model Tiers (April 2026)
+- **Fast Mode** (default): `gemini-3.1-flash-lite-preview` — fastest, cheapest
+- **DeepThink** (`deep_dive=True`): `gemini-3-flash-preview` — built-in thinking, ~5x intelligence vs lite. `deep_dive` always wins over the default `model_name`. Falls back to lite if unavailable.
+- **Research Mode** (`mode="research"`): APIMart-routed pipeline (Claude Sonnet 4.5 → Gemini 3.1 → GPT-5.4) via `multi_model_router.py` — DO NOT modify
+
+## Tools Menu Architecture (v2 — April 28, 2026)
+The bottom-bar Tools dropdown is a 4-section nested menu defined inline in `Index.html`:
+- **⚡ Thinking** — mutually-exclusive mode buttons (Fast / Research / DeepThink). DeepThink expands a sub-row with "Find Research Gaps" (active when DeepThink is on) + "Deep Research Agent" (placeholder, SOON).
+- **🎨 Create** — prefills chat input via `window.runCreate(kind)`: Image / Video / Mindmap / Flowchart / Executive Deck.
+- **🎓 Study** — "Generate Study Guide" opens a modal (`#study-guide-modal`) with topic + skip-basics checkbox; sends a structured 4-section prompt via `smart_action:true` to bypass quiz keyword detection.
+- **🔍 Sources** — toggles Web Search and Radio Mode.
+
+Key JS functions in `frontend/ui.js`:
+- `window.setMode(mode, btn)` — sets fast/deep/research (mutually exclusive)
+- `window.runCreate(kind)` — prefills chat input with the right prompt prefix
+- `window.openStudyGuideModal()` / `submitStudyGuide()` — Study Guide flow
+- `window.toggleTool(tool, btn)` — independent toggles for Web Search / Radio
+
+The "Find Research Gaps" sidebar button has been **removed** — it now lives only inside the Tools menu under DeepThink. The legacy IDs `gap-finder-btn` and `gap-finder-badge` are preserved on the new menu row so `updateGapFinderBtn()` in `chat.js` still works.
+
+Cache version: `ui.js?v=20260428b`
 - **Edge TTS** — Text to speech
 - **Razorpay** — Payment processing (Plus ₹199/mo, Pro ₹499/mo)
 

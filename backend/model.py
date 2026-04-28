@@ -107,10 +107,30 @@ def get_ai_response(
     # -------------------------
     # GEMINI EXECUTION
     # -------------------------
+    # Model selection logic (priority: deep_dive > non-default model_name > default lite):
+    #   • DeepThink mode (deep_dive=True) → gemini-3-flash-preview (built-in thinking, ~5x vs lite)
+    #   • Fast mode (default)             → gemini-3.1-flash-lite-preview
+    #   • Explicit non-default model_name → respected
+    DEFAULT_LITE = "gemini-3.1-flash-lite-preview"
+    DEEPTHINK_MODEL = "gemini-3-flash-preview"
     try:
-        resolved_model = model_name if model_name else "gemini-3.1-flash-lite-preview"
+        if deep_dive:
+            # DeepThink ALWAYS wins — overrides any default lite that the frontend
+            # sends so DeepThink actually feels different from Fast mode.
+            resolved_model = DEEPTHINK_MODEL
+        elif model_name and model_name != DEFAULT_LITE:
+            resolved_model = model_name
+        else:
+            resolved_model = DEFAULT_LITE
+
         gemini_model = genai.GenerativeModel(resolved_model)
         response = gemini_model.generate_content(full_prompt)
         return response.text
     except Exception as e:
-        return "Gemini Engine Error: " + str(e)
+        # If the new model fails (e.g. quota / region), gracefully fall back to lite
+        try:
+            fallback = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
+            response = fallback.generate_content(full_prompt)
+            return response.text
+        except Exception:
+            return "Gemini Engine Error: " + str(e)

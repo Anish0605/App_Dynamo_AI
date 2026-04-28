@@ -49,30 +49,81 @@ document.addEventListener("click", (e) => {
 });
 
 /* --------------------------------------------------
-   MODEL SELECTION
+   MODEL SELECTION (legacy, kept for backwards compat)
 -------------------------------------------------- */
 window.selectModel = (modelId, btn) => {
   window.dynamoUI.model = modelId;
-
-  document
-    .querySelectorAll("[data-model-btn]")
-    .forEach(b => b.classList.remove("active"));
-
+  document.querySelectorAll("[data-model-btn]").forEach(b => b.classList.remove("active"));
   btn?.classList.add("active");
 
   if (modelId === 'research') {
     if (!window.dynamoUI.tools.has('search')) {
       window.dynamoUI.tools.add('search');
-      const searchBtn = document.querySelector('[data-tool-btn="search"]') ||
-        Array.from(document.querySelectorAll('.tool-pill')).find(b =>
-          b.getAttribute('onclick')?.includes("'search'")
-        );
+      const searchBtn = document.querySelector('[data-tool-btn="search"]');
       searchBtn?.classList.add('active');
-      console.log("🔍 Auto-enabled Web Search:", !!searchBtn);
+    }
+  }
+  console.log("✅ Model selected:", modelId);
+};
+
+/* --------------------------------------------------
+   🆕 SET MODE — fast / deep / research (mutually exclusive)
+-------------------------------------------------- */
+window.setMode = (mode, btn) => {
+  // Reset thinking state
+  window.dynamoUI.tools.delete('deep');
+  window.dynamoUI.model = 'gemini-3.1-flash-lite';
+
+  if (mode === 'deep') {
+    window.dynamoUI.tools.add('deep');
+  } else if (mode === 'research') {
+    window.dynamoUI.model = 'research';
+    if (!window.dynamoUI.tools.has('search')) {
+      window.dynamoUI.tools.add('search');
+      document.querySelector('[data-tool-btn="search"]')?.classList.add('active');
     }
   }
 
-  console.log("✅ Model selected:", modelId);
+  // Update visual state — only one mode button can be active
+  document.querySelectorAll('[data-mode-btn]').forEach(b => b.classList.remove('active'));
+  btn?.classList.add('active');
+
+  // Refresh dependent UI (gap-finder badge etc.)
+  window.updateGapFinderBtn?.();
+
+  console.log("🎯 Mode set:", mode, "| tools:", [...window.dynamoUI.tools], "| model:", window.dynamoUI.model);
+};
+
+/* --------------------------------------------------
+   🆕 RUN CREATE — image / video / mindmap / flowchart / quiz
+   Prefills the chat input with a properly-worded prompt
+   so existing backend keyword routing kicks in.
+-------------------------------------------------- */
+window.runCreate = (kind) => {
+  const input = qs("chat-input");
+  if (!input) return;
+
+  const prompts = {
+    image:     "Create an image of ",
+    video:     "Create a video of ",
+    mindmap:   "Create a mindmap of ",
+    flowchart: "Create a flowchart for ",
+    quiz:      "Quiz me on "
+  };
+
+  const prefix = prompts[kind] || "";
+  input.value = prefix;
+  input.focus();
+  input.style.height = "";
+  input.style.height = input.scrollHeight + "px";
+
+  // Place caret at end
+  input.setSelectionRange(prefix.length, prefix.length);
+
+  // Close dropdown
+  qs("tools-dropdown")?.classList.add("hidden");
+
+  console.log("🎨 Create:", kind);
 };
 
 /* --------------------------------------------------
@@ -185,6 +236,96 @@ window.smartExplain = async () => {
   } catch (err) {
     console.error("Explain error:", err);
     window.renderAssistantMessage("Failed to explain.");
+  }
+};
+
+/* --------------------------------------------------
+   📚 STUDY GUIDE FLOW (modal → structured prompt)
+-------------------------------------------------- */
+window.openStudyGuideModal = () => {
+  qs("tools-dropdown")?.classList.add("hidden");
+  const modal = qs("study-guide-modal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  setTimeout(() => qs("study-guide-topic")?.focus(), 50);
+  window.lucide?.createIcons();
+};
+
+window.closeStudyGuideModal = () => {
+  qs("study-guide-modal")?.classList.add("hidden");
+};
+
+window.submitStudyGuide = async () => {
+  const topicEl = qs("study-guide-topic");
+  const skipEl  = qs("study-guide-skip-basics");
+  const topic   = (topicEl?.value || "").trim();
+  if (!topic) {
+    topicEl?.focus();
+    return;
+  }
+  const skipBasics = !!skipEl?.checked;
+  window.closeStudyGuideModal();
+
+  // Build a structured study-guide prompt
+  const skipLine = skipBasics
+    ? "I'm already familiar with the fundamentals. SKIP basic introductions and definitions of common terms — focus on advanced concepts, edge cases, and nuanced applications.\n\n"
+    : "";
+
+  const fullPrompt =
+`Generate a comprehensive study guide on: ${topic}
+
+${skipLine}Format the response in EXACTLY these four sections, in this order, using the headings shown:
+
+📌 KEY CONCEPTS
+List 5 main ideas with a 1-2 sentence explanation each.
+
+📖 DEFINITIONS
+Define 5-8 key terms with clear, concise definitions.
+
+💡 EXAMPLES
+Provide 3 real-world applications, case studies, or worked examples.
+
+❓ PRACTICE QUESTIONS
+Write 5 questions to test understanding. After each question, give the answer indented underneath.
+
+Use clean markdown. Be thorough but concise.`;
+
+  // Reset modal fields
+  if (topicEl) topicEl.value = "";
+  if (skipEl)  skipEl.checked = false;
+
+  // Show user a clean preview message in chat (NOT the long structured prompt)
+  const userLabel = `📚 Study guide: ${topic}${skipBasics ? "  (advanced)" : ""}`;
+  window.renderUserMessage?.(userLabel);
+
+  // Send DIRECTLY to backend with smart_action:true to bypass:
+  //   • quiz keyword detection (the word "questions" would otherwise trigger quiz)
+  //   • image keyword detection
+  //   • mindmap/flowchart routing
+  // We also enable deep_dive so the new gemini-3-flash-preview kicks in for deeper output.
+  window.showThinking?.();
+  try {
+    const payload = {
+      message: fullPrompt,
+      history: (window.chatHistory || []).slice(-10),
+      use_search: false,
+      deep_dive: true,
+      force_image: false,
+      smart_action: true,
+      chat_id: window.appState?.chatId,
+      user_id: window.appState?.supabaseUserId
+    };
+    const res = await window.callBackend("/chat", payload);
+    window.hideThinking?.();
+    if (res?.content) {
+      window.renderAssistantMessage?.(res.content);
+    } else {
+      window.renderAssistantMessage?.("Sorry, study guide generation failed. Please try again.");
+    }
+  } catch (err) {
+    console.error("📚 Study Guide error:", err);
+    window.hideThinking?.();
+    window.renderAssistantMessage?.("Sorry, study guide generation failed. Please try again.");
   }
 };
 

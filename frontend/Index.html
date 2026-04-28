@@ -890,20 +890,7 @@
         </button>
       </div>
 
-      <!-- FIND RESEARCH GAPS -->
-      <button
-        id="gap-finder-btn"
-        onclick="window.findResearchGaps()"
-        class="w-full mt-3 flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200"
-        style="border: 1.5px solid #2a2a2a; color: #666; opacity: 0.45; cursor: not-allowed;"
-        title="Enable DeepThink to use this"
-      >
-        <div class="flex items-center gap-3">
-          <span style="font-size:14px;">🔍</span>
-          <span class="text-sm font-semibold">Find Research Gaps</span>
-        </div>
-        <span id="gap-finder-badge" style="font-size:9px; font-weight:800; background:#2a2a2a; color:#666; border-radius:6px; padding:2px 7px; letter-spacing:0.05em;">DEEP</span>
-      </button>
+      <!-- Find Research Gaps moved into Tools dropdown (under DeepThink) -->
     </div>
 
     <!-- FOLDERS -->
@@ -1132,29 +1119,80 @@
     <div id="input-bar" class="absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 border-t border-gray-100 dark:border-gray-800 px-3 md:px-4 py-4 md:py-5 z-30">
       <div class="max-w-3xl mx-auto relative">
         
-        <!-- TOOLS DROPDOWN (DROP-UP) -->
-        <div id="tools-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-full sm:w-[20rem] bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-4 z-50">
-          <!-- MODEL SELECTION -->
-          <div class="mb-4">
-            <p class="text-[11px] font-bold uppercase text-gray-400 mb-3 flex items-center gap-2">🧠 Model Selection</p>
-            <div class="grid grid-cols-2 gap-2">
-              <button class="tool-pill active" data-model-btn onclick="window.selectModel('gemini-3.1-flash-lite',this)">Fast Mode</button>
-              <button class="tool-pill" data-model-btn onclick="window.selectModel('research', this)">Research Mode</button>
-            </div>
-          </div>
-          <!-- RESEARCH TOOLS -->
-          <div class="mb-4">
-            <p class="text-[11px] font-bold uppercase text-gray-400 mb-3 flex items-center gap-2">🔍 Research Tools</p>
-            <div class="grid grid-cols-2 gap-2">
-              <button class="tool-pill" onclick="window.toggleTool('deep',this)">DeepThink</button>
-              <button class="tool-pill" data-tool-btn="search" onclick="window.toggleTool('search',this)">Web Search</button>
-            </div>
-          </div>
-          <!-- AUDIO MODE -->
-          <div>
-            <p class="text-[11px] font-bold uppercase text-gray-400 mb-3 flex items-center gap-2">🔊 Audio Experience</p>
-            <button class="tool-pill" onclick="window.toggleTool('radio',this)">🎧 Radio Mode</button>
-          </div>
+        <!-- TOOLS DROPDOWN (DROP-UP) — v2 simplified menu -->
+        <style>
+          .menu-section-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #9ca3af; padding: 8px 10px 4px; }
+          .menu-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border-radius: 10px; font-size: 13.5px; font-weight: 600; color: #1f2937; background: transparent; border: none; cursor: pointer; transition: background .15s; text-align: left; }
+          .menu-row:hover { background: #fef3c7; }
+          .menu-row.active { background: #fde68a; color: #000; }
+          .menu-row .icon { width: 18px; text-align: center; font-size: 15px; flex-shrink: 0; }
+          .menu-row .hint { margin-left: auto; font-size: 10.5px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.04em; }
+          .menu-row.sub { padding-left: 36px; font-size: 12.5px; font-weight: 500; }
+          .menu-row.disabled { opacity: 0.45; cursor: not-allowed; }
+          .menu-row.disabled:hover { background: transparent; }
+          .menu-row.locked { opacity: 0.55; }
+          .menu-row .pro-tag { margin-left: auto; font-size: 9px; font-weight: 800; background: #2a2a2a; color: #facc15; border-radius: 5px; padding: 2px 6px; letter-spacing: 0.05em; }
+          .menu-row .soon-tag { margin-left: auto; font-size: 9px; font-weight: 800; background: #6b7280; color: #fff; border-radius: 5px; padding: 2px 6px; letter-spacing: 0.05em; }
+          .dark .menu-row { color: #e5e7eb; }
+          .dark .menu-row:hover { background: #374151; }
+          .dark .menu-row.active { background: #facc15; color: #000; }
+          .dark .menu-section-label { color: #6b7280; }
+        </style>
+        <div id="tools-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-full sm:w-[22rem] bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-2 z-50 max-h-[75vh] overflow-y-auto">
+
+          <!-- THINKING -->
+          <div class="menu-section-label">⚡ Thinking</div>
+          <button class="menu-row active" data-mode-btn data-mode="fast" onclick="window.setMode('fast', this)">
+            <span class="icon">⚡</span><span>Fast Mode</span><span class="hint">Quick</span>
+          </button>
+          <button class="menu-row" data-mode-btn data-mode="research" onclick="window.setMode('research', this)">
+            <span class="icon">🔬</span><span>Research Mode</span><span class="pro-tag">PRO</span>
+          </button>
+          <button class="menu-row" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this)">
+            <span class="icon">💡</span><span>DeepThink</span><span class="hint">Deeper</span>
+          </button>
+          <button id="gap-finder-btn" class="menu-row sub" onclick="window.findResearchGaps()" title="Enable DeepThink to use this">
+            <span class="icon">🔍</span><span>Find Research Gaps</span><span id="gap-finder-badge" class="hint">DEEP</span>
+          </button>
+          <button class="menu-row sub disabled" title="Coming soon">
+            <span class="icon">🤖</span><span>Deep Research Agent</span><span class="soon-tag">SOON</span>
+          </button>
+
+          <!-- CREATE -->
+          <div class="menu-section-label" style="margin-top:8px;">🎨 Create</div>
+          <button class="menu-row" onclick="window.runCreate('image')">
+            <span class="icon">🖼️</span><span>Image</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('video')">
+            <span class="icon">🎬</span><span>Video</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('mindmap')">
+            <span class="icon">🧠</span><span>Mindmap</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('flowchart')">
+            <span class="icon">📊</span><span>Flowchart</span>
+          </button>
+          <button class="menu-row" onclick="createExecutiveDeck()">
+            <span class="icon">📑</span><span>Executive Deck</span>
+          </button>
+
+          <!-- STUDY -->
+          <div class="menu-section-label" style="margin-top:8px;">🎓 Study</div>
+          <button class="menu-row" onclick="window.openStudyGuideModal()">
+            <span class="icon">📚</span><span>Generate Study Guide</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('quiz')">
+            <span class="icon">🧩</span><span>Quiz Me</span>
+          </button>
+
+          <!-- SOURCES -->
+          <div class="menu-section-label" style="margin-top:8px;">🔍 Sources</div>
+          <button class="menu-row" data-tool-btn="search" onclick="window.toggleTool('search', this)">
+            <span class="icon">🌐</span><span>Web Search</span>
+          </button>
+          <button class="menu-row" onclick="window.toggleTool('radio', this)">
+            <span class="icon">🎧</span><span>Radio Mode</span>
+          </button>
         </div>
 
         <!-- MAIN INPUT ROW -->
@@ -1178,6 +1216,41 @@
             <i data-lucide="arrow-up" class="w-5 h-5 text-black"></i>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STUDY GUIDE MODAL -->
+  <div id="study-guide-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-yellow-400 flex items-center justify-center text-base">📚</div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Generate Study Guide</h3>
+            <p class="text-[11px] text-gray-400">Concepts → Definitions → Examples → Practice</p>
+          </div>
+        </div>
+        <button onclick="window.closeStudyGuideModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="px-5 py-4 space-y-3">
+        <div>
+          <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">What do you want to study?</label>
+          <textarea id="study-guide-topic" rows="3" placeholder="e.g. Photosynthesis, Quantum entanglement, Machine learning basics..." class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400"></textarea>
+        </div>
+        <label class="flex items-start gap-2.5 cursor-pointer p-3 rounded-xl bg-gray-50 dark:bg-gray-800 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition">
+          <input type="checkbox" id="study-guide-skip-basics" class="mt-0.5 accent-yellow-500 w-4 h-4">
+          <div>
+            <p class="text-sm font-semibold text-gray-900 dark:text-white">Skip basics, focus on advanced</p>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400">Best if you already know fundamentals</p>
+          </div>
+        </label>
+      </div>
+      <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2 bg-gray-50 dark:bg-gray-800/50">
+        <button onclick="window.closeStudyGuideModal()" class="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Cancel</button>
+        <button onclick="window.submitStudyGuide()" class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-bold rounded-xl transition">Generate</button>
       </div>
     </div>
   </div>
@@ -1329,7 +1402,7 @@
 
  <!-- FEATURE LAYERS -->
  <script src="analysis_ui.js?v=20260425"></script>
- <script src="ui.js?v=20260425"></script>
+ <script src="ui.js?v=20260428b"></script>
  <script src="export_tools.js?v=20260423"></script>
  <script src="profile.js?v=20260425"></script>
  
