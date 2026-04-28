@@ -1092,18 +1092,6 @@
           <i data-lucide="zap" class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-black fill-current"></i>
         </div>
         <h1 class="text-2xl sm:text-3xl md:text-5xl font-black mb-6 sm:mb-8 md:mb-10 tracking-tight text-black dark:text-white max-w-lg">How can I help you?</h1>
-        
-        <div class="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 max-w-2xl mx-auto">
-          <button class="flex items-center gap-2 px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl md:rounded-2xl text-xs sm:text-sm md:text-sm font-bold text-black dark:text-white hover:bg-yellow-50 dark:hover:bg-gray-800 transition shadow-sm">
-            <i data-lucide="sparkles" class="w-3 h-3 sm:w-4 sm:h-4" style="color: #F9CC33;"></i> AI Trends 2026
-          </button>
-          <button class="flex items-center gap-2 px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl md:rounded-2xl text-xs sm:text-sm md:text-sm font-bold text-black dark:text-white hover:bg-yellow-50 dark:hover:bg-gray-800 transition shadow-sm">
-            <i data-lucide="bar-chart-3" class="w-3 h-3 sm:w-4 sm:h-4 text-blue-500"></i> Analyze Data
-          </button>
-          <button class="flex items-center gap-2 px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl md:rounded-2xl text-xs sm:text-sm md:text-sm font-bold text-black dark:text-white hover:bg-yellow-50 dark:hover:bg-gray-800 transition shadow-sm">
-            <i data-lucide="image" class="w-3 h-3 sm:w-4 sm:h-4 text-purple-500"></i> Create Image
-          </button>
-        </div>
 
         <!-- SCROLL INDICATOR (Mobile Only) -->
         <button onclick="document.getElementById('chat-area').scrollTo({top: document.getElementById('chat-area').scrollHeight, behavior: 'smooth'})" class="md:hidden mt-8 flex flex-col items-center animate-bounce cursor-pointer hover:opacity-80 transition">
@@ -1116,82 +1104,125 @@
     </main>
 
     <!-- INPUT BOX AREA -->
-    <div id="input-bar" class="absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 border-t border-gray-100 dark:border-gray-800 px-3 md:px-4 py-4 md:py-5 z-30">
+    <div id="input-bar" class="absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 border-t border-gray-100 dark:border-gray-800 px-3 md:px-4 py-4 md:py-5 z-30 transition-all duration-300">
       <div class="max-w-3xl mx-auto relative">
-        
-        <!-- TOOLS DROPDOWN (DROP-UP) — v2 simplified menu -->
-        <style>
-          .menu-section-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #9ca3af; padding: 8px 10px 4px; }
-          .menu-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border-radius: 10px; font-size: 13.5px; font-weight: 600; color: #1f2937; background: transparent; border: none; cursor: pointer; transition: background .15s; text-align: left; }
-          .menu-row:hover { background: #fef3c7; }
-          .menu-row.active { background: #fde68a; color: #000; }
-          .menu-row .icon { width: 18px; text-align: center; font-size: 15px; flex-shrink: 0; }
-          .menu-row .hint { margin-left: auto; font-size: 10.5px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.04em; }
-          .menu-row.sub { padding-left: 36px; font-size: 12.5px; font-weight: 500; }
-          .menu-row.disabled { opacity: 0.45; cursor: not-allowed; }
-          .menu-row.disabled:hover { background: transparent; }
-          .menu-row.locked { opacity: 0.55; }
-          .menu-row .pro-tag { margin-left: auto; font-size: 9px; font-weight: 800; background: #2a2a2a; color: #facc15; border-radius: 5px; padding: 2px 6px; letter-spacing: 0.05em; }
-          .menu-row .soon-tag { margin-left: auto; font-size: 9px; font-weight: 800; background: #6b7280; color: #fff; border-radius: 5px; padding: 2px 6px; letter-spacing: 0.05em; }
-          .dark .menu-row { color: #e5e7eb; }
-          .dark .menu-row:hover { background: #374151; }
-          .dark .menu-row.active { background: #facc15; color: #000; }
-          .dark .menu-section-label { color: #6b7280; }
-        </style>
-        <div id="tools-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-full sm:w-[22rem] bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-2 z-50 max-h-[75vh] overflow-y-auto">
 
-          <!-- THINKING -->
-          <div class="menu-section-label">⚡ Thinking</div>
+        <!-- ── EMPTY-STATE CENTERING ──
+             When the chat is empty (body lacks .chat-active), the input bar
+             floats up to the vertical centre, sitting just under "How can I
+             help you?" — like Gemini / Claude / ChatGPT empty state.
+             Once the user sends their first message, body.chat-active is added
+             and the bar slides back to the bottom dock.                          -->
+        <style>
+          /* Empty state — input bar floats in centre, no top border / shadow */
+          body:not(.chat-active) #input-bar {
+            position: absolute;
+            bottom: auto;
+            top: 50%;
+            transform: translateY(20%);
+            background: transparent !important;
+            border-top: none !important;
+            box-shadow: none !important;
+          }
+          body:not(.chat-active) #hero-section {
+            justify-content: flex-start;
+            padding-top: 8vh;
+            padding-bottom: 280px;   /* leaves room for the floating input */
+          }
+          @media (min-width: 768px) {
+            body:not(.chat-active) #hero-section { padding-top: 12vh; }
+          }
+        </style>
+
+        <!-- TOOLS DROPDOWN — compact modern menu (Claude / ChatGPT style) -->
+        <style>
+          .menu-row {
+            display: flex; align-items: center; gap: 10px; width: 100%;
+            padding: 7px 10px; border-radius: 8px;
+            font-size: 13px; font-weight: 500; color: #1f2937;
+            background: transparent; border: none; cursor: pointer;
+            transition: background .12s; text-align: left;
+          }
+          .menu-row:hover { background: #f3f4f6; }
+          .menu-row.active { background: #fef3c7; color: #000; font-weight: 600; }
+          .menu-row.active::after { content: "✓"; margin-left: auto; color: #ca8a04; font-weight: 700; }
+          .menu-row .ico { width: 18px; text-align: center; font-size: 14px; flex-shrink: 0; }
+          .menu-row .tag {
+            margin-left: auto; font-size: 9px; font-weight: 800;
+            border-radius: 4px; padding: 2px 5px; letter-spacing: 0.04em;
+          }
+          .menu-row .tag.pro  { background: #1f2937; color: #facc15; }
+          .menu-row .tag.soon { background: #d1d5db; color: #6b7280; }
+          .menu-row .tag.new  { background: #fbbf24; color: #000; }
+          .menu-row.sub { padding-left: 32px; font-size: 12px; opacity: 0.85; }
+          .menu-row.disabled, .menu-row[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; }
+          .menu-row.disabled:hover { background: transparent; }
+          .menu-divider { height: 1px; background: #e5e7eb; margin: 4px 6px; }
+          .dark .menu-row { color: #e5e7eb; }
+          .dark .menu-row:hover { background: #1f2937; }
+          .dark .menu-row.active { background: #facc15; color: #000; }
+          .dark .menu-divider { background: #374151; }
+        </style>
+        <div id="tools-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-72 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-1.5 z-50 max-h-[70vh] overflow-y-auto">
+
+          <!-- ─── THINKING MODES (mutually exclusive) ─── -->
           <button class="menu-row active" data-mode-btn data-mode="fast" onclick="window.setMode('fast', this)">
-            <span class="icon">⚡</span><span>Fast Mode</span><span class="hint">Quick</span>
-          </button>
-          <button class="menu-row" data-mode-btn data-mode="research" onclick="window.setMode('research', this)">
-            <span class="icon">🔬</span><span>Research Mode</span><span class="pro-tag">PRO</span>
+            <span class="ico">⚡</span><span>Fast</span>
           </button>
           <button class="menu-row" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this)">
-            <span class="icon">💡</span><span>DeepThink</span><span class="hint">Deeper</span>
+            <span class="ico">💡</span><span>DeepThink</span>
           </button>
-          <button id="gap-finder-btn" class="menu-row sub" onclick="window.findResearchGaps()" title="Enable DeepThink to use this">
-            <span class="icon">🔍</span><span>Find Research Gaps</span><span id="gap-finder-badge" class="hint">DEEP</span>
+          <button class="menu-row" data-mode-btn data-mode="research" onclick="window.setMode('research', this)">
+            <span class="ico">🔬</span><span>Research</span><span class="tag pro">PRO</span>
           </button>
-          <button class="menu-row sub disabled" title="Coming soon">
-            <span class="icon">🤖</span><span>Deep Research Agent</span><span class="soon-tag">SOON</span>
-          </button>
-
-          <!-- CREATE -->
-          <div class="menu-section-label" style="margin-top:8px;">🎨 Create</div>
-          <button class="menu-row" onclick="window.runCreate('image')">
-            <span class="icon">🖼️</span><span>Image</span>
-          </button>
-          <button class="menu-row" onclick="window.runCreate('video')">
-            <span class="icon">🎬</span><span>Video</span>
-          </button>
-          <button class="menu-row" onclick="window.runCreate('mindmap')">
-            <span class="icon">🧠</span><span>Mindmap</span>
-          </button>
-          <button class="menu-row" onclick="window.runCreate('flowchart')">
-            <span class="icon">📊</span><span>Flowchart</span>
-          </button>
-          <button class="menu-row" onclick="createExecutiveDeck()">
-            <span class="icon">📑</span><span>Executive Deck</span>
+          <button id="gap-finder-btn" class="menu-row sub" onclick="window.findResearchGaps()" title="Use after a DeepThink reply to find unexplored angles">
+            <span class="ico">🔍</span><span>Find research gaps</span><span id="gap-finder-badge" class="tag soon">DEEP</span>
           </button>
 
-          <!-- STUDY -->
-          <div class="menu-section-label" style="margin-top:8px;">🎓 Study</div>
-          <button class="menu-row" onclick="window.openStudyGuideModal()">
-            <span class="icon">📚</span><span>Generate Study Guide</span>
-          </button>
-          <button class="menu-row" onclick="window.runCreate('quiz')">
-            <span class="icon">🧩</span><span>Quiz Me</span>
-          </button>
+          <div class="menu-divider"></div>
 
-          <!-- SOURCES -->
-          <div class="menu-section-label" style="margin-top:8px;">🔍 Sources</div>
+          <!-- ─── SOURCES (toggles) ─── -->
           <button class="menu-row" data-tool-btn="search" onclick="window.toggleTool('search', this)">
-            <span class="icon">🌐</span><span>Web Search</span>
+            <span class="ico">🌐</span><span>Web search</span>
           </button>
           <button class="menu-row" onclick="window.toggleTool('radio', this)">
-            <span class="icon">🎧</span><span>Radio Mode</span>
+            <span class="ico">🎧</span><span>Radio mode</span>
+          </button>
+
+          <div class="menu-divider"></div>
+
+          <!-- ─── CREATE ─── -->
+          <button class="menu-row" onclick="window.runCreate('image')">
+            <span class="ico">🖼️</span><span>Create image</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('video')">
+            <span class="ico">🎬</span><span>Create video</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('mindmap')">
+            <span class="ico">🧠</span><span>Mindmap</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('flowchart')">
+            <span class="ico">📊</span><span>Flowchart</span>
+          </button>
+          <button class="menu-row" onclick="createExecutiveDeck()">
+            <span class="ico">📑</span><span>Executive deck</span>
+          </button>
+
+          <div class="menu-divider"></div>
+
+          <!-- ─── STUDY ─── -->
+          <button class="menu-row" onclick="window.openStudyGuideModal()">
+            <span class="ico">📚</span><span>Study guide</span><span class="tag new">NEW</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('quiz')">
+            <span class="ico">🧩</span><span>Quiz me</span>
+          </button>
+
+          <div class="menu-divider"></div>
+
+          <!-- ─── COMING SOON ─── -->
+          <button class="menu-row disabled" aria-disabled="true" title="Coming soon">
+            <span class="ico">🤖</span><span>Deep research agent</span><span class="tag soon">SOON</span>
           </button>
         </div>
 
@@ -1392,7 +1423,7 @@
  <script src="audio_engine.js?v=20260423"></script>
  
  <!-- CHAT SYSTEM (must load before sidebar so render functions are available) -->
- <script src="chat.js?v=20260425"></script>
+ <script src="chat.js?v=20260428c"></script>
 
  <!-- SIDERBAR -->
  <script src="sidebar.js?v=20260425b"></script>
@@ -1402,7 +1433,7 @@
 
  <!-- FEATURE LAYERS -->
  <script src="analysis_ui.js?v=20260425"></script>
- <script src="ui.js?v=20260428b"></script>
+ <script src="ui.js?v=20260428c"></script>
  <script src="export_tools.js?v=20260423"></script>
  <script src="profile.js?v=20260425"></script>
  

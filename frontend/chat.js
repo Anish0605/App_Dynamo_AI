@@ -149,10 +149,14 @@ ${userText}
 /* ---------------- HELPERS ---------------- */
 function hideHero() {
   if (heroSection) heroSection.style.display = "none";
+  // Mark body as "chat active" so the input bar slides from centre to bottom dock
+  document.body.classList.add("chat-active");
 }
 
 function showHero() {
   if (heroSection) heroSection.style.display = "flex";
+  // Re-enter empty state — input bar floats to vertical centre
+  document.body.classList.remove("chat-active");
 }
 
 window.hideHero = hideHero;
@@ -1446,13 +1450,36 @@ window.findResearchGaps = async () => {
 
   try {
     const res = await window.callBackend("/chat", {
-      message: `You are a research analyst. Based on the following content, identify 3–5 significant research gaps, unexplored angles, or underrepresented perspectives. For each gap, give it a clear title and a 1–2 sentence explanation of why it matters and what remains unstudied. Be specific, academic, and actionable.\n\nCONTENT:\n${lastReply.content.slice(0, 4000)}`,
+      // Ask Gemini to act as a research analyst on the previous reply,
+      // AND to web-search recent literature so the gaps are grounded in
+      // *actual* unexplored territory — not just the model's prior beliefs.
+      message: `You are a research analyst with web-search access.
+
+CONTEXT — previous answer the user received:
+"""
+${lastReply.content.slice(0, 4000)}
+"""
+
+YOUR TASK:
+1. Use web search to find recent (2024-2026) academic papers, reports, and discussions on this topic.
+2. Compare what the previous answer covered against what is being actively studied right now.
+3. Identify 3–5 SIGNIFICANT RESEARCH GAPS — unexplored angles, contested findings, or underrepresented perspectives that the previous answer MISSED or glossed over.
+
+OUTPUT FORMAT (markdown):
+For each gap, use this structure:
+
+### Gap N: <Clear title>
+**Why it matters:** 1–2 sentences on real-world impact.
+**What's missing:** 1–2 sentences on what remains unstudied or contested.
+**Suggested angle:** 1 concrete research question or experiment.
+
+End with a "📚 Sources" section listing the URLs you actually used.`,
       history: [],
-      use_search: false,
-      deep_dive: true,
+      use_search: true,        // ← critical: actually web-search to find real gaps
+      deep_dive: true,         // ← uses gemini-3-flash-preview
       force_image: false,
       mode: "chat",
-      citation_format: "",
+      citation_format: "inline",
       chat_id: currentChatId,
       user_id: userId
     });

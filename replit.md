@@ -34,22 +34,33 @@ Dynamo AI is a professional-grade Research Operating System. It combines a FastA
 - **DeepThink** (`deep_dive=True`): `gemini-3-flash-preview` — built-in thinking, ~5x intelligence vs lite. `deep_dive` always wins over the default `model_name`. Falls back to lite if unavailable.
 - **Research Mode** (`mode="research"`): APIMart-routed pipeline (Claude Sonnet 4.5 → Gemini 3.1 → GPT-5.4) via `multi_model_router.py` — DO NOT modify
 
-## Tools Menu Architecture (v2 — April 28, 2026)
-The bottom-bar Tools dropdown is a 4-section nested menu defined inline in `Index.html`:
-- **⚡ Thinking** — mutually-exclusive mode buttons (Fast / Research / DeepThink). DeepThink expands a sub-row with "Find Research Gaps" (active when DeepThink is on) + "Deep Research Agent" (placeholder, SOON).
-- **🎨 Create** — prefills chat input via `window.runCreate(kind)`: Image / Video / Mindmap / Flowchart / Executive Deck.
-- **🎓 Study** — "Generate Study Guide" opens a modal (`#study-guide-modal`) with topic + skip-basics checkbox; sends a structured 4-section prompt via `smart_action:true` to bypass quiz keyword detection.
-- **🔍 Sources** — toggles Web Search and Radio Mode.
+## Tools Menu Architecture (v3 — April 28, 2026)
+Compact, modern Tools dropdown defined inline in `Index.html` (~288px wide, Claude/ChatGPT style):
+- **No uppercase section headers** — just thin `<div class="menu-divider">` lines between groups.
+- **Modes** (mutually exclusive, show ✓ when active): Fast / DeepThink / Research (PRO)
+  - Sub-row under DeepThink: "Find research gaps" — see below for behavior.
+- **Sources** (toggles): Web search / Radio mode
+- **Create** (prefills chat input): Image / Video / Mindmap / Flowchart / Executive deck
+- **Study**: Study guide (opens modal), Quiz me
+- **Coming soon**: Deep research agent (disabled placeholder)
 
-Key JS functions in `frontend/ui.js`:
-- `window.setMode(mode, btn)` — sets fast/deep/research (mutually exclusive)
-- `window.runCreate(kind)` — prefills chat input with the right prompt prefix
-- `window.openStudyGuideModal()` / `submitStudyGuide()` — Study Guide flow
-- `window.toggleTool(tool, btn)` — independent toggles for Web Search / Radio
+### Find Research Gaps — actual behavior
+NOT a toggle, NOT a chat-input prefill. It's a **post-reply analyser**:
+1. User asks something (e.g. "explain blockchain") in DeepThink mode → gets normal answer.
+2. User clicks "Find research gaps" in the Tools menu.
+3. The function (`window.findResearchGaps()` in `chat.js`) takes the LAST assistant reply, sends it back to `/chat` with `use_search:true` + `deep_dive:true`, and asks Gemini to web-search recent papers and identify 3–5 gaps the original answer missed.
+4. Output is a structured markdown list with: title / why it matters / what's missing / suggested angle / sources.
 
-The "Find Research Gaps" sidebar button has been **removed** — it now lives only inside the Tools menu under DeepThink. The legacy IDs `gap-finder-btn` and `gap-finder-badge` are preserved on the new menu row so `updateGapFinderBtn()` in `chat.js` still works.
+### Empty-state centered input (Gemini/Claude style)
+- `body.chat-active` class is toggled by `hideHero()` / `showHero()` in `chat.js`.
+- CSS rule `body:not(.chat-active) #input-bar { top: 50%; transform: translateY(20%); }` floats the input bar to the visual centre when chat is empty.
+- Once the user sends their first message, the bar slides back to the bottom dock with a smooth transition.
 
-Cache version: `ui.js?v=20260428b`
+### Other notes
+- The 3 hero suggestion chips (AI Trends 2026 / Analyze Data / Create Image) have been removed.
+- Study Guide modal sends with `smart_action:true` to bypass the quiz keyword router (the word "questions" would otherwise misroute).
+
+Cache version: `ui.js?v=20260428c`, `chat.js?v=20260428c`
 - **Edge TTS** — Text to speech
 - **Razorpay** — Payment processing (Plus ₹199/mo, Pro ₹499/mo)
 
