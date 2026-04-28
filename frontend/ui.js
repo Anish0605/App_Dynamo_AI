@@ -31,52 +31,62 @@ window.toggleSidebarMenu = (menuId) => {
 };
 
 /* --------------------------------------------------
-   TOOLS DROPDOWN (BOTTOM BAR) — Gemini-style split
-   "+"   → plus-dropdown   (files / uploads)
-   Tools → tools-dropdown  (modes + tools)
+   BOTTOM BAR MENUS — two separate dropdowns
+   "+"       → #plus-dropdown    (Daily + Mode selector + More flyout)
+   ⚙️ gear   → #tools-dropdown   (Study + Create + More flyouts)
 -------------------------------------------------- */
-// "+" opens the combined menu (Daily / Thinking / Study / Create)
 window.togglePlus = (e) => {
   e?.stopPropagation();
-  qs("mode-popover")?.classList.add("hidden");           // close the other one
+  // Close the other menu + all flyouts
+  qs("tools-dropdown")?.classList.add("hidden");
+  window._closeAllFlyouts?.();
   qs("plus-dropdown")?.classList.toggle("hidden");
 };
 
 window.closePlus = () => {
   qs("plus-dropdown")?.classList.add("hidden");
+  window._closeAllFlyouts?.();
 };
 
-// ⚙️ gear opens the small mode picker (Fast / DeepThink / Research)
-window.toggleModePicker = (e) => {
+window.toggleTools = (e) => {
   e?.stopPropagation();
-  qs("plus-dropdown")?.classList.add("hidden");          // close the other one
-  qs("mode-popover")?.classList.toggle("hidden");
+  // Close the other menu + all flyouts
+  qs("plus-dropdown")?.classList.add("hidden");
+  window._closeAllFlyouts?.();
+  qs("tools-dropdown")?.classList.toggle("hidden");
 };
 
-window.closeModePicker = () => {
-  qs("mode-popover")?.classList.add("hidden");
+window.closeTools = () => {
+  qs("tools-dropdown")?.classList.add("hidden");
+  window._closeAllFlyouts?.();
 };
 
-// Backwards-compat: anything that still calls toggleTools just opens the combined plus menu
-window.toggleTools = (e) => window.togglePlus(e);
-window.closeTools  = () => window.closePlus();
+// Legacy compat aliases
+window.toggleModePicker = (e) => window.togglePlus(e);
+window.closeModePicker  = ()  => window.closePlus();
 
+// Click-outside: close both menus (but NOT if click is inside a flyout or More button)
 document.addEventListener("click", (e) => {
-  // plus-dropdown click-outside
-  const plusDd  = qs("plus-dropdown");
-  const plusBtn = qs("plus-btn");
-  if (plusDd && plusBtn && !plusDd.classList.contains('hidden')) {
-    if (!plusDd.contains(e.target) && !plusBtn.contains(e.target)) {
-      plusDd.classList.add("hidden");
-    }
-  }
+  const inFlyout  = e.target.closest('.menu-flyout');
+  const inMoreBtn = e.target.closest('.menu-more-row');
 
-  // mode-popover click-outside
-  const modeDd  = qs("mode-popover");
-  const modeBtn = qs("mode-btn");
-  if (modeDd && modeBtn && !modeDd.classList.contains('hidden')) {
-    if (!modeDd.contains(e.target) && !modeBtn.contains(e.target)) {
-      modeDd.classList.add("hidden");
+  if (!inFlyout && !inMoreBtn) {
+    // Close plus-dropdown if click outside
+    const plusDd  = qs("plus-dropdown");
+    const plusBtn = qs("plus-btn");
+    if (plusDd && !plusDd.classList.contains('hidden')) {
+      if (!plusDd.contains(e.target) && !plusBtn?.contains(e.target)) {
+        plusDd.classList.add("hidden");
+      }
+    }
+
+    // Close tools-dropdown if click outside
+    const toolsDd  = qs("tools-dropdown");
+    const toolsBtn = qs("tools-btn");
+    if (toolsDd && !toolsDd.classList.contains('hidden')) {
+      if (!toolsDd.contains(e.target) && !toolsBtn?.contains(e.target)) {
+        toolsDd.classList.add("hidden");
+      }
     }
   }
 });
@@ -251,8 +261,10 @@ window.runCreate = (kind) => {
   // Place caret at end
   input.setSelectionRange(prefix.length, prefix.length);
 
-  // Close dropdown (combined plus menu)
+  // Close menus + flyouts
   qs("plus-dropdown")?.classList.add("hidden");
+  qs("tools-dropdown")?.classList.add("hidden");
+  window._closeAllFlyouts?.();
 
   console.log("🎨 Create:", kind);
 };

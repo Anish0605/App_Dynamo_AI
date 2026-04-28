@@ -1226,111 +1226,128 @@
           .dark .menu-row.active .ico { color: #facc15; }
           .dark .menu-section-label { color: #6b7280; }
         </style>
-        <!-- ─── PLUS DROPDOWN (Single combined menu — Daily / Thinking / Study / Create) ─── -->
-        <div id="plus-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-[290px] bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-1.5 z-50 max-h-[75vh] overflow-y-auto">
+        <!-- ─── PLUS DROPDOWN ─── Daily + Mode selector with right-side flyout -->
+        <div id="plus-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-[260px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-1.5 z-50">
 
-          <!-- ─── DAILY ─── -->
+          <!-- Daily -->
           <div class="menu-section-label">Daily</div>
+          <button class="menu-row" onclick="window.openAnalyzeFile?.(); window.closePlus?.();">
+            <span class="ico">📎</span><span>Add photos &amp; files</span>
+          </button>
           <button class="menu-row" data-tool-btn="search" onclick="window.toggleTool('search', this)">
             <span class="ico">🌐</span><span>Web search</span>
           </button>
-          <button class="menu-row" onclick="window.openAnalyzeFile?.(); window.closePlus?.();">
-            <span class="ico">📎</span><span>Attach files &amp; photos</span>
-          </button>
 
-          <!-- ─── THINKING ─── -->
-          <div class="menu-section-label">Thinking</div>
+          <!-- Mode selector -->
+          <div class="menu-section-label">Mode selector</div>
           <button class="menu-row active" data-mode-btn data-mode="fast" onclick="window.setMode('fast', this)">
-            <span class="ico">⚡</span><span>Fast mode</span>
-          </button>
-          <button class="menu-row has-tag" data-mode-btn data-mode="research" onclick="window.setMode('research', this)">
-            <span class="ico">🔬</span><span>Research Mode</span><span class="tag pro">PRO</span>
-          </button>
-          <button class="menu-row" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this)">
-            <span class="ico">💡</span><span>DeepThink</span>
-          </button>
-          <!-- Indented sub-actions under DeepThink -->
-          <button id="gap-finder-btn" class="menu-row menu-row-sub" onclick="window.findResearchGaps(); window.closePlus?.();" title="Use after a DeepThink reply to find unexplored angles">
-            <span class="ico">🔍</span><span>Find research gaps</span><span id="gap-finder-badge" class="tag soon">DEEP</span>
-          </button>
-          <button class="menu-row menu-row-sub disabled has-tag" aria-disabled="true" title="Coming soon">
-            <span class="ico">🤖</span><span>Deep Research agent</span><span class="tag soon">SOON</span>
-          </button>
-
-          <!-- ─── STUDY ─── -->
-          <div class="menu-section-label">Study</div>
-          <button class="menu-row" onclick="window.openQuizModal(); window.closePlus?.();">
-            <span class="ico">🧠</span><span>Quiz me</span>
-          </button>
-          <button class="menu-row" onclick="window.openStudyGuideModal(); window.closePlus?.();">
-            <span class="ico">📖</span><span>Study guide</span>
-          </button>
-          <button class="menu-row has-tag" onclick="window.toggleTool('radio', this)">
-            <span class="ico">🎧</span><span>Radio tutor</span><span class="tag new">NEW</span>
-          </button>
-
-          <!-- ─── CREATE ─── -->
-          <div class="menu-section-label">Create</div>
-          <button class="menu-row" onclick="window.runCreate('image'); window.closePlus?.();">
-            <span class="ico">🖼️</span><span>Generate image</span>
-          </button>
-          <button class="menu-row" onclick="window.runCreate('video'); window.closePlus?.();">
-            <span class="ico">🎬</span><span>Generate video</span>
-          </button>
-          <button class="menu-row" onclick="window.runCreate('mindmap'); window.closePlus?.();">
-            <span class="ico">🧠</span><span>Mindmap</span>
-          </button>
-          <button class="menu-row" onclick="window.runCreate('flowchart'); window.closePlus?.();">
-            <span class="ico">📊</span><span>Flowchart</span>
-          </button>
-        </div>
-
-        <!-- ─── MODE POPOVER (small, opened by gear icon) ─── -->
-        <div id="mode-popover" class="hidden absolute bottom-full mb-3 left-12 w-[220px] bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-1.5 z-50">
-          <div class="menu-section-label">Current mode</div>
-          <button class="menu-row active" data-mode-btn data-mode="fast" onclick="window.setMode('fast', this); window.closeModePicker?.();">
             <span class="ico">⚡</span><span>Fast</span>
           </button>
-          <button class="menu-row" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this); window.closeModePicker?.();">
-            <span class="ico">💡</span><span>DeepThink</span>
+          <button class="menu-row has-tag" data-mode-btn data-mode="research" onclick="window.setMode('research', this)">
+            <span class="ico">🔬</span><span>Research</span><span class="tag pro">PLUS</span>
           </button>
-          <button class="menu-row has-tag" data-mode-btn data-mode="research" onclick="window.setMode('research', this); window.closeModePicker?.();">
-            <span class="ico">🔬</span><span>Research</span><span class="tag pro">PRO</span>
+          <button class="menu-row has-tag" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this)">
+            <span class="ico">💡</span><span>DeepThink</span><span class="tag pro">PRO</span>
+          </button>
+          <!-- More → right-side flyout -->
+          <button class="menu-row menu-more-row" aria-expanded="false"
+                  onclick="window.toggleSubMenu('mode-more-flyout', this); event.stopPropagation();">
+            <span class="ico">···</span><span>More</span>
+            <span class="chev">›</span>
           </button>
         </div>
 
-        <!-- Indented sub-row + active checkmark styling -->
-        <style>
-          .menu-row-sub { padding-left: 32px; font-size: 13px; color: #4b5563; }
-          .menu-row-sub .ico { font-size: 14px; }
-          .dark .menu-row-sub { color: #9ca3af; }
-          .menu-row.active .check-mark {
-            margin-left: auto;
-            width: 18px; height: 18px;
-            display: inline-flex; align-items: center; justify-content: center;
-            background: #facc15; color: #0a0a09; border-radius: 50%;
-            font-size: 11px; font-weight: 800;
-          }
-        </style>
+        <!-- ─── TOOLS DROPDOWN ─── Study + Create with right-side flyouts -->
+        <div id="tools-dropdown" class="hidden absolute bottom-full mb-3 left-10 w-[260px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-1.5 z-50">
 
-        <!-- Flyout styles (ChatGPT-style More menus) -->
+          <!-- Study -->
+          <div class="menu-section-label">Study</div>
+          <button class="menu-row" onclick="window.openStudyGuideModal(); window.closeTools?.();">
+            <span class="ico">📚</span><span>Quick study guide</span>
+          </button>
+          <button class="menu-row has-tag" onclick="window.toggleTool('radio', this)">
+            <span class="ico">🎧</span><span>Radio mode</span><span class="tag new">NEW</span>
+          </button>
+          <button class="menu-row menu-more-row" aria-expanded="false"
+                  onclick="window.toggleSubMenu('study-more-flyout', this); event.stopPropagation();">
+            <span class="ico">···</span><span>More</span>
+            <span class="chev">›</span>
+          </button>
+
+          <!-- Create Anything -->
+          <div class="menu-section-label">Create Anything</div>
+          <button class="menu-row" onclick="window.runCreate('image'); window.closeTools?.();">
+            <span class="ico">🖼️</span><span>Generate Image</span>
+          </button>
+          <button class="menu-row disabled has-tag" aria-disabled="true">
+            <span class="ico">📊</span><span>Slides</span><span class="tag soon">SOON</span>
+          </button>
+          <button class="menu-row menu-more-row" aria-expanded="false"
+                  onclick="window.toggleSubMenu('create-more-flyout', this); event.stopPropagation();">
+            <span class="ico">···</span><span>More</span>
+            <span class="chev">›</span>
+          </button>
+        </div>
+
+        <!-- ═══ RIGHT-SIDE FLYOUTS (position: fixed, ChatGPT style) ═══ -->
+
+        <!-- Mode More flyout -->
+        <div id="mode-more-flyout" class="menu-flyout hidden">
+          <button id="gap-finder-btn" class="menu-row" onclick="window.findResearchGaps(); window._closeAllFlyouts(); window.closePlus?.();"
+                  title="Use after a DeepThink reply to find unexplored angles">
+            <span class="ico">🔍</span><span>Find research gaps</span>
+            <span id="gap-finder-badge" class="tag soon">DEEP</span>
+          </button>
+          <button class="menu-row disabled has-tag" aria-disabled="true">
+            <span class="ico">🤖</span><span>Deep research agent</span>
+            <span class="tag soon">SOON</span>
+          </button>
+        </div>
+
+        <!-- Study More flyout -->
+        <div id="study-more-flyout" class="menu-flyout hidden">
+          <button class="menu-row" onclick="window.openQuizModal(); window._closeAllFlyouts(); window.closeTools?.();">
+            <span class="ico">🧠</span><span>Quiz me</span>
+          </button>
+          <button class="menu-row disabled has-tag" aria-disabled="true">
+            <span class="ico">📇</span><span>Flashcards</span>
+            <span class="tag soon">SOON</span>
+          </button>
+        </div>
+
+        <!-- Create More flyout -->
+        <div id="create-more-flyout" class="menu-flyout hidden">
+          <button class="menu-row" onclick="window.runCreate('video'); window._closeAllFlyouts(); window.closeTools?.();">
+            <span class="ico">🎬</span><span>Generate Video</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('mindmap'); window._closeAllFlyouts(); window.closeTools?.();">
+            <span class="ico">🧠</span><span>Mindmaps</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('flowchart'); window._closeAllFlyouts(); window.closeTools?.();">
+            <span class="ico">📊</span><span>Flowcharts</span>
+          </button>
+        </div>
+
+        <!-- ═══ FLYOUT + MORE-ROW STYLES ═══ -->
         <style>
+          /* "More" trigger rows */
           .menu-more-row { color: #4b5563; }
-          .menu-more-row .ico { color: #9ca3af; }
-          .menu-more-row .chev { margin-left: auto; color: #9ca3af; transition: color .12s; }
+          .menu-more-row .ico { color: #9ca3af; font-style: normal; letter-spacing: -.5px; }
+          .menu-more-row .chev { margin-left: auto; font-size: 15px; color: #9ca3af; transition: color .12s; }
           .menu-more-row.expanded { background: #fffbe6; color: #0a0a09; }
           .menu-more-row.expanded .ico,
           .menu-more-row.expanded .chev { color: #facc15; }
           .dark .menu-more-row { color: #9ca3af; }
           .dark .menu-more-row.expanded { background: #422006; color: #facc15; }
 
+          /* Right-side flyout panel */
           .menu-flyout {
-            position: fixed; z-index: 60; min-width: 200px;
-            background: white; border: 1.5px solid #e5e7eb;
+            position: fixed; z-index: 9999; min-width: 210px;
+            background: #fff; border: 1.5px solid #e5e7eb;
             border-radius: 16px; padding: 6px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.18), 0 4px 14px rgba(0,0,0,0.08);
-            opacity: 0; transform: translateX(-4px) scale(0.98);
-            transition: opacity .12s ease, transform .12s ease;
+            opacity: 0; transform: translateX(-6px) scale(0.97);
+            transition: opacity .13s ease, transform .13s ease;
             pointer-events: none;
           }
           .menu-flyout.open {
@@ -1345,16 +1362,16 @@
           <!-- TEXTAREA -->
           <textarea id="chat-input" rows="1" placeholder="Ask Dynamo anything..." class="block w-full resize-none bg-transparent outline-none py-1.5 px-1 text-sm sm:text-base text-gray-900 dark:text-white max-h-32 md:max-h-48 scrollbar-hide" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
 
-          <!-- ACTIONS ROW: [+ gold] [Tools] ... [Mode] [Mic red] [Send] -->
+          <!-- ACTIONS ROW: [+ gold] [⚙️ Tools] [🎙️ Mic] ... [Send] -->
           <div class="flex items-center gap-2 mt-1.5">
-            <!-- "+" — golden yellow border, opens FILES menu -->
-            <button id="plus-btn" onclick="window.togglePlus(event)" title="Add files"
+            <!-- "+" — golden border, opens Daily + Mode selector menu -->
+            <button id="plus-btn" onclick="window.togglePlus(event)" title="Add files / change mode"
                     class="w-9 h-9 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 hover:bg-yellow-50 dark:hover:bg-gray-800 transition shrink-0">
               <i data-lucide="plus" class="w-4 h-4" stroke-width="2.5"></i>
             </button>
 
-            <!-- ⚙️ MODE PICKER GEAR — shows tiny popover with Fast / DeepThink / Research -->
-            <button id="mode-btn" onclick="window.toggleModePicker(event)" title="Mode: Fast"
+            <!-- ⚙️ TOOLS GEAR — opens Study + Create menu -->
+            <button id="tools-btn" onclick="window.toggleTools(event)" title="Tools"
                     class="relative w-9 h-9 flex items-center justify-center rounded-full text-gray-600 dark:text-gray-300 hover:bg-yellow-50 dark:hover:bg-gray-800 hover:text-black dark:hover:text-yellow-400 transition shrink-0">
               <i data-lucide="settings" class="w-4 h-4"></i>
               <span class="absolute top-1 right-1 w-2 h-2 bg-yellow-400 rounded-full border border-white dark:border-gray-900"></span>
@@ -1674,7 +1691,7 @@
 
  <!-- FEATURE LAYERS -->
  <script src="analysis_ui.js?v=20260425"></script>
- <script src="ui.js?v=20260428l"></script>
+ <script src="ui.js?v=20260428m"></script>
  <script src="export_tools.js?v=20260423"></script>
  <script src="profile.js?v=20260425"></script>
  

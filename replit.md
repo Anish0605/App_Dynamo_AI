@@ -34,30 +34,30 @@ Dynamo AI is a professional-grade Research Operating System. It combines a FastA
 - **DeepThink** (`deep_dive=True`): `gemini-3-flash-preview` — built-in thinking, ~5x intelligence vs lite. `deep_dive` always wins over the default `model_name`. Falls back to lite if unavailable.
 - **Research Mode** (`mode="research"`): APIMart-routed pipeline (Claude Sonnet 4.5 → Gemini 3.1 → GPT-5.4) via `multi_model_router.py` — DO NOT modify
 
-## Composer Architecture (Simplified Tools v3 — single combined menu, April 28, 2026)
-Bottom input bar: textarea on top, action row below, single yellow-bordered wrapper (`frontend/Index.html` ~1352-1381).
+## Composer Architecture (Split Two-Menu + Right-Side Flyouts, April 28, 2026)
+Bottom input bar: textarea on top, action row below, single yellow-bordered wrapper (`frontend/Index.html` ~1364-1400).
 
-**Action row** (left → right): `+` button · ⚙️ gear · 🎙️ mic · (spacer) · ↑ send. No Tools pill, no Fast mode pill.
+**Action row** (left → right): `+` button · ⚙️ gear (Tools) · 🎙️ mic · (spacer) · ↑ send.
 
-**`+` button** (`#plus-btn`, golden border) → opens single combined `#plus-dropdown` with 4 sections:
-- *Daily*: Web search (toggle), Attach files & photos
-- *Thinking*: Fast mode (active), Research Mode [PRO], DeepThink, indented `Find research gaps` + indented `Deep Research agent` [SOON]
-- *Study*: Quiz me, Study guide, Radio tutor [NEW]
-- *Create*: Generate image, Generate video, Mindmap, Flowchart
+**`+` button** (`#plus-btn`, golden border) → `#plus-dropdown`:
+- *Daily*: Add photos & files · Web search
+- *Mode selector*: Fast (active) · Research [PLUS] · DeepThink [PRO] · **More ›** → right-side flyout `#mode-more-flyout` (Find research gaps · Deep research agent [SOON])
 
-**⚙️ gear** (`#mode-btn`, with always-on gold dot indicator) → opens small `#mode-popover` (Fast / DeepThink / Research [PRO]). Opening one menu auto-closes the other.
+**⚙️ gear** (`#tools-btn`, gold dot indicator) → `#tools-dropdown`:
+- *Study*: Quick study guide · Radio mode [NEW] · **More ›** → right-side flyout `#study-more-flyout` (Quiz me · Flashcards [SOON])
+- *Create Anything*: Generate Image · Slides [SOON] · **More ›** → right-side flyout `#create-more-flyout` (Generate Video · Mindmaps · Flowcharts)
 
-**Mode sync**: `setMode(mode, btn)` in `ui.js` updates ALL elements with `[data-mode-btn]` (across both plus menu and gear popover) so selection stays consistent. Also updates `#mode-btn` title attribute (e.g. "Mode: DeepThink").
+**ChatGPT-style flyouts**: `toggleSubMenu(id, btn)` in `ui.js` uses `position: fixed` + `getBoundingClientRect` to place flyout to the RIGHT of the parent dropdown. Parent dropdown stays open while a flyout is shown. `_closeAllFlyouts()` closes all `.menu-flyout` panels safely. Click-outside ignores clicks inside `.menu-flyout` and `.menu-more-row`.
 
-**Mic** (`#mic-btn`): light-red (`bg-red-100 text-red-600`). **Send**: yellow rounded.
+**Mutual exclusion**: Opening `#plus-dropdown` auto-closes `#tools-dropdown` and vice versa, plus `_closeAllFlyouts()`.
+
+**Mode sync**: `setMode(mode, btn)` updates all `[data-mode-btn]` elements. Legacy aliases: `toggleModePicker` → `togglePlus`, `closeModePicker` → `closePlus`.
+
+**Mic** (`#mic-btn`): light-red. **Send**: yellow rounded.
 
 **Suggestion chips** (`#hero-chips`): Make a study guide · Research a topic · Quiz me · Summarise a PDF · 🎨 Create a deck.
 
-**Backend**: Mindmap and Flowchart prefills route through existing `runCreate(kind)` → keyword-routing in `backend/main.py` (already imports `mindmap.py` and `flowchart.py`). No backend changes were needed for this UI.
-
-**Backwards-compat**: `window.toggleTools` / `window.closeTools` still exist as aliases for `togglePlus` / `closePlus`. Hidden `#mode-pill-label` (sr-only) preserved so legacy code that writes to it doesn't break. Old flyout helpers (`toggleSubMenu`, `_closeAllFlyouts`) remain in `ui.js` but are no longer called by markup.
-
-Cache key: `ui.js?v=20260428k`. No backend restart needed (FastAPI serves frontend statically).
+Cache key: `ui.js?v=20260428m`. No backend restart needed (FastAPI serves frontend statically).
 
 ## Brand Asset (April 28, 2026)
 New polished Dynamo bolt mark lives at `frontend/assets/dynamo-logo.png` (also mirrored in `artifacts/mockup-sandbox/public/images/dynamo-logo.png`). Used in:
