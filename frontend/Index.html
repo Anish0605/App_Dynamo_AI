@@ -1225,50 +1225,38 @@
           .dark .menu-row.active .ico { color: #facc15; }
           .dark .menu-section-label { color: #6b7280; }
         </style>
-        <!-- ─── PLUS DROPDOWN (Files / Uploads — like Gemini's "+" menu) ─── -->
-        <div id="plus-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-64 bg-white dark:bg-gray-850 border-2 border-yellow-400 rounded-2xl shadow-2xl p-1.5 z-50">
-          <div class="menu-section-label">Add to chat</div>
+        <!-- ─── PLUS DROPDOWN (Daily + Mode Selector) ─── -->
+        <div id="plus-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-72 bg-white dark:bg-gray-850 border-2 border-yellow-400 rounded-2xl shadow-2xl p-1.5 z-50 max-h-[75vh] overflow-y-auto">
+
+          <!-- ─── DAILY ─── -->
+          <div class="menu-section-label">Daily</div>
           <button class="menu-row" onclick="window.openAnalyzeFile?.(); window.closePlus?.();">
             <span class="ico">📎</span><span>Add photos &amp; files</span>
           </button>
-          <button class="menu-row" onclick="window.openAnalyzeFile?.(); window.closePlus?.();">
-            <span class="ico">🖼️</span><span>Photos</span>
-          </button>
-          <button class="menu-row" onclick="window.openAnalyzeFile?.(); window.closePlus?.();">
-            <span class="ico">📁</span><span>Documents</span>
-          </button>
-          <button class="menu-row disabled has-tag" aria-disabled="true" title="Coming soon">
-            <span class="ico">🔗</span><span>From URL</span><span class="tag soon">SOON</span>
-          </button>
-          <button class="menu-row disabled has-tag" aria-disabled="true" title="Coming soon">
-            <span class="ico">📓</span><span>NotebookLM</span><span class="tag soon">SOON</span>
-          </button>
-        </div>
-
-        <!-- ─── TOOLS DROPDOWN (Modes + Tools — like Gemini's "Tools" menu) ─── -->
-        <div id="tools-dropdown" class="hidden absolute bottom-full mb-3 left-14 w-72 bg-white dark:bg-gray-850 border-2 border-yellow-400 rounded-2xl shadow-2xl p-1.5 z-50 max-h-[75vh] overflow-y-auto">
-
-          <!-- ─── TOP TOGGLES (always visible) ─── -->
           <button class="menu-row" data-tool-btn="search" onclick="window.toggleTool('search', this)">
             <span class="ico">🌐</span><span>Web search</span>
           </button>
 
-          <!-- ─── MODE SELECTION ─── -->
-          <div class="menu-section-label">Mode selection</div>
+          <!-- ─── MODE SELECTOR ─── -->
+          <div class="menu-section-label">Mode selector</div>
           <button class="menu-row active" data-mode-btn data-mode="fast" onclick="window.setMode('fast', this)">
             <span class="ico">⚡</span><span>Fast</span>
           </button>
           <button class="menu-row has-tag" data-mode-btn data-mode="research" onclick="window.setMode('research', this)">
-            <span class="ico">🔬</span><span>Research plus</span><span class="tag pro">PRO</span>
+            <span class="ico">🔬</span><span>Research</span><span class="tag pro">PLUS</span>
           </button>
-          <button class="menu-row" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this)">
-            <span class="ico">💡</span><span>DeepThink pro</span>
+          <button class="menu-row has-tag" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this)">
+            <span class="ico">💡</span><span>DeepThink</span><span class="tag pro">PRO</span>
           </button>
-          <!-- More expander under DeepThink -->
+          <!-- More expander → opens flyout to the RIGHT -->
           <button type="button" class="menu-row menu-more-row" aria-haspopup="true" aria-expanded="false" aria-controls="mode-more" onclick="window.toggleSubMenu('mode-more', this)">
             <span class="ico">⋯</span><span>More</span>
             <i data-lucide="chevron-right" class="chev w-4 h-4"></i>
           </button>
+        </div>
+
+        <!-- ─── TOOLS DROPDOWN (Study + Create Anything) ─── -->
+        <div id="tools-dropdown" class="hidden absolute bottom-full mb-3 left-14 w-72 bg-white dark:bg-gray-850 border-2 border-yellow-400 rounded-2xl shadow-2xl p-1.5 z-50 max-h-[75vh] overflow-y-auto">
 
           <!-- ─── STUDY ─── -->
           <div class="menu-section-label">Study</div>
@@ -1278,6 +1266,7 @@
           <button class="menu-row" onclick="window.toggleTool('radio', this)">
             <span class="ico">🎧</span><span>Radio mode</span>
           </button>
+          <!-- More expander → opens flyout to the RIGHT -->
           <button type="button" class="menu-row menu-more-row" aria-haspopup="true" aria-expanded="false" aria-controls="study-more" onclick="window.toggleSubMenu('study-more', this)">
             <span class="ico">⋯</span><span>More</span>
             <i data-lucide="chevron-right" class="chev w-4 h-4"></i>
@@ -1288,19 +1277,20 @@
           <button class="menu-row" onclick="window.runCreate('image')">
             <span class="ico">🖼️</span><span>Generate image</span>
           </button>
-          <button class="menu-row has-tag" onclick="createExecutiveDeck()">
-            <span class="ico">📑</span><span>Slides (PPTX)</span><span class="tag new">NEW</span>
+          <button class="menu-row disabled has-tag" aria-disabled="true" title="Coming soon">
+            <span class="ico">📑</span><span>Slides</span><span class="tag soon">SOON</span>
           </button>
+          <!-- More expander → opens flyout to the RIGHT -->
           <button type="button" class="menu-row menu-more-row" aria-haspopup="true" aria-expanded="false" aria-controls="create-more" onclick="window.toggleSubMenu('create-more', this)">
             <span class="ico">⋯</span><span>More</span>
             <i data-lucide="chevron-right" class="chev w-4 h-4"></i>
           </button>
         </div>
 
-        <!-- ─── FLYOUT PANELS (rendered OUTSIDE the dropdown so they aren't clipped) ─── -->
+        <!-- ─── FLYOUT PANELS (rendered OUTSIDE dropdowns so they aren't clipped — open to the RIGHT) ─── -->
         <div id="mode-more" class="menu-flyout hidden">
           <button id="gap-finder-btn" class="menu-row" onclick="window.findResearchGaps()" title="Use after a DeepThink reply to find unexplored angles">
-            <span class="ico">🔍</span><span>Find research gap</span><span id="gap-finder-badge" class="tag soon">DEEP</span>
+            <span class="ico">🔍</span><span>Find research gaps</span><span id="gap-finder-badge" class="tag soon">DEEP</span>
           </button>
           <button class="menu-row disabled has-tag" aria-disabled="true" title="Coming soon">
             <span class="ico">🤖</span><span>Deep research agent</span><span class="tag soon">SOON</span>
@@ -1310,8 +1300,8 @@
           <button class="menu-row" onclick="window.openQuizModal()">
             <span class="ico">🧩</span><span>Quiz me</span>
           </button>
-          <button class="menu-row" onclick="window.runCreate('flashcards')">
-            <span class="ico">🃏</span><span>Flashcards</span>
+          <button class="menu-row disabled has-tag" aria-disabled="true" title="Coming soon">
+            <span class="ico">🃏</span><span>Flashcards</span><span class="tag soon">SOON</span>
           </button>
         </div>
         <div id="create-more" class="menu-flyout hidden">
@@ -1319,10 +1309,10 @@
             <span class="ico">🎬</span><span>Generate video</span>
           </button>
           <button class="menu-row" onclick="window.runCreate('mindmap')">
-            <span class="ico">🧠</span><span>Mindmap</span>
+            <span class="ico">🧠</span><span>Mindmaps</span>
           </button>
           <button class="menu-row" onclick="window.runCreate('flowchart')">
-            <span class="ico">📊</span><span>Flowchart</span>
+            <span class="ico">📊</span><span>Flowcharts</span>
           </button>
         </div>
 
@@ -1366,18 +1356,18 @@
               <i data-lucide="plus" class="w-4 h-4" stroke-width="2.5"></i>
             </button>
 
-            <!-- "Tools" pill — opens MODES + TOOLS menu -->
-            <button id="tools-btn" onclick="window.toggleTools(event)" title="Tools & modes"
+            <!-- "Tools" pill (gear icon) — opens STUDY + CREATE menu -->
+            <button id="tools-btn" onclick="window.toggleTools(event)" title="Tools"
                     class="h-9 px-3 inline-flex items-center gap-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-xs sm:text-sm font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition shrink-0">
-              <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
+              <i data-lucide="settings" class="w-3.5 h-3.5"></i>
               <span>Tools</span>
             </button>
 
             <!-- spacer -->
             <div class="flex-1"></div>
 
-            <!-- MODE PILL (shows current mode, click → opens tools menu) -->
-            <button id="mode-pill" onclick="window.toggleTools(event)" title="Switch mode"
+            <!-- MODE PILL (shows current mode, click → opens PLUS menu where modes live) -->
+            <button id="mode-pill" onclick="window.togglePlus(event)" title="Switch mode"
                     class="hidden sm:inline-flex items-center gap-1 px-3 h-9 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-yellow-50 dark:hover:bg-gray-800 hover:text-black dark:hover:text-yellow-400 transition shrink-0">
               <span id="mode-pill-label">Fast</span>
               <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
@@ -1690,7 +1680,7 @@
 
  <!-- FEATURE LAYERS -->
  <script src="analysis_ui.js?v=20260425"></script>
- <script src="ui.js?v=20260428i"></script>
+ <script src="ui.js?v=20260428j"></script>
  <script src="export_tools.js?v=20260423"></script>
  <script src="profile.js?v=20260425"></script>
  

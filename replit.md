@@ -34,18 +34,24 @@ Dynamo AI is a professional-grade Research Operating System. It combines a FastA
 - **DeepThink** (`deep_dive=True`): `gemini-3-flash-preview` — built-in thinking, ~5x intelligence vs lite. `deep_dive` always wins over the default `model_name`. Falls back to lite if unavailable.
 - **Research Mode** (`mode="research"`): APIMart-routed pipeline (Claude Sonnet 4.5 → Gemini 3.1 → GPT-5.4) via `multi_model_router.py` — DO NOT modify
 
-## Composer Architecture (Gemini-style split, April 28, 2026)
-Bottom input bar uses a Gemini-style two-menu split with a single yellow-bordered wrapper:
-- **Wrapper**: textarea on top, action row below (`frontend/Index.html` ~1359-1400).
-- **`+` button** (`#plus-btn`, golden border): opens `#plus-dropdown` (files/uploads — Add photos & files, Photos, Documents, From URL [soon], NotebookLM [soon]). Handler `window.togglePlus(e)` in `frontend/ui.js`.
-- **`Tools` pill** (`#tools-btn`, grey): opens `#tools-dropdown` (Web search, Mode selection, Study, Create Anything). Handler `window.toggleTools(e)`.
-- **Mode pill** (`#mode-pill`, "Fast/DeepThink/Research+"): also opens `#tools-dropdown` to switch modes.
-- **Mic** (`#mic-btn`): light-red (`bg-red-100 text-red-600`) — visually distinct from the neutral textbar.
-- **Send**: yellow (`bg-yellow-400`) on the right.
-- Opening one menu auto-closes the other (handled in `togglePlus` / `toggleTools`).
-- Empty-state suggestion chips (`#hero-chips`): Make a study guide, Research a topic, Quiz me, Summarise a PDF. (DeepThink + topic chip removed.)
-- All file upload entry points route through existing `window.openAnalyzeFile()` in `frontend/analysis_ui.js` — no backend changes.
-- Cache key bumped: `ui.js?v=20260428i`.
+## Composer Architecture (Gemini-style split with right-side More flyouts, April 28, 2026)
+Bottom input bar: textarea on top, action row below, single yellow-bordered wrapper (`frontend/Index.html` ~1359-1400).
+
+**`+` button** (`#plus-btn`, golden border) → `#plus-dropdown`:
+- *Daily*: Add photos & files, Web search
+- *Mode selector*: Fast, Research [PLUS], DeepThink [PRO], **More** ▶ flyout `#mode-more` (Find research gaps, Deep research agent [SOON])
+
+**`Tools` pill** (`#tools-btn`, gear icon) → `#tools-dropdown`:
+- *Study*: Quick Study Guide [NEW], Radio mode, **More** ▶ flyout `#study-more` (Quiz me, Flashcards [SOON])
+- *Create Anything*: Generate image, Slides [SOON], **More** ▶ flyout `#create-more` (Generate video, Mindmaps, Flowcharts)
+
+**Mode pill** (`#mode-pill`, "Fast/DeepThink/Research+") opens `#plus-dropdown` (since modes live there).
+
+**Mic** (`#mic-btn`): light-red (`bg-red-100 text-red-600`). **Send**: yellow.
+
+**Right-side flyouts (ChatGPT-style)**: `.menu-flyout` panels are rendered OUTSIDE the parent dropdown and positioned via `_positionFlyout` in `ui.js` — `left = btnRect.right + 6` so submenus open to the RIGHT of the parent menu, flipping left only if they would overflow the viewport. The parent dropdown remains open while a flyout is shown. Click-outside handler ignores clicks on `.menu-flyout` and `.menu-more-row` so flyout interactions don't accidentally close the parent.
+
+Opening one root menu auto-closes the other plus all open flyouts. Empty-state suggestion chips (`#hero-chips`): Make a study guide, Research a topic, Quiz me, Summarise a PDF. All file uploads route through existing `window.openAnalyzeFile()` — no backend changes. Cache key: `ui.js?v=20260428j`.
 
 ## Brand Asset (April 28, 2026)
 New polished Dynamo bolt mark lives at `frontend/assets/dynamo-logo.png` (also mirrored in `artifacts/mockup-sandbox/public/images/dynamo-logo.png`). Used in:

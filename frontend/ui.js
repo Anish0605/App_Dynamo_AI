@@ -38,6 +38,7 @@ window.toggleSidebarMenu = (menuId) => {
 window.toggleTools = (e) => {
   e?.stopPropagation();
   qs("plus-dropdown")?.classList.add("hidden");          // close the other one
+  window._closeAllFlyouts?.();
   qs("tools-dropdown")?.classList.toggle("hidden");
 };
 
@@ -50,26 +51,38 @@ window.togglePlus = (e) => {
 
 window.closePlus = () => {
   qs("plus-dropdown")?.classList.add("hidden");
+  window._closeAllFlyouts?.();
 };
 
 document.addEventListener("click", (e) => {
+  // Clicks on flyouts or "More" rows belong to the parent dropdown — don't close it
+  const insideFlyout = e.target.closest('.menu-flyout') || e.target.closest('.menu-more-row');
+
   // tools-dropdown click-outside
   const toolsDd  = qs("tools-dropdown");
   const toolsBtn = qs("tools-btn");
-  const modePill = qs("mode-pill");
-  if (toolsDd && toolsBtn) {
+  if (toolsDd && toolsBtn && !toolsDd.classList.contains('hidden')) {
     const insideTools = toolsDd.contains(e.target) ||
                         toolsBtn.contains(e.target) ||
-                        modePill?.contains(e.target);
-    if (!insideTools) toolsDd.classList.add("hidden");
+                        insideFlyout;
+    if (!insideTools) {
+      toolsDd.classList.add("hidden");
+      window._closeAllFlyouts?.();
+    }
   }
 
   // plus-dropdown click-outside
   const plusDd  = qs("plus-dropdown");
   const plusBtn = qs("plus-btn");
-  if (plusDd && plusBtn) {
-    if (!plusDd.contains(e.target) && !plusBtn.contains(e.target)) {
+  const modePill = qs("mode-pill");
+  if (plusDd && plusBtn && !plusDd.classList.contains('hidden')) {
+    const insidePlus = plusDd.contains(e.target) ||
+                       plusBtn.contains(e.target) ||
+                       modePill?.contains(e.target) ||
+                       insideFlyout;
+    if (!insidePlus) {
       plusDd.classList.add("hidden");
+      window._closeAllFlyouts?.();
     }
   }
 });
