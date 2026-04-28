@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Mockup v2 — Simplified Tools · Dynamo AI</title>
+<title>Mockup v3 — Simplified Tools · Dynamo AI</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
@@ -13,13 +13,14 @@
     --gold-soft: #fef9c3;
     --gold-tint: #fffbe6;
     --ink: #0a0a09;
+    --mic-red: #dc2626;
+    --mic-pink: #fde2e2;
   }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
     background: #ffffff;
   }
 
-  /* ===== APP-LIKE FRAME (mimics real Dynamo) ===== */
   .app-frame {
     background: #ffffff;
     border-radius: 18px;
@@ -28,7 +29,7 @@
     overflow: hidden;
   }
 
-  /* ===== HERO ===== */
+  /* HERO */
   .lightning-tile {
     width: 64px; height: 64px;
     background: var(--gold);
@@ -43,13 +44,13 @@
     letter-spacing: -0.02em;
   }
 
-  /* ===== INPUT BAR — keeps golden brand border ===== */
+  /* INPUT BAR */
   .input-bar {
     background: #ffffff;
     border: 2px solid var(--gold);
     border-radius: 22px;
-    padding: 8px 8px 8px 12px;
-    display: flex; align-items: center; gap: 8px;
+    padding: 8px 8px 8px 8px;
+    display: flex; align-items: center; gap: 6px;
     box-shadow: 0 4px 16px rgba(250, 204, 21, 0.10);
     transition: box-shadow 0.2s, border-color 0.2s;
   }
@@ -58,17 +59,55 @@
     box-shadow: 0 4px 24px rgba(250, 204, 21, 0.20);
   }
 
-  /* ===== ICON BUTTONS ===== */
+  /* ICON BUTTONS */
   .icon-btn {
     width: 38px; height: 38px;
     display: inline-flex; align-items: center; justify-content: center;
-    border-radius: 50%;
+    border-radius: 10px;
     color: #4b4b48;
     transition: background 0.15s, color 0.15s;
     flex-shrink: 0;
+    background: transparent;
   }
   .icon-btn:hover { background: var(--gold-tint); color: var(--ink); }
 
+  /* GEAR (mode picker) - shows current mode label on hover/click */
+  .gear-btn {
+    width: 38px; height: 38px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    color: #4b4b48;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+    background: transparent;
+    position: relative;
+  }
+  .gear-btn:hover { background: var(--gold-tint); color: var(--ink); }
+  .gear-btn .mode-dot {
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    border: 2px solid #fff;
+  }
+
+  /* MIC — red on pink (matches user screenshot) */
+  .mic-btn {
+    width: 38px; height: 38px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    background: var(--mic-pink);
+    color: var(--mic-red);
+    transition: background 0.15s, transform 0.1s;
+    flex-shrink: 0;
+  }
+  .mic-btn:hover {
+    background: #fbcaca;
+    transform: translateY(-1px);
+  }
+
+  /* SEND */
   .send-btn {
     width: 38px; height: 38px;
     background: var(--gold);
@@ -80,19 +119,7 @@
   }
   .send-btn:hover { background: var(--gold-dark); transform: translateY(-1px); }
 
-  .mode-pill {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 13px; font-weight: 600;
-    color: #4b4b48;
-    transition: background 0.15s, color 0.15s;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-  .mode-pill:hover { background: var(--gold-tint); color: var(--ink); }
-
-  /* ===== DROPDOWN MENU ===== */
+  /* DROPDOWN MENU */
   .menu {
     position: absolute;
     bottom: calc(100% + 12px);
@@ -101,7 +128,7 @@
     border: 1px solid #e8e8e6;
     border-radius: 16px;
     box-shadow: 0 12px 48px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.05);
-    min-width: 270px;
+    min-width: 290px;
     padding: 6px;
     z-index: 50;
     overflow: hidden;
@@ -123,15 +150,12 @@
   .menu-item:hover { background: #f7f7f5; }
   .menu-item .icon { color: #6b6b69; flex-shrink: 0; }
 
-  /* ⭐ ACTIVE STATE — golden highlight */
   .menu-item.active {
     background: var(--gold-tint);
     color: var(--ink);
     font-weight: 600;
   }
-  .menu-item.active .icon {
-    color: var(--gold-dark);
-  }
+  .menu-item.active .icon { color: var(--gold-dark); }
   .menu-item.active::before {
     content: "";
     position: absolute;
@@ -147,6 +171,15 @@
     color: var(--ink);
     border-radius: 50%;
     display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .menu-item .sub-note {
+    font-size: 11px;
+    color: #999;
+    font-weight: 400;
+    margin-left: auto;
+    font-style: italic;
   }
 
   .pro-tag {
@@ -168,7 +201,7 @@
     letter-spacing: 0.08em;
   }
 
-  /* ===== SUGGESTION CHIPS ===== */
+  /* SUGGESTION CHIPS */
   .chip {
     background: #ffffff;
     border: 1px solid #e8e8e6;
@@ -186,11 +219,20 @@
     transform: translateY(-1px);
   }
 
-  /* ===== ANNOTATIONS ===== */
-  .annotation {
-    font-size: 11px; font-weight: 700; letter-spacing: 0.10em;
-    color: #b0b0ad; text-transform: uppercase;
+  /* MODE PICKER POPOVER (gear) */
+  .mode-popover {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 0;
+    background: #ffffff;
+    border: 1px solid #e8e8e6;
+    border-radius: 14px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.12);
+    min-width: 220px;
+    padding: 6px;
+    z-index: 50;
   }
+  .mode-popover .menu-section-label { padding-top: 4px; }
 
   .legend-card {
     background: #fafaf8;
@@ -217,26 +259,29 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.4; }
   }
+
+  .annotation {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.10em;
+    color: #b0b0ad; text-transform: uppercase;
+  }
 </style>
 </head>
 <body class="min-h-screen p-6">
 <div class="max-w-6xl mx-auto">
 
-  <!-- ===== HEADER ===== -->
-  <div class="mb-6 flex items-center justify-between">
-    <div>
-      <span class="badge-mockup"><span class="dot"></span> MOCKUP v2 · NOT BUILT</span>
-      <h1 class="text-2xl font-bold text-gray-900 mt-3">Simplified Tools — Centered, Golden, Clean</h1>
-      <p class="text-gray-500 text-sm mt-1">All your feedback applied: chat centered · golden border kept · active state in gold · suggestion chips cleaned · menu reshuffled · right side simplified.</p>
-    </div>
+  <!-- HEADER -->
+  <div class="mb-6">
+    <span class="badge-mockup"><span class="dot"></span> MOCKUP v3 · NOT BUILT</span>
+    <h1 class="text-2xl font-bold text-gray-900 mt-3">Simplified Tools — All controls on the left</h1>
+    <p class="text-gray-500 text-sm mt-1">Mode picker (gear) + voice (red/pink) + send button. Thinking section reordered. Mindmap & Flowchart added.</p>
   </div>
 
   <!-- ============================================================ -->
-  <!-- MAIN MOCKUP — looks like the real Dynamo app                  -->
+  <!-- MAIN MOCKUP -->
   <!-- ============================================================ -->
   <div class="app-frame mb-10">
 
-    <!-- Fake top bar (suggests sidebar exists in real app) -->
+    <!-- Top bar -->
     <div class="h-12 border-b border-gray-100 flex items-center px-5 gap-3">
       <div class="w-7 h-7 rounded-lg bg-yellow-400 flex items-center justify-center">
         <i data-lucide="zap" class="w-4 h-4 text-black" stroke-width="3"></i>
@@ -249,29 +294,28 @@
       </div>
     </div>
 
-    <!-- ============== CENTERED CHAT AREA ============== -->
-    <div class="flex flex-col items-center justify-center px-6 py-16" style="min-height: 600px;">
+    <!-- CENTERED CHAT AREA -->
+    <div class="flex flex-col items-center justify-center px-6 py-16" style="min-height: 620px;">
 
-      <!-- HERO -->
       <div class="lightning-tile mb-6">
         <i data-lucide="zap" class="w-8 h-8 text-black" stroke-width="3"></i>
       </div>
       <h2 class="hero-title mb-10 text-center">How can I help you?</h2>
 
-      <!-- ⭐ INPUT BAR — now centered, not at bottom -->
+      <!-- INPUT BAR -->
       <div class="w-full max-w-2xl relative mb-6">
         <div class="input-bar">
 
-          <!-- LEFT: Single + button -->
+          <!-- LEFT: + button -->
           <div class="relative">
-            <button id="plusBtn" class="icon-btn" onclick="toggleMenu('main-menu')" title="Tools">
+            <button class="icon-btn" onclick="toggleMenu('main-menu')" title="Tools">
               <i data-lucide="plus" class="w-5 h-5"></i>
             </button>
 
             <!-- DROPDOWN MENU -->
             <div id="main-menu" class="menu" style="display:none;">
 
-              <!-- SECTION 1 — Always available -->
+              <!-- DAILY -->
               <div class="menu-section-label">Daily</div>
               <div class="menu-item active">
                 <i data-lucide="globe" class="w-[18px] h-[18px] icon"></i>
@@ -283,11 +327,12 @@
                 <span>Attach files & photos</span>
               </div>
 
-              <!-- SECTION 2 — Thinking modes -->
+              <!-- THINKING — reordered per your request -->
               <div class="menu-section-label">Thinking</div>
-              <div class="menu-item">
-                <i data-lucide="lightbulb" class="w-[18px] h-[18px] icon"></i>
-                <span>DeepThink</span>
+              <div class="menu-item active">
+                <i data-lucide="zap" class="w-[18px] h-[18px] icon"></i>
+                <span>Fast mode</span>
+                <span class="check"><i data-lucide="check" class="w-3 h-3" stroke-width="3"></i></span>
               </div>
               <div class="menu-item">
                 <i data-lucide="microscope" class="w-[18px] h-[18px] icon"></i>
@@ -295,11 +340,16 @@
                 <span class="pro-tag">PRO</span>
               </div>
               <div class="menu-item">
-                <i data-lucide="search" class="w-[18px] h-[18px] icon"></i>
-                <span>Find research gaps</span>
+                <i data-lucide="lightbulb" class="w-[18px] h-[18px] icon"></i>
+                <span>DeepThink</span>
+              </div>
+              <div class="menu-item" style="padding-left: 36px;">
+                <i data-lucide="search" class="w-[16px] h-[16px] icon"></i>
+                <span style="font-size: 13px;">Find research gaps</span>
+                <span class="sub-note">DeepThink only</span>
               </div>
 
-              <!-- SECTION 3 — Study tools -->
+              <!-- STUDY -->
               <div class="menu-section-label">Study</div>
               <div class="menu-item">
                 <i data-lucide="brain" class="w-[18px] h-[18px] icon"></i>
@@ -315,7 +365,7 @@
                 <span class="new-tag">NEW</span>
               </div>
 
-              <!-- SECTION 4 — Create -->
+              <!-- CREATE — added Mindmap + Flowchart -->
               <div class="menu-section-label">Create</div>
               <div class="menu-item">
                 <i data-lucide="image" class="w-[18px] h-[18px] icon"></i>
@@ -325,27 +375,58 @@
                 <i data-lucide="video" class="w-[18px] h-[18px] icon"></i>
                 <span>Generate video</span>
               </div>
+              <div class="menu-item">
+                <i data-lucide="git-branch" class="w-[18px] h-[18px] icon"></i>
+                <span>Mindmap</span>
+              </div>
+              <div class="menu-item">
+                <i data-lucide="workflow" class="w-[18px] h-[18px] icon"></i>
+                <span>Flowchart</span>
+              </div>
             </div>
           </div>
 
-          <!-- INPUT -->
-          <input type="text" placeholder="Ask Dynamo anything..." class="flex-1 bg-transparent outline-none text-[15px] text-gray-800 placeholder-gray-400 px-1"/>
+          <!-- LEFT: Gear (mode picker) -->
+          <div class="relative">
+            <button class="gear-btn" onclick="toggleMenu('mode-popover')" title="Current mode: Fast">
+              <i data-lucide="settings" class="w-5 h-5"></i>
+              <span class="mode-dot"></span>
+            </button>
+            <div id="mode-popover" class="mode-popover" style="display:none;">
+              <div class="menu-section-label">Current mode</div>
+              <div class="menu-item active">
+                <i data-lucide="zap" class="w-[18px] h-[18px] icon"></i>
+                <span>Fast</span>
+                <span class="check"><i data-lucide="check" class="w-3 h-3" stroke-width="3"></i></span>
+              </div>
+              <div class="menu-item">
+                <i data-lucide="lightbulb" class="w-[18px] h-[18px] icon"></i>
+                <span>DeepThink</span>
+              </div>
+              <div class="menu-item">
+                <i data-lucide="microscope" class="w-[18px] h-[18px] icon"></i>
+                <span>Research</span>
+                <span class="pro-tag">PRO</span>
+              </div>
+            </div>
+          </div>
 
-          <!-- RIGHT: Cleaned up -->
-          <button class="mode-pill" title="Switch model">
-            <span>Fast</span>
-            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          <!-- LEFT: Voice (red on pink) -->
+          <button class="mic-btn" title="Voice">
+            <i data-lucide="mic" class="w-5 h-5" stroke-width="2.5"></i>
           </button>
-          <button class="icon-btn" title="Voice">
-            <i data-lucide="mic" class="w-5 h-5"></i>
-          </button>
+
+          <!-- INPUT -->
+          <input type="text" placeholder="Ask Dynamo anything..." class="flex-1 bg-transparent outline-none text-[15px] text-gray-800 placeholder-gray-400 px-2"/>
+
+          <!-- RIGHT: just send -->
           <button class="send-btn" title="Send">
-            <i data-lucide="arrow-up" class="w-4.5 h-4.5" stroke-width="2.5"></i>
+            <i data-lucide="arrow-up" class="w-5 h-5" stroke-width="2.5"></i>
           </button>
         </div>
       </div>
 
-      <!-- CLEANED-UP SUGGESTION CHIPS (removed AI Trends, Analyze Data, Create Image) -->
+      <!-- SUGGESTION CHIPS -->
       <div class="flex flex-wrap gap-2 justify-center max-w-2xl">
         <button class="chip">📚 Make a study guide</button>
         <button class="chip">🔬 Research a topic</button>
@@ -358,106 +439,103 @@
   </div>
 
   <!-- ============================================================ -->
-  <!-- WHAT CHANGED — feedback recap                                 -->
+  <!-- WHAT CHANGED in v3 -->
   <!-- ============================================================ -->
   <div class="grid grid-cols-2 gap-4 mb-10">
     <div class="legend-card">
-      <div class="font-bold text-gray-900 mb-1">📍 Chat moved from bottom → center</div>
-      <div>Hero + input bar + suggestion chips now sit together in the middle of the canvas, not glued to the bottom edge.</div>
+      <div class="font-bold text-gray-900 mb-1">⚙️ Gear icon = mode picker (left side)</div>
+      <div>Replaces the "Fast ▼" pill on the right. Small dot on the gear shows your active mode is set. Click → tiny popover with Fast / DeepThink / Research.</div>
     </div>
     <div class="legend-card">
-      <div class="font-bold text-gray-900 mb-1">🟡 Golden border kept</div>
-      <div>The signature 2px golden-yellow border around the input bar stays — that's the Dynamo brand. Soft golden glow underneath replaces hard shadows.</div>
+      <div class="font-bold text-gray-900 mb-1">🎙️ Voice — red on pink (matches your reference)</div>
+      <div>Mic moved next to the gear, on the left. Same red icon + light pink rounded-square background you showed in the screenshot.</div>
     </div>
     <div class="legend-card">
-      <div class="font-bold text-gray-900 mb-1">⭐ Active option highlighted in gold</div>
-      <div>Selected items now show: golden left bar, soft yellow tinted background, golden icon, bold text, golden circle checkmark on the right. Impossible to miss.</div>
+      <div class="font-bold text-gray-900 mb-1">🧠 Thinking section reordered</div>
+      <div><b>Fast</b> (active by default) → <b>Research Mode (PRO)</b> → <b>DeepThink</b> → <b>Find research gaps</b> (indented sub-item with <i>"DeepThink only"</i> note).</div>
     </div>
     <div class="legend-card">
-      <div class="font-bold text-gray-900 mb-1">🧹 Suggestion chips cleaned up</div>
-      <div>Removed <s>AI Trends 2026</s>, <s>Analyze Data</s>, <s>Create Image</s>. Replaced with 5 student/researcher prompts: Study guide · Research · Quiz · Summarise PDF · Find gaps.</div>
+      <div class="font-bold text-gray-900 mb-1">🌐 Web search stays at the top (Daily)</div>
+      <div>Always-on toggle at the top of the menu — gold checkmark when active. Just like before.</div>
     </div>
     <div class="legend-card">
-      <div class="font-bold text-gray-900 mb-1">📋 Menu reshuffled into 4 clear groups</div>
-      <div><b>Daily</b> (Web search ✓ · Attach) → <b>Thinking</b> (DeepThink · Research Pro · Find Gaps) → <b>Study</b> (Quiz · Study guide · Radio tutor NEW) → <b>Create</b> (Image · Video)</div>
+      <div class="font-bold text-gray-900 mb-1">🎨 Create now has 4 outputs</div>
+      <div>Image · Video · <b>Mindmap (new)</b> · <b>Flowchart (new)</b>. No "More..." overflow — everything visible.</div>
     </div>
     <div class="legend-card">
-      <div class="font-bold text-gray-900 mb-1">➡️ Right side simplified</div>
-      <div>Removed the cluttered green/grammarly icons + status dot. Now just three things: <b>Fast ▼</b> model pill · 🎙️ mic · 🟡 send. Mic hover-tints gold instead of standing out in red.</div>
+      <div class="font-bold text-gray-900 mb-1">📚 Study circle unchanged</div>
+      <div>Quiz me · Study guide · Radio tutor (NEW) — exactly as you asked.</div>
     </div>
   </div>
 
-  <!-- ============================================================ -->
-  <!-- BEFORE — quick reference at bottom                            -->
-  <!-- ============================================================ -->
+  <!-- LAYOUT DIAGRAM -->
   <div class="mb-10">
-    <span class="annotation">For comparison · Current app</span>
-    <div class="bg-gray-50 rounded-2xl p-8 mt-3 border border-gray-200">
-      <div class="text-center mb-6">
-        <div class="lightning-tile mx-auto mb-4" style="width:48px;height:48px;border-radius:12px;">
-          <i data-lucide="zap" class="w-5 h-5 text-black" stroke-width="3"></i>
-        </div>
-        <h3 class="text-xl font-bold">How can I help you?</h3>
-        <div class="flex gap-2 justify-center mt-4">
-          <button class="chip">✨ AI Trends 2026</button>
-          <button class="chip">📊 Analyze Data</button>
-          <button class="chip">🖼️ Create Image</button>
-        </div>
+    <span class="annotation">Input bar layout · left → right</span>
+    <div class="bg-gray-50 rounded-2xl p-6 mt-3 border border-gray-200 flex items-center gap-3 flex-wrap">
+      <div class="flex items-center gap-2">
+        <div class="w-10 h-10 border-2 border-yellow-400 rounded-lg flex items-center justify-center"><i data-lucide="plus" class="w-5 h-5"></i></div>
+        <div class="text-xs"><b>+</b><br><span class="text-gray-500">tools menu</span></div>
       </div>
-      <!-- Big gap to bottom (like current app) -->
-      <div style="height: 80px;"></div>
-      <!-- Input glued to bottom -->
-      <div class="input-bar max-w-3xl mx-auto" style="border-radius:16px;">
-        <button class="px-3 py-1.5 bg-yellow-50 border border-yellow-400 rounded-lg text-[10px] font-bold text-yellow-800 tracking-wider">⚙ TOOLS</button>
-        <button class="w-9 h-9 border border-gray-300 rounded-lg flex items-center justify-center"><i data-lucide="paperclip" class="w-4 h-4 text-gray-500"></i></button>
-        <button class="w-9 h-9 border border-red-300 rounded-lg flex items-center justify-center"><i data-lucide="mic" class="w-4 h-4 text-red-500"></i></button>
-        <input type="text" placeholder="Ask anything..." class="flex-1 bg-transparent outline-none text-sm px-2"/>
-        <span class="w-5 h-5 rounded bg-green-500"></span>
-        <span class="w-5 h-5 rounded bg-green-600"></span>
-        <button class="send-btn"><i data-lucide="arrow-up" class="w-4 h-4 text-black" stroke-width="2.5"></i></button>
+      <span class="text-gray-300">·</span>
+      <div class="flex items-center gap-2">
+        <div class="w-10 h-10 border-2 border-yellow-400 rounded-lg flex items-center justify-center relative">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+          <span class="absolute top-0.5 right-0.5 w-2 h-2 bg-yellow-400 rounded-full border border-white"></span>
+        </div>
+        <div class="text-xs"><b>⚙️ gear</b><br><span class="text-gray-500">mode picker</span></div>
       </div>
-      <div class="text-xs text-gray-500 text-center mt-4">Input glued to bottom · 3 separate buttons (TOOLS + 📎 + 🎙) · suggestion chips disconnected from input · green grammarly icons clutter the right</div>
+      <span class="text-gray-300">·</span>
+      <div class="flex items-center gap-2">
+        <div class="w-10 h-10 border-2 border-yellow-400 rounded-lg flex items-center justify-center" style="background:#fde2e2;">
+          <i data-lucide="mic" class="w-5 h-5" style="color:#dc2626;" stroke-width="2.5"></i>
+        </div>
+        <div class="text-xs"><b>🎙️ mic</b><br><span class="text-gray-500">red / pink</span></div>
+      </div>
+      <span class="text-gray-300">·</span>
+      <div class="flex-1 min-w-[100px] h-10 border-2 border-yellow-400 rounded-lg flex items-center px-3 text-sm text-gray-400">Ask Dynamo anything...</div>
+      <span class="text-gray-300">·</span>
+      <div class="flex items-center gap-2">
+        <div class="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center"><i data-lucide="arrow-up" class="w-5 h-5 text-black" stroke-width="2.5"></i></div>
+        <div class="text-xs"><b>send</b><br><span class="text-gray-500">golden</span></div>
+      </div>
     </div>
   </div>
 
-  <!-- ============================================================ -->
-  <!-- INTEGRATION NOTES                                             -->
-  <!-- ============================================================ -->
+  <!-- INTEGRATION NOTES -->
   <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-6">
     <div class="flex items-start gap-3">
       <div class="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center flex-shrink-0">
         <i data-lucide="info" class="w-5 h-5 text-black" stroke-width="2.5"></i>
       </div>
       <div class="flex-1">
-        <h3 class="font-bold text-gray-900 mb-2">If you approve, here's what would change in the real app</h3>
+        <h3 class="font-bold text-gray-900 mb-2">If you approve this — what changes in the real app</h3>
         <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
           <div>
             <div class="font-semibold text-gray-900">Files touched (3)</div>
             <ul class="text-gray-600 mt-1 space-y-0.5">
-              <li>• <code class="text-xs bg-white px-1.5 py-0.5 rounded border">Index.html</code> — input bar markup + hero centering</li>
-              <li>• <code class="text-xs bg-white px-1.5 py-0.5 rounded border">ui.js</code> — dropdown logic + active state toggling</li>
-              <li>• <code class="text-xs bg-white px-1.5 py-0.5 rounded border">chat.js</code> — wire menu items to existing handlers</li>
+              <li>• <code class="text-xs bg-white px-1.5 py-0.5 rounded border">Index.html</code> — input bar markup + center hero</li>
+              <li>• <code class="text-xs bg-white px-1.5 py-0.5 rounded border">ui.js</code> — menu + mode popover logic</li>
+              <li>• <code class="text-xs bg-white px-1.5 py-0.5 rounded border">chat.js</code> — wire 4 new items: mode picker · mindmap · flowchart · find-gaps gating</li>
             </ul>
           </div>
           <div>
-            <div class="font-semibold text-gray-900">Backend untouched</div>
+            <div class="font-semibold text-gray-900">Backend work needed</div>
             <ul class="text-gray-600 mt-1 space-y-0.5">
-              <li>✓ Zero Python changes</li>
-              <li>✓ All existing endpoints work as-is</li>
-              <li>✓ Pro plan / quota gating preserved</li>
-              <li>✓ Quiz, image, voice flows unchanged</li>
+              <li>• Mindmap: new keyword route in <code class="text-xs bg-white px-1.5 py-0.5 rounded border">main.py</code></li>
+              <li>• Flowchart: new keyword route in <code class="text-xs bg-white px-1.5 py-0.5 rounded border">main.py</code></li>
+              <li>✓ Everything else uses existing endpoints</li>
             </ul>
           </div>
         </div>
         <div class="mt-4 pt-4 border-t border-yellow-200 text-sm text-gray-700">
-          <b>Effort:</b> ~2-3 hours · pure UI refactor · zero risk to existing features. Cache version on <code class="text-xs bg-white px-1.5 py-0.5 rounded border">ui.js</code> would bump so all users see the new UI on next page load.
+          <b>Effort:</b> ~3–4 hours (UI refactor + 2 new backend routes for mindmap/flowchart). Cache version on <code class="text-xs bg-white px-1.5 py-0.5 rounded border">ui.js</code> bumped so all users get the new UI on next load.
         </div>
       </div>
     </div>
   </div>
 
   <div class="text-center text-xs text-gray-400 mt-10 mb-6">
-    Mockup v2 · <code>frontend/mockup_simplified_tools.html</code> · Click the <b>+</b> button to toggle menu
+    Mockup v3 · <code>frontend/mockup_simplified_tools.html</code> · Click <b>+</b> for tools, <b>⚙️</b> for mode
   </div>
 
 </div>
@@ -467,21 +545,21 @@
 
   function toggleMenu(id) {
     const el = document.getElementById(id);
-    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    const isOpen = el.style.display !== 'none';
+    // close others
+    ['main-menu','mode-popover'].forEach(other => {
+      if (other !== id) document.getElementById(other).style.display = 'none';
+    });
+    el.style.display = isOpen ? 'none' : 'block';
   }
 
-  // Open menu by default for demo
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('main-menu').style.display = 'block';
   });
 
-  // Allow clicking active items to demo the gold highlight
   document.querySelectorAll('.menu-item').forEach(item => {
     item.addEventListener('click', (e) => {
-      // Only toggle "Daily" section items as demo (Web search + Attach)
-      const section = item.closest('.menu')?.querySelector('.menu-section-label')?.innerText;
-      // simple toggle for any item just to show interaction
-      if (item.querySelector('.pro-tag') || item.querySelector('.new-tag')) return;
+      if (item.querySelector('.pro-tag') || item.querySelector('.new-tag') || item.querySelector('.sub-note')) return;
       item.classList.toggle('active');
       const check = item.querySelector('.check');
       if (item.classList.contains('active')) {
