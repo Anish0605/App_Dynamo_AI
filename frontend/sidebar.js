@@ -14,8 +14,10 @@ window.loadChatSidebar = async () => {
 
   if (!userId) {
     box.innerHTML = `<div class="text-xs text-gray-400 px-2 py-1">Login to see chats</div>`;
-    const fs = document.getElementById("folders-section");
-    if (fs) fs.style.display = "none";
+    window.allChats = [];
+    window.allFolders = [];
+    renderFolderSection([], []);
+    window._updateSidebarTabCounts?.();
     return;
   }
 
@@ -41,17 +43,19 @@ window.loadChatSidebar = async () => {
   // Render folders section
   renderFolderSection(window.allFolders, window.allChats);
 
-  // History shows only chats NOT in any folder
-  const unfoldered = window.allChats.filter(c => !c.folder_id);
+  // CHATS TAB: show ALL chats (incl those inside folders) so user has a flat
+  // recents list — folders are organisation, not silos. Matches Variant C UX.
+  const all = window.allChats;
   box.innerHTML = "";
 
-  if (unfoldered.length === 0) {
+  if (all.length === 0) {
     box.innerHTML = `<div class="text-xs text-gray-400 px-2 py-1">No recent chats</div>`;
+    window._updateSidebarTabCounts?.();
     return;
   }
 
-  const pinned = unfoldered.filter(c => c.is_starred);
-  const recent = unfoldered.filter(c => !c.is_starred);
+  const pinned = all.filter(c => c.is_starred);
+  const recent = all.filter(c => !c.is_starred);
 
   if (pinned.length > 0) {
     box.appendChild(sectionLabel("Pinned"));
@@ -64,7 +68,48 @@ window.loadChatSidebar = async () => {
     }
     recent.forEach(chat => renderSidebarItem(chat, box));
   }
+
+  window._updateSidebarTabCounts?.();
 };
+
+/* =========================================================
+   SIDEBAR TAB SWITCHER (Chats / Folders) — Variant C
+========================================================= */
+
+window.setSidebarTab = (tab) => {
+  if (tab !== "chats" && tab !== "folders") tab = "chats";
+  const chatsPanel   = document.getElementById("sb-panel-chats");
+  const foldersPanel = document.getElementById("folders-section");
+  const chatsBtn     = document.getElementById("sb-tab-chats-btn");
+  const foldersBtn   = document.getElementById("sb-tab-folders-btn");
+  if (!chatsPanel || !foldersPanel || !chatsBtn || !foldersBtn) return;
+
+  chatsPanel.classList.toggle("hidden",   tab !== "chats");
+  foldersPanel.classList.toggle("hidden", tab !== "folders");
+  chatsBtn.classList.toggle("sb-tab-active",   tab === "chats");
+  foldersBtn.classList.toggle("sb-tab-active", tab === "folders");
+  chatsBtn.setAttribute("aria-selected",   String(tab === "chats"));
+  foldersBtn.setAttribute("aria-selected", String(tab === "folders"));
+
+  try { localStorage.setItem("sb-tab", tab); } catch (_) {}
+};
+
+window._updateSidebarTabCounts = () => {
+  const chatsCount  = (window.allChats   || []).length;
+  const foldersCnt  = (window.allFolders || []).length;
+  const c1 = document.getElementById("sb-tab-chats-count");
+  const c2 = document.getElementById("sb-tab-folders-count");
+  if (c1) c1.textContent = String(chatsCount);
+  if (c2) c2.textContent = String(foldersCnt);
+};
+
+// Init tab on first load (default chats, restore from localStorage)
+document.addEventListener("DOMContentLoaded", () => {
+  let initial = "chats";
+  try { initial = localStorage.getItem("sb-tab") || "chats"; } catch (_) {}
+  window.setSidebarTab(initial);
+  window._updateSidebarTabCounts();
+});
 
 /* =========================================================
    SEARCH FILTER
@@ -511,11 +556,9 @@ document.addEventListener("DOMContentLoaded", () => {
 ========================================================= */
 
 function renderFolderSection(folders, allChats) {
-  const section = document.getElementById("folders-section");
   const list = document.getElementById("folders-list");
-  if (!section || !list) return;
+  if (!list) return;
 
-  section.style.display = "block";
   list.innerHTML = "";
 
   if (folders.length === 0) {

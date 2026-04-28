@@ -34,6 +34,16 @@ Dynamo AI is a professional-grade Research Operating System. It combines a FastA
 - **DeepThink** (`deep_dive=True`): `gemini-3-flash-preview` — built-in thinking, ~5x intelligence vs lite. `deep_dive` always wins over the default `model_name`. Falls back to lite if unavailable.
 - **Research Mode** (`mode="research"`): APIMart-routed pipeline (Claude Sonnet 4.5 → Gemini 3.1 → GPT-5.4) via `multi_model_router.py` — DO NOT modify
 
+## Sidebar Architecture (Variant C — Tabs, April 28, 2026)
+Left sidebar uses a tabbed layout so Folders and Recents each get the full remaining height:
+- **Tab switcher** (`#sb-tab-switcher`) sits below the Quick Tools accordions: two pill buttons (`#sb-tab-chats-btn`, `#sb-tab-folders-btn`) inside a rounded container, each with a count badge (`#sb-tab-chats-count`, `#sb-tab-folders-count`).
+- **Panels** (`.sb-panel`): exactly one is visible at a time, controlled by the `.hidden` class.
+  - `#sb-panel-chats` → `#history-list` (Pinned + Recent — shows ALL chats including those inside folders, so Recents is a flat backstop).
+  - `#folders-section` → `#folders-list` + new-folder `+` button (rendered by `renderFolderSection`).
+- **JS** (`sidebar.js`): `window.setSidebarTab(tab)` swaps `.hidden` + `.sb-tab-active`, persists choice to `localStorage("sb-tab")`. `window._updateSidebarTabCounts()` keeps badges fresh after every `loadChatSidebar` call. Initial tab restored on `DOMContentLoaded`.
+- **Search** (`filterChats`) still rewrites `#history-list` so search works on the Chats tab.
+- Cache: `sidebar.js?v=20260428a`.
+
 ## Tools Menu Architecture (v3 — April 28, 2026)
 Compact, modern Tools dropdown defined inline in `Index.html` (~288px wide, Claude/ChatGPT style):
 - **No uppercase section headers** — just thin `<div class="menu-divider">` lines between groups.
