@@ -31,20 +31,46 @@ window.toggleSidebarMenu = (menuId) => {
 };
 
 /* --------------------------------------------------
-   TOOLS DROPDOWN (BOTTOM BAR)
+   TOOLS DROPDOWN (BOTTOM BAR) — Gemini-style split
+   "+"   → plus-dropdown   (files / uploads)
+   Tools → tools-dropdown  (modes + tools)
 -------------------------------------------------- */
 window.toggleTools = (e) => {
   e?.stopPropagation();
+  qs("plus-dropdown")?.classList.add("hidden");          // close the other one
   qs("tools-dropdown")?.classList.toggle("hidden");
 };
 
-document.addEventListener("click", (e) => {
-  const dropdown = qs("tools-dropdown");
-  const btn = qs("tools-btn");
-  if (!dropdown || !btn) return;
+window.togglePlus = (e) => {
+  e?.stopPropagation();
+  qs("tools-dropdown")?.classList.add("hidden");         // close the other one
+  window._closeAllFlyouts?.();
+  qs("plus-dropdown")?.classList.toggle("hidden");
+};
 
-  if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
-    dropdown.classList.add("hidden");
+window.closePlus = () => {
+  qs("plus-dropdown")?.classList.add("hidden");
+};
+
+document.addEventListener("click", (e) => {
+  // tools-dropdown click-outside
+  const toolsDd  = qs("tools-dropdown");
+  const toolsBtn = qs("tools-btn");
+  const modePill = qs("mode-pill");
+  if (toolsDd && toolsBtn) {
+    const insideTools = toolsDd.contains(e.target) ||
+                        toolsBtn.contains(e.target) ||
+                        modePill?.contains(e.target);
+    if (!insideTools) toolsDd.classList.add("hidden");
+  }
+
+  // plus-dropdown click-outside
+  const plusDd  = qs("plus-dropdown");
+  const plusBtn = qs("plus-btn");
+  if (plusDd && plusBtn) {
+    if (!plusDd.contains(e.target) && !plusBtn.contains(e.target)) {
+      plusDd.classList.add("hidden");
+    }
   }
 });
 

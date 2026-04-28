@@ -34,6 +34,24 @@ Dynamo AI is a professional-grade Research Operating System. It combines a FastA
 - **DeepThink** (`deep_dive=True`): `gemini-3-flash-preview` — built-in thinking, ~5x intelligence vs lite. `deep_dive` always wins over the default `model_name`. Falls back to lite if unavailable.
 - **Research Mode** (`mode="research"`): APIMart-routed pipeline (Claude Sonnet 4.5 → Gemini 3.1 → GPT-5.4) via `multi_model_router.py` — DO NOT modify
 
+## Composer Architecture (Gemini-style split, April 28, 2026)
+Bottom input bar uses a Gemini-style two-menu split with a single yellow-bordered wrapper:
+- **Wrapper**: textarea on top, action row below (`frontend/Index.html` ~1359-1400).
+- **`+` button** (`#plus-btn`, golden border): opens `#plus-dropdown` (files/uploads — Add photos & files, Photos, Documents, From URL [soon], NotebookLM [soon]). Handler `window.togglePlus(e)` in `frontend/ui.js`.
+- **`Tools` pill** (`#tools-btn`, grey): opens `#tools-dropdown` (Web search, Mode selection, Study, Create Anything). Handler `window.toggleTools(e)`.
+- **Mode pill** (`#mode-pill`, "Fast/DeepThink/Research+"): also opens `#tools-dropdown` to switch modes.
+- **Mic** (`#mic-btn`): light-red (`bg-red-100 text-red-600`) — visually distinct from the neutral textbar.
+- **Send**: yellow (`bg-yellow-400`) on the right.
+- Opening one menu auto-closes the other (handled in `togglePlus` / `toggleTools`).
+- Empty-state suggestion chips (`#hero-chips`): Make a study guide, Research a topic, Quiz me, Summarise a PDF. (DeepThink + topic chip removed.)
+- All file upload entry points route through existing `window.openAnalyzeFile()` in `frontend/analysis_ui.js` — no backend changes.
+- Cache key bumped: `ui.js?v=20260428i`.
+
+## Brand Asset (April 28, 2026)
+New polished Dynamo bolt mark lives at `frontend/assets/dynamo-logo.png` (also mirrored in `artifacts/mockup-sandbox/public/images/dynamo-logo.png`). Used in:
+- Hero (`Index.html` ~1126), Sidebar brand (~829), Auth modal (~1577).
+- All references cache-busted via `?v=20260428a`.
+
 ## Sidebar Architecture (Variant C — Tabs, April 28, 2026)
 Left sidebar uses a tabbed layout so Folders and Recents each get the full remaining height:
 - **Tab switcher** (`#sb-tab-switcher`) sits below the Quick Tools accordions: two pill buttons (`#sb-tab-chats-btn`, `#sb-tab-folders-btn`) inside a rounded container, each with a count badge (`#sb-tab-chats-count`, `#sb-tab-folders-count`).
