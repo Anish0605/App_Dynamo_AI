@@ -179,10 +179,16 @@ window.toggleSubMenu = (id, btn) => {
 
   const wasOpen = sub.classList.contains('open');
 
-  // Close everything first (covers race where rAF hadn't added .open yet)
+  // Close everything first
   window._closeAllFlyouts();
 
   if (wasOpen) return; // toggle off
+
+  // *** Move flyout to <body> so position:fixed escapes any containing block
+  //     created by transforms/filters on ancestor elements ***
+  if (sub.parentElement !== document.body) {
+    document.body.appendChild(sub);
+  }
 
   // Open this one
   sub.classList.remove('hidden');
