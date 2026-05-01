@@ -1185,6 +1185,15 @@ function renderUserMessage(text, save = true) {
 }
 window.renderUserMessage = renderUserMessage;
 
+function appendChatHistoryOnce(role, content) {
+  const history = window.chatHistory || [];
+  const last = history[history.length - 1];
+  if (last && last.role === role && last.content === content) return false;
+  history.push({ role, content });
+  window.chatHistory = history;
+  return true;
+}
+
 // ---------------- ASSISTANT MESSAGE ----------------
 function renderAssistantMessage(html, rawText = "", save = true, sources = []) {
   hideHero();
@@ -1295,7 +1304,7 @@ function renderAssistantMessage(html, rawText = "", save = true, sources = []) {
     }, 500);
   }
 
-  window.chatHistory.push({ role: "assistant", content: text });
+  appendChatHistoryOnce("assistant", text);
   if (save) saveMessage("assistant", text);
 
   return div;
@@ -1386,6 +1395,25 @@ window.startNewChat = () => {
 window.getLastAssistantMessage = () => {
   const assistantMsgs = window.chatHistory.filter(m => m.role === "assistant");
   return assistantMsgs.length ? assistantMsgs[assistantMsgs.length - 1].content : null;
+};
+
+window.RESEARCH_MODE_RULE = {
+  purpose: "Research Mode produces a research response, not a paper by default.",
+  behavior: [
+    "Collect sources and evidence first.",
+    "Summarize findings in a structured answer.",
+    "Show citations and references when available.",
+    "Only generate a formal article or paper if the user explicitly asks to write one.",
+    "Do not infer 'write a paper' from a general research request.",
+    "If the user asks to research, answer as a researcher; if the user asks to write, draft as a writer."
+  ],
+  outputOrder: [
+    "1. Direct answer",
+    "2. Key findings",
+    "3. Evidence or citations",
+    "4. Caveats / limitations",
+    "5. Optional next steps"
+  ]
 };
 
 window.sendFromInputWithText = async (text) => {
