@@ -192,6 +192,11 @@ function scrollToBottom() {
     return window.appState.chatId;
   }
 
+  if (currentChatId) {
+    window.setChatId(currentChatId);
+    return currentChatId;
+  }
+
   const { data, error } = await supabaseClient
     .from("chats")
     .insert({
@@ -212,6 +217,9 @@ function scrollToBottom() {
 }
 
 async function saveMessage(role, text) {
+  const history = window.chatHistory || [];
+  const last = history[history.length - 1];
+  if (last && last.role === role && last.content === text) return;
   const chatId = await ensureChat(text);
   if (!chatId) return;
 
@@ -441,7 +449,7 @@ window.sendFromInput = async () => {
       const forceImage = !isQuiz && isImagePrompt(msg) && !isResearchMode;
 
       const payload = {
-        message: isQuiz ? buildQuizPrompt(msg) : msg,
+        message: isQuiz ? buildQuizPrompt(msg) : (isResearchMode ? `${msg}\n\n${window.getResearchModeInstruction(msg)}` : msg),
         history: cleanHistory,
         use_search: isSearchMode || isResearchMode,
         deep_dive: isDeepMode && !isResearchMode,
@@ -1414,6 +1422,15 @@ window.RESEARCH_MODE_RULE = {
     "4. Caveats / limitations",
     "5. Optional next steps"
   ]
+};
+
+window.getResearchModeInstruction = (message = "") => {
+  const text = String(message).trim();
+  const writeIntent = /(write|draft|generate|compose|create).*(paper|article|essay|report)|research paper|academic article|literature review/i.test(text);
+  if (writeIntent) {
+    return "Write a formal paper/article using the gathered sources and citations.";
+  }
+  return "Research this topic, gather sources, summarize findings, cite evidence, and do not write a formal paper/article unless explicitly asked.";
 };
 
 window.sendFromInputWithText = async (text) => {
