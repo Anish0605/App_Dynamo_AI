@@ -76,7 +76,7 @@ export default function PricingPage() {
 
   return (
     <div className={dark ? "dark" : ""}>
-      <div className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen font-sans">
+      <div className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans" style={{fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, sans-serif'}}>
 
         {/* Header */}
         <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50">
