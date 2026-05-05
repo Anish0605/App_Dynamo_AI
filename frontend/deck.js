@@ -253,21 +253,19 @@ function _deckRenderOutline(outline) {
     const desc       = _deckSlideDesc(slide);
     const isTitle    = slide.type === "title";
     const actionBtns = isTitle ? "" : `
-      <div class="deck-slide-actions" style="display:flex;gap:3px;flex-shrink:0;opacity:0;transition:opacity .15s;">
+      <div style="display:flex;gap:3px;flex-shrink:0;align-self:center;">
         <button onclick="window.deckEditSlide(${i})" title="Edit heading"
-          style="font-size:12px;padding:3px 6px;border-radius:7px;border:none;background:transparent;cursor:pointer;color:#9ca3af;line-height:1;"
-          onmouseover="this.style.background='#f3f4f6';this.style.color='#374151'"
-          onmouseout="this.style.background='transparent';this.style.color='#9ca3af'">✏️</button>
+          style="font-size:13px;padding:4px 7px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;color:#9ca3af;line-height:1;transition:all .1s;"
+          onmouseover="this.style.background='#f9fafb';this.style.borderColor='#d1d5db';this.style.color='#374151'"
+          onmouseout="this.style.background='#fff';this.style.borderColor='#e5e7eb';this.style.color='#9ca3af'">✏️</button>
         <button onclick="window.deckDeleteSlide(${i})" title="Remove slide"
-          style="font-size:12px;padding:3px 6px;border-radius:7px;border:none;background:transparent;cursor:pointer;color:#9ca3af;line-height:1;"
-          onmouseover="this.style.background='#fef2f2';this.style.color='#ef4444'"
-          onmouseout="this.style.background='transparent';this.style.color='#9ca3af'">✕</button>
+          style="font-size:13px;padding:4px 7px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;color:#9ca3af;line-height:1;transition:all .1s;"
+          onmouseover="this.style.background='#fef2f2';this.style.borderColor='#fecaca';this.style.color='#ef4444'"
+          onmouseout="this.style.background='#fff';this.style.borderColor='#e5e7eb';this.style.color='#9ca3af'">✕</button>
       </div>`;
 
     return `
       <div class="deck-outline-row" data-index="${i}"
-        onmouseenter="this.querySelector('.deck-slide-actions')&&(this.querySelector('.deck-slide-actions').style.opacity='1')"
-        onmouseleave="this.querySelector('.deck-slide-actions')&&(this.querySelector('.deck-slide-actions').style.opacity='0')"
         style="display:flex;align-items:flex-start;gap:10px;
           background:#fff;border:1px solid #e5e7eb;border-radius:12px;
           padding:12px 14px;transition:border-color .15s;">
