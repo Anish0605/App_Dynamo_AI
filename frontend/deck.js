@@ -10,6 +10,7 @@ window._deckOutline      = null;   // Stores the planned outline from AI
 window._deckSourceMode   = "text"; // "text" | "file"
 window._deckExtractedText = "";    // Text extracted from uploaded file
 window._deckFileTitle     = "";    // Filename used as fallback topic
+window._deckBlobUrl      = null;   // Object URL for generated PPTX
 
 // ----------------------------------------------------------------
 // STYLE RADIO CARD WIRING (runs after DOM ready)
@@ -57,6 +58,7 @@ window.closeDeckModal = function () {
   window._deckOutline       = null;
   window._deckExtractedText = "";
   window._deckFileTitle     = "";
+  if (window._deckBlobUrl) { URL.revokeObjectURL(window._deckBlobUrl); window._deckBlobUrl = null; }
   // Reset file input
   const fi = document.getElementById("deck-file-input");
   if (fi) fi.value = "";
@@ -248,12 +250,27 @@ function _deckRenderOutline(outline) {
   if (!list)  return;
 
   list.innerHTML = (outline.slides || []).map((slide, i) => {
-    const desc = _deckSlideDesc(slide);
+    const desc       = _deckSlideDesc(slide);
+    const isTitle    = slide.type === "title";
+    const actionBtns = isTitle ? "" : `
+      <div class="deck-slide-actions" style="display:flex;gap:3px;flex-shrink:0;opacity:0;transition:opacity .15s;">
+        <button onclick="window.deckEditSlide(${i})" title="Edit heading"
+          style="font-size:12px;padding:3px 6px;border-radius:7px;border:none;background:transparent;cursor:pointer;color:#9ca3af;line-height:1;"
+          onmouseover="this.style.background='#f3f4f6';this.style.color='#374151'"
+          onmouseout="this.style.background='transparent';this.style.color='#9ca3af'">✏️</button>
+        <button onclick="window.deckDeleteSlide(${i})" title="Remove slide"
+          style="font-size:12px;padding:3px 6px;border-radius:7px;border:none;background:transparent;cursor:pointer;color:#9ca3af;line-height:1;"
+          onmouseover="this.style.background='#fef2f2';this.style.color='#ef4444'"
+          onmouseout="this.style.background='transparent';this.style.color='#9ca3af'">✕</button>
+      </div>`;
+
     return `
-      <div class="deck-outline-row" data-index="${i}" style="
-        display:flex;align-items:flex-start;gap:10px;
-        background:#fff;border:1px solid #e5e7eb;border-radius:12px;
-        padding:12px 14px;transition:border-color .15s;">
+      <div class="deck-outline-row" data-index="${i}"
+        onmouseenter="this.querySelector('.deck-slide-actions')&&(this.querySelector('.deck-slide-actions').style.opacity='1')"
+        onmouseleave="this.querySelector('.deck-slide-actions')&&(this.querySelector('.deck-slide-actions').style.opacity='0')"
+        style="display:flex;align-items:flex-start;gap:10px;
+          background:#fff;border:1px solid #e5e7eb;border-radius:12px;
+          padding:12px 14px;transition:border-color .15s;">
         <div style="width:24px;height:24px;border-radius:8px;background:#f3f4f6;
           color:#6b7280;font-size:11px;font-weight:700;display:flex;
           align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
@@ -262,13 +279,58 @@ function _deckRenderOutline(outline) {
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;">
             ${_deckBadge(slide.type)}
-            <span style="font-size:12px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;">${slide.heading || ""}</span>
+            <span class="deck-slide-heading" data-index="${i}" style="font-size:12px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;">${slide.heading || ""}</span>
           </div>
           <p style="font-size:11px;color:#6b7280;margin:0;line-height:1.5;">${desc}</p>
         </div>
+        ${actionBtns}
       </div>`;
   }).join("");
 }
+
+// ----------------------------------------------------------------
+// SLIDE EDIT / DELETE (Step 2 actions)
+// ----------------------------------------------------------------
+window.deckDeleteSlide = function (i) {
+  if (!window._deckOutline?.slides) return;
+  if (window._deckOutline.slides.length <= 1) return; // keep at least 1
+  window._deckOutline.slides.splice(i, 1);
+  _deckRenderOutline(window._deckOutline);
+};
+
+window.deckEditSlide = function (i) {
+  const row = document.querySelector(`.deck-outline-row[data-index="${i}"]`);
+  if (!row) return;
+  const headingEl = row.querySelector('.deck-slide-heading');
+  if (!headingEl) return;
+
+  const original = window._deckOutline.slides[i].heading || "";
+  const input    = document.createElement("input");
+  input.type     = "text";
+  input.value    = original;
+  input.style.cssText = "font-size:12px;font-weight:600;color:#111827;border:1.5px solid #facc15;border-radius:6px;padding:2px 8px;width:100%;background:#fefce8;outline:none;max-width:260px;";
+
+  headingEl.replaceWith(input);
+  input.focus();
+  input.select();
+
+  const save = () => {
+    const newText = input.value.trim() || original;
+    window._deckOutline.slides[i].heading = newText;
+    const span = document.createElement("span");
+    span.className     = "deck-slide-heading";
+    span.dataset.index = i;
+    span.style.cssText = "font-size:12px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;";
+    span.textContent   = newText;
+    input.replaceWith(span);
+  };
+
+  input.addEventListener("blur", save);
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter")  { e.preventDefault(); input.blur(); }
+    if (e.key === "Escape") { input.value = original; input.blur(); }
+  });
+};
 
 function _deckSlideDesc(slide) {
   if (slide.type === "title")      return slide.subheading || "Opening title slide";
@@ -304,24 +366,23 @@ window.generateDeck = async function () {
     if (!res.ok) throw new Error("Generate failed");
     const blob = await res.blob();
 
-    // Trigger download
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href     = url;
-    const safeTitle = (window._deckOutline.title || "DynamoAI_Deck")
-      .replace(/[^a-z0-9]/gi, "_").slice(0, 40);
-    a.download = `${safeTitle}.pptx`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Store blob URL — actual download triggered by button in step 3
+    if (window._deckBlobUrl) URL.revokeObjectURL(window._deckBlobUrl);
+    window._deckBlobUrl = URL.createObjectURL(blob);
 
-    // Show success step
-    const infoEl = document.getElementById("deck-done-info");
-    if (infoEl) {
-      infoEl.textContent =
-        `${(window._deckOutline.slides || []).length} slides · ${window._deckOutline.style || "academic"} style`;
-    }
+    const slideCount = (window._deckOutline.slides || []).length;
+    const style      = window._deckOutline.style || "academic";
+
+    // Populate step 3 done screen
+    const titleEl = document.getElementById("deck-done-title");
+    if (titleEl) titleEl.textContent = window._deckOutline.title || "Your Deck";
+
+    const badgesEl = document.getElementById("deck-done-badges");
+    if (badgesEl) badgesEl.innerHTML = `
+      <span style="background:#f0fdf4;color:#15803d;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid #bbf7d0;">${slideCount} slides</span>
+      <span style="background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid #bfdbfe;">${style.charAt(0).toUpperCase()+style.slice(1)} style</span>
+      <span style="background:#faf5ff;color:#7e22ce;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid #e9d5ff;">PPTX ready</span>`;
+
     _deckShowStep(3);
 
   } catch (err) {
@@ -330,6 +391,21 @@ window.generateDeck = async function () {
     btn.innerHTML = orig;
     alert("Could not generate the deck. Please try again.");
   }
+};
+
+// ----------------------------------------------------------------
+// STEP 3: Download PPTX (called by button)
+// ----------------------------------------------------------------
+window.deckDownloadPptx = function () {
+  if (!window._deckBlobUrl) return;
+  const safeTitle = (window._deckOutline?.title || "DynamoAI_Deck")
+    .replace(/[^a-z0-9]/gi, "_").slice(0, 40);
+  const a    = document.createElement("a");
+  a.href     = window._deckBlobUrl;
+  a.download = `${safeTitle}.pptx`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 };
 
 // ----------------------------------------------------------------
