@@ -86,9 +86,13 @@ def get_ai_response(
         mem_block = format_for_prompt(memories)
         if mem_block:
             sys_prompt += (
-                "\n\nWhat you remember about this user:\n"
+                "\n\n--- What you know about this user (from past sessions) ---\n"
                 + mem_block
-                + "\nUse this context naturally — don't announce it unless directly relevant."
+                + "\n--- End of user context ---\n"
+                "Use this to personalise your responses naturally. "
+                "If the user is studying for a specific exam or topic, tailor examples and depth accordingly. "
+                "If they mentioned struggling with something, be extra patient and clear on that topic. "
+                "Do NOT announce that you are using memory — just use it seamlessly."
             )
 
     # -------------------------
