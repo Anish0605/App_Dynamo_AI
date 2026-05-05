@@ -720,7 +720,7 @@ window.toggleFlashcardHints = () => {
   const toggle = qs("fc-hints-toggle");
   const knob   = qs("fc-hints-knob");
   if (toggle) toggle.style.background = window._fcIncludeHints ? "#facc15" : "#d1d5db";
-  if (knob)   knob.style.left         = window._fcIncludeHints ? "20px"    : "2px";
+  if (knob)   knob.style.left         = window._fcIncludeHints ? "22px"    : "2px";
   if (toggle) toggle.setAttribute("aria-checked", String(window._fcIncludeHints));
 };
 
