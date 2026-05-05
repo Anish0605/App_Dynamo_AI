@@ -3,10 +3,13 @@ type ModuleMap = Record<string, () => Promise<Record<string, unknown>>>;
 export const modules: ModuleMap = {
   "./components/mockups/composer/CompactPill.tsx": () => import("../components/mockups/composer/CompactPill.tsx"),
   "./components/mockups/composer/GeminiStyle.tsx": () => import("../components/mockups/composer/GeminiStyle.tsx"),
-  "./components/mockups/pricing/PricingPage.tsx": () => import("../components/mockups/pricing/PricingPage.tsx"),
   "./components/mockups/sidebar-scroll/CollapsibleFolders.tsx": () => import("../components/mockups/sidebar-scroll/CollapsibleFolders.tsx"),
   "./components/mockups/sidebar-scroll/SelectionDrawer.tsx": () => import("../components/mockups/sidebar-scroll/SelectionDrawer.tsx"),
   "./components/mockups/sidebar-scroll/SidebarGallery.tsx": () => import("../components/mockups/sidebar-scroll/SidebarGallery.tsx"),
   "./components/mockups/sidebar-scroll/StickyZones.tsx": () => import("../components/mockups/sidebar-scroll/StickyZones.tsx"),
-  "./components/mockups/sidebar-scroll/TabSwitcher.tsx": () => import("../components/mockups/sidebar-scroll/TabSwitcher.tsx")
+  "./components/mockups/sidebar-scroll/TabSwitcher.tsx": () => import("../components/mockups/sidebar-scroll/TabSwitcher.tsx"),
+  "./components/mockups/flashcards/FlashcardVariantA.tsx": () => import("../components/mockups/flashcards/FlashcardVariantA.tsx"),
+  "./components/mockups/flashcards/FlashcardVariantB.tsx": () => import("../components/mockups/flashcards/FlashcardVariantB.tsx"),
+  "./components/mockups/flashcards/FlashcardVariantC.tsx": () => import("../components/mockups/flashcards/FlashcardVariantC.tsx"),
+  "./components/mockups/pricing/PricingPage.tsx": () => import("../components/mockups/pricing/PricingPage.tsx")
 };
