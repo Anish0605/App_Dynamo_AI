@@ -138,14 +138,8 @@ firebaseAuth?.onAuthStateChanged(async (user) => {
 });
 
 /* --------------------------------------------------
-   SUBMIT HANDLER  (single listener — no double-fire)
+   SUBMIT HANDLER  — exposed as window so <form onsubmit> can call it
 -------------------------------------------------- */
-document.addEventListener("click", (e) => {
-  if (e.target?.id === "auth-submit" || e.target?.closest?.("#auth-submit")) {
-    e.preventDefault();
-    handleAuthSubmit();
-  }
-});
 
 /* --------------------------------------------------
    REDIRECT RESULT (handles mobile Google redirect flow)
@@ -180,7 +174,7 @@ window.signInWithGoogle = async () => {
 
     if (isMobile) {
       // Shows a loading state — page will redirect to Google then come back
-      const googleBtn = document.querySelector("[onclick='signInWithGoogle()']");
+      const googleBtn = document.querySelector("[onclick='window.signInWithGoogle()']");
       if (googleBtn) {
         googleBtn.disabled = true;
         googleBtn.innerHTML = `<svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Redirecting to Google…`;
@@ -206,7 +200,7 @@ window.signInWithGoogle = async () => {
 -------------------------------------------------- */
 let _authSubmitting = false;
 
-async function handleAuthSubmit() {
+window.handleAuthSubmit = async function handleAuthSubmit() {
   if (_authSubmitting) return;
   if (!firebaseAuth) return alert("Firebase not ready");
 
@@ -222,7 +216,7 @@ async function handleAuthSubmit() {
   }
 
   _authSubmitting = true;
-  if (errorBox) { errorBox.textContent = ""; errorBox.style.cssText = ""; }
+  if (errorBox) { errorBox.textContent = ""; errorBox.classList.add("hidden"); }
   if (btn) { btn.disabled = true; btn.textContent = "Please wait…"; btn.style.opacity = "0.7"; }
 
   try {
@@ -274,7 +268,7 @@ async function handleAuthSubmit() {
 function showAuthError(box, msg) {
   if (!box) return;
   box.textContent = msg;
-  box.style.cssText = "display:block;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px 12px;font-size:13px;color:#b91c1c;margin-top:4px;font-weight:500;";
+  box.classList.remove("hidden");
 }
 
 function friendlyAuthError(code) {
@@ -350,8 +344,13 @@ window.handleLogout = async () => {
    MODAL CONTROL
 -------------------------------------------------- */
 window.closeAuthModal = () => {
-  document.getElementById("auth-modal")?.classList.add("hidden");
-  document.body.style.removeProperty("overflow");
+  const modal = document.getElementById("auth-modal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  // Reset inline styles that might have been set
+  modal.style.cssText = "";
+  // Clear form state
+  _authSubmitting = false;
 };
 
 window.openAuthModal = (mode) => {
@@ -360,39 +359,14 @@ window.openAuthModal = (mode) => {
   const modal = document.getElementById("auth-modal");
   if (!modal) return;
   modal.classList.remove("hidden");
-  // Prevent body scroll while modal is open (important on mobile)
-  document.body.style.overflow = "hidden";
 
   setTimeout(() => {
     applyAuthModeUI();
     if (window.lucide) lucide.createIcons();
-    // Scroll modal to top so it's visible above any keyboard
     modal.scrollTop = 0;
   }, 50);
 };
 
-/* --------------------------------------------------
-   iOS KEYBOARD / VISUAL VIEWPORT FIX
-   When keyboard opens, scrolls the modal so the active
-   input stays in view above the keyboard
--------------------------------------------------- */
-if (window.visualViewport) {
-  window.visualViewport.addEventListener("resize", () => {
-    const modal = document.getElementById("auth-modal");
-    if (!modal || modal.classList.contains("hidden")) return;
-
-    // On iOS, visualViewport.height shrinks when keyboard opens
-    // Adjust the modal's max-height to match visible area
-    const visibleHeight = window.visualViewport.height;
-    modal.style.height = visibleHeight + "px";
-  });
-
-  window.visualViewport.addEventListener("scroll", () => {
-    const modal = document.getElementById("auth-modal");
-    if (!modal || modal.classList.contains("hidden")) return;
-    modal.style.top = window.visualViewport.offsetTop + "px";
-  });
-}
 
 /* --------------------------------------------------
    TOGGLE MODE
@@ -416,28 +390,29 @@ function applyAuthModeUI() {
   const gdprBox = document.getElementById("gdpr-box");
 
   if (window.authMode === "signup") {
-    title.textContent = "Join Dynamo";
+    if (title) title.textContent = "Join Dynamo";
 
     name?.classList.remove("hidden");
     phone?.classList.remove("hidden");
 
     forgotBox?.classList.add("hidden");
-    gdprBox?.classList.remove("hidden");
+    // gdpr-box uses "hidden flex" — remove hidden to show it as flex
+    if (gdprBox) { gdprBox.classList.remove("hidden"); gdprBox.style.display = "flex"; }
 
-    footerText.textContent = "Already have an account?";
-    footerAction.textContent = "Log in";
+    if (footerText) footerText.textContent = "Already have an account?";
+    if (footerAction) footerAction.textContent = "Log in";
 
   } else {
-    title.textContent = "Welcome Back";
+    if (title) title.textContent = "Welcome Back";
 
     name?.classList.add("hidden");
     phone?.classList.add("hidden");
 
     forgotBox?.classList.remove("hidden");
-    gdprBox?.classList.add("hidden");
+    if (gdprBox) { gdprBox.classList.add("hidden"); gdprBox.style.display = ""; }
 
-    footerText.textContent = "New to Dynamo?";
-    footerAction.textContent = "Sign up";
+    if (footerText) footerText.textContent = "New to Dynamo?";
+    if (footerAction) footerAction.textContent = "Sign up";
   }
 }
 
