@@ -884,9 +884,6 @@
         <button onclick="smartExplain()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
           <i data-lucide="help-circle" class="w-4 h-4 text-green-500"></i> Explain Simply
         </button>
-        <button onclick="window.openDeckModal()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
-          <i data-lucide="layers" class="w-4 h-4 text-orange-500"></i> Research Deck Generator
-        </button>
       </div>
 
       <!-- Find Research Gaps moved into Tools dropdown (under DeepThink) -->
@@ -1296,8 +1293,8 @@
           <button class="menu-row" onclick="window.runCreate('image'); window.closeTools?.();">
             <span class="ico">🖼️</span><span>Generate Image</span>
           </button>
-          <button class="menu-row disabled has-tag" aria-disabled="true">
-            <span class="ico">📊</span><span>Slides</span><span class="tag soon">SOON</span>
+          <button class="menu-row has-tag" onclick="window.openDeckModal(); window.closeTools?.();">
+            <span class="ico">📊</span><span>Slides</span><span class="tag new">NEW</span>
           </button>
           <button class="menu-row menu-more-row" aria-expanded="false"
                   onclick="window.toggleSubMenu('create-more-flyout', this); event.stopPropagation();">
