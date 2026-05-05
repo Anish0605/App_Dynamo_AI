@@ -23,6 +23,7 @@ import supabase_client
 import flowchart
 import mindmap
 import multi_model_router
+import flashcard as flashcard_module
 
 from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
@@ -50,6 +51,13 @@ app.include_router(payments_router)
 # --------------------------------------------------
 # MODELS
 # --------------------------------------------------
+
+class FlashcardReq(BaseModel):
+    topic: str
+    difficulty: str = "medium"
+    count: int = 5
+    user_id: str | None = None
+    chat_id: str | None = None
 
 class ChatReq(BaseModel):
     message: str
@@ -164,6 +172,29 @@ async def get_user_fresh(req: GetUserReq):
 # --------------------------------------------------
 # CHAT
 # --------------------------------------------------
+
+@app.post("/flashcard")
+async def generate_flashcard(req: FlashcardReq):
+    user = None
+    if req.user_id:
+        user = get_user_by_supabase_id(req.user_id)
+        if user and not supabase_client.check_user_quota(user):
+            return {"type": "error", "content": "⚠️ You have reached your daily limit."}
+
+    result = flashcard_module.generate_flashcards(req.topic, req.difficulty, req.count)
+
+    if req.chat_id and result.get("type") == "flashcard":
+        save_message(req.chat_id, "user",
+                     f"Create {req.count} {req.difficulty} flashcards on: {req.topic}")
+        save_message(req.chat_id, "assistant",
+                     f"[Flashcard deck: {req.topic} — {len(result['cards'])} cards]")
+
+    if user:
+        supabase_client.increment_quota(user)
+
+    result["chat_id"] = req.chat_id
+    return result
+
 
 @app.post("/chat")
 async def chat(req: ChatReq):

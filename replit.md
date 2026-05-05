@@ -55,7 +55,7 @@ Bottom input bar: textarea on top, action row below, single yellow-bordered wrap
 
 **Mic** (`#mic-btn`): light-red. **Send**: yellow rounded.
 
-**Suggestion chips** (`#hero-chips`): Make a study guide · Research a topic · Quiz me · Summarise a PDF · 🎨 Create a deck.
+**Suggestion chips** (`#hero-chips`): Make a study guide · Research a topic · Quiz me · ⚡ Flashcards · Summarise a PDF · 🎨 Create a deck.
 
 Cache key: `ui.js?v=20260428m`. No backend restart needed (FastAPI serves frontend statically).
 

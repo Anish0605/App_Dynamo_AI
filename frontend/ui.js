@@ -696,3 +696,74 @@ window.toggleMobileSidebar = (show) => {
     overlay.classList.add("hidden");
   }
 };
+
+/* --------------------------------------------------
+   ⚡ FLASHCARD MODAL
+-------------------------------------------------- */
+window._fcIncludeHints = true;
+
+window.openFlashcardModal = () => {
+  qs("plus-dropdown")?.classList.add("hidden");
+  const modal = qs("flashcard-modal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  setTimeout(() => qs("fc-topic")?.focus(), 50);
+  window.lucide?.createIcons();
+};
+
+window.closeFlashcardModal = () => {
+  qs("flashcard-modal")?.classList.add("hidden");
+};
+
+window.toggleFlashcardHints = () => {
+  window._fcIncludeHints = !window._fcIncludeHints;
+  const toggle = qs("fc-hints-toggle");
+  const knob   = qs("fc-hints-knob");
+  if (toggle) toggle.style.background = window._fcIncludeHints ? "#facc15" : "#d1d5db";
+  if (knob)   knob.style.left         = window._fcIncludeHints ? "20px"    : "2px";
+  if (toggle) toggle.setAttribute("aria-checked", String(window._fcIncludeHints));
+};
+
+window.submitFlashcard = async () => {
+  const topicEl = qs("fc-topic");
+  const diffEl  = qs("fc-difficulty");
+  const cntEl   = qs("fc-count");
+  const topic   = (topicEl?.value || "").trim();
+  if (!topic) { topicEl?.focus(); return; }
+
+  const difficulty = diffEl?.value  || "medium";
+  const count      = parseInt(cntEl?.value || "5", 10);
+
+  window.closeFlashcardModal();
+  if (topicEl) topicEl.value = "";
+
+  const userLabel = `⚡ Flashcards: ${topic}  (${difficulty}, ${count} cards)`;
+  window.renderUserMessage?.(userLabel);
+  window.showThinking?.();
+
+  try {
+    const res = await fetch("/flashcard", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        topic,
+        difficulty,
+        count,
+        user_id: window.appState?.supabaseUserId,
+        chat_id: window.appState?.chatId
+      })
+    });
+    const data = await res.json();
+    window.hideThinking?.();
+
+    if (data?.type === "flashcard" && Array.isArray(data.cards) && window.renderFlashcard) {
+      window.renderFlashcard(data.cards);
+    } else {
+      window.renderAssistantMessage?.(data?.content || "Sorry, flashcard generation failed. Please try again.");
+    }
+  } catch (err) {
+    console.error("⚡ Flashcard error:", err);
+    window.hideThinking?.();
+    window.renderAssistantMessage?.("Sorry, flashcard generation failed. Please try again.");
+  }
+};
