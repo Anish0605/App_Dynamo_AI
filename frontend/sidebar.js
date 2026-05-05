@@ -2,12 +2,92 @@
 console.log("sidebar.js loaded");
 
 /* =========================================================
+   MULTI-SELECT STATE
+========================================================= */
+
+window._selectMode = false;
+window._selectedChatIds = new Set();
+
+window.toggleSelectMode = () => {
+  window._selectMode = !window._selectMode;
+  window._selectedChatIds.clear();
+
+  const btn  = document.getElementById("sb-select-btn");
+  const bar  = document.getElementById("sb-select-bar");
+  const cnt  = document.getElementById("sb-select-count");
+
+  if (btn)  btn.textContent  = window._selectMode ? "Cancel" : "Select";
+  if (bar)  bar.classList.toggle("hidden", !window._selectMode);
+  if (cnt)  cnt.textContent  = "0";
+
+  // Re-render so checkboxes appear / disappear
+  const box = document.getElementById("history-list");
+  if (!box) return;
+  const all    = window.allChats || [];
+  const pinned = all.filter(c => c.is_starred);
+  const recent = all.filter(c => !c.is_starred);
+  box.innerHTML = "";
+  if (pinned.length > 0) {
+    box.appendChild(sectionLabel("Pinned"));
+    pinned.forEach(chat => renderSidebarItem(chat, box));
+  }
+  if (recent.length > 0) {
+    if (pinned.length > 0) box.appendChild(sectionLabel("Recent"));
+    recent.forEach(chat => renderSidebarItem(chat, box));
+  }
+  if (all.length === 0) {
+    box.innerHTML = `<div class="text-xs text-gray-400 px-2 py-1">No recent chats</div>`;
+  }
+};
+
+window.selectAllChats = () => {
+  const all = window.allChats || [];
+  all.forEach(c => window._selectedChatIds.add(c.id));
+  const cnt = document.getElementById("sb-select-count");
+  if (cnt) cnt.textContent = String(window._selectedChatIds.size);
+  // Tick all checkboxes
+  document.querySelectorAll(".sb-chat-checkbox").forEach(cb => { cb.checked = true; });
+};
+
+window.deleteSelectedChats = async () => {
+  const ids = [...window._selectedChatIds];
+  if (ids.length === 0) return;
+  if (!confirm(`Delete ${ids.length} chat${ids.length > 1 ? "s" : ""}? This cannot be undone.`)) return;
+
+  for (const id of ids) {
+    await window.supabaseClient.from("messages").delete().eq("chat_id", id);
+    await window.supabaseClient.from("chats").delete().eq("id", id);
+    if (window.appState.chatId === id) {
+      window.setChatId(null);
+      const chatContainer = document.getElementById("chat-messages");
+      if (chatContainer) chatContainer.innerHTML = "";
+      if (typeof showHero === "function") showHero();
+    }
+  }
+
+  // Exit select mode and reload
+  window._selectMode = false;
+  window._selectedChatIds.clear();
+  await window.loadChatSidebar();
+};
+
+/* =========================================================
    LOAD SIDEBAR
 ========================================================= */
 
 window.allFolders = [];
 
 window.loadChatSidebar = async () => {
+  // Always exit select mode on reload so stale checkboxes don't persist
+  if (window._selectMode) {
+    window._selectMode = false;
+    window._selectedChatIds.clear();
+    const btn = document.getElementById("sb-select-btn");
+    const bar = document.getElementById("sb-select-bar");
+    if (btn) btn.textContent = "Select";
+    if (bar) bar.classList.add("hidden");
+  }
+
   const userId = window.appState.supabaseUserId;
   const box = document.getElementById("history-list");
   if (!box) return;
@@ -177,19 +257,51 @@ function iconSparkle() {
 ========================================================= */
 
 function renderSidebarItem(chat, box) {
-  const isActive = window.appState.chatId === chat.id;
+  const isActive   = window.appState.chatId === chat.id;
+  const selectMode = !!window._selectMode;
+  const isChecked  = window._selectedChatIds.has(chat.id);
 
   const wrapper = document.createElement("div");
   wrapper.className = [
     "group relative flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-150",
-    isActive
+    isActive && !selectMode
       ? "bg-yellow-100 dark:bg-yellow-900/30 shadow-sm"
-      : "hover:bg-gray-200 dark:hover:bg-gray-700/70"
+      : selectMode && isChecked
+        ? "bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700"
+        : "hover:bg-gray-200 dark:hover:bg-gray-700/70"
   ].join(" ");
-  wrapper.style.position = "relative";
 
-  /* --- Pin badge (visible when pinned) --- */
-  if (chat.is_starred) {
+  /* --- SELECT MODE: checkbox on left --- */
+  if (selectMode) {
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.className = "sb-chat-checkbox flex-shrink-0 w-4 h-4 accent-yellow-400 cursor-pointer";
+    cb.checked = isChecked;
+    cb.onclick = (e) => {
+      e.stopPropagation();
+      if (cb.checked) {
+        window._selectedChatIds.add(chat.id);
+      } else {
+        window._selectedChatIds.delete(chat.id);
+      }
+      // Update count badge
+      const cnt = document.getElementById("sb-select-count");
+      if (cnt) cnt.textContent = String(window._selectedChatIds.size);
+      // Update row highlight
+      wrapper.className = wrapper.className.replace(
+        /bg-yellow-50[^\s]*/g, ""
+      );
+      if (cb.checked) {
+        wrapper.classList.add("bg-yellow-50", "dark:bg-yellow-900/20", "border", "border-yellow-300");
+      }
+    };
+    // Clicking the whole row also toggles
+    wrapper.onclick = () => cb.click();
+    wrapper.appendChild(cb);
+  }
+
+  /* --- Pin badge (visible when pinned, normal mode only) --- */
+  if (chat.is_starred && !selectMode) {
     const badge = document.createElement("span");
     badge.className = "flex-shrink-0 text-yellow-500 text-xs";
     badge.innerHTML = "📌";
@@ -200,29 +312,35 @@ function renderSidebarItem(chat, box) {
   const title = document.createElement("div");
   title.className = [
     "flex-1 text-[13px] font-semibold truncate",
-    isActive
+    isActive && !selectMode
       ? "text-yellow-700 dark:text-yellow-300"
       : "text-gray-800 dark:text-gray-100"
   ].join(" ");
   title.innerText = chat.title || "New Chat";
-  title.onclick = async () => {
-    window.setChatId(chat.id);
-    await window.loadChatHistory();
-    await window.loadChatSidebar();
-  };
 
-  /* --- Three-dot menu button --- */
-  const menuBtn = document.createElement("button");
-  menuBtn.className = "flex-shrink-0 text-yellow-500 font-bold text-lg hover:text-yellow-600 dark:hover:text-yellow-400 p-1 cursor-pointer";
-  menuBtn.innerHTML = "⋯";
-  menuBtn.title = "Options";
-  menuBtn.onclick = (e) => {
-    e.stopPropagation();
-    showChatMenu(e, chat, title, wrapper);
-  };
+  if (!selectMode) {
+    title.onclick = async () => {
+      window.setChatId(chat.id);
+      await window.loadChatHistory();
+      await window.loadChatSidebar();
+    };
+  }
 
   wrapper.appendChild(title);
-  wrapper.appendChild(menuBtn);
+
+  /* --- Three-dot menu button (hidden in select mode) --- */
+  if (!selectMode) {
+    const menuBtn = document.createElement("button");
+    menuBtn.className = "flex-shrink-0 text-yellow-500 font-bold text-lg hover:text-yellow-600 dark:hover:text-yellow-400 p-1 cursor-pointer";
+    menuBtn.innerHTML = "⋯";
+    menuBtn.title = "Options";
+    menuBtn.onclick = (e) => {
+      e.stopPropagation();
+      showChatMenu(e, chat, title, wrapper);
+    };
+    wrapper.appendChild(menuBtn);
+  }
+
   box.appendChild(wrapper);
 }
 

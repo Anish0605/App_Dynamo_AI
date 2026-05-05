@@ -924,8 +924,25 @@
 
       <!-- CHATS PANEL (default visible) -->
       <div id="sb-panel-chats" class="sb-panel">
-        <p class="text-xs font-bold uppercase text-gray-400 mb-2" id="history-label">Recents</p>
-        <div id="history-list" class="space-y-2 text-sm text-gray-400 italic">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs font-bold uppercase text-gray-400" id="history-label">Recents</p>
+          <button id="sb-select-btn" onclick="window.toggleSelectMode()"
+            class="text-[10px] font-bold text-gray-400 hover:text-yellow-600 transition px-1.5 py-0.5 rounded hover:bg-yellow-50 dark:hover:bg-yellow-900/20">
+            Select
+          </button>
+        </div>
+        <!-- Multi-select action bar (hidden until Select mode is active) -->
+        <div id="sb-select-bar" class="hidden mb-2 flex gap-1.5">
+          <button onclick="window.selectAllChats()"
+            class="flex-1 text-[11px] font-bold py-1.5 rounded-lg bg-yellow-400 text-black hover:bg-yellow-500 transition">
+            All
+          </button>
+          <button onclick="window.deleteSelectedChats()"
+            class="flex-1 text-[11px] font-bold py-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition">
+            Delete (<span id="sb-select-count">0</span>)
+          </button>
+        </div>
+        <div id="history-list" class="space-y-1 text-sm text-gray-400 italic">
           No recent chats...
         </div>
       </div>
@@ -1684,7 +1701,7 @@
  <script src="chat.js?v=20260428e"></script>
 
  <!-- SIDERBAR -->
- <script src="sidebar.js?v=20260428a"></script>
+ <script src="sidebar.js?v=20260505b"></script>
  
   <!-- QUIZ -->
  <script src="quiz.js?v=20260428"></script>
