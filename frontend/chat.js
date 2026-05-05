@@ -197,23 +197,35 @@ function scrollToBottom() {
     return currentChatId;
   }
 
-  const { data, error } = await supabaseClient
-    .from("chats")
-    .insert({
-      user_id: userId, // ✅ always correct user
-      title: firstMessage?.slice(0, 40) || "New Chat",
-      is_starred: false
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error("Chat create error:", error);
-    return null;
+  if (window._creatingChatPromise) {
+    return window._creatingChatPromise;
   }
 
-  window.setChatId(data.id);
-  return data.id;
+  window._creatingChatPromise = (async () => {
+    const { data, error } = await supabaseClient
+      .from("chats")
+      .insert({
+        user_id: userId,
+        title: firstMessage?.slice(0, 40) || "New Chat",
+        is_starred: false
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Chat create error:", error);
+      return null;
+    }
+
+    window.setChatId(data.id);
+    return data.id;
+  })();
+
+  try {
+    return await window._creatingChatPromise;
+  } finally {
+    window._creatingChatPromise = null;
+  }
 }
 
 async function saveMessage(role, text) {
