@@ -884,8 +884,8 @@
         <button onclick="smartExplain()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
           <i data-lucide="help-circle" class="w-4 h-4 text-green-500"></i> Explain Simply
         </button>
-        <button onclick="createExecutiveDeck()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
-          <i data-lucide="layers" class="w-4 h-4 text-orange-500"></i> Create Executive Deck
+        <button onclick="window.openDeckModal()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
+          <i data-lucide="layers" class="w-4 h-4 text-orange-500"></i> Research Deck Generator
         </button>
       </div>
 
@@ -1433,7 +1433,7 @@
           <button class="hero-chip" onclick="window.openQuizModal()">🧩 Quiz me</button>
           <button class="hero-chip" onclick="window.openFlashcardModal()">⚡ Flashcards</button>
           <button class="hero-chip" onclick="window.openAnalyzeFile?.()">📄 Summarise a PDF</button>
-          <button class="hero-chip" onclick="createExecutiveDeck?.()">🎨 Create a deck</button>
+          <button class="hero-chip" onclick="window.openDeckModal()">🎨 Create a deck</button>
         </div>
       </div>
     </div>
@@ -1622,6 +1622,202 @@
     </div>
   </div>
 
+  <!-- ================================================================
+       RESEARCH DECK MODAL
+       Step 1: Input → Step 2: Outline review → Step 3: Done
+  ================================================================ -->
+  <div id="deck-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="relative w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden" style="max-height:90vh;display:flex;flex-direction:column;">
+
+      <!-- HEADER (always visible) -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-yellow-400 flex items-center justify-center text-base">📊</div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Research Deck Generator</h3>
+            <p class="text-[11px] text-gray-400">chat / PDF → outline → intelligent slides → PPTX</p>
+          </div>
+        </div>
+        <button onclick="window.closeDeckModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- ── STEP 1: INPUT ── -->
+      <div id="deck-step-1" class="overflow-y-auto" style="flex:1;">
+        <div class="px-5 py-4 space-y-4">
+
+          <!-- Topic -->
+          <div>
+            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Research topic or question</label>
+            <textarea id="deck-topic" rows="3"
+              placeholder="e.g. The impact of CRISPR gene editing on rare disease treatment — 2024 Phase II clinical data…"
+              class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400 resize-none"></textarea>
+          </div>
+
+          <!-- Style picker -->
+          <div>
+            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Deck style</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="deck-style-option" data-val="academic">
+                <input type="radio" name="deck-style-radio" value="academic" checked class="sr-only">
+                <span class="text-lg">🎓</span>
+                <div>
+                  <div class="text-xs font-bold">Academic</div>
+                  <div class="text-[10px] text-gray-400">Research-grade, citation-aware</div>
+                </div>
+              </label>
+              <label class="deck-style-option" data-val="business">
+                <input type="radio" name="deck-style-radio" value="business" class="sr-only">
+                <span class="text-lg">💼</span>
+                <div>
+                  <div class="text-xs font-bold">Business</div>
+                  <div class="text-[10px] text-gray-400">Executive, data-driven</div>
+                </div>
+              </label>
+              <label class="deck-style-option" data-val="pitch">
+                <input type="radio" name="deck-style-radio" value="pitch" class="sr-only">
+                <span class="text-lg">🚀</span>
+                <div>
+                  <div class="text-xs font-bold">Pitch</div>
+                  <div class="text-[10px] text-gray-400">Startup, story-led</div>
+                </div>
+              </label>
+              <label class="deck-style-option" data-val="minimal">
+                <input type="radio" name="deck-style-radio" value="minimal" class="sr-only">
+                <span class="text-lg">◻</span>
+                <div>
+                  <div class="text-xs font-bold">Minimal</div>
+                  <div class="text-[10px] text-gray-400">Clean, text-first</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Length + Audience -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Deck length</label>
+              <select id="deck-length" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400">
+                <option value="short">Short — 6 slides</option>
+                <option value="standard" selected>Standard — 10 slides</option>
+                <option value="deep">Deep — 15 slides</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Audience</label>
+              <select id="deck-audience" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400">
+                <option>Research peers / PhD committee</option>
+                <option>Conference audience</option>
+                <option>University faculty</option>
+                <option>Executive / leadership</option>
+                <option>General audience</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden select for JS to read -->
+        <select id="deck-style" class="sr-only">
+          <option value="academic" selected>academic</option>
+          <option value="business">business</option>
+          <option value="pitch">pitch</option>
+          <option value="minimal">minimal</option>
+        </select>
+
+        <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2 bg-gray-50 dark:bg-gray-800/50 flex-shrink-0">
+          <button onclick="window.closeDeckModal()" class="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Cancel</button>
+          <button id="deck-plan-btn" onclick="window.planDeck()"
+            class="px-5 py-2 bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-bold rounded-xl transition flex items-center gap-2">
+            Plan my deck →
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: OUTLINE REVIEW ── -->
+      <div id="deck-step-2" class="hidden flex-col" style="flex:1;min-height:0;">
+        <!-- Outline header -->
+        <div class="px-5 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
+          <div>
+            <div id="deck-outline-title" class="text-sm font-bold text-gray-900 dark:text-white truncate max-w-xs"></div>
+            <div id="deck-outline-count" class="text-[11px] text-gray-400 mt-0.5"></div>
+          </div>
+          <span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">AI Planned</span>
+        </div>
+
+        <!-- Slide list -->
+        <div id="deck-outline-list" class="overflow-y-auto px-4 py-3 space-y-2" style="flex:1;"></div>
+
+        <!-- Type legend -->
+        <div class="px-4 py-2 flex flex-wrap gap-1.5 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 flex-shrink-0" id="deck-type-legend">
+          <span style="background:#e2e8f0;color:#334155;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Title</span>
+          <span style="background:#dbeafe;color:#1d4ed8;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Thesis</span>
+          <span style="background:#f3e8ff;color:#7e22ce;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Background</span>
+          <span style="background:#dcfce7;color:#15803d;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Evidence</span>
+          <span style="background:#ffedd5;color:#c2410c;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Chart</span>
+          <span style="background:#fce7f3;color:#be185d;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Comparison</span>
+          <span style="background:#fef9c3;color:#854d0e;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Quote</span>
+          <span style="background:#1e293b;color:#fff;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Conclusion</span>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-between gap-2 bg-gray-50 dark:bg-gray-800/50 flex-shrink-0">
+          <button onclick="window.deckGoBack()" class="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white flex items-center gap-1">
+            ← Back
+          </button>
+          <button id="deck-generate-btn" onclick="window.generateDeck()"
+            class="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl transition flex items-center gap-2">
+            📊 Generate PPTX
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: DONE ── -->
+      <div id="deck-step-3" class="hidden px-5 py-10 text-center flex-col items-center justify-center" style="flex:1;">
+        <div class="text-4xl mb-3">🎉</div>
+        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Your deck is ready!</h3>
+        <p id="deck-done-info" class="text-sm text-gray-500 dark:text-gray-400 mb-6"></p>
+        <div class="flex gap-2 justify-center">
+          <button onclick="window.closeDeckModal()" class="px-4 py-2.5 border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+            Close
+          </button>
+          <button onclick="window.closeDeckModal(); setTimeout(window.openDeckModal, 50);"
+            class="px-4 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-bold rounded-xl transition">
+            Generate another
+          </button>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-6">The PPTX file has been downloaded to your device.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <style>
+    /* Deck style radio cards */
+    .deck-style-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .deck-style-option:hover { border-color: #d1d5db; }
+    .deck-style-option input:checked ~ * { /* handled via JS */ }
+    .deck-style-option.ds-selected {
+      border-color: #facc15;
+      background: #fefce8;
+    }
+    .dark .deck-style-option { border-color: #374151; }
+    .dark .deck-style-option.ds-selected { background: #1c1a05; border-color: #facc15; }
+
+    /* Fix step-2 display */
+    #deck-step-2:not(.hidden) { display: flex !important; }
+    #deck-step-3:not(.hidden) { display: flex !important; }
+  </style>
+
   <!-- MEMORY MODAL -->
   <div id="memory-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
     <div id="memory-modal-inner" class="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
@@ -1767,6 +1963,9 @@
 
   <!-- FLASHCARD -->
  <script src="flashcard.js?v=20260505a"></script>
+
+ <!-- RESEARCH DECK -->
+ <script src="deck.js?v=20260505a"></script>
 
  <!-- FEATURE LAYERS -->
  <script src="analysis_ui.js?v=20260425"></script>

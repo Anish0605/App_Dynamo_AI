@@ -24,10 +24,11 @@ import flowchart
 import mindmap
 import multi_model_router
 import flashcard as flashcard_module
+import deck_engine
 
 from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
-from presentation_engine import build_presentation
+from presentation_engine import build_presentation, build_smart_presentation
 from payments import router as payments_router
 
 # --------------------------------------------------
@@ -804,6 +805,45 @@ CONVERSATION:
             ]
         }
         return build_presentation(fallback)
+
+# --------------------------------------------------
+# 📊 SMART RESEARCH DECK  (new pipeline)
+# --------------------------------------------------
+
+class DeckPlanReq(BaseModel):
+    topic:       str
+    style:       str  = "academic"   # academic | business | pitch | minimal
+    length:      str  = "standard"   # short | standard | deep
+    audience:    str  = "Research peers"
+    source_text: str  = ""           # paste from PDF / notes
+
+@app.post("/deck/plan")
+async def deck_plan(req: DeckPlanReq):
+    """
+    Step 1: AI generates a structured deck outline JSON.
+    Client reviews it before generating the PPTX.
+    """
+    try:
+        outline = await deck_engine.plan_deck(
+            topic       = req.topic,
+            style       = req.style,
+            length      = req.length,
+            audience    = req.audience,
+            source_text = req.source_text,
+        )
+        return outline
+    except Exception as e:
+        import traceback as _tb
+        print("Deck plan error:", _tb.format_exc())
+        return {"error": str(e), "slides": []}
+
+@app.post("/deck/generate")
+async def deck_generate(payload: dict):
+    """
+    Step 2: Renders the approved outline JSON into a PPTX file.
+    Payload is the full outline dict returned by /deck/plan.
+    """
+    return build_smart_presentation(payload)
 
 # --------------------------------------------------
 # 🔊 READ-ALOUD / STREAM
