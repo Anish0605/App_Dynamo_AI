@@ -1644,12 +1644,43 @@
       <div id="deck-step-1" class="overflow-y-auto" style="flex:1;">
         <div class="px-5 py-4 space-y-4">
 
-          <!-- Topic -->
+          <!-- Source toggle -->
           <div>
+            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Source</label>
+            <div class="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 gap-1 text-xs font-bold">
+              <button id="deck-src-text-btn" onclick="window.deckSwitchSource('text')"
+                class="flex-1 py-2 rounded-lg transition bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-white">
+                ✍️ Topic / notes
+              </button>
+              <button id="deck-src-file-btn" onclick="window.deckSwitchSource('file')"
+                class="flex-1 py-2 rounded-lg transition text-gray-500 hover:text-gray-700 dark:hover:text-gray-200">
+                📄 Upload PDF / Word
+              </button>
+            </div>
+          </div>
+
+          <!-- Text input panel -->
+          <div id="deck-src-text-panel">
             <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Research topic or question</label>
             <textarea id="deck-topic" rows="3"
               placeholder="e.g. The impact of CRISPR gene editing on rare disease treatment — 2024 Phase II clinical data…"
               class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400 resize-none"></textarea>
+          </div>
+
+          <!-- File upload panel -->
+          <div id="deck-src-file-panel" class="hidden">
+            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Research Paper / Document</label>
+            <div id="deck-drop-zone"
+              onclick="document.getElementById('deck-file-input').click()"
+              class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-5 text-center hover:border-yellow-400 transition cursor-pointer">
+              <div class="text-2xl mb-1.5">📄</div>
+              <div id="deck-file-name" class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-0.5">Drop file here or click to browse</div>
+              <div class="text-[11px] text-gray-400">PDF or Word (.pdf · .docx) — max 20 MB</div>
+            </div>
+            <input id="deck-file-input" type="file" accept=".pdf,.docx,.doc,.txt" class="hidden"
+              onchange="window.deckFileSelected(this)">
+            <!-- Extracted text preview (hidden, used by JS) -->
+            <div id="deck-file-status" class="hidden mt-2 text-[11px] rounded-lg px-3 py-2 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-semibold"></div>
           </div>
 
           <!-- Style picker -->

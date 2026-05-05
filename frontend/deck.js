@@ -6,7 +6,10 @@
 // ----------------------------------------------------------------
 // STATE
 // ----------------------------------------------------------------
-window._deckOutline = null;   // Stores the planned outline from AI
+window._deckOutline      = null;   // Stores the planned outline from AI
+window._deckSourceMode   = "text"; // "text" | "file"
+window._deckExtractedText = "";    // Text extracted from uploaded file
+window._deckFileTitle     = "";    // Filename used as fallback topic
 
 // ----------------------------------------------------------------
 // STYLE RADIO CARD WIRING (runs after DOM ready)
@@ -51,7 +54,97 @@ window.closeDeckModal = function () {
   if (!modal) return;
   modal.classList.add("hidden");
   document.body.style.overflow = "";
-  window._deckOutline = null;
+  window._deckOutline       = null;
+  window._deckExtractedText = "";
+  window._deckFileTitle     = "";
+  // Reset file input
+  const fi = document.getElementById("deck-file-input");
+  if (fi) fi.value = "";
+  const status = document.getElementById("deck-file-status");
+  if (status) { status.textContent = ""; status.classList.add("hidden"); }
+  const nameLbl = document.getElementById("deck-file-name");
+  if (nameLbl) nameLbl.textContent = "Drop file here or click to browse";
+};
+
+// ----------------------------------------------------------------
+// SOURCE TOGGLE (text ↔ file upload)
+// ----------------------------------------------------------------
+window.deckSwitchSource = function (mode) {
+  window._deckSourceMode = mode;
+
+  const textPanel = document.getElementById("deck-src-text-panel");
+  const filePanel = document.getElementById("deck-src-file-panel");
+  const textBtn   = document.getElementById("deck-src-text-btn");
+  const fileBtn   = document.getElementById("deck-src-file-btn");
+
+  const activeClass   = ["bg-white", "dark:bg-gray-700", "shadow", "text-gray-900", "dark:text-white"];
+  const inactiveClass = ["text-gray-500"];
+
+  if (mode === "text") {
+    textPanel?.classList.remove("hidden");
+    filePanel?.classList.add("hidden");
+    textBtn?.classList.add(...activeClass);
+    textBtn?.classList.remove(...inactiveClass);
+    fileBtn?.classList.remove(...activeClass);
+    fileBtn?.classList.add(...inactiveClass);
+  } else {
+    textPanel?.classList.add("hidden");
+    filePanel?.classList.remove("hidden");
+    fileBtn?.classList.add(...activeClass);
+    fileBtn?.classList.remove(...inactiveClass);
+    textBtn?.classList.remove(...activeClass);
+    textBtn?.classList.add(...inactiveClass);
+  }
+};
+
+// ----------------------------------------------------------------
+// FILE SELECTION + EXTRACTION
+// ----------------------------------------------------------------
+window.deckFileSelected = async function (input) {
+  const file = input.files?.[0];
+  if (!file) return;
+
+  const nameLbl  = document.getElementById("deck-file-name");
+  const status   = document.getElementById("deck-file-status");
+  const dropZone = document.getElementById("deck-drop-zone");
+
+  if (nameLbl) nameLbl.textContent = file.name;
+  if (status) {
+    status.textContent = "Extracting text…";
+    status.className = "mt-2 text-[11px] rounded-lg px-3 py-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 font-semibold";
+    status.classList.remove("hidden");
+  }
+  if (dropZone) dropZone.classList.add("border-yellow-400");
+
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(`${window.BACKEND_URL}/deck/extract`, {
+      method: "POST",
+      body: formData
+    });
+
+    if (!res.ok) throw new Error("Extraction failed");
+    const data = await res.json();
+
+    window._deckExtractedText = data.text || "";
+    window._deckFileTitle     = file.name.replace(/\.[^.]+$/, ""); // strip extension
+
+    if (status) {
+      status.textContent = `✓ Text extracted — ${Math.round(window._deckExtractedText.length / 5)} words ready`;
+      status.className = "mt-2 text-[11px] rounded-lg px-3 py-2 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-semibold";
+    }
+    if (dropZone) dropZone.classList.replace("border-yellow-400", "border-green-400");
+
+  } catch (err) {
+    console.error("File extraction error:", err);
+    window._deckExtractedText = "";
+    if (status) {
+      status.textContent = "Could not extract text. Try a different file.";
+      status.className = "mt-2 text-[11px] rounded-lg px-3 py-2 bg-red-50 text-red-600 font-semibold";
+    }
+  }
 };
 
 function _deckShowStep(n) {
@@ -65,14 +158,32 @@ function _deckShowStep(n) {
 // STEP 1 → STEP 2: Plan the deck
 // ----------------------------------------------------------------
 window.planDeck = async function () {
-  const topic    = document.getElementById("deck-topic")?.value?.trim();
   const style    = document.getElementById("deck-style")?.value || "academic";
   const length   = document.getElementById("deck-length")?.value || "standard";
   const audience = document.getElementById("deck-audience")?.value || "Research peers";
 
-  if (!topic) {
-    document.getElementById("deck-topic")?.focus();
-    return;
+  // Determine topic and source_text based on mode
+  let topic       = "";
+  let source_text = "";
+
+  if (window._deckSourceMode === "file") {
+    if (!window._deckExtractedText) {
+      const status = document.getElementById("deck-file-status");
+      if (status) {
+        status.textContent = "Please upload a file first.";
+        status.className = "mt-2 text-[11px] rounded-lg px-3 py-2 bg-red-50 text-red-600 font-semibold";
+        status.classList.remove("hidden");
+      }
+      return;
+    }
+    topic       = window._deckFileTitle || "Research Paper";
+    source_text = window._deckExtractedText;
+  } else {
+    topic = document.getElementById("deck-topic")?.value?.trim();
+    if (!topic) {
+      document.getElementById("deck-topic")?.focus();
+      return;
+    }
   }
 
   // Show loading state
@@ -88,7 +199,7 @@ window.planDeck = async function () {
     const res = await fetch(`${window.BACKEND_URL}/deck/plan`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic, style, length, audience, source_text: "" })
+      body: JSON.stringify({ topic, style, length, audience, source_text })
     });
 
     if (!res.ok) throw new Error("Plan failed");

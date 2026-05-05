@@ -817,6 +817,17 @@ class DeckPlanReq(BaseModel):
     audience:    str  = "Research peers"
     source_text: str  = ""           # paste from PDF / notes
 
+@app.post("/deck/extract")
+async def deck_extract(file: UploadFile = File(...)):
+    """
+    Extracts raw text from a PDF or Word document for use as deck source material.
+    Returns { text: "..." }
+    """
+    import pdf as pdf_module
+    contents = await file.read()
+    text = pdf_module.extract_intel(contents, file.filename or "upload.pdf")
+    return {"text": text[:5000], "filename": file.filename}
+
 @app.post("/deck/plan")
 async def deck_plan(req: DeckPlanReq):
     """
