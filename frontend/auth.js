@@ -148,19 +148,56 @@ document.addEventListener("click", (e) => {
 });
 
 /* --------------------------------------------------
-   GOOGLE LOGIN
+   REDIRECT RESULT (handles mobile Google redirect flow)
+-------------------------------------------------- */
+firebaseAuth?.getRedirectResult().then(result => {
+  if (result && result.user) {
+    console.log("✅ Google redirect auth complete");
+    window.closeAuthModal?.();
+  }
+}).catch(err => {
+  // auth/no-auth-event is expected when there's no pending redirect
+  if (err.code && err.code !== "auth/no-auth-event") {
+    console.error("❌ Redirect result error:", err.code, err.message);
+    const errorBox = document.getElementById("auth-error");
+    if (errorBox) showAuthError(errorBox, friendlyAuthError(err.code));
+  }
+});
+
+/* --------------------------------------------------
+   GOOGLE LOGIN  (popup on desktop, redirect on mobile)
 -------------------------------------------------- */
 window.signInWithGoogle = async () => {
+  const errorBox = document.getElementById("auth-error");
   try {
     const provider = new firebase.auth.GoogleAuthProvider();
-    await firebaseAuth.signInWithPopup(provider);
+    provider.addScope("email");
+    provider.addScope("profile");
 
-    console.log("✅ Google login success");
-    window.closeAuthModal();
+    // Mobile browsers block popups — use redirect flow instead
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+      || window.innerWidth < 768;
+
+    if (isMobile) {
+      // Shows a loading state — page will redirect to Google then come back
+      const googleBtn = document.querySelector("[onclick='signInWithGoogle()']");
+      if (googleBtn) {
+        googleBtn.disabled = true;
+        googleBtn.innerHTML = `<svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Redirecting to Google…`;
+      }
+      await firebaseAuth.signInWithRedirect(provider);
+      // Page navigates away here — getRedirectResult() handles completion on return
+
+    } else {
+      await firebaseAuth.signInWithPopup(provider);
+      console.log("✅ Google popup login success");
+      window.closeAuthModal();
+    }
 
   } catch (err) {
     console.error("❌ Google login error:", err);
-    alert(err.message);
+    if (errorBox) showAuthError(errorBox, friendlyAuthError(err.code || err.message));
+    else alert(err.message);
   }
 };
 
@@ -314,18 +351,48 @@ window.handleLogout = async () => {
 -------------------------------------------------- */
 window.closeAuthModal = () => {
   document.getElementById("auth-modal")?.classList.add("hidden");
+  document.body.style.removeProperty("overflow");
 };
 
 window.openAuthModal = (mode) => {
   window.authMode = mode || "login";
 
-  document.getElementById("auth-modal")?.classList.remove("hidden");
+  const modal = document.getElementById("auth-modal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  // Prevent body scroll while modal is open (important on mobile)
+  document.body.style.overflow = "hidden";
 
   setTimeout(() => {
     applyAuthModeUI();
     if (window.lucide) lucide.createIcons();
+    // Scroll modal to top so it's visible above any keyboard
+    modal.scrollTop = 0;
   }, 50);
 };
+
+/* --------------------------------------------------
+   iOS KEYBOARD / VISUAL VIEWPORT FIX
+   When keyboard opens, scrolls the modal so the active
+   input stays in view above the keyboard
+-------------------------------------------------- */
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", () => {
+    const modal = document.getElementById("auth-modal");
+    if (!modal || modal.classList.contains("hidden")) return;
+
+    // On iOS, visualViewport.height shrinks when keyboard opens
+    // Adjust the modal's max-height to match visible area
+    const visibleHeight = window.visualViewport.height;
+    modal.style.height = visibleHeight + "px";
+  });
+
+  window.visualViewport.addEventListener("scroll", () => {
+    const modal = document.getElementById("auth-modal");
+    if (!modal || modal.classList.contains("hidden")) return;
+    modal.style.top = window.visualViewport.offsetTop + "px";
+  });
+}
 
 /* --------------------------------------------------
    TOGGLE MODE
