@@ -9,6 +9,7 @@ export const modules: ModuleMap = {
   "./components/mockups/doc-library/DocFileChip.tsx": () => import("../components/mockups/doc-library/DocFileChip.tsx"),
   "./components/mockups/doc-library/DocLibraryEmpty.tsx": () => import("../components/mockups/doc-library/DocLibraryEmpty.tsx"),
   "./components/mockups/doc-library/DocLibraryFilled.tsx": () => import("../components/mockups/doc-library/DocLibraryFilled.tsx"),
+  "./components/mockups/deep-research/DeepResearchAgent.tsx": () => import("../components/mockups/deep-research/DeepResearchAgent.tsx"),
   "./components/mockups/flashcards/FlashcardVariantA.tsx": () => import("../components/mockups/flashcards/FlashcardVariantA.tsx"),
   "./components/mockups/flashcards/FlashcardVariantB.tsx": () => import("../components/mockups/flashcards/FlashcardVariantB.tsx"),
   "./components/mockups/flashcards/FlashcardVariantC.tsx": () => import("../components/mockups/flashcards/FlashcardVariantC.tsx"),
