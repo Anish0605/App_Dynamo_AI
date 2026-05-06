@@ -1,6 +1,6 @@
 # main.py — Dynamo AI Central Router (FINAL, CLEAN)
 
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -601,7 +601,7 @@ async def delete_document_ep(doc_id: str):
 @app.post("/save-document")
 async def save_document_ep(
     file: UploadFile = File(...),
-    user_id: str = "",
+    user_id: str = Form(""),
 ):
     """
     Receives an uploaded file, extracts text, generates AI summary,
@@ -703,10 +703,10 @@ async def move_chat_to_folder(chat_id: str, req: ChatFolderMove):
 @app.post("/chat-with-file")
 async def chat_with_file(
     file: UploadFile = File(...),
-    message: str = "",
-    user_id: str = "",
-    chat_id: str = "",
-    history: str = "[]"
+    message: str = Form(""),
+    user_id: str = Form(""),
+    chat_id: str = Form(""),
+    history: str = Form("[]")
 ):
     import json as _json
 
