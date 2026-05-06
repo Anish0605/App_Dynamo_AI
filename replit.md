@@ -144,6 +144,16 @@ Image/video enforcement runs in `backend/main.py` before generation.
 Frontend shows styled quota error cards with an "Upgrade Plan" link to `/pricing.html`.
 Frontend `checkMessageLimit` in `chat.js` uses PLAN_LIMITS matching backend (free=10, plus=100, pro=300).
 
+## Document Library (May 2026)
+Persistent document memory — users can save PDFs/DOCX/TXT to a per-user library; Dynamo AI injects summaries into every future chat automatically.
+
+- **Backend**: `backend/documents.py` — summarize_document (Gemini), fetch/save/delete + format_docs_for_prompt
+- **Endpoints**: `POST /save-document` · `GET /documents` · `DELETE /documents/{id}`
+- **Integration**: `model.py` → `doc_context` param injected after memory in system prompt; `main.py` fetches docs alongside memories in every chat
+- **Frontend**: `frontend/documents.js` — modal, doc cards, delete, _handleLibraryUpload, refreshDocCount
+- **UI**: "Document Library" button in profile modal (after AI Memory); Documents modal with "Add document to library" footer upload; "Remember this" chip appears after file attach in chat
+- **DB**: Requires `user_documents` table — see SQL in progress notes
+
 ## Bug Fixes (Pre-Launch - March 2026)
 
 ### Summarise Smart Action Fix

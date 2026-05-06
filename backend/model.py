@@ -40,7 +40,7 @@ def normalize_history(history):
 
 
 def get_ai_response(
-    prompt, history, model_name, context="", deep_dive=False, memories=None
+    prompt, history, model_name, context="", deep_dive=False, memories=None, doc_context=""
 ):
     msg_lower = prompt.lower()
 
@@ -94,6 +94,19 @@ def get_ai_response(
                 "If they mentioned struggling with something, be extra patient and clear on that topic. "
                 "Do NOT announce that you are using memory — just use it seamlessly."
             )
+
+    # -------------------------
+    # DOCUMENT LIBRARY INJECTION
+    # -------------------------
+    if doc_context:
+        sys_prompt += (
+            "\n\n--- User's Saved Document Library ---\n"
+            + doc_context
+            + "\n--- End of Document Library ---\n"
+            "When answering questions, draw on these documents if relevant. "
+            "If the user asks about a topic covered by one of their documents, reference it naturally. "
+            "Do NOT list the documents unless specifically asked."
+        )
 
     # -------------------------
     # FULL PROMPT

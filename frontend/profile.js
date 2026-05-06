@@ -40,6 +40,7 @@ window.openProfile = () => {
   modal.classList.remove("hidden");
   loadProfileData();
   window.refreshMemoryCount?.();
+  window.refreshDocCount?.();
 };
 
 /* ── LOAD DATA ── */

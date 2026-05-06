@@ -84,8 +84,18 @@ function showUploadChip(filename, isRadioMode = false) {
       <i data-lucide="x" class="w-3 h-3"></i>
     </button>
   `;
-  
   chipContainer.appendChild(chip);
+
+  // "Remember this document" button (shown after file is attached, not radio mode)
+  if (!isRadioMode) {
+    const remBtn = document.createElement("button");
+    remBtn.id = "remember-doc-btn";
+    remBtn.title = "Save this document to your library so Dynamo remembers it forever";
+    remBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-yellow-400 text-yellow-700 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 transition";
+    remBtn.innerHTML = `<i data-lucide="bookmark-plus" class="w-3.5 h-3.5"></i> Remember this`;
+    remBtn.onclick = () => window.saveCurrentDocument(window.pendingUploadFile);
+    chipContainer.appendChild(remBtn);
+  }
   
   lucide.createIcons();
 }

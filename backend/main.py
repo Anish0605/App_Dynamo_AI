@@ -13,6 +13,7 @@ import traceback
 import config
 import model
 import memory as memory_module
+import documents as documents_module
 import search
 import image
 import voice
@@ -371,11 +372,15 @@ async def chat(req: ChatReq):
             })
 
     # -------------------------
-    # 🧠 3.5 LOAD MEMORIES
+    # 🧠 3.5 LOAD MEMORIES + DOCUMENTS
     # -------------------------
     memories = []
     if user:
         memories = memory_module.fetch_memories(supabase_client.supabase, user["id"])
+
+    saved_docs = []
+    if user:
+        saved_docs = documents_module.fetch_documents(supabase_client.supabase, user["id"])
 
     # -------------------------
     # 🔬 4. RESEARCH MODE — multi-model pipeline
@@ -439,13 +444,16 @@ async def chat(req: ChatReq):
     # -------------------------
     # 🤖 6. AI RESPONSE
     # -------------------------
+    doc_context = documents_module.format_docs_for_prompt(saved_docs) if saved_docs else ""
+
     response = model.get_ai_response(
         prompt=req.message,
         history=history,
         model_name=req.model,
         context=context,
         deep_dive=req.deep_dive,
-        memories=memories
+        memories=memories,
+        doc_context=doc_context
     )
 
     # -------------------------
@@ -575,6 +583,71 @@ async def delete_memory(memory_id: str):
 async def clear_memories(user_id: str):
     ok = memory_module.clear_all_memories(supabase_client.supabase, user_id)
     return {"success": ok}
+
+# --------------------------------------------------
+# DOCUMENT LIBRARY ENDPOINTS
+# --------------------------------------------------
+
+@app.get("/documents")
+async def get_documents(user_id: str):
+    docs = documents_module.fetch_documents(supabase_client.supabase, user_id)
+    return {"documents": docs}
+
+@app.delete("/documents/{doc_id}")
+async def delete_document_ep(doc_id: str):
+    ok = documents_module.delete_document(supabase_client.supabase, doc_id)
+    return {"success": ok}
+
+@app.post("/save-document")
+async def save_document_ep(
+    file: UploadFile = File(...),
+    user_id: str = "",
+):
+    """
+    Receives an uploaded file, extracts text, generates AI summary,
+    and saves it permanently to the user's document library.
+    """
+    import pdf as pdf_module
+    if not user_id:
+        return {"success": False, "error": "Not logged in"}
+
+    try:
+        file_bytes = await file.read()
+        file_size_kb = len(file_bytes) // 1024
+
+        # Extract text from PDF/DOCX/TXT
+        text = pdf_module.extract_intel(file_bytes, file.filename or "upload")
+
+        if not text or len(text.strip()) < 50:
+            return {"success": False, "error": "Could not extract text from this file."}
+
+        # AI summarization
+        doc_data = documents_module.summarize_document(text, file.filename or "upload")
+
+        # Fetch internal user ID
+        user = get_user_by_supabase_id(user_id)
+        if not user:
+            return {"success": False, "error": "User not found"}
+
+        saved = documents_module.save_document(
+            supabase=supabase_client.supabase,
+            user_id=user["id"],
+            filename=file.filename or "upload",
+            summary=doc_data["summary"],
+            key_terms=doc_data["key_terms"],
+            topics=doc_data["topics"],
+            file_size_kb=file_size_kb,
+        )
+
+        if saved:
+            return {"success": True, "document": saved}
+        else:
+            return {"success": False, "error": "Failed to save document."}
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return {"success": False, "error": str(e)}
 
 # --------------------------------------------------
 # FOLDERS

@@ -1094,6 +1094,17 @@
         </div>
       </div>
 
+      <div class="profile-item" id="documents-btn" onclick="event.stopPropagation(); document.getElementById('profile-modal').classList.add('hidden'); window.openDocumentsModal();">
+        <div class="profile-item-left">
+          <i data-lucide="library" class="text-yellow-500"></i>
+          <span>Document Library</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span id="doc-count-badge" style="display:none;background:#fef9c3;color:#a16207;font-size:11px;font-weight:700;border-radius:20px;padding:2px 9px;line-height:1.4;align-items:center;justify-content:center;"></span>
+          <span class="profile-arrow">›</span>
+        </div>
+      </div>
+
       <div class="profile-item logout" id="logout-btn">
         <div class="profile-item-left">
           <i data-lucide="log-out" class="text-red-600"></i>
@@ -1923,6 +1934,53 @@
     </div>
   </div>
 
+  <!-- DOCUMENT LIBRARY MODAL -->
+  <div id="documents-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="relative w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
+
+      <!-- HEADER -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-yellow-400 flex items-center justify-center">
+            <i data-lucide="library" class="w-4 h-4 text-black"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Document Library</h3>
+            <p class="text-[11px] text-gray-400">Dynamo remembers these across all sessions</p>
+          </div>
+        </div>
+        <button onclick="window.closeDocumentsModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- BODY -->
+      <div class="px-5 py-4 max-h-[60vh] overflow-y-auto">
+        <!-- EMPTY STATE -->
+        <div id="doc-empty" class="hidden flex flex-col items-center justify-center py-10 text-center">
+          <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-3">
+            <i data-lucide="file-text" class="w-5 h-5 text-gray-400"></i>
+          </div>
+          <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No saved documents yet</p>
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Upload a PDF or document and click<br>"Remember this document" to save it here.</p>
+        </div>
+        <!-- DOC LIST -->
+        <div id="doc-list"></div>
+      </div>
+
+      <!-- FOOTER: upload directly from library -->
+      <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between bg-gray-50 dark:bg-gray-800/50">
+        <label for="library-file-input" class="flex items-center gap-2 text-xs font-semibold text-yellow-700 dark:text-yellow-400 cursor-pointer hover:text-yellow-800 transition px-3 py-1.5 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30">
+          <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+          Add document to library
+        </label>
+        <input id="library-file-input" type="file" class="hidden" accept=".pdf,.docx,.txt"
+          onchange="window._handleLibraryUpload(this)" />
+        <p class="text-[11px] text-gray-400">PDF, DOCX, TXT supported</p>
+      </div>
+    </div>
+  </div>
+
   <!-- AUTH MODAL -->
   <div id="auth-modal" class="hidden fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm overflow-y-auto" style="-webkit-overflow-scrolling:touch;">
     <div class="flex min-h-full items-center justify-center p-4">
@@ -2037,6 +2095,9 @@
 
  <!-- MEMORY -->
  <script src="memory.js?v=20260425"></script>
+
+ <!-- DOCUMENT LIBRARY -->
+ <script src="documents.js?v=20260505a"></script>
 
  <!-- AUTH MUST BE LAST -->
  <script src="auth.js?v=20260505b"></script>
