@@ -997,6 +997,47 @@ async def generate_video(req: VideoReq):
     return result
 
 # --------------------------------------------------
+# DEEP RESEARCH AGENT
+# --------------------------------------------------
+
+import deep_research as dr_module
+
+class DeepResearchStartReq(BaseModel):
+    query:    str
+    user_id:  str
+    use_max:  bool = False
+
+@app.post("/deep-research/start")
+async def deep_research_start(req: DeepResearchStartReq):
+    if not req.query.strip():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Query cannot be empty.")
+    job_id = await dr_module.start_research(
+        query=req.query.strip(),
+        user_id=req.user_id,
+        use_max=req.use_max,
+    )
+    return {"job_id": job_id, "status": "starting"}
+
+@app.get("/deep-research/status/{job_id}")
+async def deep_research_status(job_id: str):
+    from fastapi import HTTPException
+    job = dr_module.get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found.")
+    dr_module.cleanup_old_jobs()
+    return {
+        "job_id":       job_id,
+        "status":       job["status"],
+        "progress_msg": job.get("progress_msg", ""),
+        "elapsed":      job.get("elapsed", 0),
+        "report":       job.get("report"),
+        "error":        job.get("error"),
+        "fallback":     job.get("fallback", False),
+        "query":        job.get("query", ""),
+    }
+
+# --------------------------------------------------
 # STATIC FILES (frontend — must come last)
 # --------------------------------------------------
 

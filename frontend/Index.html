@@ -1328,9 +1328,9 @@
             <span class="ico">🔍</span><span>Find research gaps</span>
             <span id="gap-finder-badge" class="tag soon">DEEP</span>
           </button>
-          <button class="menu-row disabled has-tag" aria-disabled="true">
+          <button class="menu-row has-tag" onclick="window.openDeepResearch(); window._closeAllFlyouts(); window.closePlus?.();">
             <span class="ico">🤖</span><span>Deep research agent</span>
-            <span class="tag soon">SOON</span>
+            <span class="tag new">NEW</span>
           </button>
         </div>
 
@@ -1573,6 +1573,202 @@
       <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2 bg-gray-50 dark:bg-gray-800/50">
         <button onclick="window.closeQuizModal()" class="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Cancel</button>
         <button onclick="window.submitQuiz()" class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-bold rounded-xl transition">Start quiz</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       DEEP RESEARCH AGENT MODAL
+       ════════════════════════════════════════════════════════════ -->
+  <div id="deep-research-modal" class="hidden fixed inset-0 z-[80] flex flex-col bg-[#0a0a0a]" style="font-family:'Inter',-apple-system,sans-serif;">
+
+    <style>
+      /* ── Plan step states ── */
+      .dr-step { display:flex; gap:10px; align-items:flex-start; padding-bottom:14px; }
+      .dr-step .ds-dot { width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;transition:all .4s; }
+      .dr-step.pending .ds-dot  { background:rgba(255,255,255,.08); color:rgba(255,255,255,.25); }
+      .dr-step.active  .ds-dot  { background:#facc15; color:#000; }
+      .dr-step.done    .ds-dot  { background:#22c55e; color:#000; }
+      .dr-step.pending .ds-label{ color:rgba(255,255,255,.25); }
+      .dr-step.active  .ds-label{ color:#facc15; font-weight:600; }
+      .dr-step.done    .ds-label{ color:rgba(255,255,255,.75); }
+      .ds-label { font-size:12px; padding-top:2px; transition:color .4s; }
+      /* ── Report typography ── */
+      .dr-h1 { font-size:18px;font-weight:800;color:#fff;margin:20px 0 8px;line-height:1.3; }
+      .dr-h2 { font-size:14px;font-weight:700;color:#facc15;text-transform:uppercase;letter-spacing:.08em;margin:20px 0 6px;display:flex;align-items:center;gap:8px; }
+      .dr-h2::before { content:'';width:3px;height:12px;background:#facc15;border-radius:2px;flex-shrink:0; }
+      .dr-h3 { font-size:13px;font-weight:600;color:rgba(255,255,255,.85);margin:14px 0 4px; }
+      .dr-p  { font-size:13px;color:rgba(255,255,255,.65);line-height:1.75;margin:6px 0; }
+      .dr-ul { padding-left:18px;margin:8px 0; }
+      .dr-li { font-size:13px;color:rgba(255,255,255,.6);line-height:1.65;margin-bottom:4px; }
+      .dr-cite { color:#facc15;font-size:9px;font-weight:700;cursor:pointer;vertical-align:super; }
+      .dr-hr { border:none;border-top:1px solid rgba(255,255,255,.08);margin:20px 0; }
+    </style>
+
+    <!-- Top bar -->
+    <div class="flex items-center justify-between px-5 py-3 border-b border-white/8 flex-shrink-0 bg-[#111]">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 bg-yellow-400 rounded-lg flex items-center justify-center text-black font-black text-sm">⚡</div>
+        <span class="text-white/70 font-semibold text-sm">Deep Research Agent</span>
+        <span id="dr-fallback-badge" class="hidden text-[9px] bg-orange-400/20 text-orange-400 border border-orange-400/20 px-2 py-0.5 rounded-full font-semibold">Enhanced Mode</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <div id="dr-status-dot" class="w-2 h-2 rounded-full bg-white/20"></div>
+        <span id="dr-status-msg" class="text-white/35 text-xs">Ready</span>
+        <span class="text-white/20 text-xs font-mono" id="dr-elapsed">0:00</span>
+        <button onclick="window.closeDeepResearch()" class="text-white/30 hover:text-white/70 transition ml-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Body: 3 columns -->
+    <div class="flex flex-1 overflow-hidden min-h-0">
+
+      <!-- LEFT: Plan steps -->
+      <div class="w-52 flex-shrink-0 border-r border-white/8 bg-[#0a0a0a] p-4 overflow-y-auto">
+        <p class="text-[9px] font-bold uppercase tracking-widest text-white/25 mb-4">Research Plan</p>
+        <div style="position:relative;">
+          <div style="position:absolute;left:9px;top:0;bottom:0;width:1px;background:rgba(255,255,255,.06);"></div>
+          <div id="dr-step-1" class="dr-step pending"><div class="ds-dot">1</div><div class="ds-label">Map the landscape</div></div>
+          <div id="dr-step-2" class="dr-step pending"><div class="ds-dot">2</div><div class="ds-label">Search web &amp; academic</div></div>
+          <div id="dr-step-3" class="dr-step pending"><div class="ds-dot">3</div><div class="ds-label">Extract key insights</div></div>
+          <div id="dr-step-4" class="dr-step pending"><div class="ds-dot">4</div><div class="ds-label">Identify research gaps</div></div>
+          <div id="dr-step-5" class="dr-step pending"><div class="ds-dot">5</div><div class="ds-label">Synthesise &amp; write report</div></div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-white/6">
+          <p class="text-[9px] font-bold uppercase tracking-widest text-white/25 mb-2">Engine</p>
+          <div class="space-y-1.5">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="dr-use-max" class="accent-yellow-400 w-3.5 h-3.5">
+              <span class="text-[11px] text-white/50">Use Max model<br><span class="text-[9px] text-white/25">~8 min, deeper coverage</span></span>
+            </label>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-white/6">
+          <p class="text-[9px] font-bold uppercase tracking-widest text-white/25 mb-2">Scope</p>
+          <div class="space-y-1.5 text-[10px] text-white/30">
+            <div>~80 web searches</div>
+            <div>Academic + live web</div>
+            <div>Auto-saves to library</div>
+            <div>Pro users only</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTRE: Phase content -->
+      <div class="flex-1 overflow-y-auto">
+
+        <!-- Phase: plan (input screen) -->
+        <div id="dr-phase-plan" class="p-8 max-w-xl mx-auto">
+          <div class="mb-6">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-400/10 border border-yellow-400/20 flex items-center justify-center text-2xl mb-4">🔬</div>
+            <h2 class="text-lg font-bold text-white mb-1">What do you want to research?</h2>
+            <p class="text-sm text-white/40">The agent will plan, search ~80 sources, and write a full cited report — automatically.</p>
+          </div>
+          <textarea id="dr-query-input" rows="4" placeholder="e.g. Impact of CRISPR-Cas9 on cancer treatment: current clinical trials and future directions..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/25 outline-none focus:border-yellow-400/50 resize-none mb-4" style="font-family:inherit;"></textarea>
+          <div class="mb-5 p-3 rounded-xl bg-white/3 border border-white/6">
+            <p class="text-[10px] font-semibold text-white/30 uppercase tracking-wide mb-2">Estimated scope</p>
+            <div class="grid grid-cols-3 gap-3 text-center">
+              <div><p class="text-base font-bold text-white">~80</p><p class="text-[9px] text-white/30">Web searches</p></div>
+              <div><p class="text-base font-bold text-white">~200</p><p class="text-[9px] text-white/30">Papers scanned</p></div>
+              <div><p class="text-base font-bold text-white">4–8 min</p><p class="text-[9px] text-white/30">Completion</p></div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="window.startDeepResearch()" class="flex-1 bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-sm py-3 rounded-2xl transition flex items-center justify-center gap-2">
+              <span>▶</span> Start Deep Research
+            </button>
+          </div>
+          <p class="text-[10px] text-white/20 text-center mt-3">Pro feature · Results auto-saved to Document Library</p>
+        </div>
+
+        <!-- Phase: running -->
+        <div id="dr-phase-running" class="hidden p-8">
+          <div class="flex items-center gap-2 mb-6">
+            <div class="flex gap-1">
+              <div class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-bounce" style="animation-delay:0s"></div>
+              <div class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-bounce" style="animation-delay:.15s"></div>
+              <div class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-bounce" style="animation-delay:.3s"></div>
+            </div>
+            <span class="text-sm text-white/50 font-medium">Agent is researching — this takes 4–8 minutes</span>
+          </div>
+          <div class="space-y-3">
+            <div class="p-4 rounded-2xl bg-white/3 border border-white/6">
+              <p class="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1">Query</p>
+              <p id="dr-running-query" class="text-sm text-white/80 font-medium"></p>
+            </div>
+            <div class="p-4 rounded-2xl bg-yellow-400/5 border border-yellow-400/15">
+              <p class="text-[10px] font-bold uppercase tracking-widest text-yellow-400/60 mb-1">Current Stage</p>
+              <p id="dr-running-stage" class="text-sm text-yellow-400/80"></p>
+            </div>
+            <div class="p-4 rounded-2xl bg-white/3 border border-white/6 text-center">
+              <p class="text-2xl font-bold text-white font-mono" id="dr-running-timer">0:00</p>
+              <p class="text-[10px] text-white/30 mt-1">Elapsed — typical research takes 4–8 min</p>
+            </div>
+          </div>
+          <div class="mt-6 p-3 rounded-xl bg-white/2 border border-white/6">
+            <p class="text-[11px] text-white/30 text-center">The agent is autonomously searching the web and academic databases.<br>You can leave this page open and return when complete.</p>
+          </div>
+        </div>
+
+        <!-- Phase: report -->
+        <div id="dr-phase-report" class="hidden p-6 max-w-2xl">
+          <div class="flex flex-wrap gap-2 mb-5">
+            <button onclick="window.drCopyReport()" class="text-xs bg-white/8 text-white/60 border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/12 transition">📋 Copy report</button>
+            <button onclick="window.drSaveToLibrary()" class="text-xs bg-white/8 text-white/60 border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/12 transition">💾 Save to library</button>
+            <button onclick="window.drSendToChat()" class="text-xs bg-white/8 text-white/60 border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/12 transition">💬 Ask follow-up</button>
+            <button onclick="window.drNewResearch()" class="text-xs bg-yellow-400/15 text-yellow-400 border border-yellow-400/20 px-3 py-1.5 rounded-lg hover:bg-yellow-400/25 transition font-semibold">+ New research</button>
+          </div>
+          <div id="dr-report-content" class="text-sm text-white/70 leading-relaxed"></div>
+        </div>
+
+        <!-- Phase: error -->
+        <div id="dr-phase-error" class="hidden p-8 max-w-lg">
+          <div class="p-5 rounded-2xl bg-red-500/10 border border-red-500/20 text-center">
+            <div class="text-3xl mb-3">⚠️</div>
+            <p class="text-sm font-semibold text-red-400 mb-2">Research failed</p>
+            <p id="dr-error-msg" class="text-xs text-white/40 mb-4"></p>
+            <button onclick="window.drNewResearch()" class="text-xs bg-white/8 text-white/60 px-4 py-2 rounded-xl hover:bg-white/12 transition">Try again</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Info panel -->
+      <div class="w-56 flex-shrink-0 border-l border-white/8 bg-[#080808] overflow-y-auto p-4">
+        <p class="text-[9px] font-bold uppercase tracking-widest text-white/25 mb-3">Powered by</p>
+        <div class="space-y-2 mb-5">
+          <div class="p-2.5 rounded-xl bg-white/3 border border-white/6">
+            <p class="text-[10px] font-semibold text-white/70">Gemini Deep Research</p>
+            <p class="text-[9px] text-white/30 mt-0.5">Google's own research engine</p>
+          </div>
+          <div class="p-2.5 rounded-xl bg-white/3 border border-white/6">
+            <p class="text-[10px] font-semibold text-white/70">Tavily Web Search</p>
+            <p class="text-[9px] text-white/30 mt-0.5">Real-time web + academic</p>
+          </div>
+          <div class="p-2.5 rounded-xl bg-white/3 border border-white/6">
+            <p class="text-[10px] font-semibold text-white/70">Gemini 3 Flash (fallback)</p>
+            <p class="text-[9px] text-white/30 mt-0.5">Enhanced synthesis mode</p>
+          </div>
+        </div>
+        <p class="text-[9px] font-bold uppercase tracking-widest text-white/25 mb-3">Output includes</p>
+        <div class="space-y-1.5 text-[10px] text-white/40">
+          <div>✓ Executive summary</div>
+          <div>✓ Key findings</div>
+          <div>✓ Numbered citations</div>
+          <div>✓ Research gaps</div>
+          <div>✓ Future directions</div>
+          <div>✓ Full references</div>
+        </div>
+        <div class="mt-5 pt-4 border-t border-white/6">
+          <p class="text-[9px] font-bold uppercase tracking-widest text-white/25 mb-2">Tips</p>
+          <div class="text-[10px] text-white/30 space-y-2">
+            <p>Be specific — include dates, geography, and scope for better results.</p>
+            <p>Add "with academic citations" to get a paper-style report.</p>
+            <p>Report auto-saves to your Document Library on completion.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -2139,6 +2335,22 @@
    setVh();
    window.addEventListener('resize', setVh);
    window.addEventListener('orientationchange', setVh);
+
+   // Deep research running timer sync
+   setInterval(() => {
+     const phase = document.getElementById('dr-phase-running');
+     if (!phase || phase.classList.contains('hidden')) return;
+     const el = document.getElementById('dr-elapsed');
+     const rt = document.getElementById('dr-running-timer');
+     if (el && rt) rt.textContent = el.textContent;
+     const stageEl = document.getElementById('dr-running-stage');
+     const msgEl   = document.getElementById('dr-status-msg');
+     if (stageEl && msgEl) stageEl.textContent = msgEl.textContent;
+     const queryEl = document.getElementById('dr-running-query');
+     const inputEl = document.getElementById('dr-query-input');
+     if (queryEl && inputEl && !queryEl.textContent) queryEl.textContent = inputEl.value;
+   }, 1000);
  </script>
+ <script src="/deep_research.js?v=20260510a"></script>
 </body>
 </html>
