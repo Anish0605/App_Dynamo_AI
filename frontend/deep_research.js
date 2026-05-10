@@ -1,5 +1,6 @@
-// deep_research.js — Dynamo AI Deep Research Agent UI
-// v1.0 — Phase 1 (Gemini Interactions API)
+// deep_research.js — Dynamo AI Deep Research Agent UI v3
+// Fixes: save-to-library endpoint, ask-follow-up chat-input ID,
+//        add edit + download, live activity log, timer sync
 
 (function () {
   "use strict";
@@ -8,8 +9,10 @@
   let _currentJob = null;
   let _elapsed    = 0;
   let _timerTick  = null;
+  let _rawReport  = "";
+  let _editMode   = false;
 
-  // ── Open / Close ────────────────────────────────────────────────────────────
+  // ── Open / Close ───────────────────────────────────────────────────────────
 
   window.openDeepResearch = function (prefill) {
     const modal = document.getElementById("deep-research-modal");
@@ -29,17 +32,14 @@
     _stopTimer();
   };
 
-  // ── Start Research ───────────────────────────────────────────────────────────
+  // ── Start Research ─────────────────────────────────────────────────────────
 
   window.startDeepResearch = async function () {
     const query = document.getElementById("dr-query-input")?.value?.trim();
     if (!query) { _showToast("Please enter a research topic."); return; }
 
-    const useMax = document.getElementById("dr-use-max")?.checked;
-
-    // Auth: Firebase user confirms login; Supabase user carries the plan
-    const firebaseUser  = window.appState?.user;
-    const supabaseUser  = window.appState?.supabaseUser;
+    const firebaseUser = window.appState?.user;
+    const supabaseUser = window.appState?.supabaseUser;
 
     if (!firebaseUser) {
       _showToast("Please sign in to use Deep Research.");
@@ -47,15 +47,19 @@
     }
 
     if (!supabaseUser || supabaseUser.plan !== "pro") {
-      _showToast("Deep Research is a Pro feature. Please upgrade to Pro.");
+      _showToast("Deep Research is a Pro feature. Please upgrade.");
       return;
     }
 
-    const user = supabaseUser;
+    // Populate running phase query label
+    const rq = document.getElementById("dr-running-query");
+    if (rq) rq.textContent = `"${query}"`;
 
     _showPhase("running");
     _startTimer();
-    _setStatus("planning", "Building research plan…");
+    _clearActivityLog();
+    _addActivity("🧠 Analysing research scope and intent…");
+    _setStage("Initialising agent…");
 
     try {
       const res = await fetch(`${window.BACKEND_URL || ""}/deep-research/start`, {
@@ -63,8 +67,8 @@
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({
           query,
-          user_id:  user.id,
-          use_max:  useMax || false,
+          user_id:  supabaseUser.id,
+          use_max:  document.getElementById("dr-use-max")?.checked || false,
         }),
       });
 
@@ -77,33 +81,57 @@
       _currentJob = data.job_id;
       _pollStatus();
     } catch (err) {
-      _setStatus("error", err.message);
+      _setStage("Error: " + err.message);
       _showPhase("error");
+      const errEl = document.getElementById("dr-error-msg");
+      if (errEl) errEl.textContent = err.message;
       _stopTimer();
     }
   };
 
-  // ── Polling ──────────────────────────────────────────────────────────────────
+  // ── Polling ────────────────────────────────────────────────────────────────
 
   function _pollStatus() {
     if (!_currentJob) return;
+    let lastMsg = "";
+
     _pollTimer = setInterval(async () => {
       try {
         const res  = await fetch(`${window.BACKEND_URL || ""}/deep-research/status/${_currentJob}`);
         const data = await res.json();
 
-        _setStatus(data.status, data.progress_msg || "");
+        if (data.progress_msg && data.progress_msg !== lastMsg) {
+          lastMsg = data.progress_msg;
+          _setStage(data.progress_msg);
+          _addActivity(_decorateMsg(data.progress_msg, data.status));
+        }
+
+        // Show live tool calls / searches if present
+        if (data.activity && Array.isArray(data.activity)) {
+          data.activity.forEach(a => {
+            if (!_seenActivity.has(a)) {
+              _seenActivity.add(a);
+              _addActivity(a);
+            }
+          });
+        }
 
         if (data.status === "complete") {
           _stopPoll();
           _stopTimer();
+          _rawReport = data.report || "";
           _renderReport(data);
           _showPhase("report");
+          if (data.fallback) {
+            document.getElementById("dr-fallback-badge")?.classList.remove("hidden");
+          }
+          _addActivity("✅ Research complete — report ready");
         } else if (data.status === "error") {
           _stopPoll();
           _stopTimer();
           _showPhase("error");
-          _setStatus("error", data.error || "An error occurred.");
+          const errEl = document.getElementById("dr-error-msg");
+          if (errEl) errEl.textContent = data.error || "An error occurred.";
         }
       } catch (e) {
         console.warn("[DeepResearch] Poll error:", e);
@@ -111,18 +139,35 @@
     }, 3000);
   }
 
-  function _stopPoll() {
-    if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
+  const _seenActivity = new Set();
+
+  function _decorateMsg(msg, status) {
+    if (status === "complete")                       return "✅ " + msg;
+    if (/plan|scope|intent/i.test(msg))              return "📋 " + msg;
+    if (/search|scan|web|crawl/i.test(msg))          return "🔍 " + msg;
+    if (/extract|read|paper|source/i.test(msg))      return "📄 " + msg;
+    if (/analys|evaluat/i.test(msg))                 return "🧬 " + msg;
+    if (/gap|miss|blind/i.test(msg))                 return "🔭 " + msg;
+    if (/synth|combin|integrat/i.test(msg))          return "⚗️ " + msg;
+    if (/writ|draft|report|format/i.test(msg))       return "✍️ " + msg;
+    return "⚡ " + msg;
   }
 
-  // ── Timer ────────────────────────────────────────────────────────────────────
+  function _stopPoll() {
+    if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
+    _seenActivity.clear();
+  }
+
+  // ── Timer ──────────────────────────────────────────────────────────────────
 
   function _startTimer() {
-    _elapsed   = 0;
+    _elapsed = 0;
+    const el = document.getElementById("dr-running-timer");
+    if (el) el.textContent = "0:00";
     _timerTick = setInterval(() => {
       _elapsed++;
-      const el = document.getElementById("dr-elapsed");
-      if (el) el.textContent = _fmtTime(_elapsed);
+      const el2 = document.getElementById("dr-running-timer");
+      if (el2) el2.textContent = _fmtTime(_elapsed);
     }, 1000);
   }
 
@@ -134,7 +179,36 @@
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
   }
 
-  // ── UI Helpers ───────────────────────────────────────────────────────────────
+  // ── Activity Log ───────────────────────────────────────────────────────────
+
+  function _addActivity(msg) {
+    const log = document.getElementById("dr-activity-log");
+    if (!log) return;
+    const el = document.createElement("div");
+    el.style.cssText = "padding:5px 0;font-size:12px;color:rgba(255,255,255,.5);line-height:1.5;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:flex-start;gap:8px;";
+    const ts = document.createElement("span");
+    ts.style.cssText = "color:rgba(255,255,255,.2);font-size:10px;white-space:nowrap;margin-top:2px;font-family:monospace;";
+    ts.textContent = _fmtTime(_elapsed);
+    const txt = document.createElement("span");
+    txt.textContent = msg;
+    el.appendChild(ts);
+    el.appendChild(txt);
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function _clearActivityLog() {
+    const log = document.getElementById("dr-activity-log");
+    if (log) log.innerHTML = "";
+    _seenActivity.clear();
+  }
+
+  function _setStage(msg) {
+    const el = document.getElementById("dr-running-stage");
+    if (el) el.textContent = msg;
+  }
+
+  // ── UI Helpers ─────────────────────────────────────────────────────────────
 
   function _showPhase(phase) {
     ["plan", "running", "report", "error"].forEach(p => {
@@ -143,141 +217,154 @@
     });
   }
 
-  function _setStatus(status, msg) {
-    const el     = document.getElementById("dr-status-msg");
-    const dot    = document.getElementById("dr-status-dot");
-    const colors = { planning: "bg-yellow-400", researching: "bg-blue-400",
-                     complete:  "bg-green-400",  error:       "bg-red-400",
-                     starting:  "bg-yellow-400" };
-    if (el)  el.textContent = msg;
-    if (dot) { dot.className = `w-2 h-2 rounded-full ${colors[status] || "bg-white/30"} ${status !== "complete" && status !== "error" ? "animate-pulse" : ""}`; }
-
-    // Animate plan steps
-    _updatePlanSteps(status);
-  }
-
-  const PLAN_STEPS = [
-    { id: "dr-step-1", label: "Map the landscape",      threshold: "planning"     },
-    { id: "dr-step-2", label: "Search web & academic",  threshold: "researching"  },
-    { id: "dr-step-3", label: "Extract key insights",   threshold: "researching"  },
-    { id: "dr-step-4", label: "Identify research gaps", threshold: "researching"  },
-    { id: "dr-step-5", label: "Synthesise & write",     threshold: "complete"     },
-  ];
-
-  const STATUS_RANK = { starting: 0, planning: 1, researching: 2, complete: 3, error: 3 };
-
-  function _updatePlanSteps(status) {
-    const rank = STATUS_RANK[status] || 0;
-    PLAN_STEPS.forEach((step, i) => {
-      const el = document.getElementById(step.id);
-      if (!el) return;
-      const stepRank = STATUS_RANK[step.threshold] || 0;
-      const done     = rank > stepRank || (rank === stepRank && rank > 0);
-      const active   = rank === stepRank && rank > 0;
-      el.className   = `dr-step ${done ? "done" : active ? "active" : "pending"}`;
-    });
-  }
-
   function _resetUI() {
     _currentJob = null;
+    _rawReport  = "";
+    _editMode   = false;
     _stopPoll();
     _stopTimer();
     _showPhase("plan");
     const inp = document.getElementById("dr-query-input");
     if (inp) inp.value = "";
-    const el = document.getElementById("dr-elapsed");
-    if (el)  el.textContent = "0:00";
-    _setStatus("starting", "Ready to start research");
+    const timer = document.getElementById("dr-running-timer");
+    if (timer) timer.textContent = "0:00";
+    _setStage("Ready to begin…");
+    _clearActivityLog();
     const report = document.getElementById("dr-report-content");
     if (report) report.innerHTML = "";
-    const badge = document.getElementById("dr-fallback-badge");
-    if (badge) badge.classList.add("hidden");
+    document.getElementById("dr-fallback-badge")?.classList.add("hidden");
+    const errEl = document.getElementById("dr-error-msg");
+    if (errEl) errEl.textContent = "";
   }
 
-  // ── Report Rendering ─────────────────────────────────────────────────────────
+  // ── Report Rendering ───────────────────────────────────────────────────────
 
   function _renderReport(data) {
     const container = document.getElementById("dr-report-content");
     if (!container) return;
+    _rawReport  = data.report || "";
+    _editMode   = false;
+    container.innerHTML = _markdownToHtml(_rawReport);
 
-    const raw = data.report || "";
-    container.innerHTML = _markdownToHtml(raw);
+    // Update report meta
+    const fin = document.getElementById("dr-report-elapsed");
+    if (fin && data.elapsed) fin.textContent = _fmtTime(data.elapsed);
 
-    // Show fallback badge if needed
-    if (data.fallback) {
-      document.getElementById("dr-fallback-badge")?.classList.remove("hidden");
-    }
-
-    // Update elapsed
-    const el = document.getElementById("dr-elapsed");
-    if (el && data.elapsed) el.textContent = _fmtTime(data.elapsed);
+    // Reset edit button label
+    const editBtn = document.getElementById("dr-edit-btn");
+    if (editBtn) { editBtn.textContent = "Edit"; editBtn.style.color = ""; }
   }
 
   function _markdownToHtml(md) {
     return md
-      .replace(/^## (.+)$/gm, '<h2 class="dr-h2">$1</h2>')
+      .replace(/^## (.+)$/gm,  '<h2 class="dr-h2">$1</h2>')
       .replace(/^### (.+)$/gm, '<h3 class="dr-h3">$1</h3>')
-      .replace(/^# (.+)$/gm, '<h1 class="dr-h1">$1</h1>')
+      .replace(/^# (.+)$/gm,   '<h1 class="dr-h1">$1</h1>')
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      .replace(/\*([^*]+)\*/g,     '<em>$1</em>')
       .replace(/\[(\d+)\]/g, '<sup class="dr-cite">[$1]</sup>')
-      .replace(/^---+$/gm, '<hr class="dr-hr">')
+      .replace(/^---+$/gm,   '<hr class="dr-hr">')
       .replace(/^- (.+)$/gm, '<li class="dr-li">$1</li>')
       .replace(/(<li[^>]*>.*<\/li>\n?)+/g, s => `<ul class="dr-ul">${s}</ul>`)
       .replace(/\n\n+/g, '</p><p class="dr-p">')
-      .replace(/^(?!<[h|u|p|l|h])/gm, '<p class="dr-p">')
-      + '</p>';
+      .replace(/^(?!<[h|u|p|l|h])/gm, '<p class="dr-p">') + '</p>';
   }
 
-  // ── Actions ──────────────────────────────────────────────────────────────────
+  // ── Actions ────────────────────────────────────────────────────────────────
 
   window.drCopyReport = function () {
-    const el = document.getElementById("dr-report-content");
-    if (!el) return;
-    navigator.clipboard.writeText(el.innerText)
-      .then(() => _showToast("Report copied to clipboard"))
+    const text = _getReportText();
+    if (!text) return;
+    navigator.clipboard.writeText(text)
+      .then(() => _showToast("Report copied to clipboard ✓"))
       .catch(() => _showToast("Copy failed — please select and copy manually."));
   };
 
-  window.drSaveToLibrary = async function () {
+  window.drSaveToLibrary = async function (btn) {
     const user = window.appState?.supabaseUser;
     if (!user) { _showToast("Please sign in to save to library."); return; }
 
-    const reportEl = document.getElementById("dr-report-content");
+    const text = _getReportText();
+    if (!text) { _showToast("No report to save."); return; }
+
     const queryEl  = document.getElementById("dr-query-input");
-    if (!reportEl) return;
+    const filename = `Deep Research — ${(queryEl?.value || "Report").slice(0, 60)}.txt`;
 
-    const text     = reportEl.innerText;
-    const filename = `Deep Research — ${queryEl?.value?.slice(0, 60) || "Report"}.txt`;
-
-    try {
-      const res = await fetch(`${window.BACKEND_URL || ""}/save-document`, {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ user_id: user.id, filename, text }),
-      });
-      if (res.ok) {
-        _showToast("Saved to Document Library ✓");
-        if (typeof window.refreshDocCount === "function") window.refreshDocCount();
-      } else {
-        _showToast("Save failed — please try again.");
+    if (btn) { const orig = btn.textContent; btn.textContent = "Saving…"; btn.disabled = true;
+      try {
+        const res  = await fetch(`${window.BACKEND_URL || ""}/save-document-text`, {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({ user_id: user.id, filename, text }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          _showToast("Saved to Document Library ✓");
+          btn.textContent = "Saved ✓";
+          if (typeof window.refreshDocCount === "function") window.refreshDocCount();
+        } else {
+          _showToast("Save failed: " + (data.error || "unknown error"));
+          btn.textContent = orig;
+        }
+      } catch (e) {
+        _showToast("Save failed: " + e.message);
+        btn.textContent = orig;
+      } finally {
+        btn.disabled = false;
       }
-    } catch (e) {
-      _showToast("Save failed: " + e.message);
     }
   };
 
   window.drSendToChat = function () {
-    const reportEl = document.getElementById("dr-report-content");
-    const queryEl  = document.getElementById("dr-query-input");
-    if (!reportEl) return;
-    const summary = reportEl.innerText.slice(0, 800);
-    const inp = document.getElementById("user-input") || document.querySelector("textarea");
-    if (inp) {
-      inp.value = `Based on this deep research report on "${queryEl?.value}":\n\n${summary}\n\nPlease `;
-      inp.focus();
+    const queryEl = document.getElementById("dr-query-input");
+    const text    = _getReportText();
+    const summary = (text || "").slice(0, 1000);
+    const chatInput = document.getElementById("chat-input");
+    if (chatInput) {
+      chatInput.value = `Based on this deep research report on "${queryEl?.value || "the topic"}":\n\n${summary}\n\nMy follow-up question: `;
+      chatInput.dispatchEvent(new Event("input"));
+      chatInput.style.height = "";
+      chatInput.style.height = chatInput.scrollHeight + "px";
+      chatInput.focus();
     }
     window.closeDeepResearch();
+  };
+
+  window.drEditReport = function (btn) {
+    const container = document.getElementById("dr-report-content");
+    if (!container) return;
+
+    _editMode = !_editMode;
+
+    if (_editMode) {
+      // Escape for textarea display
+      const escaped = _rawReport.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      container.innerHTML = `<textarea id="dr-edit-textarea"
+        style="width:100%;min-height:520px;background:rgba(255,255,255,.04);border:1px solid rgba(250,204,21,.35);
+               border-radius:14px;padding:20px;font-size:13.5px;color:rgba(255,255,255,.88);
+               line-height:1.85;font-family:ui-monospace,monospace;resize:vertical;outline:none;
+               box-sizing:border-box;caret-color:#facc15;">${escaped}</textarea>`;
+      if (btn) { btn.textContent = "Save edits"; btn.style.color = "#facc15"; }
+    } else {
+      // Save edits → re-render
+      const ta = document.getElementById("dr-edit-textarea");
+      if (ta) _rawReport = ta.value;
+      container.innerHTML = _markdownToHtml(_rawReport);
+      if (btn) { btn.textContent = "Edit"; btn.style.color = ""; }
+    }
+  };
+
+  window.drDownloadReport = function () {
+    const text = _getReportText();
+    if (!text) { _showToast("No report to download."); return; }
+    const queryEl = document.getElementById("dr-query-input");
+    const topic   = (queryEl?.value || "Research Report").slice(0, 50).replace(/[^\w\s-]/g, "").trim();
+    const blob    = new Blob([text], { type: "text/markdown;charset=utf-8" });
+    const url     = URL.createObjectURL(blob);
+    const a       = document.createElement("a");
+    a.href = url; a.download = `${topic}.md`; a.click();
+    URL.revokeObjectURL(url);
+    _showToast("Report downloaded as .md ✓");
   };
 
   window.drNewResearch = function () {
@@ -285,15 +372,24 @@
     document.getElementById("dr-query-input")?.focus();
   };
 
-  // ── Toast ────────────────────────────────────────────────────────────────────
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
+  function _getReportText() {
+    if (_editMode) {
+      return document.getElementById("dr-edit-textarea")?.value || _rawReport;
+    }
+    return _rawReport;
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────────────
 
   function _showToast(msg) {
     const t = document.createElement("div");
-    t.className = "fixed bottom-6 left-1/2 -translate-x-1/2 bg-black/90 text-white text-xs px-4 py-2 rounded-full z-[200] shadow-xl";
+    t.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(10,10,20,.95);color:#fff;font-size:12px;padding:10px 20px;border-radius:999px;z-index:9999;box-shadow:0 4px 24px rgba(0,0,0,.4);white-space:nowrap;";
     t.textContent = msg;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3000);
   }
 
-  console.log("deep_research.js loaded ✅");
+  console.log("deep_research.js v3 loaded ✅");
 })();

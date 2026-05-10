@@ -1035,7 +1035,44 @@ async def deep_research_status(job_id: str):
         "error":        job.get("error"),
         "fallback":     job.get("fallback", False),
         "query":        job.get("query", ""),
+        "activity":     job.get("activity", []),
     }
+
+# --------------------------------------------------
+# SAVE DOCUMENT (plain text — used by Deep Research)
+# --------------------------------------------------
+
+class SaveTextDocReq(BaseModel):
+    user_id: str
+    filename: str
+    text:     str
+
+@app.post("/save-document-text")
+async def save_document_text(req: SaveTextDocReq):
+    """Save plain text (e.g. a deep research report) directly to the document library."""
+    if not req.user_id or not req.text.strip():
+        return {"success": False, "error": "Missing user_id or text"}
+    try:
+        doc_data = documents_module.summarize_document(req.text, req.filename)
+        user     = get_user_by_supabase_id(req.user_id)
+        if not user:
+            return {"success": False, "error": "User not found"}
+        file_size_kb = max(1, len(req.text.encode()) // 1024)
+        saved = documents_module.save_document(
+            supabase     = supabase_client.supabase,
+            user_id      = user["id"],
+            filename     = req.filename,
+            summary      = doc_data["summary"],
+            key_terms    = doc_data["key_terms"],
+            topics       = doc_data["topics"],
+            file_size_kb = file_size_kb,
+        )
+        if saved:
+            return {"success": True, "document": saved}
+        return {"success": False, "error": "Failed to save document."}
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return {"success": False, "error": str(e)}
 
 # --------------------------------------------------
 # STATIC FILES (frontend — must come last)

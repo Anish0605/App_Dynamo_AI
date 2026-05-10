@@ -1721,38 +1721,59 @@
         <div style="font-size:32px;font-weight:800;color:#fff;font-family:monospace;font-variant-numeric:tabular-nums;margin-bottom:6px;" id="dr-running-timer">0:00</div>
         <p style="font-size:12px;color:rgba(255,255,255,.25);margin:0 0 40px;">Typically takes 4–8 minutes</p>
 
-        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 20px;">
-          <p style="font-size:12px;color:rgba(255,255,255,.3);margin:0;line-height:1.6;">You can keep this tab open or come back later.<br>The report will be ready and saved to your library.</p>
+        <!-- Live activity log -->
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px 16px;max-height:180px;overflow:hidden;display:flex;flex-direction:column;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:10px;flex-shrink:0;">Agent activity</div>
+          <div id="dr-activity-log" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;"></div>
+          <p style="font-size:11px;color:rgba(255,255,255,.2);margin:10px 0 0;flex-shrink:0;line-height:1.5;">You can keep this tab open — the report will be ready when done.</p>
         </div>
       </div>
 
       <!-- ══ PHASE: REPORT ══ -->
       <div id="dr-phase-report" class="hidden" style="max-width:700px;margin:0 auto;padding:32px 24px 64px;">
 
+        <!-- Report meta bar -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <span style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(250,204,21,.6);">Deep Research Report</span>
+          <span style="flex:1;height:1px;background:rgba(255,255,255,.06);"></span>
+          <span id="dr-report-elapsed" style="font-size:11px;color:rgba(255,255,255,.25);font-family:monospace;"></span>
+          <span id="dr-fallback-badge" class="hidden" style="font-size:11px;color:#fb923c;background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.2);padding:3px 10px;border-radius:999px;font-weight:600;">Enhanced mode</span>
+        </div>
+
         <!-- Action bar -->
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.07);">
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.07);">
           <button onclick="window.drNewResearch()"
-            style="font-size:13px;font-weight:700;color:#000;background:#facc15;border:none;padding:9px 18px;border-radius:10px;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:6px;"
+            style="font-size:12px;font-weight:700;color:#000;background:#facc15;border:none;padding:8px 16px;border-radius:9px;cursor:pointer;display:flex;align-items:center;gap:5px;"
             onmouseover="this.style.background='#fde047'" onmouseout="this.style.background='#facc15'">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             New research
           </button>
-          <button onclick="window.drCopyReport()"
-            style="font-size:13px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);padding:9px 16px;border-radius:10px;cursor:pointer;transition:all .2s;"
+          <button id="dr-edit-btn" onclick="window.drEditReport(this)"
+            style="font-size:12px;color:rgba(255,255,255,.65);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:8px 14px;border-radius:9px;cursor:pointer;transition:all .2s;"
             onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">
-            Copy report
+            Edit
           </button>
-          <button onclick="window.drSaveToLibrary()"
-            style="font-size:13px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);padding:9px 16px;border-radius:10px;cursor:pointer;transition:all .2s;"
+          <button onclick="window.drDownloadReport()"
+            style="font-size:12px;color:rgba(255,255,255,.65);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:8px 14px;border-radius:9px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;"
+            onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download
+          </button>
+          <button onclick="window.drCopyReport()"
+            style="font-size:12px;color:rgba(255,255,255,.65);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:8px 14px;border-radius:9px;cursor:pointer;transition:all .2s;"
+            onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">
+            Copy
+          </button>
+          <button onclick="window.drSaveToLibrary(this)"
+            style="font-size:12px;color:rgba(255,255,255,.65);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:8px 14px;border-radius:9px;cursor:pointer;transition:all .2s;"
             onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">
             Save to library
           </button>
           <button onclick="window.drSendToChat()"
-            style="font-size:13px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);padding:9px 16px;border-radius:10px;cursor:pointer;transition:all .2s;"
+            style="font-size:12px;color:rgba(255,255,255,.65);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:8px 14px;border-radius:9px;cursor:pointer;transition:all .2s;"
             onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">
             Ask a follow-up
           </button>
-          <span id="dr-fallback-badge" class="hidden" style="font-size:11px;color:#fb923c;background:rgba(251,146,60,.12);border:1px solid rgba(251,146,60,.2);padding:5px 12px;border-radius:999px;font-weight:600;display:flex;align-items:center;">Enhanced mode</span>
         </div>
 
         <div id="dr-report-content"></div>
