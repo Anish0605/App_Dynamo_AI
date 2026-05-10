@@ -1578,199 +1578,210 @@
   </div>
 
   <!-- ════════════════════════════════════════════════════════════
-       DEEP RESEARCH AGENT MODAL
+       DEEP RESEARCH AGENT MODAL — v2 Clean UI
        ════════════════════════════════════════════════════════════ -->
-  <div id="deep-research-modal" class="hidden fixed inset-0 z-[80] flex flex-col bg-[#0a0a0a]" style="font-family:'Inter',-apple-system,sans-serif;">
+  <div id="deep-research-modal" class="hidden fixed inset-0 z-[80] flex flex-col" style="background:#0d0d0d;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;">
 
     <style>
-      /* ── Plan step states ── */
-      .dr-step { display:flex; gap:10px; align-items:flex-start; padding-bottom:14px; }
-      .dr-step .ds-dot { width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;transition:all .4s; }
-      .dr-step.pending .ds-dot  { background:rgba(255,255,255,.08); color:rgba(255,255,255,.25); }
-      .dr-step.active  .ds-dot  { background:#facc15; color:#000; }
-      .dr-step.done    .ds-dot  { background:#22c55e; color:#000; }
-      .dr-step.pending .ds-label{ color:rgba(255,255,255,.25); }
-      .dr-step.active  .ds-label{ color:#facc15; font-weight:600; }
-      .dr-step.done    .ds-label{ color:rgba(255,255,255,.75); }
-      .ds-label { font-size:12px; padding-top:2px; transition:color .4s; }
+      /* ── Pulse animation for running state ── */
+      @keyframes dr-pulse-ring {
+        0%   { transform: scale(1);   opacity:.6; }
+        70%  { transform: scale(1.6); opacity:0;  }
+        100% { transform: scale(1.6); opacity:0;  }
+      }
+      @keyframes dr-pulse-ring2 {
+        0%   { transform: scale(1);   opacity:.35; }
+        70%  { transform: scale(2.1); opacity:0;   }
+        100% { transform: scale(2.1); opacity:0;   }
+      }
+      .dr-pulse-core  { position:relative;width:72px;height:72px;display:flex;align-items:center;justify-content:center; }
+      .dr-pulse-ring  { position:absolute;inset:0;border-radius:50%;background:#facc15;animation:dr-pulse-ring 2s ease-out infinite; }
+      .dr-pulse-ring2 { position:absolute;inset:0;border-radius:50%;background:#facc15;animation:dr-pulse-ring2 2s ease-out infinite .4s; }
+      .dr-pulse-inner { position:relative;z-index:1;width:72px;height:72px;border-radius:50%;background:#facc15;display:flex;align-items:center;justify-content:center; }
       /* ── Report typography ── */
-      .dr-h1 { font-size:18px;font-weight:800;color:#fff;margin:20px 0 8px;line-height:1.3; }
-      .dr-h2 { font-size:14px;font-weight:700;color:#facc15;text-transform:uppercase;letter-spacing:.08em;margin:20px 0 6px;display:flex;align-items:center;gap:8px; }
-      .dr-h2::before { content:'';width:3px;height:12px;background:#facc15;border-radius:2px;flex-shrink:0; }
-      .dr-h3 { font-size:13px;font-weight:600;color:rgba(255,255,255,.85);margin:14px 0 4px; }
-      .dr-p  { font-size:13px;color:rgba(255,255,255,.65);line-height:1.75;margin:6px 0; }
-      .dr-ul { padding-left:18px;margin:8px 0; }
-      .dr-li { font-size:13px;color:rgba(255,255,255,.6);line-height:1.65;margin-bottom:4px; }
-      .dr-cite { color:#facc15;font-size:9px;font-weight:700;cursor:pointer;vertical-align:super; }
-      .dr-hr { border:none;border-top:1px solid rgba(255,255,255,.08);margin:20px 0; }
+      #dr-report-content h1 { font-size:20px;font-weight:800;color:#fff;margin:24px 0 10px;line-height:1.3; }
+      #dr-report-content h2 { font-size:14px;font-weight:700;color:#facc15;text-transform:uppercase;letter-spacing:.07em;margin:22px 0 8px;padding-bottom:6px;border-bottom:1px solid rgba(250,204,21,.15); }
+      #dr-report-content h3 { font-size:14px;font-weight:600;color:rgba(255,255,255,.85);margin:16px 0 5px; }
+      #dr-report-content p  { font-size:14px;color:rgba(255,255,255,.62);line-height:1.8;margin:8px 0; }
+      #dr-report-content ul { padding-left:20px;margin:10px 0; }
+      #dr-report-content li { font-size:14px;color:rgba(255,255,255,.58);line-height:1.7;margin-bottom:5px; }
+      #dr-report-content sup { color:#facc15;font-size:10px;font-weight:700;cursor:pointer; }
+      #dr-report-content hr { border:none;border-top:1px solid rgba(255,255,255,.07);margin:22px 0; }
+      #dr-report-content strong { color:rgba(255,255,255,.85);font-weight:600; }
+      /* ── Step pill (running state) ── */
+      .dr-stage-pill {
+        display:inline-flex;align-items:center;gap:6px;
+        background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.25);
+        color:#facc15;font-size:12px;font-weight:600;
+        padding:5px 14px;border-radius:999px;
+        transition:all .5s;
+      }
     </style>
 
-    <!-- Top bar -->
-    <div class="flex items-center justify-between px-5 py-3 border-b border-white/8 flex-shrink-0 bg-[#111]">
-      <div class="flex items-center gap-2.5">
-        <div class="w-7 h-7 bg-yellow-400 rounded-lg flex items-center justify-center text-black font-black text-sm">⚡</div>
-        <span class="text-white/70 font-semibold text-sm">Deep Research Agent</span>
-        <span id="dr-fallback-badge" class="hidden text-[9px] bg-orange-400/20 text-orange-400 border border-orange-400/20 px-2 py-0.5 rounded-full font-semibold">Enhanced Mode</span>
-      </div>
+    <!-- ── Top navigation bar ── -->
+    <div style="background:#111;border-bottom:1px solid rgba(255,255,255,.07);" class="flex items-center justify-between px-5 py-3 flex-shrink-0">
+      <!-- Left: logo + back link -->
       <div class="flex items-center gap-3">
-        <div id="dr-status-dot" class="w-2 h-2 rounded-full bg-white/20"></div>
-        <span id="dr-status-msg" class="text-white/35 text-xs">Ready</span>
-        <span class="text-white/20 text-xs font-mono" id="dr-elapsed">0:00</span>
-        <button onclick="window.closeDeepResearch()" class="text-white/30 hover:text-white/70 transition ml-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <a href="/" onclick="window.closeDeepResearch();return false;" class="flex items-center gap-2.5 group" style="text-decoration:none;">
+          <img src="/assets/dynamo-logo.png?v=20260428a" alt="Dynamo AI" style="width:28px;height:28px;border-radius:8px;object-fit:cover;" onerror="this.style.display='none'">
+          <span style="color:rgba(255,255,255,.5);font-size:13px;font-weight:600;" class="group-hover:text-white transition">Dynamo AI</span>
+        </a>
+        <span style="color:rgba(255,255,255,.15);font-size:14px;">/</span>
+        <span style="color:rgba(255,255,255,.7);font-size:13px;font-weight:600;">Deep Research</span>
+      </div>
+      <!-- Right: status + close -->
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <div id="dr-status-dot" style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0;"></div>
+          <span id="dr-status-msg" style="color:rgba(255,255,255,.3);font-size:12px;">Ready</span>
+          <span id="dr-elapsed" style="color:rgba(255,255,255,.18);font-size:12px;font-family:monospace;font-variant-numeric:tabular-nums;">0:00</span>
+        </div>
+        <button onclick="window.closeDeepResearch()" style="color:rgba(255,255,255,.3);background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;" onmouseover="this.style.color='rgba(255,255,255,.7)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
     </div>
 
-    <!-- Body: 3 columns -->
-    <div class="flex flex-1 overflow-hidden min-h-0">
+    <!-- ── Scrollable body ── -->
+    <div class="flex-1 overflow-y-auto" id="dr-scroll-body">
 
-      <!-- LEFT: Plan steps -->
-      <div class="w-52 flex-shrink-0 border-r border-white/8 bg-[#0a0a0a] p-4 overflow-y-auto">
-        <p class="text-[9px] font-bold uppercase tracking-widest text-white/25 mb-4">Research Plan</p>
-        <div style="position:relative;">
-          <div style="position:absolute;left:9px;top:0;bottom:0;width:1px;background:rgba(255,255,255,.06);"></div>
-          <div id="dr-step-1" class="dr-step pending"><div class="ds-dot">1</div><div class="ds-label">Map the landscape</div></div>
-          <div id="dr-step-2" class="dr-step pending"><div class="ds-dot">2</div><div class="ds-label">Search web &amp; academic</div></div>
-          <div id="dr-step-3" class="dr-step pending"><div class="ds-dot">3</div><div class="ds-label">Extract key insights</div></div>
-          <div id="dr-step-4" class="dr-step pending"><div class="ds-dot">4</div><div class="ds-label">Identify research gaps</div></div>
-          <div id="dr-step-5" class="dr-step pending"><div class="ds-dot">5</div><div class="ds-label">Synthesise &amp; write report</div></div>
-        </div>
-        <div class="mt-4 pt-4 border-t border-white/6">
-          <p class="text-[9px] font-bold uppercase tracking-widest text-white/25 mb-2">Engine</p>
-          <div class="space-y-1.5">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" id="dr-use-max" class="accent-yellow-400 w-3.5 h-3.5">
-              <span class="text-[11px] text-white/50">Use Max model<br><span class="text-[9px] text-white/25">~8 min, deeper coverage</span></span>
-            </label>
-          </div>
-        </div>
-        <div class="mt-4 pt-4 border-t border-white/6">
-          <p class="text-[9px] font-bold uppercase tracking-widest text-white/25 mb-2">Scope</p>
-          <div class="space-y-1.5 text-[10px] text-white/30">
-            <div>~80 web searches</div>
-            <div>Academic + live web</div>
-            <div>Auto-saves to library</div>
-            <div>Pro users only</div>
-          </div>
-        </div>
-      </div>
+      <!-- ══ PHASE: INPUT ══ -->
+      <div id="dr-phase-plan" style="max-width:620px;margin:0 auto;padding:56px 24px 40px;">
 
-      <!-- CENTRE: Phase content -->
-      <div class="flex-1 overflow-y-auto">
+        <div style="text-align:center;margin-bottom:40px;">
+          <div style="display:inline-flex;width:56px;height:56px;background:#facc15;border-radius:18px;align-items:center;justify-content:center;margin-bottom:20px;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </div>
+          <h1 style="font-size:26px;font-weight:800;color:#fff;margin:0 0 8px;letter-spacing:-.5px;">What do you want to research?</h1>
+          <p style="font-size:14px;color:rgba(255,255,255,.38);margin:0;line-height:1.6;">Type a topic and Dynamo AI will search hundreds of sources<br>and write you a full cited report — automatically.</p>
+        </div>
 
-        <!-- Phase: plan (input screen) -->
-        <div id="dr-phase-plan" class="p-8 max-w-xl mx-auto">
-          <div class="mb-6">
-            <div class="w-12 h-12 rounded-2xl bg-yellow-400/10 border border-yellow-400/20 flex items-center justify-center text-2xl mb-4">🔬</div>
-            <h2 class="text-lg font-bold text-white mb-1">What do you want to research?</h2>
-            <p class="text-sm text-white/40">The agent will plan, search ~80 sources, and write a full cited report — automatically.</p>
-          </div>
-          <textarea id="dr-query-input" rows="4" placeholder="e.g. Impact of CRISPR-Cas9 on cancer treatment: current clinical trials and future directions..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/25 outline-none focus:border-yellow-400/50 resize-none mb-4" style="font-family:inherit;"></textarea>
-          <div class="mb-5 p-3 rounded-xl bg-white/3 border border-white/6">
-            <p class="text-[10px] font-semibold text-white/30 uppercase tracking-wide mb-2">Estimated scope</p>
-            <div class="grid grid-cols-3 gap-3 text-center">
-              <div><p class="text-base font-bold text-white">~80</p><p class="text-[9px] text-white/30">Web searches</p></div>
-              <div><p class="text-base font-bold text-white">~200</p><p class="text-[9px] text-white/30">Papers scanned</p></div>
-              <div><p class="text-base font-bold text-white">4–8 min</p><p class="text-[9px] text-white/30">Completion</p></div>
-            </div>
-          </div>
-          <div class="flex gap-2">
-            <button onclick="window.startDeepResearch()" class="flex-1 bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-sm py-3 rounded-2xl transition flex items-center justify-center gap-2">
-              <span>▶</span> Start Deep Research
+        <textarea id="dr-query-input" rows="4"
+          placeholder="e.g.  Solar energy adoption in India — current policies, growth data, and future outlook…"
+          style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:16px 18px;font-size:14px;color:#fff;outline:none;resize:none;font-family:inherit;box-sizing:border-box;line-height:1.6;transition:border-color .2s;"
+          onfocus="this.style.borderColor='rgba(250,204,21,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"
+          onkeydown="if(event.key==='Enter'&&(event.metaKey||event.ctrlKey))window.startDeepResearch()"></textarea>
+
+        <button onclick="window.startDeepResearch()"
+          style="width:100%;margin-top:14px;background:#facc15;color:#000;font-size:15px;font-weight:700;padding:15px;border:none;border-radius:16px;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px;"
+          onmouseover="this.style.background='#fde047'" onmouseout="this.style.background='#facc15'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+          Start Deep Research
+        </button>
+        <p style="text-align:center;font-size:11px;color:rgba(255,255,255,.18);margin-top:12px;">Takes 4–8 minutes &nbsp;·&nbsp; Report saved to your library &nbsp;·&nbsp; Pro feature</p>
+
+        <!-- Example topics -->
+        <div style="margin-top:36px;">
+          <p style="font-size:11px;font-weight:600;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">Try an example</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button onclick="document.getElementById('dr-query-input').value=this.dataset.q" data-q="Impact of AI on software engineering jobs in India, 2024–2027"
+              style="font-size:12px;color:rgba(255,255,255,.45);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:7px 14px;border-radius:999px;cursor:pointer;transition:all .2s;"
+              onmouseover="this.style.borderColor='rgba(250,204,21,.35)';this.style.color='rgba(255,255,255,.75)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.color='rgba(255,255,255,.45)'">
+              AI &amp; software jobs in India
+            </button>
+            <button onclick="document.getElementById('dr-query-input').value=this.dataset.q" data-q="Urban ropeway technology — global adoption, costs, and future infrastructure trends"
+              style="font-size:12px;color:rgba(255,255,255,.45);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:7px 14px;border-radius:999px;cursor:pointer;transition:all .2s;"
+              onmouseover="this.style.borderColor='rgba(250,204,21,.35)';this.style.color='rgba(255,255,255,.75)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.color='rgba(255,255,255,.45)'">
+              Urban ropeway technology
+            </button>
+            <button onclick="document.getElementById('dr-query-input').value=this.dataset.q" data-q="Electric vehicle adoption barriers and opportunities in Southeast Asia, 2023–2026"
+              style="font-size:12px;color:rgba(255,255,255,.45);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:7px 14px;border-radius:999px;cursor:pointer;transition:all .2s;"
+              onmouseover="this.style.borderColor='rgba(250,204,21,.35)';this.style.color='rgba(255,255,255,.75)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.color='rgba(255,255,255,.45)'">
+              EV adoption in SE Asia
+            </button>
+            <button onclick="document.getElementById('dr-query-input').value=this.dataset.q" data-q="Mental health crisis in Indian youth — causes, current interventions, and policy gaps"
+              style="font-size:12px;color:rgba(255,255,255,.45);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:7px 14px;border-radius:999px;cursor:pointer;transition:all .2s;"
+              onmouseover="this.style.borderColor='rgba(250,204,21,.35)';this.style.color='rgba(255,255,255,.75)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.color='rgba(255,255,255,.45)'">
+              Youth mental health India
             </button>
           </div>
-          <p class="text-[10px] text-white/20 text-center mt-3">Pro feature · Results auto-saved to Document Library</p>
-        </div>
-
-        <!-- Phase: running -->
-        <div id="dr-phase-running" class="hidden p-8">
-          <div class="flex items-center gap-2 mb-6">
-            <div class="flex gap-1">
-              <div class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-bounce" style="animation-delay:0s"></div>
-              <div class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-bounce" style="animation-delay:.15s"></div>
-              <div class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-bounce" style="animation-delay:.3s"></div>
-            </div>
-            <span class="text-sm text-white/50 font-medium">Agent is researching — this takes 4–8 minutes</span>
-          </div>
-          <div class="space-y-3">
-            <div class="p-4 rounded-2xl bg-white/3 border border-white/6">
-              <p class="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1">Query</p>
-              <p id="dr-running-query" class="text-sm text-white/80 font-medium"></p>
-            </div>
-            <div class="p-4 rounded-2xl bg-yellow-400/5 border border-yellow-400/15">
-              <p class="text-[10px] font-bold uppercase tracking-widest text-yellow-400/60 mb-1">Current Stage</p>
-              <p id="dr-running-stage" class="text-sm text-yellow-400/80"></p>
-            </div>
-            <div class="p-4 rounded-2xl bg-white/3 border border-white/6 text-center">
-              <p class="text-2xl font-bold text-white font-mono" id="dr-running-timer">0:00</p>
-              <p class="text-[10px] text-white/30 mt-1">Elapsed — typical research takes 4–8 min</p>
-            </div>
-          </div>
-          <div class="mt-6 p-3 rounded-xl bg-white/2 border border-white/6">
-            <p class="text-[11px] text-white/30 text-center">The agent is autonomously searching the web and academic databases.<br>You can leave this page open and return when complete.</p>
-          </div>
-        </div>
-
-        <!-- Phase: report -->
-        <div id="dr-phase-report" class="hidden p-6 max-w-2xl">
-          <div class="flex flex-wrap gap-2 mb-5">
-            <button onclick="window.drCopyReport()" class="text-xs bg-white/8 text-white/60 border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/12 transition">📋 Copy report</button>
-            <button onclick="window.drSaveToLibrary()" class="text-xs bg-white/8 text-white/60 border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/12 transition">💾 Save to library</button>
-            <button onclick="window.drSendToChat()" class="text-xs bg-white/8 text-white/60 border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/12 transition">💬 Ask follow-up</button>
-            <button onclick="window.drNewResearch()" class="text-xs bg-yellow-400/15 text-yellow-400 border border-yellow-400/20 px-3 py-1.5 rounded-lg hover:bg-yellow-400/25 transition font-semibold">+ New research</button>
-          </div>
-          <div id="dr-report-content" class="text-sm text-white/70 leading-relaxed"></div>
-        </div>
-
-        <!-- Phase: error -->
-        <div id="dr-phase-error" class="hidden p-8 max-w-lg">
-          <div class="p-5 rounded-2xl bg-red-500/10 border border-red-500/20 text-center">
-            <div class="text-3xl mb-3">⚠️</div>
-            <p class="text-sm font-semibold text-red-400 mb-2">Research failed</p>
-            <p id="dr-error-msg" class="text-xs text-white/40 mb-4"></p>
-            <button onclick="window.drNewResearch()" class="text-xs bg-white/8 text-white/60 px-4 py-2 rounded-xl hover:bg-white/12 transition">Try again</button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- RIGHT: Info panel -->
-      <div class="w-56 flex-shrink-0 border-l border-white/8 bg-[#080808] overflow-y-auto p-4">
-        <p class="text-[9px] font-bold uppercase tracking-widest text-white/25 mb-3">Powered by</p>
-        <div class="space-y-2 mb-5">
-          <div class="p-2.5 rounded-xl bg-white/3 border border-white/6">
-            <p class="text-[10px] font-semibold text-white/70">Gemini Deep Research</p>
-            <p class="text-[9px] text-white/30 mt-0.5">Google's own research engine</p>
-          </div>
-          <div class="p-2.5 rounded-xl bg-white/3 border border-white/6">
-            <p class="text-[10px] font-semibold text-white/70">Tavily Web Search</p>
-            <p class="text-[9px] text-white/30 mt-0.5">Real-time web + academic</p>
-          </div>
-          <div class="p-2.5 rounded-xl bg-white/3 border border-white/6">
-            <p class="text-[10px] font-semibold text-white/70">Gemini 3 Flash (fallback)</p>
-            <p class="text-[9px] text-white/30 mt-0.5">Enhanced synthesis mode</p>
-          </div>
-        </div>
-        <p class="text-[9px] font-bold uppercase tracking-widest text-white/25 mb-3">Output includes</p>
-        <div class="space-y-1.5 text-[10px] text-white/40">
-          <div>✓ Executive summary</div>
-          <div>✓ Key findings</div>
-          <div>✓ Numbered citations</div>
-          <div>✓ Research gaps</div>
-          <div>✓ Future directions</div>
-          <div>✓ Full references</div>
-        </div>
-        <div class="mt-5 pt-4 border-t border-white/6">
-          <p class="text-[9px] font-bold uppercase tracking-widest text-white/25 mb-2">Tips</p>
-          <div class="text-[10px] text-white/30 space-y-2">
-            <p>Be specific — include dates, geography, and scope for better results.</p>
-            <p>Add "with academic citations" to get a paper-style report.</p>
-            <p>Report auto-saves to your Document Library on completion.</p>
-          </div>
         </div>
       </div>
+
+      <!-- ══ PHASE: RUNNING ══ -->
+      <div id="dr-phase-running" class="hidden" style="max-width:520px;margin:0 auto;padding:72px 24px;text-align:center;">
+
+        <div style="display:flex;justify-content:center;margin-bottom:32px;">
+          <div class="dr-pulse-core">
+            <div class="dr-pulse-ring2"></div>
+            <div class="dr-pulse-ring"></div>
+            <div class="dr-pulse-inner">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <h2 style="font-size:20px;font-weight:700;color:#fff;margin:0 0 8px;">Researching…</h2>
+        <p id="dr-running-query" style="font-size:14px;color:rgba(255,255,255,.4);margin:0 0 28px;line-height:1.6;"></p>
+
+        <div id="dr-stage-pill-wrap" style="margin-bottom:28px;">
+          <span class="dr-stage-pill" id="dr-running-stage">Starting up…</span>
+        </div>
+
+        <div style="font-size:32px;font-weight:800;color:#fff;font-family:monospace;font-variant-numeric:tabular-nums;margin-bottom:6px;" id="dr-running-timer">0:00</div>
+        <p style="font-size:12px;color:rgba(255,255,255,.25);margin:0 0 40px;">Typically takes 4–8 minutes</p>
+
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 20px;">
+          <p style="font-size:12px;color:rgba(255,255,255,.3);margin:0;line-height:1.6;">You can keep this tab open or come back later.<br>The report will be ready and saved to your library.</p>
+        </div>
+      </div>
+
+      <!-- ══ PHASE: REPORT ══ -->
+      <div id="dr-phase-report" class="hidden" style="max-width:700px;margin:0 auto;padding:32px 24px 64px;">
+
+        <!-- Action bar -->
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.07);">
+          <button onclick="window.drNewResearch()"
+            style="font-size:13px;font-weight:700;color:#000;background:#facc15;border:none;padding:9px 18px;border-radius:10px;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:6px;"
+            onmouseover="this.style.background='#fde047'" onmouseout="this.style.background='#facc15'">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New research
+          </button>
+          <button onclick="window.drCopyReport()"
+            style="font-size:13px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);padding:9px 16px;border-radius:10px;cursor:pointer;transition:all .2s;"
+            onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">
+            Copy report
+          </button>
+          <button onclick="window.drSaveToLibrary()"
+            style="font-size:13px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);padding:9px 16px;border-radius:10px;cursor:pointer;transition:all .2s;"
+            onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">
+            Save to library
+          </button>
+          <button onclick="window.drSendToChat()"
+            style="font-size:13px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);padding:9px 16px;border-radius:10px;cursor:pointer;transition:all .2s;"
+            onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">
+            Ask a follow-up
+          </button>
+          <span id="dr-fallback-badge" class="hidden" style="font-size:11px;color:#fb923c;background:rgba(251,146,60,.12);border:1px solid rgba(251,146,60,.2);padding:5px 12px;border-radius:999px;font-weight:600;display:flex;align-items:center;">Enhanced mode</span>
+        </div>
+
+        <div id="dr-report-content"></div>
+      </div>
+
+      <!-- ══ PHASE: ERROR ══ -->
+      <div id="dr-phase-error" class="hidden" style="max-width:480px;margin:80px auto;padding:24px;text-align:center;">
+        <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);border-radius:20px;padding:32px 28px;">
+          <div style="font-size:36px;margin-bottom:12px;">⚠️</div>
+          <p style="font-size:15px;font-weight:700;color:#f87171;margin:0 0 8px;">Something went wrong</p>
+          <p id="dr-error-msg" style="font-size:13px;color:rgba(255,255,255,.35);margin:0 0 20px;line-height:1.6;"></p>
+          <button onclick="window.drNewResearch()"
+            style="font-size:13px;color:rgba(255,255,255,.7);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);padding:10px 22px;border-radius:12px;cursor:pointer;"
+            onmouseover="this.style.background='rgba(255,255,255,.12)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">
+            Try again
+          </button>
+        </div>
+      </div>
+
+    </div><!-- end scrollable body -->
+
+    <!-- Hidden step tracker (used by JS, not shown) -->
+    <div style="display:none;">
+      <div id="dr-step-1"></div><div id="dr-step-2"></div>
+      <div id="dr-step-3"></div><div id="dr-step-4"></div>
+      <div id="dr-step-5"></div>
+      <input type="checkbox" id="dr-use-max">
     </div>
+
   </div>
 
   <!-- FLASHCARD MODAL -->
