@@ -36,17 +36,22 @@
     if (!query) { _showToast("Please enter a research topic."); return; }
 
     const useMax = document.getElementById("dr-use-max")?.checked;
-    const user   = window.appUser;
 
-    if (!user) {
+    // Auth: Firebase user confirms login; Supabase user carries the plan
+    const firebaseUser  = window.appState?.user;
+    const supabaseUser  = window.appState?.supabaseUser;
+
+    if (!firebaseUser) {
       _showToast("Please sign in to use Deep Research.");
       return;
     }
 
-    if (user.plan !== "pro") {
-      _showToast("Deep Research is a Pro feature. Please upgrade your plan.");
+    if (!supabaseUser || supabaseUser.plan !== "pro") {
+      _showToast("Deep Research is a Pro feature. Please upgrade to Pro.");
       return;
     }
+
+    const user = supabaseUser;
 
     _showPhase("running");
     _startTimer();
@@ -235,7 +240,7 @@
   };
 
   window.drSaveToLibrary = async function () {
-    const user = window.appUser;
+    const user = window.appState?.supabaseUser;
     if (!user) { _showToast("Please sign in to save to library."); return; }
 
     const reportEl = document.getElementById("dr-report-content");
