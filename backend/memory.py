@@ -4,8 +4,10 @@
 import json
 import re
 import difflib
-import google.generativeai as genai
+from google import genai
 import config
+
+_client = genai.Client(api_key=config.GEMINI_KEY) if config.GEMINI_KEY else None
 
 
 # --------------------------------------------------
@@ -46,8 +48,6 @@ def extract_memories(user_message: str, ai_response: str) -> list:
     Use Gemini to extract rich learning + personal context from a conversation turn.
     Captures study topics, exam goals, struggles — not just personal facts.
     """
-    genai.configure(api_key=config.GEMINI_KEY)
-
     prompt = (
         f"User said: {user_message[:500]}\n"
         f"AI replied: {ai_response[:300]}\n\n"
@@ -73,8 +73,10 @@ def extract_memories(user_message: str, ai_response: str) -> list:
     )
 
     try:
-        m = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
-        r = m.generate_content(prompt)
+        r = _client.models.generate_content(
+            model="gemini-3.1-flash-lite-preview",
+            contents=prompt
+        )
         text = r.text.strip()
         match = re.search(r'\[.*?\]', text, re.DOTALL)
         if match:

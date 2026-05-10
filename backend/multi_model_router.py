@@ -4,10 +4,9 @@
 
 import requests
 import config
-import google.generativeai as genai
+from google import genai
 
-if config.GEMINI_KEY:
-    genai.configure(api_key=config.GEMINI_KEY)
+_client = genai.Client(api_key=config.GEMINI_KEY) if config.GEMINI_KEY else None
 
 
 def apimart_call(model, prompt):
@@ -38,8 +37,10 @@ def apimart_call(model, prompt):
 
 def gemini_fallback_call(prompt):
     """Reliable Gemini fallback used when APIMart is unavailable."""
-    model = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
-    response = model.generate_content(prompt)
+    response = _client.models.generate_content(
+        model="gemini-3.1-flash-lite-preview",
+        contents=prompt
+    )
     return response.text
 
 

@@ -3,8 +3,10 @@
 
 import json
 import re
-import google.generativeai as genai
+from google import genai
 import config
+
+_client = genai.Client(api_key=config.GEMINI_KEY) if config.GEMINI_KEY else None
 
 
 # --------------------------------------------------
@@ -16,8 +18,6 @@ def summarize_document(text: str, filename: str) -> dict:
     Use Gemini to generate a structured summary of a document.
     Returns { summary, key_terms, topics }
     """
-    genai.configure(api_key=config.GEMINI_KEY)
-
     # Cap input to avoid token overflow
     snippet = text[:8000]
 
@@ -35,8 +35,10 @@ def summarize_document(text: str, filename: str) -> dict:
     )
 
     try:
-        m = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
-        r = m.generate_content(prompt)
+        r = _client.models.generate_content(
+            model="gemini-3.1-flash-lite-preview",
+            contents=prompt
+        )
         text_out = r.text.strip()
         # Strip markdown fences
         text_out = re.sub(r"^```[a-z]*\n?", "", text_out).rstrip("```").strip()

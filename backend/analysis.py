@@ -11,8 +11,11 @@ import matplotlib.pyplot as plt
 
 from pypdf import PdfReader
 from docx import Document
-import google.generativeai as genai
+from google import genai
+from google.genai import types as genai_types
 import config
+
+_client = genai.Client(api_key=config.GEMINI_KEY) if config.GEMINI_KEY else None
 
 
 # --------------------------------------------------
@@ -130,18 +133,12 @@ def process_file_universally(file_bytes: bytes, filename: str):
             mime_type = mimetypes.guess_type(filename)[0] or "image/png"
             img_b64 = base64.b64encode(file_bytes).decode()
 
-            image_part = {
-                "inline_data": {
-                    "mime_type": mime_type,
-                    "data": img_b64
-                }
-            }
-
-            genai.configure(api_key=config.GEMINI_KEY)
-            model = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
-
-            response = model.generate_content(
-                ["Describe this image for research purposes.", image_part]
+            response = _client.models.generate_content(
+                model="gemini-3.1-flash-lite-preview",
+                contents=[
+                    genai_types.Part.from_bytes(data=file_bytes, mime_type=mime_type),
+                    "Describe this image for research purposes."
+                ]
             )
 
             return {

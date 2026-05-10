@@ -1,16 +1,18 @@
 # model.py — Dynamo AI (FINAL)
 # Gemini default for Fast + Research (DeepThink v3)
 
-import google.generativeai as genai
+from google import genai
 import config
 
 # --------------------------------------------------
 # CLIENT INIT
 # --------------------------------------------------
 
+_client = None
 try:
     if config.GEMINI_KEY:
-        genai.configure(api_key=config.GEMINI_KEY)
+        _client = genai.Client(api_key=config.GEMINI_KEY)
+        print("Gemini genai.Client initialized OK")
 except Exception as e:
     print("Gemini Init Error:", e)
 
@@ -142,14 +144,18 @@ def get_ai_response(
         else:
             resolved_model = DEFAULT_LITE
 
-        gemini_model = genai.GenerativeModel(resolved_model)
-        response = gemini_model.generate_content(full_prompt)
+        response = _client.models.generate_content(
+            model=resolved_model,
+            contents=full_prompt
+        )
         return response.text
     except Exception as e:
         # If the new model fails (e.g. quota / region), gracefully fall back to lite
         try:
-            fallback = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
-            response = fallback.generate_content(full_prompt)
+            response = _client.models.generate_content(
+                model="gemini-3.1-flash-lite-preview",
+                contents=full_prompt
+            )
             return response.text
         except Exception:
             return "Gemini Engine Error: " + str(e)

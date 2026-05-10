@@ -534,11 +534,11 @@ class FollowUpReq(BaseModel):
 
 @app.post("/follow-ups")
 async def follow_ups(req: FollowUpReq):
-    import google.generativeai as genai
+    from google import genai as _genai
     import config as cfg
     import json
     import re
-    genai.configure(api_key=cfg.GEMINI_KEY)
+    _gclient = _genai.Client(api_key=cfg.GEMINI_KEY)
     prompt = (
         f"User asked: {req.message}\n\n"
         f"AI answered: {req.response[:500]}\n\n"
@@ -547,8 +547,10 @@ async def follow_ups(req: FollowUpReq):
         "Output format: [\"Question 1?\", \"Question 2?\", \"Question 3?\", \"Question 4?\"]"
     )
     try:
-        m = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
-        r = m.generate_content(prompt)
+        r = _gclient.models.generate_content(
+            model="gemini-3.1-flash-lite-preview",
+            contents=prompt
+        )
         text = r.text.strip()
         # Find JSON array in the response (handles markdown code fences too)
         match = re.search(r'\[.*?\]', text, re.DOTALL)
@@ -758,27 +760,22 @@ async def transcribe_audio(audio: UploadFile = File(...)):
     Convert audio to text using Google Cloud Speech-to-Text or fallback.
     """
     try:
-        import google.generativeai as genai
-        
+        from google import genai as _genai
+        from google.genai import types as _gtypes
+        import base64
+
         # Read audio file
         audio_bytes = await audio.read()
-        
-        # Use Gemini's audio understanding (free & fast)
-        genai.configure(api_key=config.GEMINI_KEY)
-        model = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
-        
-        # Convert audio to base64
-        import base64
-        audio_b64 = base64.b64encode(audio_bytes).decode()
-        
+        _gclient = _genai.Client(api_key=config.GEMINI_KEY)
+
         # Ask Gemini to transcribe
-        response = model.generate_content([
-            "Please transcribe this audio to text. Return ONLY the transcribed text, no explanations.",
-            {
-                "mime_type": "audio/wav",
-                "data": audio_b64
-            }
-        ])
+        response = _gclient.models.generate_content(
+            model="gemini-3.1-flash-lite-preview",
+            contents=[
+                _gtypes.Part.from_bytes(data=audio_bytes, mime_type="audio/wav"),
+                "Please transcribe this audio to text. Return ONLY the transcribed text, no explanations."
+            ]
+        )
         
         return {
             "text": response.text.strip(),
@@ -808,7 +805,8 @@ async def analyze_data(file: UploadFile = File(...)):
 async def generate_ppt(payload: dict):
     import json as _json
     import re as _re
-    import google.generativeai as genai
+    from google import genai as _genai
+    _gclient = _genai.Client(api_key=config.GEMINI_KEY)
 
     messages = payload.get("messages", [])
     title = payload.get("title", "Executive Briefing")
@@ -849,8 +847,10 @@ CONVERSATION:
 """
 
     try:
-        ai_model = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
-        resp = ai_model.generate_content(slide_prompt)
+        resp = _gclient.models.generate_content(
+            model="gemini-3.1-flash-lite-preview",
+            contents=slide_prompt
+        )
         raw = resp.text.strip()
 
         # Strip markdown code fences if present

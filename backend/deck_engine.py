@@ -4,10 +4,10 @@
 
 import json
 import re
-import google.generativeai as genai
+from google import genai
 import config
 
-genai.configure(api_key=config.GEMINI_KEY)
+_client = genai.Client(api_key=config.GEMINI_KEY) if config.GEMINI_KEY else None
 
 # --------------------------------------------------
 # CONSTANTS
@@ -132,9 +132,11 @@ RULES:
 - Academic tone: use precise, formal language without jargon overload
 """
 
-    model = genai.GenerativeModel("gemini-2.0-flash")
-    resp  = model.generate_content(prompt)
-    raw   = resp.text.strip()
+    resp = _client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
+    raw = resp.text.strip()
 
     # Strip markdown code fences if present
     raw = re.sub(r"^```[a-z]*\n?", "", raw).rstrip("`").strip()
