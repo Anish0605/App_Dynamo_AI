@@ -238,7 +238,12 @@
         </button>
         <button onclick="window.drCopy('${id}')" style="${_btn()}">Copy</button>
         <button id="${id}-save-btn" onclick="window.drSave('${id}','${q}')" style="${_btn()}">Save to library</button>
-        <button onclick="window.drFollowUp('${id}','${q}')" style="${_btn("yellow")}">Ask a follow-up →</button>
+        <button onclick="window.drFollowUp('${id}','${q}')" style="${_btn()}">Ask a follow-up →</button>
+        <button id="${id}-paper-btn" onclick="window.drWritePaper('${id}','${q}')"
+          style="font-size:12px;font-weight:700;color:#000;background:#facc15;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Draft Academic Paper
+        </button>
         ${data.fallback ? `<span style="font-size:11px;color:#f97316;background:#fff7ed;border:1px solid #fed7aa;padding:4px 10px;border-radius:999px;font-weight:600;display:inline-flex;align-items:center;">Enhanced mode</span>` : ""}
       `;
     }
@@ -334,6 +339,117 @@
       inp.dispatchEvent(new Event("input"));
       inp.style.height = ""; inp.style.height = inp.scrollHeight + "px";
       inp.focus();
+    }
+  };
+
+  // ── Draft Academic Paper ─────────────────────────────────────────────────────
+  // Takes the completed Deep Research report and generates a structured
+  // academic paper (Abstract → Introduction → Lit Review → Discussion → Conclusion → References)
+  // using DeepThink-level model. Result appears as a new chat message.
+
+  window.drWritePaper = async function (id, query) {
+    const report = _editMode
+      ? (document.getElementById(`${id}-ta`)?.value || _rawReport)
+      : _rawReport;
+
+    if (!report || report.length < 100) {
+      _toast("No research report available to draft from."); return;
+    }
+
+    const userId = window.appState?.supabaseUserId;
+    if (!userId) { _toast("Please sign in to use this feature."); return; }
+
+    // Disable button to prevent double-click
+    const btn = document.getElementById(`${id}-paper-btn`);
+    if (btn) { btn.textContent = "Drafting…"; btn.disabled = true; btn.style.opacity = "0.6"; }
+
+    // Show user bubble + thinking indicator in the chat
+    window.renderUserMessage?.(
+      `✍️ Draft an academic paper from my Deep Research on: "${query || "this topic"}"`
+    );
+    window.showThinking?.();
+
+    // Scroll chat into view
+    const chat = document.getElementById("chat-messages");
+    if (chat) chat.scrollTop = chat.scrollHeight;
+
+    const prompt =
+`You are an expert academic writer. I have just completed a deep research investigation.
+Using the research report below as your ONLY source material, write a complete, well-structured academic paper.
+
+━━━ RESEARCH REPORT ━━━
+${report.slice(0, 7000)}
+━━━ END REPORT ━━━
+
+Write the academic paper now using this exact structure. Every section must be substantive — no placeholders.
+
+---
+
+# [Insert a clear academic paper title]
+
+## Abstract
+(150–200 words) Summarise the topic, key findings, implications, and limitations in one paragraph.
+
+## 1. Introduction
+- Background and context of the topic
+- Why this matters (significance)
+- The central research question this paper addresses
+- Brief overview of the paper structure
+
+## 2. Literature Review
+- Synthesise what is known about this topic from the research
+- Organise thematically, not as a list
+- Note agreements and contradictions between sources
+- Cite sources as [Author/Source, Year] inline
+
+## 3. Analysis & Discussion
+- Present the key findings from the research in depth
+- Discuss patterns, implications, and what they mean
+- Address complexity — avoid oversimplification
+- Compare multiple perspectives where relevant
+
+## 4. Conclusion
+- Summarise the main argument and key takeaways
+- State limitations of this research
+- Suggest 2–3 specific directions for future research
+
+## References
+- List every source cited in the paper, formatted consistently
+- Include URLs where available from the research report
+
+Rules:
+- Use formal, academic English throughout
+- Every claim must trace back to the research report — no hallucination
+- Citations must appear inline as [Source, Year] where used
+- Minimum 1,200 words total`;
+
+    try {
+      const res = await window.callBackend("/chat", {
+        message:       prompt,
+        history:       [],
+        use_search:    false,
+        deep_dive:     true,        // DeepThink model — best reasoning
+        force_image:   false,
+        mode:          "chat",
+        smart_action:  true,        // Skip keyword routing
+        user_id:       userId,
+      });
+
+      window.hideThinking?.();
+
+      const reply = res?.reply || res?.content || "";
+      if (reply) {
+        window.renderAssistantMessage?.(reply, reply, true, []);
+        window.chatHistory?.push({ role: "assistant", content: reply });
+      } else {
+        window.renderAssistantMessage?.("⚠️ Could not generate the academic paper. Please try again.");
+      }
+    } catch (err) {
+      window.hideThinking?.();
+      window.renderAssistantMessage?.("⚠️ Error drafting paper: " + err.message);
+      console.error("[DR WritePaper]", err);
+    } finally {
+      if (btn) { btn.textContent = "Draft Academic Paper"; btn.disabled = false; btn.style.opacity = "1"; }
     }
   };
 

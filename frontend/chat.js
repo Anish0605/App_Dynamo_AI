@@ -259,6 +259,8 @@ function showThinking() {
 function hideThinking() {
   thinkingEl?.remove();
 }
+window.showThinking = showThinking;
+window.hideThinking = hideThinking;
 
 /* =========================================================
    LIMIT
