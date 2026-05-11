@@ -332,13 +332,102 @@
     }
   };
 
+  // ── Inline follow-up pane (renders inside the Deep Research card) ────────────
+  // Replaces the old approach of pre-filling the main chat input.
+  // Sends with smart_action:true so keyword routing (images, videos) is bypassed.
+
   window.drFollowUp = function (id, query) {
-    const inp = document.getElementById("chat-input");
-    if (inp) {
-      inp.value = `Follow-up on my deep research about "${query}": `;
-      inp.dispatchEvent(new Event("input"));
-      inp.style.height = ""; inp.style.height = inp.scrollHeight + "px";
-      inp.focus();
+    // If pane already open, just focus the textarea
+    const existing = document.getElementById(`${id}-fu-pane`);
+    if (existing) {
+      existing.querySelector("textarea")?.focus();
+      existing.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      return;
+    }
+
+    // Find the inner card element to append to
+    const cardWrap = document.getElementById(id);
+    if (!cardWrap) return;
+    const inner = cardWrap.querySelector("[style*='max-width:740px']") || cardWrap.firstElementChild;
+    if (!inner) return;
+
+    const q = _escAttr(query);
+    const pane = document.createElement("div");
+    pane.id = `${id}-fu-pane`;
+    pane.style.cssText = "padding:14px 20px 18px;border-top:1.5px solid #fef9c3;background:#fffef7;";
+    pane.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#92400e;">Follow-up on this research</span>
+        <button onclick="document.getElementById('${id}-fu-pane').remove()"
+          style="font-size:12px;color:#9ca3af;background:none;border:none;cursor:pointer;padding:2px 6px;"
+          onmouseover="this.style.color='#374151'" onmouseout="this.style.color='#9ca3af'">✕</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end;">
+        <textarea id="${id}-fu-input" rows="2"
+          placeholder="e.g. Add APA7 references · Expand the discussion · Translate to formal academic tone · Summarise in 200 words…"
+          style="flex:1;border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;resize:none;outline:none;line-height:1.5;color:#1f2937;transition:border-color .2s;"
+          onfocus="this.style.borderColor='#facc15'" onblur="this.style.borderColor='#e5e7eb'"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();window.drSendFollowUp('${id}','${q}');}"></textarea>
+        <button onclick="window.drSendFollowUp('${id}','${q}')"
+          style="background:#facc15;color:#000;border:none;border-radius:10px;padding:0 18px;font-size:13px;font-weight:700;cursor:pointer;height:42px;flex-shrink:0;">Send</button>
+      </div>
+      <div id="${id}-fu-status" style="font-size:11px;color:#9ca3af;margin-top:6px;display:none;">Sending…</div>
+    `;
+    inner.appendChild(pane);
+    pane.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    pane.querySelector("textarea")?.focus();
+  };
+
+  window.drSendFollowUp = async function (id, query) {
+    const ta     = document.getElementById(`${id}-fu-input`);
+    const status = document.getElementById(`${id}-fu-status`);
+    const question = ta?.value?.trim();
+    if (!question) return;
+
+    const userId = window.appState?.supabaseUserId;
+    if (!userId) { _toast("Please sign in."); return; }
+
+    // Show user bubble + thinking indicator in the main chat
+    window.renderUserMessage?.(question);
+    window.showThinking?.();
+
+    if (ta)     { ta.value = ""; ta.style.height = ""; }
+    if (status) { status.textContent = "Sending…"; status.style.display = "block"; }
+
+    // Pass the full research report as context so the model has background
+    const contextMsg =
+      `You are continuing a research session. Here is the full Deep Research report for context:\n\n` +
+      `RESEARCH REPORT ON: "${query}"\n` +
+      `━━━\n${_rawReport.slice(0, 6000)}\n━━━\n\n` +
+      `USER REQUEST: ${question}`;
+
+    try {
+      const res = await window.callBackend("/chat", {
+        message:      contextMsg,
+        history:      [],
+        use_search:   false,
+        deep_dive:    true,
+        force_image:  false,
+        mode:         "chat",
+        smart_action: true,    // ← bypasses ALL keyword routing (image, video, quiz)
+        user_id:      userId,
+      });
+
+      window.hideThinking?.();
+
+      const reply = res?.reply || res?.content || "";
+      if (reply) {
+        window.renderAssistantMessage?.(reply, reply, true, []);
+        window.chatHistory?.push({ role: "assistant", content: reply });
+      } else {
+        window.renderAssistantMessage?.("⚠️ No response. Please try again.");
+      }
+    } catch (err) {
+      window.hideThinking?.();
+      window.renderAssistantMessage?.("⚠️ Follow-up error: " + err.message);
+      console.error("[DR FollowUp]", err);
+    } finally {
+      if (status) status.style.display = "none";
     }
   };
 

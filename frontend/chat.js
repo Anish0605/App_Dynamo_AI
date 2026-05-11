@@ -26,7 +26,8 @@ if (chatInput) {
 
 /* ---------------- IMAGE INTENT ---------------- */
 function isImagePrompt(text) {
-  return /(create|generate|draw|image|picture|illustration|visual|art)/i.test(text);
+  // Use word boundary for short words like "art" to avoid matching "article", "partial", etc.
+  return /(create|generate|draw|image|picture|illustration|visual|\bart\b)/i.test(text);
 }
 
 /* ---------------- RESEARCH PAPER INTENT ---------------- */

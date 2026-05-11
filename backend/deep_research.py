@@ -259,7 +259,20 @@ async def _run_research(job_id: str, query: str, model: str):
         final_report = report_resp.text
         elapsed = _elapsed()
 
-        _log(job_id, f"✅ Report complete — {len(final_report.split())} words in {elapsed}s")
+        _log(job_id, f"✅ Report written — {len(final_report.split())} words · fetching academic sources…")
+
+        # ── Sources Matrix — fetch real papers from Semantic Scholar ──────────
+        try:
+            papers = await _fetch_semantic_scholar(query)
+            if papers:
+                matrix = _format_sources_matrix(papers)
+                final_report = final_report + matrix
+                _log(job_id, f"📚 Sources Matrix added — {len(papers)} papers from Semantic Scholar")
+        except Exception as sem_err:
+            _log(job_id, f"⚠️ Semantic Scholar unavailable: {str(sem_err)[:60]}")
+
+        elapsed = _elapsed()
+        _log(job_id, f"✅ Research complete in {elapsed}s")
 
         job.update({
             "status":       "complete",
@@ -277,6 +290,55 @@ async def _run_research(job_id: str, query: str, model: str):
             "progress_msg": f"Research failed: {str(e2)[:120]}",
         })
         _log(job_id, f"❌ Error: {str(e2)[:80]}")
+
+
+async def _fetch_semantic_scholar(query: str) -> list[dict]:
+    """Fetch top academic papers from Semantic Scholar (free, no key needed)."""
+    import aiohttp
+    url = "https://api.semanticscholar.org/graph/v1/paper/search"
+    params = {
+        "query":  query,
+        "fields": "title,year,citationCount,abstract,authors,externalIds",
+        "limit":  8,
+    }
+    headers = {"User-Agent": "DynamoAI/1.0 (academic research tool)"}
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            url, params=params, headers=headers,
+            timeout=aiohttp.ClientTimeout(total=15)
+        ) as resp:
+            if resp.status == 200:
+                data = await resp.json()
+                return data.get("data", [])
+    return []
+
+
+def _format_sources_matrix(papers: list[dict]) -> str:
+    """Format Semantic Scholar papers as a markdown Sources Matrix table."""
+    if not papers:
+        return ""
+    rows = []
+    for p in papers:
+        raw_title   = (p.get("title") or "Unknown")
+        title       = raw_title[:75] + ("…" if len(raw_title) > 75 else "")
+        year        = p.get("year") or "N/A"
+        citations   = p.get("citationCount") or 0
+        authors     = p.get("authors") or []
+        first_author = authors[0].get("name", "Unknown").split()[-1] if authors else "Unknown"
+        abstract    = (p.get("abstract") or "").strip()
+        key_finding = (abstract[:130] + "…") if len(abstract) > 130 else (abstract or "—")
+        doi         = (p.get("externalIds") or {}).get("DOI", "")
+        link        = f"[{title}](https://doi.org/{doi})" if doi else title
+        rows.append(f"| {link} | {first_author} et al. | {year} | {citations:,} | {key_finding} |")
+
+    header = "| Paper | Authors | Year | Citations | Key Finding |\n|---|---|---|---|---|"
+    return (
+        "\n\n---\n\n"
+        "## 📚 Sources Matrix — Academic Papers\n\n"
+        "*Real papers from Semantic Scholar matched to this research topic. "
+        "Sorted by relevance. Use these to ground-check the report.*\n\n"
+        + header + "\n" + "\n".join(rows) + "\n"
+    )
 
 
 def _extract_text(interaction) -> str:
