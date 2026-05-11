@@ -1039,6 +1039,83 @@ async def deep_research_status(job_id: str):
     }
 
 # --------------------------------------------------
+# VERIFY WITH PAPERS — cross-check report vs Semantic Scholar
+# --------------------------------------------------
+
+class VerifyPapersReq(BaseModel):
+    query:          str
+    report_excerpt: str
+    user_id:        str
+
+@app.post("/deep-research/verify-papers")
+async def verify_papers_endpoint(req: VerifyPapersReq):
+    import asyncio
+    loop = asyncio.get_event_loop()
+
+    papers = await dr_module._fetch_semantic_scholar(req.query)
+    if not papers:
+        return {"verification": (
+            "## 🔬 Evidence Check\n\n"
+            "No papers found on Semantic Scholar for this topic. "
+            "This may be a very recent, niche, or emerging area with limited indexed literature.\n\n"
+            "Try searching Google Scholar or PubMed directly for primary sources."
+        )}
+
+    # Format papers for the prompt
+    papers_text = ""
+    for i, p in enumerate(papers[:6], 1):
+        title    = (p.get("title") or "Unknown")[:120]
+        year     = p.get("year") or "N/A"
+        abstract = (p.get("abstract") or "No abstract available.")[:350]
+        authors  = p.get("authors") or []
+        first    = authors[0].get("name", "Unknown") if authors else "Unknown"
+        doi      = (p.get("externalIds") or {}).get("DOI", "")
+        url_text = f" · doi.org/{doi}" if doi else ""
+        papers_text += f"\n[P{i}] **{title}** — {first} ({year}){url_text}\n{abstract}\n"
+
+    prompt = f"""You are a rigorous academic fact-checker. Your job is to cross-reference key claims in a research report against real peer-reviewed papers.
+
+━━━ RESEARCH REPORT EXCERPT ━━━
+{req.report_excerpt[:4000]}
+━━━ END EXCERPT ━━━
+
+━━━ REAL PAPERS FROM SEMANTIC SCHOLAR ━━━
+{papers_text}
+━━━ END PAPERS ━━━
+
+Instructions:
+1. Extract the 5 most important factual claims from the report (concrete, verifiable statements — not vague assertions)
+2. For each claim, check whether any of the [P1]–[P{len(papers[:6])}] papers support, contradict, or partially support it
+3. Output EXACTLY in this markdown format:
+
+## 🔬 Evidence Check — Verified with Semantic Scholar
+
+*{len(papers)} papers retrieved · {len(papers[:6])} analysed*
+
+| # | Claim from Report | Status | Supporting Paper |
+|---|---|---|---|
+| 1 | [concise claim, max 18 words] | ✅ Supported | [Paper title, year] |
+| 2 | [claim] | ⚠️ Partial | [Paper title, year] — [one reason it only partially matches] |
+| 3 | [claim] | ❓ Not in papers | — |
+
+### 📋 Verdict
+[2–3 sentences on overall evidence quality. Mention the strongest supporting paper. Flag any critical claim that lacks backing.]
+
+### 🔍 Most Relevant Papers
+- **[Paper title]** ([Year]) — [one line: why it strengthens or complicates the report]
+
+Rules: Be precise. Only cite [P1]–[P{len(papers[:6])}] — no invented references. Keep claims concise."""
+
+    resp = await loop.run_in_executor(
+        None,
+        lambda: _client.models.generate_content(
+            model="gemini-3-flash-preview",
+            contents=prompt,
+        )
+    )
+    return {"verification": resp.text}
+
+# --------------------------------------------------
 # SAVE DOCUMENT (plain text — used by Deep Research)
 # --------------------------------------------------
 

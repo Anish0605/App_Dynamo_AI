@@ -244,6 +244,11 @@
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           Draft Academic Paper
         </button>
+        <button id="${id}-verify-btn" onclick="window.drVerifyPapers('${id}','${q}')"
+          style="font-size:12px;font-weight:700;color:#1d4ed8;background:#eff6ff;border:1.5px solid #bfdbfe;padding:7px 14px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Verify with Papers
+        </button>
         ${data.fallback ? `<span style="font-size:11px;color:#f97316;background:#fff7ed;border:1px solid #fed7aa;padding:4px 10px;border-radius:999px;font-weight:600;display:inline-flex;align-items:center;">Enhanced mode</span>` : ""}
       `;
     }
@@ -539,6 +544,62 @@ Rules:
       console.error("[DR WritePaper]", err);
     } finally {
       if (btn) { btn.textContent = "Draft Academic Paper"; btn.disabled = false; btn.style.opacity = "1"; }
+    }
+  };
+
+  // ── Verify with Papers ───────────────────────────────────────────────────────
+  // Fetches real papers from Semantic Scholar and uses Gemini to cross-check
+  // the 5 key claims in the Deep Research report against peer-reviewed evidence.
+  // Result appears as a new chat message (Evidence Check table + Verdict).
+
+  window.drVerifyPapers = async function (id, query) {
+    const report = _editMode
+      ? (document.getElementById(`${id}-ta`)?.value || _rawReport)
+      : _rawReport;
+
+    if (!report || report.length < 100) {
+      _toast("No research report available to verify."); return;
+    }
+
+    const userId = window.appState?.supabaseUserId;
+    if (!userId) { _toast("Please sign in to use this feature."); return; }
+
+    const btn = document.getElementById(`${id}-verify-btn`);
+    if (btn) { btn.textContent = "Verifying…"; btn.disabled = true; btn.style.opacity = "0.6"; }
+
+    window.renderUserMessage?.(
+      `🔬 Verify the key claims in my Deep Research report on "${query || "this topic"}" against real academic papers from Semantic Scholar`
+    );
+    window.showThinking?.();
+
+    const chat = document.getElementById("chat-messages");
+    if (chat) chat.scrollTop = chat.scrollHeight;
+
+    try {
+      const res = await window.callBackend("/deep-research/verify-papers", {
+        query:          query,
+        report_excerpt: report.slice(0, 4000),
+        user_id:        userId,
+      });
+
+      window.hideThinking?.();
+
+      const verif = res?.verification || "";
+      if (verif) {
+        window.renderAssistantMessage?.(verif, verif, true, []);
+        window.chatHistory?.push({ role: "assistant", content: verif });
+      } else {
+        window.renderAssistantMessage?.("⚠️ Could not verify claims — please try again.");
+      }
+    } catch (err) {
+      window.hideThinking?.();
+      window.renderAssistantMessage?.("⚠️ Verification error: " + err.message);
+      console.error("[DR VerifyPapers]", err);
+    } finally {
+      if (btn) {
+        btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Verify with Papers`;
+        btn.disabled = false; btn.style.opacity = "1";
+      }
     }
   };
 

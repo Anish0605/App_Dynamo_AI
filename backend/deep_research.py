@@ -313,20 +313,31 @@ async def _fetch_semantic_scholar(query: str) -> list[dict]:
     return []
 
 
+def _sanitize_cell(text: str, max_len: int = 130) -> str:
+    """Strip characters that break markdown table cells."""
+    text = text.replace("\n", " ").replace("\r", " ").replace("|", "｜")
+    text = " ".join(text.split())   # collapse whitespace
+    if len(text) > max_len:
+        text = text[:max_len].rstrip() + "…"
+    return text or "—"
+
+
 def _format_sources_matrix(papers: list[dict]) -> str:
     """Format Semantic Scholar papers as a markdown Sources Matrix table."""
-    if not papers:
+    valid = [p for p in papers if p.get("title")]
+    if not valid:
         return ""
     rows = []
-    for p in papers:
-        raw_title   = (p.get("title") or "Unknown")
-        title       = raw_title[:75] + ("…" if len(raw_title) > 75 else "")
-        year        = p.get("year") or "N/A"
+    for p in valid:
+        title       = _sanitize_cell(p.get("title") or "Unknown", 70)
+        year        = str(p.get("year") or "N/A")
         citations   = p.get("citationCount") or 0
         authors     = p.get("authors") or []
-        first_author = authors[0].get("name", "Unknown").split()[-1] if authors else "Unknown"
+        first_author = _sanitize_cell(
+            authors[0].get("name", "Unknown").split()[-1] if authors else "Unknown", 30
+        )
         abstract    = (p.get("abstract") or "").strip()
-        key_finding = (abstract[:130] + "…") if len(abstract) > 130 else (abstract or "—")
+        key_finding = _sanitize_cell(abstract, 130)
         doi         = (p.get("externalIds") or {}).get("DOI", "")
         link        = f"[{title}](https://doi.org/{doi})" if doi else title
         rows.append(f"| {link} | {first_author} et al. | {year} | {citations:,} | {key_finding} |")
