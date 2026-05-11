@@ -125,7 +125,7 @@ async def _run_research(job_id: str, query: str, model: str):
         plan_resp = await loop.run_in_executor(
             None,
             lambda: _client.models.generate_content(
-                model="gemini-3.1-flash-lite-preview",
+                model="gemini-3-flash-preview",
                 contents=plan_prompt,
             )
         )

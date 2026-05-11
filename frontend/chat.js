@@ -368,6 +368,15 @@ window.sendFromInput = async () => {
   chatInput.value = "";
   chatInput.style.height = "";
 
+  // ── Deep Research Agent mode intercept ──────────────────────────────────────
+  if (window._drModeActive) {
+    window.isSending = false;
+    window.deactivateDeepResearchMode();
+    window.runDeepResearchInChat(msg);
+    return;
+  }
+  // ── end intercept ──────────────────────────────────────────────────────────
+
   const limit = await checkMessageLimit();
   if (!limit.allowed) {
     renderAssistantMessage(limit.message || "⚠️ Daily limit reached.");
