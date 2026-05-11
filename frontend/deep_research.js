@@ -86,7 +86,7 @@
       const res = await fetch(`${window.BACKEND_URL || ""}/deep-research/start`, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ query, user_id: supa.id, use_max: false }),
+        body:    JSON.stringify({ query, user_id: window.appState?.supabaseUserId || supa.id || "", use_max: false }),
       });
       if (!res.ok) {
         const e = await res.json().catch(() => ({}));

@@ -1004,7 +1004,7 @@ import deep_research as dr_module
 
 class DeepResearchStartReq(BaseModel):
     query:    str
-    user_id:  str
+    user_id:  str = ""   # Optional — empty string if not yet fully loaded on client
     use_max:  bool = False
 
 @app.post("/deep-research/start")

@@ -63,7 +63,7 @@ async def _run_research(job_id: str, query: str, model: str):
 
         def _create():
             return _client.interactions.create(
-                model=model,
+                agent=model,   # Gemini API now requires 'agent' field, not 'model'
                 input=query,
                 background=True,
             )
