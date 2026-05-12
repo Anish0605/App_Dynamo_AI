@@ -1305,6 +1305,56 @@ function renderAssistantMessage(html, rawText = "", save = true, sources = []) {
       sourcesBadgeContainer.appendChild(badge);
       if (window.lucide) window.lucide.createIcons();
     }
+
+    // ── Trust Layer: per-message Verify button ───────────────────────────────
+    // Shows a subtle shield button on every substantive reply.
+    // Clicking fetches Semantic Scholar papers and cross-checks key claims inline.
+    const isSubstantive = text.length > 150
+      && !text.startsWith("⚠️")
+      && !text.startsWith("🔒")
+      && !text.startsWith("💡")
+      && !/^\[(Image|Video|Flowchart|Mindmap|Quiz)/.test(text);
+
+    if (isSubstantive) {
+      // Snapshot the triggering user question now (before more messages arrive)
+      const lastUserQ = [...(window.chatHistory || [])]
+        .reverse()
+        .find(m => m.role === "user" && m.content?.length > 3)
+        ?.content?.slice(0, 200) || "";
+
+      const vBtn = document.createElement("button");
+      vBtn.className = "trust-verify-btn";
+      vBtn.style.cssText = [
+        "display:inline-flex;align-items:center;gap:5px;margin-top:8px;",
+        "padding:4px 10px;background:transparent;",
+        "border:1px solid #e5e7eb;border-radius:999px;",
+        "font-size:11px;font-weight:600;color:#9ca3af;cursor:pointer;transition:all .15s;",
+      ].join("");
+      vBtn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verify`;
+      vBtn.addEventListener("mouseover", () => {
+        if (!vBtn.disabled && !vBtn.dataset.verified) {
+          vBtn.style.borderColor = "#3b82f6"; vBtn.style.color = "#3b82f6";
+        }
+      });
+      vBtn.addEventListener("mouseout", () => {
+        if (!vBtn.disabled && !vBtn.dataset.verified) {
+          vBtn.style.borderColor = "#e5e7eb"; vBtn.style.color = "#9ca3af";
+        }
+      });
+
+      const vPanel = document.createElement("div");
+      vPanel.className = "trust-panel";
+      vPanel.style.cssText = [
+        "display:none;margin-top:10px;padding:12px 14px;",
+        "background:#f8faff;border:1px solid #dbeafe;",
+        "border-radius:12px;font-size:12px;line-height:1.7;",
+      ].join("");
+
+      sourcesBadgeContainer.appendChild(vBtn);
+      sourcesBadgeContainer.appendChild(vPanel);
+      vBtn.addEventListener("click", () => window.verifyMessage(vBtn, vPanel, text, lastUserQ));
+    }
+
   }, Math.min(800, text.length * 5));
 
   lucide.createIcons();
@@ -1569,6 +1619,77 @@ End with a "📚 Sources" section listing the URLs you actually used.`,
     renderAssistantMessage("⚠️ Error finding research gaps. Please try again.");
     console.error("[Gap Finder]", err);
   }
+};
+
+/* =========================================================
+   🔬 TRUST LAYER — verify any chat message against papers
+=========================================================
+   Called when the user clicks the "Verify" shield button on an
+   assistant bubble. Hits the same /deep-research/verify-papers
+   endpoint used by the Deep Research "Verify with Papers" button.
+   Results render INLINE inside that message — no new chat bubble.
+========================================================= */
+
+window.verifyMessage = async function (btn, panel, rawText, userQuery) {
+  const userId = window.appState?.supabaseUserId;
+  if (!userId) {
+    btn.style.color = "#ef4444"; btn.textContent = "Sign in to verify";
+    return;
+  }
+
+  // If already verified — toggle panel open/close
+  if (btn.dataset.verified) {
+    if (panel.style.display === "none") {
+      panel.style.display = "block";
+      btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verified · hide`;
+    } else {
+      panel.style.display = "none";
+      btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verified · show`;
+    }
+    return;
+  }
+
+  // Start verification
+  btn.disabled = true;
+  btn.style.opacity = "0.65";
+  btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Verifying…`;
+
+  panel.style.display = "block";
+  panel.innerHTML = `<span style="color:#6b7280;font-style:italic;">🔬 Fetching papers from Semantic Scholar and cross-checking claims…</span>`;
+
+  try {
+    const res = await window.callBackend("/deep-research/verify-papers", {
+      query:          userQuery || rawText.slice(0, 120),
+      report_excerpt: rawText.slice(0, 4000),
+      user_id:        userId,
+    });
+
+    const verif = res?.verification || "";
+    if (verif) {
+      try   { panel.innerHTML = marked.parse(verif); }
+      catch { panel.innerText = verif; }
+      if (window.lucide) window.lucide.createIcons();
+    } else {
+      panel.innerHTML = `<span style="color:#9ca3af;">No papers found for this topic on Semantic Scholar.</span>`;
+    }
+
+    // Mark as done — button becomes a toggle
+    btn.dataset.verified = "1";
+    btn.style.color        = "#16a34a";
+    btn.style.borderColor  = "#86efac";
+    btn.style.background   = "#f0fdf4";
+    btn.style.opacity      = "1";
+    btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verified · hide`;
+
+  } catch (err) {
+    panel.innerHTML = `<span style="color:#ef4444;">⚠️ Verification failed: ${err.message}</span>`;
+    btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Retry`;
+    btn.style.opacity = "1";
+    btn.disabled = false;
+    return;
+  }
+
+  btn.disabled = false;
 };
 
 /* =========================================================
