@@ -203,17 +203,16 @@ async def chat(req: ChatReq):
 
     msg_lower = req.message.lower()
 
-    # ⚡ Smart actions (Summarise, Explain, Executive Deck) bypass keyword routing
+    # ── Keyword routing (ALL gated by smart_action) ──────────────────────────────
+    # smart_action=True bypasses every keyword router — used by DR follow-ups,
+    # Draft Academic Paper, Summarise, Explain, Find Research Gaps, etc.
+    # This prevents a 6,000-word research report (full of words like "video",
+    # "steps", "workflow", "brainstorm") from triggering the wrong handler.
+
     if not req.smart_action:
 
-        # 📊 Flowchart Detection (CHECK FIRST)
-        FLOWCHART_KEYWORDS = [
-            "flowchart",
-            "process flow",
-            "workflow",
-            "steps"
-        ]
-
+        # 📊 Flowchart Detection
+        FLOWCHART_KEYWORDS = ["flowchart", "process flow", "workflow", "steps"]
         if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
             try:
                 return flowchart.generate_flowchart(req.message)
@@ -223,13 +222,7 @@ async def chat(req: ChatReq):
                 return {"type": "text", "content": "Flowchart generation failed. Please try again."}
 
         # 🧠 Mindmap Detection
-        MINDMAP_KEYWORDS = [
-            "mindmap",
-            "mind map",
-            "idea map",
-            "brainstorm"
-        ]
-
+        MINDMAP_KEYWORDS = ["mindmap", "mind map", "idea map", "brainstorm"]
         if any(k in msg_lower for k in MINDMAP_KEYWORDS):
             try:
                 return mindmap.generate_mindmap(req.message)
@@ -238,82 +231,33 @@ async def chat(req: ChatReq):
                 traceback.print_exc()
                 return {"type": "text", "content": "Mindmap generation failed. Please try again."}
 
-    # 🧩 Quiz Detection (MUST BE BEFORE IMAGE)
+        # 🎬 Video Detection
+        VIDEO_KEYWORDS = ["create video", "generate video", "make video", "animation", "video"]
+        if any(k in msg_lower for k in VIDEO_KEYWORDS):
+            try:
+                import video
+                return await video.generate_video(req.message)
+            except BaseException as e:
+                print(f"[VIDEO ERROR] {type(e).__name__}: {e}")
+                traceback.print_exc()
+                return {"type": "text", "content": "Video generation failed. Please try again."}
+
+    # 🧩 Quiz Detection (used only to gate image generation below)
     QUIZ_KEYWORDS = ["quiz", "mcq", "multiple choice", "test me", "questions", "exam"]
-    is_quiz_request = any(k in msg_lower for k in QUIZ_KEYWORDS)
-    
-    # 🖼 Image Detection (FLEXIBLE)
+    is_quiz_request = (not req.smart_action) and any(k in msg_lower for k in QUIZ_KEYWORDS)
+
+    # 🖼 Image Detection
     IMAGE_KEYWORDS = [
-        "create an image",
-        "create a image",
-        "generate an image", 
-        "generate a image",
-        "create image",
-        "generate image",
-        "draw ",
-        "picture",
-        "illustration",
-        "visual"
+        "create an image", "create a image", "generate an image", "generate a image",
+        "create image", "generate image", "draw ", "picture", "illustration", "visual"
     ]
-    
     SINGLE_WORD_KEYWORDS = ["image", "photo", "artwork", "drawing"]
-    
     is_image_prompt = (
-        not req.smart_action and  # Smart actions never generate images
+        not req.smart_action and
         (any(k in msg_lower for k in IMAGE_KEYWORDS) or
-        any(k in msg_lower.split() for k in SINGLE_WORD_KEYWORDS) or
-        req.force_image) and not is_quiz_request  # Don't generate image if quiz requested
-    )
-
-    #  Video (ADD RECENTLY)
-    VIDEO_KEYWORDS = [
-    "create video",
-    "generate video",
-    "make video",
-    "animation",
-    "video"
-    ]
-
-    if any(k in msg_lower for k in VIDEO_KEYWORDS):
-        try:
-            import video
-            return await video.generate_video(req.message)
-        except BaseException as e:
-            print(f"[VIDEO ERROR] {type(e).__name__}: {e}")
-            traceback.print_exc()
-            return {"type": "text", "content": "Video generation failed. Please try again."}
-
-    # MINDMAPS (ADDED NOW)
-    MINDMAP_KEYWORDS = [
-        "mindmap",
-        "mind map",
-        "idea map",
-        "brainstorm"
-    ]
-
-    if any(k in msg_lower for k in MINDMAP_KEYWORDS):
-        try:
-            return mindmap.generate_mindmap(req.message)
-        except BaseException as e:
-            print(f"[MINDMAP ERROR] {type(e).__name__}: {e}")
-            traceback.print_exc()
-            return {"type": "text", "content": "Mindmap generation failed. Please try again."}
-
-    # FLOWCHART (ADDED NOW)
-    FLOWCHART_KEYWORDS = [
-        "flowchart",
-        "process flow",
-        "workflow",
-        "steps"
-    ]
-
-    if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
-        try:
-            return flowchart.generate_flowchart(req.message)
-        except BaseException as e:
-            print(f"[FLOWCHART ERROR] {type(e).__name__}: {e}")
-            traceback.print_exc()
-            return {"type": "text", "content": "Flowchart generation failed. Please try again."}    
+         any(k in msg_lower.split() for k in SINGLE_WORD_KEYWORDS) or
+         req.force_image) and not is_quiz_request
+    )    
     
     # -------------------------
     # 🧠 1. USER HANDLING
