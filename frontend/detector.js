@@ -158,52 +158,112 @@
   };
 
   function _renderAiResult(r) {
-    const score = Math.max(0, Math.min(100, r.score || 50));
-    const label = r.label       || "Mixed";
-    const conf  = r.confidence  || "Medium";
-    const sigs  = r.signals     || [];
-    const summ  = r.summary     || "";
+    const score     = Math.max(0, Math.min(100, r.score || 50));
+    const humanPct  = 100 - score;          // flip: show "human probability"
+    const label     = r.label       || "Mixed";
+    const conf      = r.confidence  || "Medium";
+    const sigs      = r.signals     || [];
+    const summ      = r.summary     || "";
+
+    // Verdict banner config
+    let bannerEmoji, bannerText, bannerSub;
+    if (score <= 25) {
+      bannerEmoji = "✅";
+      bannerText  = "Appears Human-Written";
+      bannerSub   = "Very few signs of AI generation detected in this text.";
+    } else if (score <= 50) {
+      bannerEmoji = "🟡";
+      bannerText  = "Mostly Human-Written";
+      bannerSub   = "Some patterns are consistent with AI, but overall leans human.";
+    } else if (score <= 75) {
+      bannerEmoji = "⚠️";
+      bannerText  = "Likely AI-Generated";
+      bannerSub   = "Multiple patterns suggest this text may have been AI-assisted or generated.";
+    } else {
+      bannerEmoji = "🔴";
+      bannerText  = "Strongly AI-Generated";
+      bannerSub   = "This text shows clear hallmarks of AI-generated writing.";
+    }
 
     const { color, bgCol, bdCol } = _scoreTheme(score, 70, 40);
 
+    // What this means — researcher-specific guidance
+    let guidance = "";
+    if (score <= 25) {
+      guidance = "This text is suitable for academic submission. The writing patterns are consistent with authentic human authorship.";
+    } else if (score <= 50) {
+      guidance = "This text is likely acceptable for academic submission, though a few sections may warrant review. Check the signals below for specific areas.";
+    } else if (score <= 75) {
+      guidance = "This text may not meet academic integrity standards. Review the flagged signals below and consider rewriting those sections in your own voice.";
+    } else {
+      guidance = "This text is unlikely to pass an academic integrity review. Substantial rewriting in your own voice is strongly recommended before submission.";
+    }
+
     const el = document.getElementById("ai-result");
     el.innerHTML = `
-      <div style="background:${bgCol};border:1.5px solid ${bdCol};border-radius:14px;padding:18px 20px;">
-
-        <!-- Score row -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div>
-            <div style="font-size:13px;font-weight:800;color:${color};">${_esc(label)}</div>
-            <div style="font-size:11px;color:#6b7280;margin-top:2px;">Confidence: ${_esc(conf)}</div>
+      <!-- ① VERDICT BANNER -->
+      <div style="background:${bgCol};border:1.5px solid ${bdCol};border-radius:14px;padding:16px 18px;margin-bottom:10px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+          <!-- Left: verdict text -->
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
+              <span style="font-size:18px;line-height:1;">${bannerEmoji}</span>
+              <span style="font-size:15px;font-weight:800;color:${color};">${bannerText}</span>
+            </div>
+            <p style="font-size:12px;color:#4b5563;margin:0;line-height:1.5;">${bannerSub}</p>
           </div>
-          <div style="text-align:right;">
-            <div style="font-size:30px;font-weight:900;color:${color};font-family:monospace;line-height:1;">${score}</div>
-            <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;">/ 100 AI score</div>
+          <!-- Right: human % (the number that actually makes sense) -->
+          <div style="text-align:center;flex-shrink:0;">
+            <div style="font-size:32px;font-weight:900;color:${color};font-family:monospace;line-height:1;">${humanPct}%</div>
+            <div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin-top:2px;">Human</div>
           </div>
         </div>
 
-        <!-- Bar -->
-        <div style="background:#e5e7eb;border-radius:999px;height:8px;overflow:hidden;margin-bottom:6px;">
-          <div style="width:${score}%;height:100%;background:${color};border-radius:999px;transition:width .6s ease;"></div>
+        <!-- Progress bar: human % left, AI % right -->
+        <div style="margin-top:12px;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#9ca3af;margin-bottom:5px;">
+            <span>Human ←</span>
+            <span>Confidence: ${_esc(conf)}</span>
+            <span>→ AI</span>
+          </div>
+          <div style="background:#e5e7eb;border-radius:999px;height:10px;overflow:hidden;position:relative;">
+            <!-- Human portion (green from left) -->
+            <div style="position:absolute;left:0;top:0;width:${humanPct}%;height:100%;background:#22c55e;border-radius:999px 0 0 999px;transition:width .7s ease;"></div>
+            <!-- AI portion (red from right) -->
+            <div style="position:absolute;right:0;top:0;width:${score}%;height:100%;background:${color};border-radius:0 999px 999px 0;opacity:0.7;transition:width .7s ease;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:600;color:#9ca3af;margin-top:4px;">
+            <span>${humanPct}% Human</span>
+            <span>${score}% AI</span>
+          </div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-bottom:14px;font-weight:600;">
-          <span>Human</span><span>Mixed</span><span>AI</span>
-        </div>
+      </div>
 
-        <!-- Summary -->
-        <p style="font-size:13px;color:#374151;line-height:1.6;margin-bottom:${sigs.length ? 14 : 0}px;">${_esc(summ)}</p>
+      <!-- ② WHAT THIS MEANS FOR YOUR RESEARCH -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:13px 16px;margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:6px;">What this means for your submission</div>
+        <p style="font-size:12.5px;color:#334155;line-height:1.6;margin:0;">${guidance}</p>
+      </div>
 
-        <!-- Signals -->
-        ${sigs.length ? `
-        <div style="border-top:1px solid ${bdCol};padding-top:12px;">
-          <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:8px;">Evidence Signals</div>
-          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px;">
-            ${sigs.map(s => `<li style="display:flex;gap:7px;align-items:flex-start;font-size:12px;color:#4b5563;">
-              <span style="color:${color};flex-shrink:0;margin-top:1px;">›</span><span>${_esc(s)}</span>
-            </li>`).join("")}
-          </ul>
-        </div>` : ""}
-      </div>`;
+      <!-- ③ GEMINI'S FULL EXPLANATION -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:13px 16px;margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:6px;">Detailed analysis</div>
+        <p style="font-size:12.5px;color:#334155;line-height:1.6;margin:0;">${_esc(summ)}</p>
+      </div>
+
+      <!-- ④ SPECIFIC SIGNALS FOUND -->
+      ${sigs.length ? `
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:13px 16px;">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:8px;">Specific patterns detected (${sigs.length})</div>
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:7px;">
+          ${sigs.map((s, i) => `
+          <li style="display:flex;gap:9px;align-items:flex-start;">
+            <span style="flex-shrink:0;width:18px;height:18px;border-radius:50%;background:${score >= 70 ? '#fee2e2' : score >= 40 ? '#fef3c7' : '#dcfce7'};color:${color};font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;">${i+1}</span>
+            <span style="font-size:12.5px;color:#374151;line-height:1.5;">${_esc(s)}</span>
+          </li>`).join("")}
+        </ul>
+      </div>` : ""}
+    `;
     el.classList.remove("hidden");
   }
 
@@ -236,52 +296,125 @@
 
   function _renderPlagResult(r) {
     const score   = Math.max(0, Math.min(100, r.score   || 0));
-    const label   = r.label   || "Low Risk";
     const summ    = r.summary || "";
     const sources = r.sources || [];
 
+    const origPct = 100 - score; // originality %
+
     const { color, bgCol, bdCol } = _scoreTheme(score, 65, 35);
 
-    const srcHtml = sources.length ? `
-      <div style="margin-top:14px;border-top:1px solid ${bdCol};padding-top:14px;">
-        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:8px;">
-          Matching Sources (${sources.length})
+    // Verdict wording
+    let bannerEmoji, bannerText, bannerSub, guidance;
+    if (score <= 15) {
+      bannerEmoji = "✅"; bannerText = "Highly Original";
+      bannerSub   = "No significant matching content found online or in academic databases.";
+      guidance    = "This text appears to be original work and should be safe to submit. Standard citation practices still apply for referenced ideas.";
+    } else if (score <= 35) {
+      bannerEmoji = "🟡"; bannerText = "Mostly Original";
+      bannerSub   = "Minor matches found — likely common phrases or properly shared knowledge.";
+      guidance    = "The level of similarity is within acceptable range for most academic institutions. Review the matched sources below to confirm all cited material is properly referenced.";
+    } else if (score <= 65) {
+      bannerEmoji = "⚠️"; bannerText = "Moderate Similarity";
+      bannerSub   = "Significant matching content detected — requires careful review.";
+      guidance    = "This level of similarity may raise concerns during academic submission. Check the matched sources below and ensure all borrowed content is properly quoted and cited.";
+    } else {
+      bannerEmoji = "🔴"; bannerText = "High Similarity — Review Required";
+      bannerSub   = "Substantial matching content found online or in published papers.";
+      guidance    = "This text is likely to be flagged for plagiarism. Significant rewriting and/or proper citation of all matched sources is required before submission.";
+    }
+
+    // Separate academic vs web sources — academic first for researchers
+    const academic = sources.filter(s => s.type === "academic");
+    const web      = sources.filter(s => s.type === "web");
+
+    function _sourceCard(s) {
+      return `
+        <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;padding:11px 14px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap;">
+            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;
+              background:${s.type === "academic" ? "#eff6ff" : "#f0fdf4"};
+              color:${s.type === "academic" ? "#1d4ed8" : "#16a34a"};">
+              ${s.type === "academic" ? "📚 Academic Paper" : "🌐 Web Source"}
+            </span>
+            ${s.url ? `<a href="${_esc(s.url)}" target="_blank" rel="noopener"
+              style="font-size:11px;color:#6b7280;text-decoration:underline;">↗ Open</a>` : ""}
+          </div>
+          <div style="font-size:12.5px;font-weight:600;color:#1f2937;margin-bottom:4px;">${_esc(s.source)}</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.5;">${_esc(s.snippet)}</div>
+          ${s.type === "academic" && s.url ? `
+          <div style="margin-top:6px;padding-top:6px;border-top:1px solid #f1f5f9;">
+            <span style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;">Quick APA-style ref: </span>
+            <span style="font-size:11px;color:#475569;font-style:italic;">${_esc(s.source)}. ${s.url.includes("doi.org") ? s.url : ""}</span>
+          </div>` : ""}
+        </div>`;
+    }
+
+    const academicBlock = academic.length ? `
+      <div style="margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#1d4ed8;margin-bottom:7px;">
+          📚 Academic Matches (${academic.length}) — Semantic Scholar
         </div>
-        <div style="display:flex;flex-direction:column;gap:7px;">
-          ${sources.map(s => `
-            <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;">
-              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;">
-                <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:${s.type === "academic" ? "#eff6ff" : "#f0fdf4"};color:${s.type === "academic" ? "#1d4ed8" : "#16a34a"};">${s.type === "academic" ? "Academic" : "Web"}</span>
-                ${s.url ? `<a href="${_esc(s.url)}" target="_blank" rel="noopener" style="font-size:11px;color:#6b7280;text-decoration:underline;">↗ Open source</a>` : ""}
-              </div>
-              <div style="font-size:12px;font-weight:600;color:#1f2937;margin-bottom:3px;">${_esc(s.source)}</div>
-              <div style="font-size:11px;color:#6b7280;line-height:1.5;">${_esc(s.snippet)}</div>
-            </div>`).join("")}
+        <div style="display:flex;flex-direction:column;gap:7px;">${academic.map(_sourceCard).join("")}</div>
+      </div>` : "";
+
+    const webBlock = web.length ? `
+      <div>
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#16a34a;margin-bottom:7px;">
+          🌐 Web Matches (${web.length})
         </div>
+        <div style="display:flex;flex-direction:column;gap:7px;">${web.map(_sourceCard).join("")}</div>
       </div>` : "";
 
     const el = document.getElementById("plag-result");
     el.innerHTML = `
-      <div style="background:${bgCol};border:1.5px solid ${bdCol};border-radius:14px;padding:18px 20px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div>
-            <div style="font-size:13px;font-weight:800;color:${color};">${_esc(label)}</div>
-            <div style="font-size:11px;color:#6b7280;margin-top:2px;">Similarity score</div>
+      <!-- ① VERDICT BANNER -->
+      <div style="background:${bgCol};border:1.5px solid ${bdCol};border-radius:14px;padding:16px 18px;margin-bottom:10px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
+              <span style="font-size:18px;line-height:1;">${bannerEmoji}</span>
+              <span style="font-size:15px;font-weight:800;color:${color};">${bannerText}</span>
+            </div>
+            <p style="font-size:12px;color:#4b5563;margin:0;line-height:1.5;">${bannerSub}</p>
           </div>
-          <div style="text-align:right;">
-            <div style="font-size:30px;font-weight:900;color:${color};font-family:monospace;line-height:1;">${score}%</div>
-            <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;">matched online</div>
+          <div style="text-align:center;flex-shrink:0;">
+            <div style="font-size:32px;font-weight:900;color:${color};font-family:monospace;line-height:1;">${score}%</div>
+            <div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin-top:2px;">Similarity</div>
           </div>
         </div>
-        <div style="background:#e5e7eb;border-radius:999px;height:8px;overflow:hidden;margin-bottom:6px;">
-          <div style="width:${score}%;height:100%;background:${color};border-radius:999px;transition:width .6s ease;"></div>
+        <div style="margin-top:12px;">
+          <div style="background:#e5e7eb;border-radius:999px;height:10px;overflow:hidden;position:relative;">
+            <div style="position:absolute;left:0;top:0;width:${origPct}%;height:100%;background:#22c55e;border-radius:999px 0 0 999px;transition:width .7s ease;"></div>
+            <div style="position:absolute;right:0;top:0;width:${score}%;height:100%;background:${color};border-radius:0 999px 999px 0;opacity:0.75;transition:width .7s ease;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:600;color:#9ca3af;margin-top:4px;">
+            <span>${origPct}% Original</span><span>${score}% Similar</span>
+          </div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-bottom:14px;font-weight:600;">
-          <span>Original</span><span>Moderate</span><span>Plagiarised</span>
+      </div>
+
+      <!-- ② WHAT THIS MEANS -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:13px 16px;margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:6px;">What this means for your submission</div>
+        <p style="font-size:12.5px;color:#334155;line-height:1.6;margin:0;">${guidance}</p>
+      </div>
+
+      <!-- ③ GEMINI ANALYSIS -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:13px 16px;margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:6px;">Detailed analysis</div>
+        <p style="font-size:12.5px;color:#334155;line-height:1.6;margin:0;">${_esc(summ)}</p>
+      </div>
+
+      <!-- ④ SOURCES (Academic first, then web) -->
+      ${(academic.length || web.length) ? `
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:13px 16px;">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:10px;">
+          Matching Sources Found (${sources.length})
         </div>
-        <p style="font-size:13px;color:#374151;line-height:1.6;">${_esc(summ)}</p>
-        ${srcHtml}
-      </div>`;
+        ${academicBlock}
+        ${webBlock}
+      </div>` : ""}
+    `;
     el.classList.remove("hidden");
   }
 
