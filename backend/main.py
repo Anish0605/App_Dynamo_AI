@@ -966,6 +966,42 @@ async def check_plagiarism_endpoint(req: DetectorReq):
         raise HTTPException(status_code=400, detail="Text cannot be empty.")
     return await detector_module.check_plagiarism(req.text)
 
+@app.post("/extract-text")
+async def extract_text_endpoint(file: UploadFile = File(...)):
+    """Extract plain text from TXT, PDF, or DOCX uploads for the detector modals."""
+    from fastapi import HTTPException
+    ext = (file.filename or "").rsplit(".", 1)[-1].lower()
+    content = await file.read()
+
+    try:
+        if ext in ("txt", "md"):
+            text = content.decode("utf-8", errors="ignore")
+
+        elif ext == "pdf":
+            import pdfplumber, io
+            text_parts = []
+            with pdfplumber.open(io.BytesIO(content)) as pdf:
+                for page in pdf.pages:
+                    t = page.extract_text()
+                    if t:
+                        text_parts.append(t)
+            text = "\n\n".join(text_parts)
+
+        elif ext in ("docx", "doc"):
+            import docx, io
+            doc = docx.Document(io.BytesIO(content))
+            text = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
+
+        else:
+            raise HTTPException(status_code=400, detail=f"Unsupported file type: .{ext}")
+
+        return {"text": text[:15000], "chars": len(text)}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Text extraction failed: {str(e)}")
+
 import deep_research as dr_module
 
 class DeepResearchStartReq(BaseModel):

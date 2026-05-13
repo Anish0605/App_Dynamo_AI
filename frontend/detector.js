@@ -1,58 +1,157 @@
-// detector.js — Dynamo AI
-// In-house AI Text Detector + Plagiarism Checker
-// Powered by Gemini + Tavily + Semantic Scholar (no extra API keys)
+// detector.js — Dynamo AI v2
+// AI Detector + Plagiarism Checker — two fully separate modals
+// File upload: TXT (frontend), PDF/DOCX (backend /extract-text)
 
 (function () {
   "use strict";
 
-  // ── Open / Close ────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // MODAL OPEN / CLOSE
+  // ─────────────────────────────────────────────────────────────────────────
 
+  window.openAiDetectorModal = function () {
+    _open("ai-detector-modal");
+  };
+
+  window.closeAiDetectorModal = function () {
+    _close("ai-detector-modal");
+  };
+
+  window.openPlagiarismModal = function () {
+    _open("plagiarism-modal");
+  };
+
+  window.closePlagiarismModal = function () {
+    _close("plagiarism-modal");
+  };
+
+  // Legacy compatibility (sidebar used openDetectorModal(tab))
   window.openDetectorModal = function (tab) {
-    const modal = document.getElementById("detector-modal");
-    if (!modal) return;
-    modal.classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-    _switchTab(tab || "ai");
-    if (window.lucide) window.lucide.createIcons();
+    if (tab === "plag") window.openPlagiarismModal();
+    else window.openAiDetectorModal();
   };
-
   window.closeDetectorModal = function () {
-    const modal = document.getElementById("detector-modal");
-    if (!modal) return;
-    modal.classList.add("hidden");
-    document.body.style.overflow = "";
+    _close("ai-detector-modal");
+    _close("plagiarism-modal");
   };
 
-  // ── Tab switching ────────────────────────────────────────────────────────────
-
-  function _switchTab(tab) {
-    document.getElementById("det-tab-ai").classList.toggle("det-tab-active", tab === "ai");
-    document.getElementById("det-tab-plag").classList.toggle("det-tab-active", tab === "plag");
-    document.getElementById("det-pane-ai").classList.toggle("hidden", tab !== "ai");
-    document.getElementById("det-pane-plag").classList.toggle("hidden", tab !== "plag");
+  function _open(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    if (window.lucide) window.lucide.createIcons();
   }
 
-  window.detSwitchTab = _switchTab;
+  function _close(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add("hidden");
+    // Only unlock scroll when both modals are closed
+    if (
+      document.getElementById("ai-detector-modal")?.classList.contains("hidden") &&
+      document.getElementById("plagiarism-modal")?.classList.contains("hidden")
+    ) {
+      document.body.style.overflow = "";
+    }
+  }
 
-  // ── AI Detection ─────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // FILE UPLOAD — shared handler for both modals
+  // ─────────────────────────────────────────────────────────────────────────
+
+  window.handleDetectorFile = async function (inputEl, textareaId, statusId, counterId) {
+    const file = inputEl?.files?.[0];
+    if (!file) return;
+
+    const ext = file.name.split(".").pop().toLowerCase();
+    _setStatus(statusId, `⏳ Reading ${file.name}…`, "info");
+
+    try {
+      let text = "";
+
+      if (ext === "txt" || ext === "md") {
+        // Handle on frontend — no backend needed
+        text = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res(r.result);
+          r.onerror = rej;
+          r.readAsText(file);
+        });
+
+      } else if (ext === "pdf" || ext === "docx" || ext === "doc") {
+        // Send to backend for extraction
+        const formData = new FormData();
+        formData.append("file", file);
+        const base = window.BACKEND_URL || "";
+        const resp  = await fetch(`${base}/extract-text`, {
+          method: "POST",
+          body:   formData,
+        });
+        if (!resp.ok) throw new Error(`Server error ${resp.status}`);
+        const data = await resp.json();
+        text = data.text || "";
+
+      } else {
+        _setStatus(statusId, "⚠️ Unsupported file type. Use TXT, PDF, or DOCX.", "warn");
+        return;
+      }
+
+      const textarea = document.getElementById(textareaId);
+      if (textarea) {
+        textarea.value = text.slice(0, 12000);
+        _updateCount(textareaId, counterId);
+      }
+      _setStatus(statusId, `✅ ${file.name} loaded (${_wc(text)} words)`, "ok");
+
+    } catch (err) {
+      _setStatus(statusId, "⚠️ Could not read file: " + err.message, "error");
+    }
+    // Reset so the same file can be re-selected
+    inputEl.value = "";
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // LIVE WORD / CHAR COUNT
+  // ─────────────────────────────────────────────────────────────────────────
+
+  window.updateDetCount = _updateCount;
+
+  function _updateCount(textareaId, counterId) {
+    const ta  = document.getElementById(textareaId);
+    const cnt = document.getElementById(counterId);
+    if (!ta || !cnt) return;
+    const words = _wc(ta.value);
+    const chars = ta.value.length;
+    cnt.textContent = `${words} words · ${chars} chars`;
+  }
+
+  function _wc(str) {
+    return (str || "").trim().split(/\s+/).filter(Boolean).length;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // AI DETECTOR — analyse
+  // ─────────────────────────────────────────────────────────────────────────
 
   window.runAiDetect = async function () {
-    const text = (document.getElementById("det-ai-input")?.value || "").trim();
+    const text = (document.getElementById("ai-text-input")?.value || "").trim();
     if (text.length < 50) {
-      _setStatus("det-ai-status", "⚠️ Please paste at least 50 characters of text.", "warn");
+      _setStatus("ai-status", "⚠️ Please paste at least 50 characters of text.", "warn");
       return;
     }
 
-    const btn = document.getElementById("det-ai-btn");
+    const btn = document.getElementById("ai-analyse-btn");
     _setBtnLoading(btn, "Analysing…");
-    _setStatus("det-ai-status", "🔍 Analysing writing patterns…", "info");
-    document.getElementById("det-ai-result").classList.add("hidden");
+    _setStatus("ai-status", "🔍 Analysing writing patterns…", "info");
+    document.getElementById("ai-result").classList.add("hidden");
 
     try {
       const res = await window.callBackend("/detect-ai", { text });
       _renderAiResult(res);
+      _setStatus("ai-status", "", "");
     } catch (err) {
-      _setStatus("det-ai-status", "⚠️ Detection failed: " + err.message, "error");
+      _setStatus("ai-status", "⚠️ Detection failed: " + err.message, "error");
     } finally {
       _setBtnDone(btn, "Analyse Text");
     }
@@ -60,40 +159,35 @@
 
   function _renderAiResult(r) {
     const score = Math.max(0, Math.min(100, r.score || 50));
-    const label = r.label || "Mixed";
-    const conf  = r.confidence || "Medium";
-    const sigs  = r.signals  || [];
-    const summ  = r.summary  || "";
+    const label = r.label       || "Mixed";
+    const conf  = r.confidence  || "Medium";
+    const sigs  = r.signals     || [];
+    const summ  = r.summary     || "";
 
-    // color based on score
-    const color = score >= 70 ? "#ef4444" : score >= 40 ? "#f59e0b" : "#22c55e";
-    const bgCol = score >= 70 ? "#fef2f2" : score >= 40 ? "#fffbeb" : "#f0fdf4";
-    const bdCol = score >= 70 ? "#fecaca" : score >= 40 ? "#fde68a" : "#bbf7d0";
+    const { color, bgCol, bdCol } = _scoreTheme(score, 70, 40);
 
-    const el = document.getElementById("det-ai-result");
+    const el = document.getElementById("ai-result");
     el.innerHTML = `
       <div style="background:${bgCol};border:1.5px solid ${bdCol};border-radius:14px;padding:18px 20px;">
 
         <!-- Score row -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <div>
-            <div style="font-size:13px;font-weight:800;color:${color};">${label}</div>
-            <div style="font-size:11px;color:#6b7280;margin-top:2px;">Confidence: ${conf}</div>
+            <div style="font-size:13px;font-weight:800;color:${color};">${_esc(label)}</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:2px;">Confidence: ${_esc(conf)}</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:28px;font-weight:900;color:${color};font-family:monospace;">${score}</div>
-            <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;">AI score / 100</div>
+            <div style="font-size:30px;font-weight:900;color:${color};font-family:monospace;line-height:1;">${score}</div>
+            <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;">/ 100 AI score</div>
           </div>
         </div>
 
-        <!-- Progress bar -->
-        <div style="background:#e5e7eb;border-radius:999px;height:8px;overflow:hidden;margin-bottom:14px;">
-          <div style="width:${score}%;height:100%;background:${color};border-radius:999px;transition:width .6s;"></div>
+        <!-- Bar -->
+        <div style="background:#e5e7eb;border-radius:999px;height:8px;overflow:hidden;margin-bottom:6px;">
+          <div style="width:${score}%;height:100%;background:${color};border-radius:999px;transition:width .6s ease;"></div>
         </div>
-
-        <!-- Scale labels -->
         <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-bottom:14px;font-weight:600;">
-          <span>Human Written</span><span>Mixed</span><span>AI Generated</span>
+          <span>Human</span><span>Mixed</span><span>AI</span>
         </div>
 
         <!-- Summary -->
@@ -102,104 +196,105 @@
         <!-- Signals -->
         ${sigs.length ? `
         <div style="border-top:1px solid ${bdCol};padding-top:12px;">
-          <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;margin-bottom:8px;">Evidence Signals</div>
+          <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:8px;">Evidence Signals</div>
           <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px;">
             ${sigs.map(s => `<li style="display:flex;gap:7px;align-items:flex-start;font-size:12px;color:#4b5563;">
-              <span style="color:${color};margin-top:1px;flex-shrink:0;">›</span>
-              <span>${_esc(s)}</span>
+              <span style="color:${color};flex-shrink:0;margin-top:1px;">›</span><span>${_esc(s)}</span>
             </li>`).join("")}
           </ul>
         </div>` : ""}
-      </div>
-    `;
+      </div>`;
     el.classList.remove("hidden");
-    document.getElementById("det-ai-status").textContent = "";
   }
 
-  // ── Plagiarism Checker ────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // PLAGIARISM — check
+  // ─────────────────────────────────────────────────────────────────────────
 
   window.runPlagCheck = async function () {
-    const text = (document.getElementById("det-plag-input")?.value || "").trim();
+    const text = (document.getElementById("plag-text-input")?.value || "").trim();
     if (text.length < 80) {
-      _setStatus("det-plag-status", "⚠️ Please paste at least 80 characters of text.", "warn");
+      _setStatus("plag-status", "⚠️ Please paste at least 80 characters of text.", "warn");
       return;
     }
 
-    const btn = document.getElementById("det-plag-btn");
+    const btn = document.getElementById("plag-check-btn");
     _setBtnLoading(btn, "Checking…");
-    _setStatus("det-plag-status", "🔍 Searching web and academic databases…", "info");
-    document.getElementById("det-plag-result").classList.add("hidden");
+    _setStatus("plag-status", "🔍 Searching web & 200M+ academic papers…", "info");
+    document.getElementById("plag-result").classList.add("hidden");
 
     try {
       const res = await window.callBackend("/check-plagiarism", { text });
       _renderPlagResult(res);
+      _setStatus("plag-status", "", "");
     } catch (err) {
-      _setStatus("det-plag-status", "⚠️ Check failed: " + err.message, "error");
+      _setStatus("plag-status", "⚠️ Check failed: " + err.message, "error");
     } finally {
       _setBtnDone(btn, "Check Originality");
     }
   };
 
   function _renderPlagResult(r) {
-    const score   = Math.max(0, Math.min(100, r.score || 0));
-    const label   = r.label  || "Low Risk";
+    const score   = Math.max(0, Math.min(100, r.score   || 0));
+    const label   = r.label   || "Low Risk";
     const summ    = r.summary || "";
     const sources = r.sources || [];
 
-    const color = score >= 65 ? "#ef4444" : score >= 35 ? "#f59e0b" : "#22c55e";
-    const bgCol = score >= 65 ? "#fef2f2" : score >= 35 ? "#fffbeb" : "#f0fdf4";
-    const bdCol = score >= 65 ? "#fecaca" : score >= 35 ? "#fde68a" : "#bbf7d0";
+    const { color, bgCol, bdCol } = _scoreTheme(score, 65, 35);
 
-    const el = document.getElementById("det-plag-result");
+    const srcHtml = sources.length ? `
+      <div style="margin-top:14px;border-top:1px solid ${bdCol};padding-top:14px;">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:8px;">
+          Matching Sources (${sources.length})
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          ${sources.map(s => `
+            <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;">
+                <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:${s.type === "academic" ? "#eff6ff" : "#f0fdf4"};color:${s.type === "academic" ? "#1d4ed8" : "#16a34a"};">${s.type === "academic" ? "Academic" : "Web"}</span>
+                ${s.url ? `<a href="${_esc(s.url)}" target="_blank" rel="noopener" style="font-size:11px;color:#6b7280;text-decoration:underline;">↗ Open source</a>` : ""}
+              </div>
+              <div style="font-size:12px;font-weight:600;color:#1f2937;margin-bottom:3px;">${_esc(s.source)}</div>
+              <div style="font-size:11px;color:#6b7280;line-height:1.5;">${_esc(s.snippet)}</div>
+            </div>`).join("")}
+        </div>
+      </div>` : "";
+
+    const el = document.getElementById("plag-result");
     el.innerHTML = `
-      <div style="background:${bgCol};border:1.5px solid ${bdCol};border-radius:14px;padding:18px 20px;margin-bottom:${sources.length ? 12 : 0}px;">
-
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="background:${bgCol};border:1.5px solid ${bdCol};border-radius:14px;padding:18px 20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <div>
             <div style="font-size:13px;font-weight:800;color:${color};">${_esc(label)}</div>
             <div style="font-size:11px;color:#6b7280;margin-top:2px;">Similarity score</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:28px;font-weight:900;color:${color};font-family:monospace;">${score}%</div>
-            <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;">match found</div>
+            <div style="font-size:30px;font-weight:900;color:${color};font-family:monospace;line-height:1;">${score}%</div>
+            <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;">matched online</div>
           </div>
         </div>
-
-        <div style="background:#e5e7eb;border-radius:999px;height:8px;overflow:hidden;margin-bottom:14px;">
-          <div style="width:${score}%;height:100%;background:${color};border-radius:999px;transition:width .6s;"></div>
+        <div style="background:#e5e7eb;border-radius:999px;height:8px;overflow:hidden;margin-bottom:6px;">
+          <div style="width:${score}%;height:100%;background:${color};border-radius:999px;transition:width .6s ease;"></div>
         </div>
-
         <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-bottom:14px;font-weight:600;">
           <span>Original</span><span>Moderate</span><span>Plagiarised</span>
         </div>
-
         <p style="font-size:13px;color:#374151;line-height:1.6;">${_esc(summ)}</p>
-      </div>
-
-      ${sources.length ? `
-      <div style="margin-top:4px;">
-        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;margin-bottom:8px;">
-          Matching Sources Found (${sources.length})
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          ${sources.map(s => `
-            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;">
-              <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
-                <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:${s.type==='academic'?'#eff6ff':'#f0fdf4'};color:${s.type==='academic'?'#1d4ed8':'#16a34a'};">${s.type === "academic" ? "Academic" : "Web"}</span>
-                ${s.url ? `<a href="${_esc(s.url)}" target="_blank" style="font-size:11px;color:#6b7280;text-decoration:underline;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">↗ Open</a>` : ""}
-              </div>
-              <div style="font-size:12px;font-weight:600;color:#1f2937;margin-bottom:3px;">${_esc(s.source)}</div>
-              <div style="font-size:11px;color:#6b7280;line-height:1.5;">${_esc(s.snippet)}</div>
-            </div>
-          `).join("")}
-        </div>
-      </div>` : ""}
-    `;
+        ${srcHtml}
+      </div>`;
     el.classList.remove("hidden");
-    document.getElementById("det-plag-status").textContent = "";
   }
 
-  // ── Utilities ────────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // UTILITIES
+  // ─────────────────────────────────────────────────────────────────────────
+
+  function _scoreTheme(score, highT, midT) {
+    const color = score >= highT ? "#ef4444" : score >= midT ? "#f59e0b" : "#22c55e";
+    const bgCol = score >= highT ? "#fef2f2" : score >= midT ? "#fffbeb" : "#f0fdf4";
+    const bdCol = score >= highT ? "#fecaca" : score >= midT ? "#fde68a" : "#bbf7d0";
+    return { color, bgCol, bdCol };
+  }
 
   function _esc(s) {
     return String(s || "")
@@ -211,7 +306,7 @@
     const el = document.getElementById(id);
     if (!el) return;
     el.textContent = msg;
-    el.style.color = type === "error" ? "#ef4444" : type === "warn" ? "#f59e0b" : "#6b7280";
+    el.style.color = type === "error" ? "#ef4444" : type === "warn" ? "#f59e0b" : type === "ok" ? "#22c55e" : "#6b7280";
   }
 
   function _setBtnLoading(btn, label) {
@@ -228,12 +323,16 @@
     btn.textContent = label;
   }
 
-  // Close on backdrop click
+  // Close modals on backdrop click
   document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("detector-modal")?.addEventListener("click", function (e) {
-      if (e.target === this) window.closeDetectorModal();
+    ["ai-detector-modal", "plagiarism-modal"].forEach(id => {
+      document.getElementById(id)?.addEventListener("click", function (e) {
+        if (e.target === this) {
+          _close(id);
+        }
+      });
     });
   });
 
-  console.log("detector.js loaded ✅");
+  console.log("detector.js v2 loaded ✅");
 })();
