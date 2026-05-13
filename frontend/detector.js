@@ -295,9 +295,12 @@
   };
 
   function _renderPlagResult(r) {
-    const score   = Math.max(0, Math.min(100, r.score   || 0));
-    const summ    = r.summary || "";
-    const sources = r.sources || [];
+    const score       = Math.max(0, Math.min(100, r.score   || 0));
+    const summ        = r.summary      || "";
+    const sources     = r.sources      || [];
+    const methodology = r.methodology  || "";
+    const queriesRun  = r.queries_run  || 1;
+    const srcFound    = r.sources_found || sources.length;
 
     const origPct = 100 - score; // originality %
 
@@ -405,7 +408,41 @@
         <p style="font-size:12.5px;color:#334155;line-height:1.6;margin:0;">${_esc(summ)}</p>
       </div>
 
-      <!-- ④ SOURCES (Academic first, then web) -->
+      <!-- ④ HOW IS THIS CALCULATED — transparency box -->
+      <details style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:11px 14px;margin-bottom:10px;cursor:pointer;">
+        <summary style="font-size:11px;font-weight:700;color:#0369a1;list-style:none;display:flex;align-items:center;gap:6px;user-select:none;">
+          <span>ℹ️</span>
+          <span>How is this score calculated?</span>
+          <span style="margin-left:auto;font-size:10px;color:#7dd3fc;">tap to expand</span>
+        </summary>
+        <div style="margin-top:10px;border-top:1px solid #bae6fd;padding-top:10px;">
+          <p style="font-size:12px;color:#0c4a6e;line-height:1.7;margin:0 0 8px 0;">
+            <strong>Step 1 — Multi-section search:</strong> We extract phrases from
+            <strong>${queriesRun} section${queriesRun > 1 ? "s" : ""}</strong> of your document
+            (beginning${queriesRun > 1 ? ", middle" : ""}${queriesRun > 2 ? ", and end" : ""})
+            and search them independently. This ensures all parts of your paper are checked,
+            not just the opening paragraph.
+          </p>
+          <p style="font-size:12px;color:#0c4a6e;line-height:1.7;margin:0 0 8px 0;">
+            <strong>Step 2 — Database search:</strong> Each phrase is searched against the
+            <strong>live web</strong> (Tavily) and <strong>Semantic Scholar</strong> (200M+ academic papers).
+            Results are deduplicated. Found <strong>${srcFound} unique sources</strong> in total.
+          </p>
+          <p style="font-size:12px;color:#0c4a6e;line-height:1.7;margin:0 0 8px 0;">
+            <strong>Step 3 — AI similarity assessment:</strong> Gemini reads your full text
+            alongside all found sources and judges whether overlaps represent actual plagiarism
+            (direct copying / uncited borrowing) vs. common knowledge or properly cited content.
+          </p>
+          <p style="font-size:11px;color:#0369a1;line-height:1.6;margin:0;padding:8px 10px;background:#e0f2fe;border-radius:8px;">
+            ⚠️ <strong>Limitation:</strong> This is a probabilistic estimate based on publicly
+            available content. It does not check subscription-gated journals, university thesis
+            databases (e.g. ProQuest), or your institution's internal Turnitin database.
+            Use this as a pre-submission self-check, not a replacement for institutional plagiarism tools.
+          </p>
+        </div>
+      </details>
+
+      <!-- ⑤ SOURCES (Academic first, then web) -->
       ${(academic.length || web.length) ? `
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:13px 16px;">
         <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:10px;">

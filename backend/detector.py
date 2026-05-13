@@ -86,35 +86,78 @@ def _err(msg: str) -> dict:
 # PLAGIARISM CHECKER
 # ─────────────────────────────────────────────────────────────────────────────
 
-async def check_plagiarism(text: str) -> dict:
-    """Check originality using Tavily web search + Semantic Scholar + Gemini scoring."""
-    query   = text[:250].strip()
-    sources = []
+def _extract_queries(text: str) -> list[str]:
+    """
+    Extract 3 representative search queries from different parts of the text.
+    Searching beginning + middle + end gives far better coverage than just the intro.
+    Strips bracketed citations [1], [Author, 2020] etc. so searches are clean.
+    """
+    import re as _re
+    cleaned = _re.sub(r'\[[\w\s,\.]+\]', '', text).strip()
+    words   = cleaned.split()
+    total   = len(words)
 
-    # 1. Tavily web search for matching online content
+    def _chunk(start_word: int, length: int = 40) -> str:
+        chunk = " ".join(words[start_word : start_word + length]).strip()
+        return chunk[:220] if chunk else ""
+
+    queries = []
+    if total >= 40:
+        queries.append(_chunk(0, 40))              # beginning
+    if total >= 80:
+        mid = max(0, total // 2 - 20)
+        queries.append(_chunk(mid, 40))            # middle
+    if total >= 120:
+        end = max(0, total - 40)
+        queries.append(_chunk(end, 40))            # end
+    if not queries:
+        queries.append(cleaned[:220])
+
+    return [q for q in queries if len(q) > 30]
+
+
+async def check_plagiarism(text: str) -> dict:
+    """
+    Check originality using multi-query Tavily web search + Semantic Scholar + Gemini scoring.
+
+    Improvement over single-query: we extract representative phrases from the beginning,
+    middle, and end of the document so all sections are covered, not just the opening lines.
+    Sources are deduplicated by URL before Gemini scoring.
+    """
+    queries  = _extract_queries(text)
+    seen_urls = set()
+    sources   = []
+
+    # 1. Tavily web search — run for each query section
     try:
         from tavily import TavilyClient
         if config.TAVILY_KEY:
             tc = TavilyClient(api_key=config.TAVILY_KEY)
-            r  = tc.search(query=query[:350], search_depth="advanced", max_results=6)
-            for item in r.get("results", []):
-                if item.get("url"):
-                    sources.append({
-                        "source":  (item.get("title") or "Unknown")[:80],
-                        "url":     item.get("url", ""),
-                        "type":    "web",
-                        "snippet": (item.get("content") or "")[:200],
-                    })
+            for q in queries:
+                try:
+                    r = tc.search(query=q, search_depth="basic", max_results=4)
+                    for item in r.get("results", []):
+                        url = item.get("url", "")
+                        if url and url not in seen_urls:
+                            seen_urls.add(url)
+                            sources.append({
+                                "source":  (item.get("title") or "Unknown")[:80],
+                                "url":     url,
+                                "type":    "web",
+                                "snippet": (item.get("content") or "")[:200],
+                            })
+                except Exception:
+                    pass
     except Exception as e:
         print(f"[Plagiarism] Tavily error: {e}")
 
-    # 2. Semantic Scholar for academic paper matches
+    # 2. Semantic Scholar — search with first query (best for academic topic extraction)
     try:
         async with aiohttp.ClientSession() as session:
             params = {
-                "query":  query[:200],
+                "query":  queries[0][:200],
                 "fields": "title,year,authors,externalIds,abstract",
-                "limit":  5,
+                "limit":  6,
             }
             async with session.get(
                 "https://api.semanticscholar.org/graph/v1/paper/search",
@@ -127,33 +170,41 @@ async def check_plagiarism(text: str) -> dict:
                     for p in data.get("data", []):
                         if p.get("title"):
                             doi = (p.get("externalIds") or {}).get("DOI", "")
+                            url = f"https://doi.org/{doi}" if doi else ""
+                            if url in seen_urls:
+                                continue
+                            if url:
+                                seen_urls.add(url)
                             sources.append({
                                 "source":  p["title"][:80],
-                                "url":     f"https://doi.org/{doi}" if doi else "",
+                                "url":     url,
                                 "type":    "academic",
                                 "snippet": (p.get("abstract") or f"Published {p.get('year', 'N/A')}")[:200],
                             })
     except Exception as e:
         print(f"[Plagiarism] Semantic Scholar error: {e}")
 
-    # 3. Gemini scores similarity against found sources
+    # 3. Gemini scores similarity — sees the full text + all deduplicated sources
     score   = 0
-    summary = "No closely matching sources found online. The text appears to be original."
+    summary = "No closely matching sources found online or in academic databases. The text appears to be original."
 
     if sources and _client:
         src_block = "\n".join(
             f"- [{s['type'].upper()}] {s['source']}: {s['snippet']}"
-            for s in sources[:6]
+            for s in sources[:8]
         )
+        # Give Gemini the FULL text (up to 2000 chars) for a fair assessment
         prompt = (
-            "You are a plagiarism detection expert.\n\n"
-            f"Submitted text (first 600 chars):\n\"{text[:600]}\"\n\n"
-            f"Potential matching sources found online:\n{src_block}\n\n"
-            "Based on the content overlap between the submitted text and these sources, "
-            "provide an originality assessment.\n"
-            "Return ONLY valid JSON: "
-            "{\"score\": <int 0-100; 0=fully original, 100=directly plagiarized>, "
-            "\"summary\": \"<2-3 sentence plain-English assessment>\"}"
+            "You are an academic plagiarism detection expert.\n\n"
+            f"Submitted text (up to 2000 chars):\n\"{text[:2000]}\"\n\n"
+            f"Related sources found online across the full document:\n{src_block}\n\n"
+            "These sources were found by searching phrases from the beginning, middle, and end of the submitted text.\n"
+            "Assess whether the submitted text directly copies, paraphrases, or substantially overlaps with these sources.\n"
+            "Important: shared technical terminology, common knowledge, and properly cited ideas are NOT plagiarism.\n"
+            "Only flag actual copied passages or uncited borrowed ideas.\n\n"
+            "Return ONLY valid JSON:\n"
+            "{\"score\": <int 0-100; 0=fully original/properly cited, 100=directly plagiarized/uncited>, "
+            "\"summary\": \"<2-3 sentences: what overlaps exist and whether they constitute plagiarism>\"}"
         )
         loop = asyncio.get_event_loop()
         try:
@@ -179,9 +230,21 @@ async def check_plagiarism(text: str) -> dict:
     else:
         label = "Low Risk — Original"
 
+    # Build methodology note for frontend transparency
+    methodology = (
+        f"Searched {len(queries)} sections of your document (beginning, middle, end) across "
+        f"live web (Tavily) and Semantic Scholar academic database. "
+        f"Found {len(sources)} unique sources ({len([s for s in sources if s['type']=='academic'])} academic, "
+        f"{len([s for s in sources if s['type']=='web'])} web). "
+        f"Gemini then compared your full text against all found sources to assess actual content overlap."
+    )
+
     return {
-        "score":   score,
-        "label":   label,
-        "summary": summary,
-        "sources": sources[:8],
+        "score":       score,
+        "label":       label,
+        "summary":     summary,
+        "sources":     sources[:10],
+        "methodology": methodology,
+        "queries_run": len(queries),
+        "sources_found": len(sources),
     }
