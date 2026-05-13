@@ -1002,6 +1002,29 @@ async def extract_text_endpoint(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Text extraction failed: {str(e)}")
 
+
+@app.post("/detect-ai-heatmap")
+async def detect_ai_heatmap_endpoint(req: DetectorReq):
+    """Sentence-level AI detection for heatmap visualisation."""
+    if not req.text.strip():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Text cannot be empty.")
+    return await detector_module.detect_ai_sentences(req.text)
+
+
+class SelfPlagReq(BaseModel):
+    text_a: str
+    text_b: str
+
+@app.post("/check-self-plagiarism")
+async def check_self_plagiarism_endpoint(req: SelfPlagReq):
+    """Compare two documents for self-plagiarism / content overlap."""
+    if not req.text_a.strip() or not req.text_b.strip():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Both documents must contain text.")
+    return await detector_module.check_self_plagiarism(req.text_a, req.text_b)
+
+
 import deep_research as dr_module
 
 class DeepResearchStartReq(BaseModel):

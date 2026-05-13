@@ -1657,6 +1657,33 @@
         <!-- Result -->
         <div id="ai-result" class="hidden pb-2"></div>
 
+        <!-- Post-result actions: shown after analysis completes -->
+        <div id="ai-post-actions" class="hidden grid grid-cols-2 gap-2">
+          <button onclick="window.runHeatmapAnalysis()" id="ai-heatmap-btn"
+            class="py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-bold rounded-xl transition border border-purple-200 dark:border-purple-700">
+            🌡️ Sentence Heatmap
+          </button>
+          <button onclick="window.exportAiReport()"
+            class="py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-xl transition border border-gray-200 dark:border-gray-700">
+            📄 Export PDF
+          </button>
+        </div>
+
+        <!-- Heatmap section: shown after clicking Sentence Heatmap -->
+        <div id="ai-heatmap-section" class="hidden space-y-2">
+          <p id="ai-heatmap-status" class="text-xs text-gray-400 text-center min-h-[14px]"></p>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;">Sentence-Level Analysis</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#9ca3af;">
+              <span><span style="display:inline-block;width:10px;height:10px;background:#dcfce7;border:1px solid #86efac;border-radius:2px;vertical-align:middle;margin-right:2px;"></span>Human</span>
+              <span><span style="display:inline-block;width:10px;height:10px;background:#fef9c3;border:1px solid #fde047;border-radius:2px;vertical-align:middle;margin-right:2px;"></span>Mixed</span>
+              <span><span style="display:inline-block;width:10px;height:10px;background:#fee2e2;border:1px solid #fca5a5;border-radius:2px;vertical-align:middle;margin-right:2px;"></span>AI</span>
+            </div>
+          </div>
+          <div id="ai-heatmap-output" class="text-sm leading-7 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700"></div>
+          <p class="text-[10px] text-gray-300 text-center pb-1">Hover each sentence to see its individual score</p>
+        </div>
+
         <p class="text-[10px] text-gray-300 text-center pb-1">Scores are probabilistic estimates · Not a legal determination</p>
       </div>
     </div>
@@ -1685,48 +1712,139 @@
       <!-- Scrollable body -->
       <div class="overflow-y-auto flex-1 px-5 py-4 space-y-4">
 
-        <!-- Upload area -->
-        <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center hover:border-blue-400 dark:hover:border-blue-500 transition cursor-pointer group"
-             onclick="document.getElementById('plag-file-input').click()">
-          <input id="plag-file-input" type="file" accept=".txt,.pdf,.docx,.doc,.md" class="hidden"
-                 onchange="window.handleDetectorFile(this,'plag-text-input','plag-status','plag-count')">
-          <i data-lucide="upload-cloud" class="w-6 h-6 text-gray-300 group-hover:text-blue-400 mx-auto mb-1.5 transition"></i>
-          <p class="text-xs font-semibold text-gray-400 group-hover:text-blue-500 transition">Upload file</p>
-          <p class="text-[10px] text-gray-300 mt-0.5">TXT · PDF · DOCX · MD</p>
+        <!-- MODE TOGGLE -->
+        <div style="display:flex;background:#f3f4f6;border-radius:10px;padding:3px;gap:2px;">
+          <button id="plag-mode-origin-btn" onclick="window.switchPlagMode('origin')"
+            style="flex:1;padding:7px 10px;border-radius:8px;font-size:11.5px;font-weight:700;border:none;cursor:pointer;background:#fff;color:#2563eb;box-shadow:0 1px 3px rgba(0,0,0,.1);transition:all .2s;">
+            🔍 Originality Check
+          </button>
+          <button id="plag-mode-self-btn" onclick="window.switchPlagMode('self')"
+            style="flex:1;padding:7px 10px;border-radius:8px;font-size:11.5px;font-weight:700;border:none;cursor:pointer;background:transparent;color:#9ca3af;transition:all .2s;">
+            🔁 Self-Plagiarism
+          </button>
         </div>
 
-        <div class="flex items-center gap-3">
-          <div class="flex-1 h-px bg-gray-100 dark:bg-gray-700"></div>
-          <span class="text-[11px] text-gray-400 font-medium">or paste text</span>
-          <div class="flex-1 h-px bg-gray-100 dark:bg-gray-700"></div>
-        </div>
+        <!-- ── ORIGINALITY PANE ── -->
+        <div id="plag-origin-pane" class="space-y-4">
 
-        <!-- Text input -->
-        <div>
-          <textarea id="plag-text-input" rows="7"
-            placeholder="Paste an essay, article, research paper, or any text to check for originality…"
-            oninput="window.updateDetCount('plag-text-input','plag-count')"
-            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-400 resize-none transition"></textarea>
-          <div class="flex items-center justify-between mt-1.5">
-            <span id="plag-count" class="text-[11px] text-gray-400">0 words · 0 chars</span>
-            <button onclick="document.getElementById('plag-text-input').value='';window.updateDetCount('plag-text-input','plag-count');document.getElementById('plag-result').classList.add('hidden');document.getElementById('plag-status').textContent='';"
-              class="text-[11px] text-gray-400 hover:text-red-500 transition font-medium">Clear</button>
+          <!-- Upload area -->
+          <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center hover:border-blue-400 dark:hover:border-blue-500 transition cursor-pointer group"
+               onclick="document.getElementById('plag-file-input').click()">
+            <input id="plag-file-input" type="file" accept=".txt,.pdf,.docx,.doc,.md" class="hidden"
+                   onchange="window.handleDetectorFile(this,'plag-text-input','plag-status','plag-count')">
+            <i data-lucide="upload-cloud" class="w-6 h-6 text-gray-300 group-hover:text-blue-400 mx-auto mb-1.5 transition"></i>
+            <p class="text-xs font-semibold text-gray-400 group-hover:text-blue-500 transition">Upload file</p>
+            <p class="text-[10px] text-gray-300 mt-0.5">TXT · PDF · DOCX · MD</p>
           </div>
+
+          <div class="flex items-center gap-3">
+            <div class="flex-1 h-px bg-gray-100 dark:bg-gray-700"></div>
+            <span class="text-[11px] text-gray-400 font-medium">or paste text</span>
+            <div class="flex-1 h-px bg-gray-100 dark:bg-gray-700"></div>
+          </div>
+
+          <!-- Text input -->
+          <div>
+            <textarea id="plag-text-input" rows="6"
+              placeholder="Paste an essay, article, research paper, or any text to check for originality…"
+              oninput="window.updateDetCount('plag-text-input','plag-count')"
+              class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-400 resize-none transition"></textarea>
+            <div class="flex items-center justify-between mt-1.5">
+              <span id="plag-count" class="text-[11px] text-gray-400">0 words · 0 chars</span>
+              <button onclick="document.getElementById('plag-text-input').value='';window.updateDetCount('plag-text-input','plag-count');document.getElementById('plag-result').classList.add('hidden');document.getElementById('plag-post-actions').classList.add('hidden');document.getElementById('plag-status').textContent='';"
+                class="text-[11px] text-gray-400 hover:text-red-500 transition font-medium">Clear</button>
+            </div>
+          </div>
+
+          <!-- Check button -->
+          <button id="plag-check-btn" onclick="window.runPlagCheck()"
+            class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition shadow-sm">
+            Check Originality
+          </button>
+
+          <!-- Status -->
+          <p id="plag-status" class="text-xs text-gray-400 text-center min-h-[16px]"></p>
+
+          <!-- Result -->
+          <div id="plag-result" class="hidden pb-2"></div>
+
+          <!-- Export PDF (shown after result) -->
+          <div id="plag-post-actions" class="hidden">
+            <button onclick="window.exportPlagReport()"
+              class="w-full py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-xl transition border border-gray-200 dark:border-gray-700">
+              📄 Export PDF Report
+            </button>
+          </div>
+
+          <p class="text-[10px] text-gray-300 text-center pb-1">Checks live web · Semantic Scholar · Tavily search</p>
         </div>
 
-        <!-- Check button -->
-        <button id="plag-check-btn" onclick="window.runPlagCheck()"
-          class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition shadow-sm">
-          Check Originality
-        </button>
+        <!-- ── SELF-PLAGIARISM PANE ── -->
+        <div id="plag-self-pane" class="hidden space-y-4">
 
-        <!-- Status -->
-        <p id="plag-status" class="text-xs text-gray-400 text-center min-h-[16px]"></p>
+          <p style="font-size:12px;color:#6b7280;line-height:1.6;margin:0;">
+            Upload or paste two documents — your current paper and a prior work — to check for recycled passages and content overlap. No external search; fully private.
+          </p>
 
-        <!-- Result -->
-        <div id="plag-result" class="hidden pb-2"></div>
+          <!-- Document A -->
+          <div>
+            <div style="font-size:11.5px;font-weight:700;color:#374151;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+              <span style="background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:800;">DOC A</span>
+              Current Paper
+            </div>
+            <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-3 text-center hover:border-indigo-400 transition cursor-pointer group mb-2"
+                 onclick="document.getElementById('self-file-a').click()">
+              <input id="self-file-a" type="file" accept=".txt,.pdf,.docx,.doc,.md" class="hidden"
+                     onchange="window.handleSelfFile(this,'a')">
+              <p class="text-xs text-gray-400 group-hover:text-indigo-500 transition font-medium">Upload file (TXT · PDF · DOCX)</p>
+            </div>
+            <textarea id="self-text-a" rows="5"
+              placeholder="Or paste your current paper here…"
+              oninput="window.updateDetCount('self-text-a','self-count-a')"
+              class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-indigo-400 resize-none transition"></textarea>
+            <span id="self-count-a" class="text-[11px] text-gray-400">0 words · 0 chars</span>
+          </div>
 
-        <p class="text-[10px] text-gray-300 text-center pb-1">Checks live web · Semantic Scholar · Tavily search</p>
+          <!-- Document B -->
+          <div>
+            <div style="font-size:11.5px;font-weight:700;color:#374151;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+              <span style="background:#fce7f3;color:#9d174d;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:800;">DOC B</span>
+              Prior Work / Reference Paper
+            </div>
+            <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-3 text-center hover:border-pink-400 transition cursor-pointer group mb-2"
+                 onclick="document.getElementById('self-file-b').click()">
+              <input id="self-file-b" type="file" accept=".txt,.pdf,.docx,.doc,.md" class="hidden"
+                     onchange="window.handleSelfFile(this,'b')">
+              <p class="text-xs text-gray-400 group-hover:text-pink-500 transition font-medium">Upload file (TXT · PDF · DOCX)</p>
+            </div>
+            <textarea id="self-text-b" rows="5"
+              placeholder="Or paste your prior / reference paper here…"
+              oninput="window.updateDetCount('self-text-b','self-count-b')"
+              class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-pink-400 resize-none transition"></textarea>
+            <span id="self-count-b" class="text-[11px] text-gray-400">0 words · 0 chars</span>
+          </div>
+
+          <!-- Compare button -->
+          <button id="self-compare-btn" onclick="window.runSelfPlagCheck()"
+            class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition shadow-sm">
+            Compare Documents
+          </button>
+
+          <!-- Status + Result -->
+          <p id="selfplag-status" class="text-xs text-gray-400 text-center min-h-[16px]"></p>
+          <div id="selfplag-result" class="hidden pb-2"></div>
+
+          <!-- Export PDF (shown after result) -->
+          <div id="selfplag-post-actions" class="hidden">
+            <button onclick="window.exportSelfPlagReport()"
+              class="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 text-xs font-bold rounded-xl transition border border-gray-200">
+              📄 Export PDF Report
+            </button>
+          </div>
+
+          <p class="text-[10px] text-gray-300 text-center pb-1">Direct Gemini comparison · No external search · Fully private</p>
+        </div>
+
       </div>
     </div>
   </div>
@@ -2307,7 +2425,7 @@
    // (deep research timer sync removed — agent runs in-chat, v4)
  </script>
  <!-- AI DETECTOR + PLAGIARISM -->
- <script src="detector.js?v=20260513a"></script>
+ <script src="detector.js?v=20260513b"></script>
 
  <script src="/deep_research.js?v=20260511e"></script>
 </body>

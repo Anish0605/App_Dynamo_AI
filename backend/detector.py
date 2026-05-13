@@ -248,3 +248,109 @@ async def check_plagiarism(text: str) -> dict:
         "queries_run": len(queries),
         "sources_found": len(sources),
     }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SENTENCE-LEVEL HEATMAP
+# ─────────────────────────────────────────────────────────────────────────────
+
+_HEATMAP_PROMPT = """\
+You are analysing text for AI-generation patterns at the sentence level.
+
+For each sentence in the text below, assign a score from 0 to 100:
+- 0  = clearly human-written (personal voice, specific detail, idiosyncratic phrasing)
+- 50 = ambiguous or mixed
+- 100 = clearly AI-generated (formulaic, generic, perfectly structured filler)
+
+IMPORTANT — academic writing uses formal language by design. Do NOT penalise:
+- Passive voice, hedged claims, literature review phrasing
+- Technical jargon, structured methodology sections
+- Citations or references to prior work
+
+Return ONLY a valid JSON array. Each element: {"s": "<exact sentence>", "score": <int 0-100>}
+No markdown, no extra text. Process every sentence in order.
+
+TEXT:
+"""
+
+async def detect_ai_sentences(text: str) -> dict:
+    """Sentence-level AI detection — single Gemini call returns per-sentence scores."""
+    if not _client:
+        return {"sentences": [], "error": "Gemini not configured"}
+
+    sample = text[:3500]
+    loop = asyncio.get_event_loop()
+    try:
+        resp = await loop.run_in_executor(
+            None,
+            lambda: _client.models.generate_content(
+                model="gemini-3-flash-preview",
+                contents=_HEATMAP_PROMPT + sample,
+            )
+        )
+        raw = resp.text.strip()
+        match = re.search(r'\[.*\]', raw, re.DOTALL)
+        if match:
+            items = json.loads(match.group())
+            cleaned = []
+            for item in items:
+                if isinstance(item, dict) and "s" in item and str(item["s"]).strip():
+                    cleaned.append({
+                        "s":     str(item["s"]).strip(),
+                        "score": max(0, min(100, int(item.get("score", 50)))),
+                    })
+            return {"sentences": cleaned, "truncated": len(text) > 3500}
+    except Exception as e:
+        print(f"[Heatmap] Error: {e}")
+
+    return {"sentences": [], "error": "Could not generate sentence analysis"}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SELF-PLAGIARISM COMPARISON
+# ─────────────────────────────────────────────────────────────────────────────
+
+async def check_self_plagiarism(text_a: str, text_b: str) -> dict:
+    """Direct Gemini comparison of two documents — no external search needed."""
+    if not _client:
+        return {"score": 0, "summary": "Gemini not configured", "overlaps": [], "recommendation": ""}
+
+    prompt = (
+        "You are an academic integrity expert specialising in self-plagiarism detection.\n\n"
+        "Compare these two documents and identify content overlap, shared passages, or recycled ideas.\n\n"
+        f"DOCUMENT A (current paper — first 1500 chars):\n\"{text_a[:1500]}\"\n\n"
+        f"DOCUMENT B (prior work / reference — first 1500 chars):\n\"{text_b[:1500]}\"\n\n"
+        "Self-plagiarism = reusing substantial portions of your own prior published work without disclosure.\n"
+        "Shared domain terminology, common methodology descriptions, or standard boilerplate are NOT self-plagiarism.\n"
+        "Only flag actual copied or heavily paraphrased passages that appear in both texts without citation.\n\n"
+        "Return ONLY valid JSON:\n"
+        "{\n"
+        "  \"score\": <int 0-100; 0=completely different, 100=near-identical>,\n"
+        "  \"overlaps\": [<list of 3-5 strings describing specific overlapping phrases or ideas>],\n"
+        "  \"summary\": \"<2-3 sentences assessing whether the overlap constitutes problematic self-plagiarism>\",\n"
+        "  \"recommendation\": \"<1-2 sentences of practical advice for the researcher>\"\n"
+        "}"
+    )
+
+    loop = asyncio.get_event_loop()
+    try:
+        resp = await loop.run_in_executor(
+            None,
+            lambda: _client.models.generate_content(
+                model="gemini-3-flash-preview",
+                contents=prompt,
+            )
+        )
+        match = re.search(r'\{.*\}', resp.text.strip(), re.DOTALL)
+        if match:
+            parsed = json.loads(match.group())
+            return {
+                "score":          max(0, min(100, int(parsed.get("score", 0)))),
+                "overlaps":       parsed.get("overlaps", []),
+                "summary":        parsed.get("summary", ""),
+                "recommendation": parsed.get("recommendation", ""),
+            }
+    except Exception as e:
+        print(f"[SelfPlag] Error: {e}")
+
+    return {"score": 0, "overlaps": [], "summary": "Analysis failed. Please try again.", "recommendation": ""}
