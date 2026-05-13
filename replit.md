@@ -144,6 +144,22 @@ Image/video enforcement runs in `backend/main.py` before generation.
 Frontend shows styled quota error cards with an "Upgrade Plan" link to `/pricing.html`.
 Frontend `checkMessageLimit` in `chat.js` uses PLAN_LIMITS matching backend (free=10, plus=100, pro=300).
 
+## AI Text Detector + Plagiarism Checker (May 2026)
+In-house feature — no new API keys required. Uses existing Gemini + Tavily + Semantic Scholar.
+
+- **Backend**: `backend/detector.py` — `detect_ai()` + `check_plagiarism()`
+  - AI detection: Gemini analyses writing patterns, returns score 0–100 + label + signals
+  - Plagiarism: Tavily web search + Semantic Scholar → Gemini scores similarity
+- **Endpoints**: `POST /detect-ai` · `POST /check-plagiarism` (both in `main.py`)
+- **Frontend**: `frontend/detector.js` — modal with two tabs (🤖 AI Detector / 📄 Plagiarism)
+  - Results: visual score meter, colour-coded label, summary, evidence signals / sources list
+- **Entry point**: Sidebar Quick Tools → "AI & Plagiarism" accordion → two sub-buttons
+- Cache: `detector.js?v=20260513a`
+
+## DrillBit Integration (Declined May 2026)
+DrillBit's API was considered for plagiarism detection but declined due to cost (₹3.9–6L/year).
+The in-house solution above covers the same use case using already-paid APIs.
+
 ## Document Library (May 2026)
 Persistent document memory — users can save PDFs/DOCX/TXT to a per-user library; Dynamo AI injects summaries into every future chat automatically.
 

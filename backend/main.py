@@ -31,6 +31,7 @@ from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_c
 from export_routes import router as export_router
 from presentation_engine import build_presentation, build_smart_presentation
 from payments import router as payments_router
+import detector as detector_module
 
 # --------------------------------------------------
 # FASTAPI APP
@@ -943,6 +944,27 @@ async def generate_video(req: VideoReq):
 # --------------------------------------------------
 # DEEP RESEARCH AGENT
 # --------------------------------------------------
+
+# --------------------------------------------------
+# AI DETECTOR + PLAGIARISM CHECKER
+# --------------------------------------------------
+
+class DetectorReq(BaseModel):
+    text: str
+
+@app.post("/detect-ai")
+async def detect_ai_endpoint(req: DetectorReq):
+    if not req.text.strip():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Text cannot be empty.")
+    return await detector_module.detect_ai(req.text)
+
+@app.post("/check-plagiarism")
+async def check_plagiarism_endpoint(req: DetectorReq):
+    if not req.text.strip():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Text cannot be empty.")
+    return await detector_module.check_plagiarism(req.text)
 
 import deep_research as dr_module
 
