@@ -1,15 +1,85 @@
-// detector.js — Dynamo AI v2
+// detector.js — Dynamo AI v3
 // AI Detector + Plagiarism Checker — two fully separate modals
 // File upload: TXT (frontend), PDF/DOCX (backend /extract-text)
+// Plan gate: Plus & Pro only. Free users see upgrade prompt; guests see login modal.
 
 (function () {
   "use strict";
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PLAN GATE — check login + plan before allowing access
+  // ─────────────────────────────────────────────────────────────────────────
+
+  function _requirePlusOrPro(featureName) {
+    const supa = window.appState?.supabaseUser;
+
+    // Not logged in at all → open auth modal
+    if (!supa) {
+      window.openAuthModal?.("login");
+      return false;
+    }
+
+    // Free plan → show upgrade gate
+    const plan = (supa.plan || "free").toLowerCase();
+    if (plan === "free") {
+      _showUpgradeGate(featureName);
+      return false;
+    }
+
+    return true; // plus or pro — allow through
+  }
+
+  function _showUpgradeGate(featureName) {
+    const existing = document.getElementById("_dyn-upgrade-gate");
+    if (existing) existing.remove();
+
+    const wrap = document.createElement("div");
+    wrap.id = "_dyn-upgrade-gate";
+    wrap.style.cssText = [
+      "position:fixed;inset:0;z-index:90;",
+      "background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);",
+      "display:flex;align-items:center;justify-content:center;padding:16px;",
+    ].join("");
+
+    wrap.innerHTML = `
+      <div style="background:#fff;border-radius:20px;max-width:380px;width:100%;
+                  padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+        <div style="font-size:38px;margin-bottom:12px;">🔒</div>
+        <h3 style="font-size:17px;font-weight:900;color:#111;margin:0 0 8px 0;">
+          ${featureName} is a Plus &amp; Pro feature
+        </h3>
+        <p style="font-size:13px;color:#6b7280;line-height:1.65;margin:0 0 22px 0;">
+          Upgrade to unlock the <strong>AI Text Detector</strong>, <strong>Plagiarism Checker</strong>,
+          and all other research tools — starting at just <strong>₹199/mo</strong>.
+        </p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="/pricing.html"
+             style="display:block;padding:12px 16px;background:#facc15;color:#111;
+                    font-weight:800;font-size:14px;border-radius:12px;text-decoration:none;">
+            ⚡ See Plans &amp; Upgrade
+          </a>
+          <button onclick="document.getElementById('_dyn-upgrade-gate').remove()"
+            style="padding:10px;background:transparent;border:1px solid #e5e7eb;
+                   color:#9ca3af;font-size:13px;font-weight:600;border-radius:12px;cursor:pointer;">
+            Maybe later
+          </button>
+        </div>
+        <p style="font-size:10px;color:#d1d5db;margin:14px 0 0 0;">
+          Plus — ₹199/mo &nbsp;·&nbsp; Pro — ₹499/mo &nbsp;·&nbsp; Cancel anytime
+        </p>
+      </div>
+    `;
+
+    wrap.addEventListener("click", e => { if (e.target === wrap) wrap.remove(); });
+    document.body.appendChild(wrap);
+  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // MODAL OPEN / CLOSE
   // ─────────────────────────────────────────────────────────────────────────
 
   window.openAiDetectorModal = function () {
+    if (!_requirePlusOrPro("AI Text Detector")) return;
     _open("ai-detector-modal");
   };
 
@@ -18,6 +88,7 @@
   };
 
   window.openPlagiarismModal = function () {
+    if (!_requirePlusOrPro("Plagiarism Checker")) return;
     _open("plagiarism-modal");
   };
 
@@ -135,6 +206,7 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   window.runAiDetect = async function () {
+    if (!_requirePlusOrPro("AI Text Detector")) return;
     const text = (document.getElementById("ai-text-input")?.value || "").trim();
     if (text.length < 50) {
       _setStatus("ai-status", "⚠️ Please paste at least 50 characters of text.", "warn");
@@ -273,6 +345,7 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   window.runPlagCheck = async function () {
+    if (!_requirePlusOrPro("Plagiarism Checker")) return;
     const text = (document.getElementById("plag-text-input")?.value || "").trim();
     if (text.length < 80) {
       _setStatus("plag-status", "⚠️ Please paste at least 80 characters of text.", "warn");
@@ -511,6 +584,7 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   window.runHeatmapAnalysis = async function () {
+    if (!_requirePlusOrPro("AI Text Detector")) return;
     const text = (document.getElementById("ai-text-input")?.value || "").trim();
     if (!text) return;
 
@@ -606,6 +680,7 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   window.runSelfPlagCheck = async function () {
+    if (!_requirePlusOrPro("Plagiarism Checker")) return;
     const textA = (document.getElementById("self-text-a")?.value || "").trim();
     const textB = (document.getElementById("self-text-b")?.value || "").trim();
 
