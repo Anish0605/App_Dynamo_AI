@@ -110,9 +110,49 @@ window.selectModel = (modelId, btn) => {
 };
 
 /* --------------------------------------------------
+   PRO-ONLY GATE — reusable overlay for Pro-gated features
+-------------------------------------------------- */
+function _showProGate(featureName) {
+  const ex = document.getElementById("_dyn-pro-gate");
+  if (ex) ex.remove();
+  const wrap = document.createElement("div");
+  wrap.id = "_dyn-pro-gate";
+  wrap.style.cssText = "position:fixed;inset:0;z-index:90;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;";
+  wrap.innerHTML = `
+    <div style="background:#fff;border-radius:20px;max-width:380px;width:100%;padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+      <div style="font-size:38px;margin-bottom:12px;">🔒</div>
+      <h3 style="font-size:17px;font-weight:900;color:#111;margin:0 0 8px 0;">${featureName} is Pro only</h3>
+      <p style="font-size:13px;color:#6b7280;line-height:1.65;margin:0 0 22px 0;">
+        <strong>DeepThink mode</strong>, <strong>Deep Research Agent</strong>, and <strong>Find Research Gaps</strong>
+        are exclusively available on the <strong>Pro plan (₹499/mo)</strong>.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a href="/pricing.html" style="display:block;padding:12px 16px;background:#9333ea;color:#fff;font-weight:800;font-size:14px;border-radius:12px;text-decoration:none;">
+          ⚡ Upgrade to Pro
+        </a>
+        <button onclick="document.getElementById('_dyn-pro-gate').remove()"
+          style="padding:10px;background:transparent;border:1px solid #e5e7eb;color:#9ca3af;font-size:13px;font-weight:600;border-radius:12px;cursor:pointer;">
+          Maybe later
+        </button>
+      </div>
+      <p style="font-size:10px;color:#d1d5db;margin:14px 0 0 0;">Pro — ₹499/mo &nbsp;·&nbsp; Cancel anytime</p>
+    </div>`;
+  wrap.addEventListener("click", e => { if (e.target === wrap) wrap.remove(); });
+  document.body.appendChild(wrap);
+}
+
+/* --------------------------------------------------
    🆕 SET MODE — fast / deep / research (mutually exclusive)
 -------------------------------------------------- */
 window.setMode = (mode, btn) => {
+  // Pro-only gate for DeepThink
+  if (mode === 'deep') {
+    const supa = window.appState?.supabaseUser;
+    if (!supa) { window.openAuthModal?.('login'); return; }
+    const plan = (supa.plan || 'free').toLowerCase();
+    if (plan !== 'pro') { _showProGate('DeepThink mode'); return; }
+  }
+
   // Reset thinking state
   window.dynamoUI.tools.delete('deep');
   window.dynamoUI.model = 'gemini-3.1-flash-lite';

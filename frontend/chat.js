@@ -1546,6 +1546,18 @@ window.updateGapFinderBtn = () => {
 };
 
 window.findResearchGaps = async () => {
+  // Pro-only gate
+  const supa = window.appState?.supabaseUser;
+  if (!supa) {
+    renderAssistantMessage("🔒 Please **log in** to use Find Research Gaps.");
+    return;
+  }
+  const plan = (supa.plan || "free").toLowerCase();
+  if (plan !== "pro") {
+    renderAssistantMessage("🔒 **Find Research Gaps** is a **Pro** feature. [Upgrade to Pro →](/pricing.html)");
+    return;
+  }
+
   const isDeep = window.dynamoUI?.tools?.has("deep") || false;
   if (!isDeep) return;
 
