@@ -112,6 +112,35 @@ window.selectModel = (modelId, btn) => {
 /* --------------------------------------------------
    PRO-ONLY GATE — reusable overlay for Pro-gated features
 -------------------------------------------------- */
+function _showPlusGate(featureName) {
+  const ex = document.getElementById("_dyn-plus-gate");
+  if (ex) ex.remove();
+  const wrap = document.createElement("div");
+  wrap.id = "_dyn-plus-gate";
+  wrap.style.cssText = "position:fixed;inset:0;z-index:90;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;";
+  wrap.innerHTML = `
+    <div style="background:#fff;border-radius:20px;max-width:380px;width:100%;padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+      <div style="font-size:38px;margin-bottom:12px;">🔒</div>
+      <h3 style="font-size:17px;font-weight:900;color:#111;margin:0 0 8px 0;">${featureName} requires Plus or Pro</h3>
+      <p style="font-size:13px;color:#6b7280;line-height:1.65;margin:0 0 22px 0;">
+        Upgrade to unlock <strong>Research mode</strong>, <strong>AI Detector</strong>,
+        <strong>Plagiarism Checker</strong>, and all research tools — from just <strong>₹199/mo</strong>.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a href="/pricing.html" style="display:block;padding:12px 16px;background:#facc15;color:#111;font-weight:800;font-size:14px;border-radius:12px;text-decoration:none;">
+          ⚡ See Plans &amp; Upgrade
+        </a>
+        <button onclick="document.getElementById('_dyn-plus-gate').remove()"
+          style="padding:10px;background:transparent;border:1px solid #e5e7eb;color:#9ca3af;font-size:13px;font-weight:600;border-radius:12px;cursor:pointer;">
+          Maybe later
+        </button>
+      </div>
+      <p style="font-size:10px;color:#d1d5db;margin:14px 0 0 0;">Plus — ₹199/mo &nbsp;·&nbsp; Pro — ₹499/mo &nbsp;·&nbsp; Cancel anytime</p>
+    </div>`;
+  wrap.addEventListener("click", e => { if (e.target === wrap) wrap.remove(); });
+  document.body.appendChild(wrap);
+}
+
 function _showProGate(featureName) {
   const ex = document.getElementById("_dyn-pro-gate");
   if (ex) ex.remove();
@@ -145,12 +174,13 @@ function _showProGate(featureName) {
    🆕 SET MODE — fast / deep / research (mutually exclusive)
 -------------------------------------------------- */
 window.setMode = (mode, btn) => {
-  // Pro-only gate for DeepThink
-  if (mode === 'deep') {
+  // Plan gates
+  if (mode === 'research' || mode === 'deep') {
     const supa = window.appState?.supabaseUser;
     if (!supa) { window.openAuthModal?.('login'); return; }
     const plan = (supa.plan || 'free').toLowerCase();
-    if (plan !== 'pro') { _showProGate('DeepThink mode'); return; }
+    if (mode === 'research' && plan === 'free') { _showPlusGate('Research mode'); return; }
+    if (mode === 'deep' && plan !== 'pro')      { _showProGate('DeepThink mode'); return; }
   }
 
   // Reset thinking state
