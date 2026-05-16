@@ -18,49 +18,55 @@ const ZapIcon = ({ size = 16 }: { size?: number }) => (
   </svg>
 );
 
-type Plan = "free" | "plus" | "pro";
-
 const features: {
   label: string;
-  category?: string;
   free: string | boolean | null;
   plus: string | boolean | null;
   pro: string | boolean | null;
+  proOnly?: boolean;
 }[] = [
-  { label: "Messages per day", free: "10 / day", plus: "100 / day", pro: "300 / day" },
-  { label: "Fast Mode (Gemini Flash)", free: true, plus: true, pro: true },
-  { label: "DeepThink Mode", free: null, plus: null, pro: true },
-  { label: "Research Mode", free: null, plus: true, pro: true },
-  { label: "Web Search", free: null, plus: true, pro: true },
-  { label: "Voice Input", free: true, plus: true, pro: true },
-  { label: "Text-to-Speech", free: null, plus: true, pro: true },
-  { label: "PDF & File Uploads", free: null, plus: "10 / month", pro: "Unlimited" },
-  { label: "Export (PDF & Word)", free: null, plus: true, pro: true },
-  { label: "Export (PowerPoint)", free: null, plus: null, pro: true },
-  { label: "AI Memory", free: null, plus: true, pro: true },
-  { label: "Quick Study Circle – Full Guide", free: null, plus: true, pro: true },
-  { label: "Quick Study Circle – Advanced Only", free: null, plus: null, pro: true },
-  { label: "Quiz Me", free: null, plus: true, pro: true },
-  { label: "Flashcards", free: null, plus: null, pro: true },
-  { label: "Radio Mode", free: null, plus: null, pro: true },
-  { label: "Mindmaps & Flowcharts", free: null, plus: true, pro: true },
-  { label: "All 8 Citation Formats", free: null, plus: true, pro: true },
-  { label: "Find Research Gaps", free: null, plus: true, pro: true },
-  { label: "Image Generation", free: null, plus: "25 / month", pro: "100 / month" },
-  { label: "Video Generation", free: null, plus: "5 / month", pro: "25 / month" },
-  { label: "Priority Response Speed", free: null, plus: null, pro: true },
-  { label: "Early Access to New Features", free: null, plus: null, pro: true },
+  { label: "Messages per day",               free: "10 / day",       plus: "100 / day",      pro: "300 / day" },
+  { label: "Fast Mode (Gemini Flash)",        free: true,             plus: true,             pro: true },
+  { label: "Research Mode",                   free: null,             plus: true,             pro: true },
+  { label: "DeepThink Mode",                  free: null,             plus: null,             pro: true,  proOnly: true },
+  { label: "Web Search",                      free: null,             plus: true,             pro: true },
+  { label: "Voice Input",                     free: true,             plus: true,             pro: true },
+  { label: "Text-to-Speech",                  free: null,             plus: true,             pro: true },
+  { label: "PDF & File Uploads",              free: null,             plus: "15 / month",     pro: "Unlimited" },
+  { label: "Export (PDF & Word)",             free: null,             plus: true,             pro: true },
+  { label: "Export (PowerPoint)",             free: null,             plus: null,             pro: true },
+  { label: "AI Memory",                       free: null,             plus: true,             pro: true },
+  { label: "Study Circle – Full Guide",       free: null,             plus: true,             pro: true },
+  { label: "Study Circle – Advanced",         free: null,             plus: null,             pro: true },
+  { label: "Quiz Me",                         free: null,             plus: true,             pro: true },
+  { label: "Flashcards",                      free: null,             plus: null,             pro: true },
+  { label: "Radio Mode",                      free: null,             plus: null,             pro: true },
+  { label: "Mindmaps & Flowcharts",           free: null,             plus: true,             pro: true },
+  { label: "All 8 Citation Formats",          free: null,             plus: true,             pro: true },
+  { label: "AI Detector / Plagiarism",        free: null,             plus: true,             pro: true },
+  { label: "Find Research Gaps",              free: null,             plus: null,             pro: true,  proOnly: true },
+  { label: "Deep Research Agent",             free: null,             plus: null,             pro: true,  proOnly: true },
+  { label: "Image Generation",               free: null,             plus: "25 / month",     pro: "100 / month" },
+  { label: "Video Generation",               free: null,             plus: "15 / month",     pro: "25 / month" },
+  { label: "Priority Response Speed",         free: null,             plus: null,             pro: true },
+  { label: "Early Access to New Features",    free: null,             plus: null,             pro: true },
 ];
 
 const competitors = [
-  { name: "ChatGPT Plus", logo: "🤖", price: "₹1,650/mo", highlight: false },
-  { name: "Claude Pro", logo: "🔮", price: "₹1,700/mo", highlight: false },
+  { name: "ChatGPT Plus",    logo: "🤖", price: "₹1,650/mo", highlight: false },
+  { name: "Claude Pro",      logo: "🔮", price: "₹1,700/mo", highlight: false },
   { name: "Gemini Advanced", logo: "💎", price: "₹1,950/mo", highlight: false },
-  { name: "Dynamo AI Pro", logo: "⚡", price: "₹999/mo", highlight: true },
+  { name: "Dynamo AI Pro",   logo: "⚡", price: "₹999/mo",   highlight: true  },
 ];
 
-function CellValue({ value }: { value: string | boolean | null }) {
+function CellValue({ value, proOnly }: { value: string | boolean | null; proOnly?: boolean }) {
   if (value === null) return <XIcon />;
+  if (value === true && proOnly) return (
+    <span className="inline-flex items-center gap-1">
+      <CheckIcon color="text-purple-500" />
+      <span className="text-[10px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded">PRO</span>
+    </span>
+  );
   if (value === true) return <CheckIcon />;
   return <span className="font-semibold text-xs text-gray-800 dark:text-gray-200">{value}</span>;
 }
@@ -69,14 +75,14 @@ export default function PricingPage() {
   const [dark, setDark] = useState(false);
   const [annual, setAnnual] = useState(false);
 
-  const plusPrice = annual ? "₹319" : "₹399";
-  const proPrice = annual ? "₹799" : "₹999";
+  const plusPrice  = annual ? "₹319" : "₹399";
+  const proPrice   = annual ? "₹799" : "₹999";
   const plusPeriod = annual ? "/mo · billed ₹3,829/yr" : "/mo";
-  const proPeriod = annual ? "/mo · billed ₹9,589/yr" : "/mo";
+  const proPeriod  = annual ? "/mo · billed ₹9,589/yr" : "/mo";
 
   return (
     <div className={dark ? "dark" : ""}>
-      <div className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans" style={{fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, sans-serif'}}>
+      <div className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans" style={{fontFamily:'Inter,ui-sans-serif,system-ui,-apple-system,sans-serif'}}>
 
         {/* Header */}
         <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50">
@@ -109,8 +115,7 @@ export default function PricingPage() {
           {/* Hero */}
           <section className="text-center mb-10">
             <div className="inline-flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400 text-xs font-semibold px-3 py-1 rounded-full mb-4">
-              <ZapIcon size={12} />
-              Made in India · Built for thinkers
+              <ZapIcon size={12} /> Made in India · Built for thinkers
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white leading-tight">
               Plans built for students, researchers<br className="hidden md:block" /> & professionals
@@ -118,8 +123,6 @@ export default function PricingPage() {
             <p className="mt-3 text-gray-500 dark:text-gray-400 max-w-xl mx-auto text-base">
               Start free. Upgrade when you're ready for more power.
             </p>
-
-            {/* Annual toggle */}
             <div className="flex items-center justify-center gap-3 mt-6">
               <span className={`text-sm font-medium ${!annual ? "text-gray-900 dark:text-white" : "text-gray-400"}`}>Monthly</span>
               <button
@@ -147,13 +150,10 @@ export default function PricingPage() {
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">No credit card required</div>
               </div>
-
-              {/* Who it's for */}
               <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 mb-5">
                 <div className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Who it's for</div>
                 <div className="text-sm text-gray-700 dark:text-gray-300">Curious users exploring AI for the first time — try it, no commitment.</div>
               </div>
-
               <ul className="space-y-2.5 text-sm text-gray-600 dark:text-gray-300 flex-1">
                 <li className="flex items-center gap-2.5"><CheckIcon /><span><strong className="text-gray-800 dark:text-white">10 messages</strong> / day</span></li>
                 <li className="flex items-center gap-2.5"><CheckIcon />Fast Mode (Gemini Flash)</li>
@@ -163,8 +163,8 @@ export default function PricingPage() {
                 <li className="flex items-center gap-2.5 text-gray-400"><XIcon /><span>File / PDF Uploads</span></li>
                 <li className="flex items-center gap-2.5 text-gray-400"><XIcon /><span>Image or Video Generation</span></li>
                 <li className="flex items-center gap-2.5 text-gray-400"><XIcon /><span>AI Memory</span></li>
+                <li className="flex items-center gap-2.5 text-gray-400"><XIcon /><span>AI Detector / Plagiarism</span></li>
               </ul>
-
               <div className="mt-6">
                 <div className="w-full text-center py-2.5 text-sm font-medium text-gray-400 border border-gray-200 dark:border-gray-600 rounded-xl">Current Plan</div>
               </div>
@@ -183,29 +183,28 @@ export default function PricingPage() {
                 </div>
                 <div className="text-sm text-gray-400 mt-1">Full AI suite — no DeepThink</div>
               </div>
-
-              {/* Who it's for */}
               <div className="bg-white/10 rounded-xl p-3 mb-5">
                 <div className="text-xs font-bold text-yellow-400 uppercase tracking-wide mb-1">Who it's for</div>
                 <div className="text-sm text-gray-200">Students, researchers & lifelong learners who need Research Mode, citations, study tools, and PDF analysis.</div>
               </div>
-
               <ul className="space-y-2.5 text-sm text-gray-200 flex-1">
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" /><span><strong className="text-white">100 messages</strong> / day</span></li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />Fast Mode + Research Mode</li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />Web Search</li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />Voice + Text-to-Speech</li>
-                <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />PDF & File Uploads <span className="text-gray-400 text-xs">(10/mo)</span></li>
+                <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />PDF & File Uploads <span className="text-gray-400 text-xs">(15/mo)</span></li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />PDF + Word Export</li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />AI Memory</li>
-                <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />Quick Study Circle – Full Guide</li>
+                <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />Study Circle – Full Guide</li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />Quiz Me + Mindmaps</li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />All 8 Citation Formats</li>
+                <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />AI Detector / Plagiarism Checker</li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />Image Generation <span className="text-gray-400 text-xs">(25/mo)</span></li>
-                <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />Video Generation <span className="text-gray-400 text-xs">(5/mo)</span></li>
+                <li className="flex items-center gap-2.5"><CheckIcon color="text-yellow-400" />Video Generation <span className="text-gray-400 text-xs">(15/mo)</span></li>
                 <li className="flex items-center gap-2.5 text-gray-500"><XIcon /><span>DeepThink Mode</span></li>
+                <li className="flex items-center gap-2.5 text-gray-500"><XIcon /><span>Find Research Gaps</span></li>
+                <li className="flex items-center gap-2.5 text-gray-500"><XIcon /><span>Deep Research Agent</span></li>
               </ul>
-
               <div className="mt-6">
                 <button className="w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-black font-bold rounded-xl transition active:scale-95 text-sm">
                   Upgrade to Plus
@@ -228,28 +227,39 @@ export default function PricingPage() {
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Everything — including DeepThink</div>
               </div>
-
-              {/* Who it's for */}
               <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 mb-5 border border-purple-100 dark:border-purple-800">
                 <div className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wide mb-1">Who it's for</div>
                 <div className="text-sm text-gray-700 dark:text-gray-300">Professionals, power researchers & founders who need DeepThink, advanced study modes, bulk media generation & priority speed.</div>
               </div>
-
               <ul className="space-y-2.5 text-sm text-gray-600 dark:text-gray-300 flex-1">
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" /><span><strong className="text-gray-800 dark:text-white">300 messages</strong> / day</span></li>
-                <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" /><span className="font-semibold text-gray-800 dark:text-white">DeepThink Mode</span> <span className="text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded font-semibold ml-1">PRO ONLY</span></li>
+                <li className="flex items-center gap-2.5">
+                  <CheckIcon color="text-purple-500" />
+                  <span className="font-semibold text-gray-800 dark:text-white">DeepThink Mode</span>
+                  <span className="text-[10px] bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded font-bold ml-1">PRO ONLY</span>
+                </li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" />Fast Mode + Research Mode</li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" />Unlimited PDF & File Uploads</li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" />PDF + Word + PowerPoint Export</li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" />AI Memory</li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" />Study Circle – Full Guide + Advanced</li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" />Flashcards + Radio Mode</li>
-                <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" />Image Generation <span className="text-gray-400 text-xs">(100/mo)</span></li>
-                <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" />Video Generation <span className="text-gray-400 text-xs">(25/mo)</span></li>
+                <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" />AI Detector / Plagiarism Checker</li>
+                <li className="flex items-center gap-2.5">
+                  <CheckIcon color="text-purple-500" />
+                  <span>Find Research Gaps</span>
+                  <span className="text-[10px] bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded font-bold ml-1">PRO ONLY</span>
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <CheckIcon color="text-purple-500" />
+                  <span>Deep Research Agent</span>
+                  <span className="text-[10px] bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded font-bold ml-1">PRO ONLY</span>
+                </li>
+                <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" />Image Generation <span className="text-gray-400 text-xs ml-1">(100/mo)</span></li>
+                <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" />Video Generation <span className="text-gray-400 text-xs ml-1">(25/mo)</span></li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" />Priority Response Speed</li>
                 <li className="flex items-center gap-2.5"><CheckIcon color="text-purple-500" />Early Access to New Features</li>
               </ul>
-
               <div className="mt-6">
                 <button className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition active:scale-95 text-sm">
                   Upgrade to Pro
@@ -277,8 +287,8 @@ export default function PricingPage() {
                 {features.map((f, i) => (
                   <tr key={i} className={`border-t border-gray-50 dark:border-gray-700/60 ${i % 2 === 0 ? "" : "bg-gray-50/50 dark:bg-gray-700/20"}`}>
                     <td className="py-3 text-gray-700 dark:text-gray-300 font-medium">{f.label}</td>
-                    <td className="py-3 text-center flex justify-center">
-                      <CellValue value={f.free} />
+                    <td className="py-3 text-center">
+                      <div className="flex justify-center"><CellValue value={f.free} /></div>
                     </td>
                     <td className="py-3 text-center">
                       <div className="flex justify-center">
@@ -287,7 +297,7 @@ export default function PricingPage() {
                     </td>
                     <td className="py-3 text-center">
                       <div className="flex justify-center">
-                        {f.pro === true ? <CheckIcon color="text-purple-500" /> : <CellValue value={f.pro} />}
+                        {f.pro === true ? <CellValue value={true} proOnly={f.proOnly} /> : <CellValue value={f.pro} />}
                       </div>
                     </td>
                   </tr>
@@ -300,7 +310,6 @@ export default function PricingPage() {
           <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-10">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Why Dynamo AI?</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">World-class AI — at a fraction of what global tools charge.</p>
-
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {competitors.map((c) => (
                 <div key={c.name} className={`rounded-xl p-4 text-center border-2 transition-all ${c.highlight ? "border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 shadow-lg scale-105" : "border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30"}`}>
@@ -312,7 +321,6 @@ export default function PricingPage() {
                 </div>
               ))}
             </div>
-
             <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
               Dynamo AI Pro is <strong className="text-gray-800 dark:text-white">40% cheaper than ChatGPT Plus</strong> — with India-first features no global tool offers.
             </p>
@@ -327,9 +335,12 @@ export default function PricingPage() {
             <p className="text-gray-400 text-sm mb-6 max-w-md mx-auto">
               No commitment. No credit card for Free plan. Cancel Plus or Pro anytime — your data stays safe.
             </p>
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-3 flex-wrap">
               <button className="px-6 py-3 bg-yellow-400 hover:bg-yellow-300 text-black font-bold rounded-xl transition text-sm">
                 Get Plus — ₹399/mo
+              </button>
+              <button className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition text-sm">
+                Get Pro — ₹999/mo
               </button>
               <button className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition text-sm">
                 Try Free First
