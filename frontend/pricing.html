@@ -4,273 +4,522 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Dynamo AI — Pricing</title>
-  <meta name="description" content="Stop overpaying for AI. Get Dynamo AI's full Research OS (Chat, PDF, Vision, Voice) for just ₹99/mo. Save 90% compared to ChatGPT Plus. Made for India 🇮🇳.">
-  <meta name="keywords" content="cheapest AI tool India, AI for 99 rupees, affordable AI research tool, ChatGPT alternative India, student AI plan, best free AI tool, Dynamo AI pricing">
+  <meta name="description" content="Plans built for students, researchers & professionals. Start free, upgrade to Plus (₹399/mo) or Pro (₹999/mo). DeepThink, Research Mode, AI Detector and more.">
+  <meta name="keywords" content="Dynamo AI pricing, AI for students India, research AI tool, affordable AI India, DeepThink mode, AI text detector">
   <meta name="author" content="Dynamo AI">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://dynamoai.in/pricing.html">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://dynamoai.in/pricing.html">
-  <meta property="og:title" content="Why pay ₹2,000? Get Dynamo AI for ₹99/mo ⚡️">
-  <meta property="og:description" content="Unlock Gemini 2.0 Flash, PDF Research, and Image Analysis for the price of a coffee. The most affordable AI suite in India.">
+  <meta property="og:title" content="Dynamo AI Pricing — Plans for students, researchers & professionals">
+  <meta property="og:description" content="Start free. Upgrade to Plus (₹399/mo) or Pro (₹999/mo) for Research Mode, DeepThink, AI Detector & more.">
   <meta property="og:image" content="https://dynamoai.in/dynamo_ai_logo.png">
 
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://dynamoai.in/pricing.html">
-  <meta property="twitter:title" content="Dynamo AI: Premium AI features. Student-friendly price.">
-  <meta property="twitter:description" content="Switch to the #1 Affordable Research OS. Unlimited Chat, Vision, and Docs for just ₹99/mo.">
+  <meta property="twitter:title" content="Dynamo AI Pricing — Built for India's thinkers">
+  <meta property="twitter:description" content="Start free. Upgrade to Plus (₹399/mo) or Pro (₹999/mo).">
   <meta property="twitter:image" content="https://dynamoai.in/dynamo_ai_logo.png">
   <link rel="icon" type="image/png" href="favicon.png" />
+
   <!-- PostHog Analytics -->
   <script>
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||(window.posthog=[]));
-    posthog.init('phc_tBkD3KDnUgpKGMjSxuzSFmtGFjCT6Hv9FScQ5diFLg83', {
-        api_host: 'https://us.i.posthog.com',
-        person_profiles: 'always'
-    });
+    posthog.init('phc_tBkD3KDnUgpKGMjSxuzSFmtGFjCT6Hv9FScQ5diFLg83', { api_host: 'https://us.i.posthog.com', person_profiles: 'always' });
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-GHG5R9T5FN"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-GHG5R9T5FN');
+    gtag('js', new Date()); gtag('config', 'G-GHG5R9T5FN');
   </script>
   <script>
     tailwind.config = {
-        darkMode: 'class',
-        theme: {
-            extend: {
-                colors: { gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' } }
-            }
-        }
+      darkMode: 'class',
+      theme: { extend: { colors: { gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' } } } }
     }
   </script>
   <script>
     if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
+      document.documentElement.classList.add('dark');
+    } else { document.documentElement.classList.remove('dark'); }
+  </script>
+  <script>
+    window.SUPABASE_URL_PUBLIC = "https://jbulnpcqxtbjobrclsqq.supabase.co";
+    window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidWxucGNxeHRiam9icmNsc3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyNTM2NDgsImV4cCI6MjA4MDgyOTY0OH0.waH5th8HYB08NWWtN99SYt9G5AViQbY1DWOU3Lb5YWw";
   </script>
 
   <style>
     body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
     .animate-fade-in-up { animation: fadeInUp 0.4s ease-out forwards; opacity: 0; transform: translateY(10px); }
     @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    .pro-badge { display:inline-flex;align-items:center;font-size:9px;font-weight:800;background:#ede9fe;color:#7c3aed;padding:1px 5px;border-radius:4px;margin-left:6px;letter-spacing:.03em; }
+    .dark .pro-badge { background:#4c1d95;color:#c4b5fd; }
+    .check-y { color:#eab308; } .check-p { color:#9333ea; } .check-g { color:#22c55e; }
+    .x-icon { color:#d1d5db; }
+    .feat-row:nth-child(even) { background:rgba(249,250,251,.6); }
+    .dark .feat-row:nth-child(even) { background:rgba(31,41,55,.3); }
+    .toggle-track { position:relative;display:inline-flex;width:44px;height:24px;border-radius:12px;cursor:pointer;transition:background .2s; }
+    .toggle-thumb { position:absolute;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .2s; }
   </style>
-  
-  <script>
-    window.SUPABASE_URL_PUBLIC = "https://jbulnpcqxtbjobrclsqq.supabase.co"; 
-    window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidWxucGNxeHRiam9icmNsc3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyNTM2NDgsImV4cCI6MjA4MDgyOTY0OH0.waH5th8HYB08NWWtN99SYt9G5AViQbY1DWOU3Lb5YWw";
-  </script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-200">
 
+  <!-- Header -->
   <header class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
-        <div class="flex items-center gap-3">
-          <a href="https://app.dynamoai.in/" class="flex items-center gap-3">
-            <div class="w-9 h-9 bg-yellow-400 rounded-lg flex items-center justify-center shadow-lg">
-              <i data-lucide="zap" class="text-black fill-current"></i>
-            </div>
-            <span class="text-lg font-semibold text-gray-900 dark:text-white">Dynamo AI</span>
-          </a>
-        </div>
-
+        <a href="https://app.dynamoai.in/" class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-yellow-400 rounded-lg flex items-center justify-center shadow-lg">
+            <i data-lucide="zap" class="w-5 h-5 text-black fill-current"></i>
+          </div>
+          <span class="text-lg font-semibold text-gray-900 dark:text-white">Dynamo AI</span>
+        </a>
         <nav class="hidden md:flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
           <a href="https://app.dynamoai.in/features.html" class="hover:text-gray-900 dark:hover:text-white transition-colors">Features</a>
           <a href="https://app.dynamoai.in/" class="hover:text-gray-900 dark:hover:text-white transition-colors">Home</a>
-          <a href="https://app.dynamoai.in/pricing.html" class="px-3 py-1 bg-yellow-400 text-black rounded-full shadow-sm font-medium">Pricing</a>
+          <a href="/pricing.html" class="px-3 py-1 bg-yellow-400 text-black rounded-full font-medium text-sm">Pricing</a>
         </nav>
-
-        <div class="flex items-center gap-4">
-            <button id="theme-toggle" class="p-2 text-gray-500 dark:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-                <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
-                <i data-lucide="sun" class="w-5 h-5 block dark:hidden"></i>
-            </button>
-
-            <div id="auth-buttons-container" class="flex gap-2">
-                <button id="open-login" class="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition">Log in</button>
-                <button id="open-signup" class="px-4 py-2 text-sm font-bold bg-black dark:bg-yellow-400 text-white dark:text-black rounded-full hover:bg-gray-800 dark:hover:bg-yellow-300 transition shadow-sm hover:shadow-md">Sign up</button>
-            </div>
-            <button class="logout-trigger hidden text-sm font-medium text-red-600 hover:text-red-700 px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition">Log out</button>
+        <div class="flex items-center gap-3">
+          <button id="theme-toggle" class="p-2 text-gray-500 dark:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+            <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+            <i data-lucide="sun" class="w-5 h-5 block dark:hidden"></i>
+          </button>
+          <div id="auth-buttons-container" class="flex gap-2">
+            <button id="open-login" class="text-sm font-medium text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition">Log in</button>
+            <button id="open-signup" class="px-4 py-2 text-sm font-bold bg-black dark:bg-yellow-400 text-white dark:text-black rounded-full hover:bg-gray-800 dark:hover:bg-yellow-300 transition shadow-sm">Sign up</button>
+          </div>
+          <button class="logout-trigger hidden text-sm font-medium text-red-600 hover:text-red-700 px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition">Log out</button>
         </div>
       </div>
     </div>
   </header>
 
+  <!-- Toast -->
   <div id="payment-toast" class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-full text-sm font-semibold shadow-lg transition-all duration-300"></div>
 
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- Hero -->
     <section class="text-center mb-10">
-      <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">Plans built for creators & researchers</h1>
-      <p class="mt-3 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Chat, analyze documents, generate images and videos — start for free or upgrade for more power.</p>
+      <div class="inline-flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400 text-xs font-semibold px-3 py-1 rounded-full mb-4">
+        <i data-lucide="zap" class="w-3 h-3 fill-current"></i>
+        Made in India · Built for thinkers
+      </div>
+      <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white leading-tight">
+        Plans built for students, researchers<br class="hidden md:block"> & professionals
+      </h1>
+      <p class="mt-3 text-gray-500 dark:text-gray-400 max-w-xl mx-auto">Start free. Upgrade when you're ready for more power.</p>
+
+      <!-- Annual toggle -->
+      <div class="flex items-center justify-center gap-3 mt-6">
+        <span id="lbl-monthly" class="text-sm font-medium text-gray-900 dark:text-white">Monthly</span>
+        <label class="toggle-track" id="billing-toggle" style="background:#d1d5db;" onclick="toggleBilling()">
+          <span class="toggle-thumb" id="billing-thumb" style="left:3px;"></span>
+        </label>
+        <span id="lbl-annual" class="text-sm font-medium text-gray-400">
+          Annual <span class="text-green-600 dark:text-green-400 font-bold text-xs ml-1">Save 20%</span>
+        </span>
+      </div>
     </section>
 
+    <!-- Plan Cards -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch mb-10">
 
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col">
-        <div class="mb-4">
+      <!-- Free -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col">
+        <div class="mb-5">
           <div class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Free</div>
-          <div class="text-3xl font-extrabold text-gray-900 dark:text-white">₹0</div>
-          <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Perfect for casual users</div>
+          <div class="flex items-end gap-1">
+            <span class="text-4xl font-extrabold text-gray-900 dark:text-white">₹0</span>
+            <span class="text-sm text-gray-400 mb-1">/forever</span>
+          </div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">No credit card required</div>
         </div>
-        <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300 flex-1">
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 shrink-0"></i> 10 chats / day</li>
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 shrink-0"></i> Standard Web Search</li>
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 shrink-0"></i> Basic Voice Mode</li>
-          <li class="flex items-center gap-2"><i data-lucide="x" class="w-4 h-4 text-gray-300 shrink-0"></i> <span class="text-gray-400">Image Generation</span></li>
-          <li class="flex items-center gap-2"><i data-lucide="x" class="w-4 h-4 text-gray-300 shrink-0"></i> <span class="text-gray-400">Video Generation</span></li>
+        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 mb-5">
+          <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Who it's for</div>
+          <div class="text-sm text-gray-700 dark:text-gray-300">Curious users exploring AI for the first time — try it, no commitment.</div>
+        </div>
+        <ul class="space-y-2.5 text-sm text-gray-600 dark:text-gray-300 flex-1">
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-g shrink-0"></i><span><strong class="text-gray-800 dark:text-white">10 messages</strong> / day</span></li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-g shrink-0"></i>Fast Mode (Gemini Flash)</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-g shrink-0"></i>Basic Voice Input</li>
+          <li class="flex items-center gap-2.5 text-gray-400"><i data-lucide="x" class="w-4 h-4 x-icon shrink-0"></i>Research Mode</li>
+          <li class="flex items-center gap-2.5 text-gray-400"><i data-lucide="x" class="w-4 h-4 x-icon shrink-0"></i>DeepThink</li>
+          <li class="flex items-center gap-2.5 text-gray-400"><i data-lucide="x" class="w-4 h-4 x-icon shrink-0"></i>File / PDF Uploads</li>
+          <li class="flex items-center gap-2.5 text-gray-400"><i data-lucide="x" class="w-4 h-4 x-icon shrink-0"></i>Image or Video Generation</li>
+          <li class="flex items-center gap-2.5 text-gray-400"><i data-lucide="x" class="w-4 h-4 x-icon shrink-0"></i>AI Memory</li>
+          <li class="flex items-center gap-2.5 text-gray-400"><i data-lucide="x" class="w-4 h-4 x-icon shrink-0"></i>AI Detector / Plagiarism</li>
         </ul>
         <div class="mt-6">
-          <div class="w-full text-center py-2.5 text-sm font-medium text-gray-400 border border-gray-200 dark:border-gray-600 rounded-lg">Current Plan</div>
+          <div class="w-full text-center py-2.5 text-sm font-medium text-gray-400 border border-gray-200 dark:border-gray-600 rounded-xl">Current Plan</div>
         </div>
       </div>
 
-      <div class="bg-black text-white rounded-xl shadow-xl border-2 border-yellow-400 p-6 flex flex-col relative">
-        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Most Popular</div>
-        <div class="mb-4">
+      <!-- Plus — Featured -->
+      <div class="bg-black text-white rounded-2xl shadow-2xl border-2 border-yellow-400 p-6 flex flex-col relative">
+        <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wide shadow">Most Popular</div>
+        <div class="mb-5">
           <div class="text-xs font-bold uppercase tracking-widest text-yellow-400 mb-2">Plus</div>
-          <div class="text-3xl font-extrabold">₹199<span class="text-lg font-normal text-gray-400">/mo</span></div>
-          <div class="text-sm text-gray-400 mt-1">For power users & students</div>
+          <div class="flex items-end gap-1">
+            <span id="plus-price" class="text-4xl font-extrabold">₹399</span>
+            <span id="plus-period" class="text-sm text-gray-400 mb-1">/mo</span>
+          </div>
+          <div class="text-sm text-gray-400 mt-1">Full AI suite — no DeepThink</div>
         </div>
-        <ul class="space-y-2 text-sm text-gray-200 flex-1">
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400 shrink-0"></i> 100 chats / day</li>
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400 shrink-0"></i> Premium AI Models</li>
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400 shrink-0"></i> PDF Reports & Exports</li>
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400 shrink-0"></i> 25 images / month</li>
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-yellow-400 shrink-0"></i> 5 videos / month</li>
+        <div class="bg-white/10 rounded-xl p-3 mb-5">
+          <div class="text-xs font-bold text-yellow-400 uppercase tracking-wide mb-1">Who it's for</div>
+          <div class="text-sm text-gray-200">Students, researchers & lifelong learners who need Research Mode, citations, study tools, and PDF analysis.</div>
+        </div>
+        <ul class="space-y-2.5 text-sm text-gray-200 flex-1">
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i><span><strong class="text-white">100 messages</strong> / day</span></li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>Fast Mode + Research Mode</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>Web Search</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>Voice + Text-to-Speech</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>PDF & File Uploads <span class="text-gray-400 text-xs ml-1">(15/mo)</span></li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>PDF + Word Export</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>AI Memory</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>Study Circle – Full Guide</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>Quiz Me + Mindmaps</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>All 8 Citation Formats</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>AI Detector / Plagiarism Checker</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>Image Generation <span class="text-gray-400 text-xs ml-1">(25/mo)</span></li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>Video Generation <span class="text-gray-400 text-xs ml-1">(15/mo)</span></li>
+          <li class="flex items-center gap-2.5 text-gray-500"><i data-lucide="x" class="w-4 h-4 shrink-0" style="color:#4b5563;"></i>DeepThink Mode</li>
+          <li class="flex items-center gap-2.5 text-gray-500"><i data-lucide="x" class="w-4 h-4 shrink-0" style="color:#4b5563;"></i>Find Research Gaps</li>
+          <li class="flex items-center gap-2.5 text-gray-500"><i data-lucide="x" class="w-4 h-4 shrink-0" style="color:#4b5563;"></i>Deep Research Agent</li>
         </ul>
         <div class="mt-6">
-          <button id="btn-upgrade-plus" class="w-full py-2.5 bg-yellow-400 hover:bg-yellow-300 text-black font-bold rounded-lg transition active:scale-95">Upgrade to Plus</button>
+          <button id="btn-upgrade-plus" class="w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-black font-bold rounded-xl transition active:scale-95 text-sm">
+            Upgrade to Plus
+          </button>
+          <p class="text-center text-xs text-gray-500 mt-2">Cancel anytime · Instant access</p>
         </div>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col">
-        <div class="mb-4">
-          <div class="text-xs font-bold uppercase tracking-widest text-purple-500 mb-2">Pro</div>
-          <div class="text-3xl font-extrabold text-gray-900 dark:text-white">₹499<span class="text-lg font-normal text-gray-400">/mo</span></div>
-          <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">For creators & professionals</div>
+      <!-- Pro -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-100 dark:bg-purple-900/20 rounded-full -translate-x-4 -translate-y-16 pointer-events-none"></div>
+        <div class="mb-5 relative">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="text-xs font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400">Pro</div>
+            <span class="text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full font-semibold">All Features</span>
+          </div>
+          <div class="flex items-end gap-1">
+            <span id="pro-price" class="text-4xl font-extrabold text-gray-900 dark:text-white">₹999</span>
+            <span id="pro-period" class="text-sm text-gray-400 mb-1">/mo</span>
+          </div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Everything — including DeepThink</div>
         </div>
-        <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300 flex-1">
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-500 shrink-0"></i> 300 chats / day</li>
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-500 shrink-0"></i> All Premium Models</li>
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-500 shrink-0"></i> PDF Reports & Exports</li>
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-500 shrink-0"></i> 100 images / month</li>
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-500 shrink-0"></i> 25 videos / month</li>
+        <div class="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 mb-5 border border-purple-100 dark:border-purple-800">
+          <div class="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wide mb-1">Who it's for</div>
+          <div class="text-sm text-gray-700 dark:text-gray-300">Professionals, power researchers & founders who need DeepThink, advanced study modes, bulk media generation & priority speed.</div>
+        </div>
+        <ul class="space-y-2.5 text-sm text-gray-600 dark:text-gray-300 flex-1">
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i><span><strong class="text-gray-800 dark:text-white">300 messages</strong> / day</span></li>
+          <li class="flex items-center gap-2.5 font-semibold text-gray-800 dark:text-white">
+            <i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>
+            DeepThink Mode <span class="pro-badge">PRO ONLY</span>
+          </li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Fast Mode + Research Mode</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Unlimited PDF & File Uploads</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>PDF + Word + PowerPoint Export</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>AI Memory</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Study Circle – Full Guide + Advanced</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Flashcards + Radio Mode</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>AI Detector / Plagiarism Checker</li>
+          <li class="flex items-center gap-2.5">
+            <i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Find Research Gaps <span class="pro-badge">PRO ONLY</span>
+          </li>
+          <li class="flex items-center gap-2.5">
+            <i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Deep Research Agent <span class="pro-badge">PRO ONLY</span>
+          </li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Image Generation <span class="text-gray-400 text-xs ml-1">(100/mo)</span></li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Video Generation <span class="text-gray-400 text-xs ml-1">(25/mo)</span></li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Priority Response Speed</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Early Access to New Features</li>
         </ul>
         <div class="mt-6">
-          <button id="btn-upgrade-pro" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition active:scale-95">Upgrade to Pro</button>
+          <button id="btn-upgrade-pro" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition active:scale-95 text-sm">
+            Upgrade to Pro
+          </button>
+          <p class="text-center text-xs text-gray-400 mt-2">Cancel anytime · Priority support</p>
         </div>
       </div>
 
     </section>
 
-    <section class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Full feature comparison</h2>
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="text-left text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
-              <th class="pb-3">Feature</th>
-              <th class="pb-3 text-center">Free</th>
-              <th class="pb-3 text-center text-yellow-600 dark:text-yellow-400">Plus</th>
-              <th class="pb-3 text-center text-purple-600">Pro</th>
-            </tr>
-          </thead>
-          <tbody class="text-gray-700 dark:text-gray-300">
-            <tr class="border-t border-gray-100 dark:border-gray-700">
-              <td class="py-3">Chat messages / day</td>
-              <td class="py-3 text-center">10</td>
-              <td class="py-3 text-center font-semibold">100</td>
-              <td class="py-3 text-center font-semibold">300</td>
-            </tr>
-            <tr class="border-t border-gray-100 dark:border-gray-700">
-              <td class="py-3">Image generation / month</td>
-              <td class="py-3 text-center text-gray-400">—</td>
-              <td class="py-3 text-center font-semibold">25</td>
-              <td class="py-3 text-center font-semibold">100</td>
-            </tr>
-            <tr class="border-t border-gray-100 dark:border-gray-700">
-              <td class="py-3">Video generation / month</td>
-              <td class="py-3 text-center text-gray-400">—</td>
-              <td class="py-3 text-center font-semibold">5</td>
-              <td class="py-3 text-center font-semibold">25</td>
-            </tr>
-            <tr class="border-t border-gray-100 dark:border-gray-700">
-              <td class="py-3">PDF Report Export</td>
-              <td class="py-3 text-center text-gray-400">—</td>
-              <td class="py-3 text-center text-green-600 dark:text-green-400">✔</td>
-              <td class="py-3 text-center text-green-600 dark:text-green-400">✔</td>
-            </tr>
-            <tr class="border-t border-gray-100 dark:border-gray-700">
-              <td class="py-3">Deep Dive Search</td>
-              <td class="py-3 text-center text-gray-400">—</td>
-              <td class="py-3 text-center text-green-600 dark:text-green-400">✔</td>
-              <td class="py-3 text-center text-green-600 dark:text-green-400">✔</td>
-            </tr>
-            <tr class="border-t border-gray-100 dark:border-gray-700">
-              <td class="py-3">Vision & File Uploads</td>
-              <td class="py-3 text-center text-gray-400">—</td>
-              <td class="py-3 text-center text-green-600 dark:text-green-400">✔</td>
-              <td class="py-3 text-center text-green-600 dark:text-green-400">✔</td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- Full Feature Comparison Table -->
+    <section class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-10 overflow-x-auto">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Full feature comparison</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Every feature, clearly compared — no hidden limits.</p>
+      <table class="w-full text-sm min-w-[500px]">
+        <thead>
+          <tr class="text-left border-b-2 border-gray-100 dark:border-gray-700">
+            <th class="pb-3 text-gray-500 dark:text-gray-400 font-semibold w-1/2">Feature</th>
+            <th class="pb-3 text-center text-gray-500 dark:text-gray-400 font-semibold">Free</th>
+            <th class="pb-3 text-center text-yellow-600 dark:text-yellow-400 font-bold">Plus ₹399</th>
+            <th class="pb-3 text-center text-purple-600 dark:text-purple-400 font-bold">Pro ₹999</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- rows: [label, free, plus, pro, proOnly?] -->
+          <!-- value: true=check, null=cross, string=text -->
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Messages per day</td>
+            <td class="py-3 text-center text-xs font-semibold text-gray-800 dark:text-gray-200">10 / day</td>
+            <td class="py-3 text-center text-xs font-semibold text-yellow-600 dark:text-yellow-400">100 / day</td>
+            <td class="py-3 text-center text-xs font-semibold text-purple-600 dark:text-purple-400">300 / day</td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Fast Mode (Gemini Flash)</td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-g inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-y inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Research Mode</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-y inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">DeepThink Mode</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i><span class="pro-badge">PRO</span></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Web Search</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-y inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Voice Input</td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-g inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-y inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Text-to-Speech</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-y inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">PDF & File Uploads</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center text-xs font-semibold">15 / month</td>
+            <td class="py-3 text-center text-xs font-semibold text-purple-600 dark:text-purple-400">Unlimited</td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Export (PDF &amp; Word)</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-y inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Export (PowerPoint)</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">AI Memory</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-y inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Study Circle – Full Guide</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-y inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Study Circle – Advanced</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Quiz Me</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-y inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Flashcards</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Radio Mode</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Mindmaps &amp; Flowcharts</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-y inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">All 8 Citation Formats</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-y inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">AI Detector / Plagiarism</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-y inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Find Research Gaps</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i><span class="pro-badge">PRO</span></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Deep Research Agent</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i><span class="pro-badge">PRO</span></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Image Generation</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center text-xs font-semibold">25 / month</td>
+            <td class="py-3 text-center text-xs font-semibold text-purple-600 dark:text-purple-400">100 / month</td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Video Generation</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center text-xs font-semibold">15 / month</td>
+            <td class="py-3 text-center text-xs font-semibold text-purple-600 dark:text-purple-400">25 / month</td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Priority Response Speed</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+          <tr class="feat-row border-t border-gray-50 dark:border-gray-700/60">
+            <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">Early Access to New Features</td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="x" class="w-4 h-4 x-icon inline"></i></td>
+            <td class="py-3 text-center"><i data-lucide="check" class="w-4 h-4 check-p inline"></i></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Why Dynamo AI — Competitor Comparison -->
+    <section class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-10">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Why Dynamo AI?</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">World-class AI — at a fraction of what global tools charge.</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="rounded-xl p-4 text-center border-2 border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
+          <div class="text-3xl mb-2">🤖</div>
+          <div class="font-bold text-sm text-gray-600 dark:text-gray-300 mb-1">ChatGPT Plus</div>
+          <div class="font-extrabold text-gray-400 line-through text-base">₹1,650/mo</div>
+          <div class="mt-2 text-xs text-red-400 font-medium">1.7× more</div>
+        </div>
+        <div class="rounded-xl p-4 text-center border-2 border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
+          <div class="text-3xl mb-2">🔮</div>
+          <div class="font-bold text-sm text-gray-600 dark:text-gray-300 mb-1">Claude Pro</div>
+          <div class="font-extrabold text-gray-400 line-through text-base">₹1,700/mo</div>
+          <div class="mt-2 text-xs text-red-400 font-medium">1.7× more</div>
+        </div>
+        <div class="rounded-xl p-4 text-center border-2 border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
+          <div class="text-3xl mb-2">💎</div>
+          <div class="font-bold text-sm text-gray-600 dark:text-gray-300 mb-1">Gemini Advanced</div>
+          <div class="font-extrabold text-gray-400 line-through text-base">₹1,950/mo</div>
+          <div class="mt-2 text-xs text-red-400 font-medium">2× more</div>
+        </div>
+        <div class="rounded-xl p-4 text-center border-2 border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 shadow-lg scale-105">
+          <div class="text-3xl mb-2">⚡</div>
+          <div class="font-bold text-sm text-gray-900 dark:text-white mb-1">Dynamo AI Pro</div>
+          <div class="font-extrabold text-yellow-600 dark:text-yellow-400 text-lg">₹999/mo</div>
+          <div class="mt-2 text-xs text-green-600 dark:text-green-400 font-bold">Save up to 66%</div>
+        </div>
+      </div>
+      <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
+        Dynamo AI Pro is <strong class="text-gray-800 dark:text-white">40% cheaper than ChatGPT Plus</strong> — with India-first features no global tool offers.
+      </p>
+    </section>
+
+    <!-- Bottom CTA -->
+    <section class="text-center py-10 px-6 bg-black dark:bg-gray-800 rounded-2xl border border-gray-800 mb-6">
+      <div class="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+        <i data-lucide="zap" class="w-6 h-6 text-black fill-current"></i>
+      </div>
+      <h2 class="text-2xl font-extrabold text-white mb-2">Start free. Upgrade anytime.</h2>
+      <p class="text-gray-400 text-sm mb-6 max-w-md mx-auto">No commitment. No credit card for Free plan. Cancel Plus or Pro anytime — your data stays safe.</p>
+      <div class="flex items-center justify-center gap-3 flex-wrap">
+        <button onclick="handleUpgrade('plus')" class="px-6 py-3 bg-yellow-400 hover:bg-yellow-300 text-black font-bold rounded-xl transition text-sm active:scale-95">
+          Get Plus — ₹399/mo
+        </button>
+        <button onclick="handleUpgrade('pro')" class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition text-sm active:scale-95">
+          Get Pro — ₹999/mo
+        </button>
+        <a href="https://app.dynamoai.in/" class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition text-sm">
+          Try Free First
+        </a>
       </div>
     </section>
+
   </main>
 
+  <!-- Auth Modal (preserved exactly) -->
   <div id="auth-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden animate-fade-in-up">
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm p-8 relative mx-4 border border-gray-100 dark:border-gray-700">
-        <button id="auth-close" class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">✕</button>
-        <div class="mb-6 text-center">
-            <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center mx-auto mb-4 text-yellow-600 dark:text-yellow-400"><i data-lucide="user" class="w-6 h-6"></i></div>
-            <h2 id="auth-title" class="text-2xl font-bold text-gray-900 dark:text-white">Welcome</h2>
-            <p id="auth-subtitle" class="text-sm text-gray-500 dark:text-gray-400 mt-1">Sign in to save your research history.</p>
-        </div>
-
-        <div id="main-auth-fields" class="space-y-4">
-          <div id="signup-fields" class="hidden space-y-4">
-              <div><label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 ml-1">Full Name</label><input id="auth-name" type="text" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="John Doe"></div>
-              <div><label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 ml-1">Phone Number</label><input id="auth-phone" type="tel" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="+919876543210"></div>
-          </div>
-          <div id="email-field-container">
-              <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 ml-1">Email Address</label><input id="auth-email" type="email" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="name@example.com">
-          </div>
-          <div id="password-field-container">
-              <div class="flex justify-between items-center mb-1"><label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">Password</label><button id="forgot-password-link" class="text-xs text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300 font-medium">Forgot?</button></div>
-              <input id="auth-password" type="password" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="••••••••">
-          </div>
-          <div id="recaptcha-container" class="hidden flex justify-center mt-2"></div>
-        </div>
-
-        <div id="otp-fields" class="hidden space-y-4">
-            <div class="text-center text-sm text-gray-600 dark:text-gray-400 mb-2">We sent a verification code to your phone.</div>
-            <div><label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 ml-1">Verification Code (OTP)</label><input id="auth-otp" type="text" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-center text-lg tracking-widest font-bold focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="123456"></div>
-            <button id="verify-otp-btn" class="mt-4 w-full bg-black dark:bg-yellow-400 text-white dark:text-black font-bold py-3.5 rounded-xl hover:bg-gray-800 dark:hover:bg-yellow-300 transition">Verify & Create Account</button>
-        </div>
-        
-        <p id="auth-error" class="text-xs text-red-500 mt-3 min-h-[1rem] font-medium text-center"></p>
-        <button id="auth-submit" class="mt-4 w-full bg-black dark:bg-yellow-400 text-white dark:text-black font-bold py-3.5 rounded-xl hover:bg-gray-800 dark:hover:bg-yellow-300 transition transform active:scale-95">Continue</button>
-        <div id="auth-footer" class="mt-6 text-center border-t border-gray-100 dark:border-gray-700 pt-4">
-            <p class="text-xs text-gray-500 dark:text-gray-400"><span id="auth-toggle-text">Don't have an account?</span> <button id="auth-toggle-mode" class="text-black dark:text-white font-bold hover:underline ml-1">Sign up</button></p>
-            <button id="back-to-login" class="hidden text-xs text-gray-500 hover:text-black dark:hover:text-white mt-2 font-medium">Back to Log in</button>
-        </div>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm p-8 relative mx-4 border border-gray-100 dark:border-gray-700">
+      <button id="auth-close" class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">✕</button>
+      <div class="mb-6 text-center">
+        <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center mx-auto mb-4 text-yellow-600 dark:text-yellow-400"><i data-lucide="user" class="w-6 h-6"></i></div>
+        <h2 id="auth-title" class="text-2xl font-bold text-gray-900 dark:text-white">Welcome</h2>
+        <p id="auth-subtitle" class="text-sm text-gray-500 dark:text-gray-400 mt-1">Sign in to save your research history.</p>
       </div>
+      <div id="main-auth-fields" class="space-y-4">
+        <div id="signup-fields" class="hidden space-y-4">
+          <div><label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 ml-1">Full Name</label><input id="auth-name" type="text" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="John Doe"></div>
+          <div><label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 ml-1">Phone Number</label><input id="auth-phone" type="tel" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="+919876543210"></div>
+        </div>
+        <div id="email-field-container">
+          <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 ml-1">Email Address</label>
+          <input id="auth-email" type="email" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="name@example.com">
+        </div>
+        <div id="password-field-container">
+          <div class="flex justify-between items-center mb-1"><label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">Password</label><button id="forgot-password-link" class="text-xs text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300 font-medium">Forgot?</button></div>
+          <input id="auth-password" type="password" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="••••••••">
+        </div>
+        <div id="recaptcha-container" class="hidden flex justify-center mt-2"></div>
+      </div>
+      <div id="otp-fields" class="hidden space-y-4">
+        <div class="text-center text-sm text-gray-600 dark:text-gray-400 mb-2">We sent a verification code to your phone.</div>
+        <div><label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 ml-1">Verification Code (OTP)</label><input id="auth-otp" type="text" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-center text-lg tracking-widest font-bold focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white dark:text-white transition" placeholder="123456"></div>
+        <button id="verify-otp-btn" class="mt-4 w-full bg-black dark:bg-yellow-400 text-white dark:text-black font-bold py-3.5 rounded-xl hover:bg-gray-800 dark:hover:bg-yellow-300 transition">Verify & Create Account</button>
+      </div>
+      <p id="auth-error" class="text-xs text-red-500 mt-3 min-h-[1rem] font-medium text-center"></p>
+      <button id="auth-submit" class="mt-4 w-full bg-black dark:bg-yellow-400 text-white dark:text-black font-bold py-3.5 rounded-xl hover:bg-gray-800 dark:hover:bg-yellow-300 transition transform active:scale-95">Continue</button>
+      <div id="auth-footer" class="mt-6 text-center border-t border-gray-100 dark:border-gray-700 pt-4">
+        <p class="text-xs text-gray-500 dark:text-gray-400"><span id="auth-toggle-text">Don't have an account?</span> <button id="auth-toggle-mode" class="text-black dark:text-white font-bold hover:underline ml-1">Sign up</button></p>
+        <button id="back-to-login" class="hidden text-xs text-gray-500 hover:text-black dark:hover:text-white mt-2 font-medium">Back to Log in</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -279,187 +528,130 @@
     window.setSupabaseUser = window.setSupabaseUser || async function(u) { window.appState.supabaseUser = u; window.appState.supabaseUserId = u?.id || null; };
     window.loadChatSidebar = window.loadChatSidebar || function() {};
     window.dumpState = window.dumpState || function() {};
-    window.closeAuthModal = window.closeAuthModal || function() {
-      document.getElementById("auth-modal")?.classList.add("hidden");
-    };
+    window.closeAuthModal = window.closeAuthModal || function() { document.getElementById("auth-modal")?.classList.add("hidden"); };
     window.openAuthModal = window.openAuthModal || function(mode) {
       window.authMode = mode || "login";
       document.getElementById("auth-modal")?.classList.remove("hidden");
     };
   </script>
-
   <script src="auth.js"></script>
 
   <script>
     const BACKEND_URL = "";
 
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    if (themeToggleBtn) {
-      themeToggleBtn.addEventListener('click', () => {
-          if (document.documentElement.classList.contains('dark')) {
-              document.documentElement.classList.remove('dark');
-              localStorage.theme = 'light';
-          } else {
-              document.documentElement.classList.add('dark');
-              localStorage.theme = 'dark';
-          }
-      });
+    /* ── Annual billing toggle ── */
+    let isAnnual = false;
+    function toggleBilling() {
+      isAnnual = !isAnnual;
+      const track = document.getElementById("billing-toggle");
+      const thumb = document.getElementById("billing-thumb");
+      const lblM  = document.getElementById("lbl-monthly");
+      const lblA  = document.getElementById("lbl-annual");
+      track.style.background = isAnnual ? "#eab308" : "#d1d5db";
+      thumb.style.left = isAnnual ? "23px" : "3px";
+      lblM.className  = "text-sm font-medium " + (isAnnual ? "text-gray-400" : "text-gray-900 dark:text-white");
+      lblA.className  = "text-sm font-medium " + (isAnnual ? "text-gray-900 dark:text-white" : "text-gray-400");
+
+      document.getElementById("plus-price").textContent  = isAnnual ? "₹319" : "₹399";
+      document.getElementById("plus-period").textContent = isAnnual ? "/mo · billed ₹3,829/yr" : "/mo";
+      document.getElementById("pro-price").textContent   = isAnnual ? "₹799" : "₹999";
+      document.getElementById("pro-period").textContent  = isAnnual ? "/mo · billed ₹9,589/yr" : "/mo";
     }
 
+    /* ── Toast ── */
     function showToast(message, type) {
       const el = document.getElementById("payment-toast");
       if (!el) return;
       el.textContent = message;
       el.className = [
         "fixed top-6 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-full text-sm font-semibold shadow-lg transition-all duration-300",
-        type === "success"
-          ? "bg-green-500 text-white"
-          : type === "error"
-            ? "bg-red-500 text-white"
-            : "bg-gray-800 text-white"
+        type === "success" ? "bg-green-500 text-white" : type === "error" ? "bg-red-500 text-white" : "bg-gray-800 text-white"
       ].join(" ");
       el.classList.remove("hidden");
       setTimeout(() => el.classList.add("hidden"), 5000);
     }
 
+    /* ── Auth helpers ── */
     function isAuthenticated() {
-      const fbUser = typeof firebase !== "undefined" && firebase.apps?.length
-        ? firebase.auth().currentUser
-        : null;
-      return !!fbUser;
+      return !!(typeof firebase !== "undefined" && firebase.apps?.length && firebase.auth().currentUser);
     }
 
     async function getSupabaseUserId() {
       try {
         const fbUser = firebase.auth().currentUser;
         if (!fbUser || !window.SUPABASE_URL_PUBLIC || !window.SUPABASE_ANON_KEY) return null;
-
-        const supabaseCl = window.supabase.createClient(window.SUPABASE_URL_PUBLIC, window.SUPABASE_ANON_KEY);
-        const { data } = await supabaseCl
-          .from("users")
-          .select("id")
-          .eq("firebase_uid", fbUser.uid)
-          .single();
+        const sc = window.supabase.createClient(window.SUPABASE_URL_PUBLIC, window.SUPABASE_ANON_KEY);
+        const { data } = await sc.from("users").select("id").eq("firebase_uid", fbUser.uid).single();
         return data?.id || null;
-      } catch (e) {
-        console.error("getSupabaseUserId:", e);
-        return null;
-      }
+      } catch (e) { console.error("getSupabaseUserId:", e); return null; }
     }
 
+    /* ── Razorpay upgrade flow ── */
     async function handleUpgrade(plan) {
-      const fbUser = typeof firebase !== "undefined" && firebase.apps?.length
-        ? firebase.auth().currentUser
-        : null;
-
-      if (!fbUser) {
-        const loginBtn = document.getElementById("open-login");
-        if (loginBtn) loginBtn.click();
-        return;
-      }
+      const fbUser = typeof firebase !== "undefined" && firebase.apps?.length ? firebase.auth().currentUser : null;
+      if (!fbUser) { document.getElementById("open-login")?.click(); return; }
 
       const userEmail = fbUser.email || "";
-
       showToast("Looking up your account…", "info");
       const userId = await getSupabaseUserId();
-
-      if (!userId) {
-        showToast("Could not verify your account. Please log out and log in again.", "error");
-        return;
-      }
+      if (!userId) { showToast("Could not verify your account. Please log out and log in again.", "error"); return; }
 
       showToast("Creating order…", "info");
-
       let order;
       try {
         const res = await fetch(`${BACKEND_URL}/create-order`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ plan, user_id: userId, email: userEmail })
         });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.detail || "Failed to create order");
-        }
+        if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.detail || "Failed to create order"); }
         order = await res.json();
-      } catch (err) {
-        console.error("create-order error:", err);
-        showToast("Could not create order: " + err.message, "error");
-        return;
-      }
+      } catch (err) { console.error("create-order:", err); showToast("Could not create order: " + err.message, "error"); return; }
 
-      const planLabel = plan === "plus" ? "Plus — ₹199/mo" : "Pro — ₹499/mo";
-
+      const planLabel = plan === "plus" ? "Plus — ₹399/mo" : "Pro — ₹999/mo";
       const options = {
-        key: order.key_id,
-        amount: order.amount,
-        currency: order.currency || "INR",
-        name: "Dynamo AI",
-        description: planLabel,
-        order_id: order.order_id,
+        key: order.key_id, amount: order.amount, currency: order.currency || "INR",
+        name: "Dynamo AI", description: planLabel, order_id: order.order_id,
         prefill: { email: userEmail },
         theme: { color: plan === "plus" ? "#FACC15" : "#9333EA" },
-        modal: {
-          ondismiss: function () {
-            showToast("Payment cancelled. No charge was made.", "error");
-          }
-        },
+        modal: { ondismiss: () => showToast("Payment cancelled. No charge was made.", "error") },
         handler: async function (response) {
           showToast("Verifying payment…", "info");
           try {
             const vRes = await fetch(`${BACKEND_URL}/verify-payment`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
+              method: "POST", headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-                plan,
-                user_id: userId
+                plan, user_id: userId
               })
             });
-
-            if (!vRes.ok) {
-              const vErr = await vRes.json().catch(() => ({}));
-              throw new Error(vErr.detail || "Verification failed");
-            }
-
+            if (!vRes.ok) { const e = await vRes.json().catch(() => ({})); throw new Error(e.detail || "Verification failed"); }
             const result = await vRes.json();
             if (result.success) {
               localStorage.setItem("dynamo_plan", result.plan);
               showToast(`You are now on the ${result.plan.charAt(0).toUpperCase() + result.plan.slice(1)} plan!`, "success");
-              updatePlanBadge(result.plan);
               setTimeout(() => window.location.reload(), 2500);
-            } else {
-              showToast("Payment verification failed. Contact support.", "error");
-            }
-          } catch (err) {
-            console.error("verify-payment error:", err);
-            showToast("Verification error: " + err.message, "error");
-          }
+            } else { showToast("Payment verification failed. Contact support.", "error"); }
+          } catch (err) { console.error("verify-payment:", err); showToast("Verification error: " + err.message, "error"); }
         }
       };
-
       const rzp = new Razorpay(options);
-      rzp.on("payment.failed", function () {
-        showToast("Payment failed. No charge was made.", "error");
-      });
+      rzp.on("payment.failed", () => showToast("Payment failed. No charge was made.", "error"));
       rzp.open();
     }
 
-    function updatePlanBadge(plan) {
-      const badges = document.querySelectorAll(".plan-badge");
-      badges.forEach(b => {
-        b.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
-      });
-    }
+    /* ── Theme toggle ── */
+    document.getElementById("theme-toggle")?.addEventListener("click", () => {
+      document.documentElement.classList.toggle("dark");
+      localStorage.theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+    });
 
+    /* ── Init ── */
     document.addEventListener("DOMContentLoaded", function () {
       lucide.createIcons();
-
       document.getElementById("btn-upgrade-plus").addEventListener("click", () => handleUpgrade("plus"));
       document.getElementById("btn-upgrade-pro").addEventListener("click", () => handleUpgrade("pro"));
-
       document.getElementById("open-login")?.addEventListener("click", () => window.openAuthModal("login"));
       document.getElementById("open-signup")?.addEventListener("click", () => window.openAuthModal("signup"));
       document.getElementById("auth-close")?.addEventListener("click", () => window.closeAuthModal());
@@ -469,41 +661,29 @@
       });
     });
   </script>
-  
-<!-- Footer -->
-    <footer class="py-12 border-t border-slate-200 dark:border-white/10 transition-colors duration-300">
-        <div class="max-w-7xl mx-auto px-6 flex flex-col gap-8">
-            <!-- Top Row: Brand & Main Links -->
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-6 text-center sm:text-left">
-                <a href="https://dynamoai.in/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                    <div class="w-9 h-9 bg-yellow-400 rounded-lg flex items-center justify-center shadow-lg">
-                      <i data-lucide="zap" class="text-black fill-current"></i>
-                    </div>
-                    <span class="text-lg font-semibold text-gray-900 dark:text-white">Dynamo AI</span>
-                </a>
-                
-                <div class="flex flex-wrap justify-center sm:justify-end gap-x-6 gap-y-2 text-sm font-medium">
-                    <a href="https://app.dynamoai.in/features.html" class="text-slate-500 hover:text-brand transition-colors">Features</a>
-                    <a href="https://app.dynamoai.in/pricing.html" class="text-slate-500 hover:text-brand transition-colors">Pricing</a>
-                    <a href="https://dynamoai.in/terms.html" class="text-slate-500 hover:text-brand transition-colors">Terms</a>
-                    <a href="https://dynamoai.in/privacy.html" class="text-slate-500 hover:text-brand transition-colors">Privacy</a>
-                    <a href="https://dynamoai.in/refund.html" class="text-slate-500 hover:text-brand transition-colors">Refund</a>
-                    <a href="https://app.dynamoai.in" class="text-slate-500 hover:text-brand transition-colors">Sign In</a>
-                </div>
-            </div>
 
-            <!-- Bottom Row: Copyright & Support -->
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-slate-200 dark:border-white/10 text-sm font-medium text-slate-500">
-                <div>&copy; 2026 Dynamo AI. All rights reserved.</div>
-                
-                <div class="flex items-center gap-3">
-                    <a href="mailto:support@dynamoai.in" class="hover:text-brand transition-colors">support@dynamoai.in</a>
-                    <span class="w-px h-4 bg-slate-300 dark:bg-slate-700"></span>
-                    <span>Made in India 🇮🇳</span>
-                </div>
-            </div>
+  <!-- Footer -->
+  <footer class="py-12 border-t border-slate-200 dark:border-white/10 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col gap-8">
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-6 text-center sm:text-left">
+        <a href="https://dynamoai.in/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <div class="w-9 h-9 bg-yellow-400 rounded-lg flex items-center justify-center shadow-lg">
+            <i data-lucide="zap" class="w-5 h-5 text-black fill-current"></i>
+          </div>
+          <span class="text-lg font-semibold text-gray-900 dark:text-white">Dynamo AI</span>
+        </a>
+        <div class="flex flex-wrap justify-center sm:justify-end gap-x-6 gap-y-2 text-sm font-medium">
+          <a href="https://app.dynamoai.in/features.html" class="text-slate-500 hover:text-yellow-600 transition-colors">Features</a>
+          <a href="/pricing.html" class="text-slate-500 hover:text-yellow-600 transition-colors">Pricing</a>
+          <a href="https://dynamoai.in/terms.html" class="text-slate-500 hover:text-yellow-600 transition-colors">Terms</a>
+          <a href="https://dynamoai.in/privacy.html" class="text-slate-500 hover:text-yellow-600 transition-colors">Privacy</a>
         </div>
-    </footer>
-  
+      </div>
+      <div class="text-center text-xs text-slate-400 dark:text-slate-600">
+        Made in India 🇮🇳 · Dynamo AI 2026 · All rights reserved
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>
