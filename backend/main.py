@@ -1012,6 +1012,15 @@ async def detect_ai_heatmap_endpoint(req: DetectorReq):
     return await detector_module.detect_ai_sentences(req.text)
 
 
+@app.post("/humanize")
+async def humanize_endpoint(req: DetectorReq):
+    """Rewrite AI-generated text to read as authentically human-written."""
+    if not req.text.strip():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Text cannot be empty.")
+    return await detector_module.humanize_text(req.text)
+
+
 class SelfPlagReq(BaseModel):
     text_a: str
     text_b: str

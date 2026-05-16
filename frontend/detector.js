@@ -874,5 +874,98 @@
     _buildPrintWindow("Self-Plagiarism Report", "🔁", "#4f46e5", resultEl.innerHTML);
   };
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // HUMANIZE CONTENT
+  // ─────────────────────────────────────────────────────────────────────────
+
+  window.runHumanize = async function () {
+    if (!_requirePlusOrPro("AI Text Detector")) return;
+
+    const text = (document.getElementById("ai-text-input")?.value || "").trim();
+    if (text.length < 50) {
+      _setStatus("ai-humanize-status", "⚠️ Please run the AI Detector first, then click Humanize.", "warn");
+      return;
+    }
+
+    const btn      = document.getElementById("ai-humanize-btn");
+    const section  = document.getElementById("ai-humanize-section");
+    const output   = document.getElementById("ai-humanize-output");
+    const status   = document.getElementById("ai-humanize-status");
+
+    // Show section and set loading state
+    section.classList.remove("hidden");
+    section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (btn) { btn.disabled = true; btn.textContent = "⏳ Humanizing…"; btn.style.opacity = "0.7"; }
+    if (status) { status.textContent = "Rewriting content in a natural human voice… (~15 s)"; status.style.color = "#6b7280"; }
+    if (output) { output.textContent = ""; }
+
+    try {
+      const res = await window.callBackend("/humanize", { text });
+
+      if (!res.ok || !res.humanized) {
+        _setStatus("ai-humanize-status", "⚠️ " + (res.error || "Humanization failed. Please try again."), "error");
+        return;
+      }
+
+      if (output) { output.textContent = res.humanized; }
+      _setStatus("ai-humanize-status", "✅ Content rewritten — review before submitting.", "ok");
+
+      // Store humanized text for re-check and export
+      window._lastHumanized = res.humanized;
+
+    } catch (err) {
+      _setStatus("ai-humanize-status", "⚠️ Humanization failed: " + err.message, "error");
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = "✨ Humanize Content"; btn.style.opacity = "1"; }
+    }
+  };
+
+  window.copyHumanized = function () {
+    const text = window._lastHumanized || document.getElementById("ai-humanize-output")?.textContent || "";
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById("ai-copy-humanized-btn");
+      if (btn) {
+        const orig = btn.textContent;
+        btn.textContent = "✅ Copied!";
+        setTimeout(() => { btn.textContent = orig; }, 2000);
+      }
+    }).catch(() => {
+      // Fallback for browsers without clipboard API
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.cssText = "position:fixed;opacity:0;"; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy"); ta.remove();
+    });
+  };
+
+  window.exportHumanizedContent = function () {
+    const text = window._lastHumanized || document.getElementById("ai-humanize-output")?.textContent || "";
+    if (!text) { alert("Run Humanize first to generate content."); return; }
+    const excerpt = (document.getElementById("ai-text-input")?.value || "").trim().substring(0, 120);
+    const escaped = _esc(text).replace(/\n/g, "<br>");
+    const body = `
+      ${excerpt ? `<p style="font-size:11.5px;color:#6b7280;font-style:italic;border-left:3px solid #e9d5ff;padding-left:12px;margin-bottom:18px;"><strong>Original text (excerpt):</strong> "${_esc(excerpt)}…"</p>` : ""}
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;margin-bottom:10px;">✨ Humanized Version</div>
+      <div style="font-size:13px;color:#1f2937;line-height:1.8;background:#faf5ff;border:1.5px solid #e9d5ff;border-radius:10px;padding:16px;">${escaped}</div>
+      <p style="font-size:11px;color:#9ca3af;margin-top:16px;">Review all rewritten content carefully before academic submission. Dynamo AI makes no guarantee of detection outcomes.</p>
+    `;
+    _buildPrintWindow("Humanized Content", "✨", "#7c3aed", body);
+  };
+
+  window.runAiDetectOnHumanized = async function () {
+    const humanized = window._lastHumanized || document.getElementById("ai-humanize-output")?.textContent || "";
+    if (!humanized) return;
+
+    // Copy humanized text to the input, then re-run detection
+    const ta = document.getElementById("ai-text-input");
+    if (ta) { ta.value = humanized; _updateCount("ai-text-input", "ai-char-count"); }
+
+    // Collapse humanize section temporarily and scroll to result
+    document.getElementById("ai-humanize-section")?.classList.add("hidden");
+    window._lastHumanized = "";
+
+    await window.runAiDetect();
+  };
+
   console.log("detector.js v3 loaded ✅");
 })();

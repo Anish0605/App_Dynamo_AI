@@ -1658,15 +1658,58 @@
         <div id="ai-result" class="hidden pb-2"></div>
 
         <!-- Post-result actions: shown after analysis completes -->
-        <div id="ai-post-actions" class="hidden grid grid-cols-2 gap-2">
-          <button onclick="window.runHeatmapAnalysis()" id="ai-heatmap-btn"
-            class="py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-bold rounded-xl transition border border-purple-200 dark:border-purple-700">
-            🌡️ Sentence Heatmap
+        <div id="ai-post-actions" class="hidden flex flex-col gap-2">
+          <!-- Humanize button — full width, prominent -->
+          <button onclick="window.runHumanize()" id="ai-humanize-btn"
+            class="w-full py-3 font-bold text-sm rounded-xl transition active:scale-95 flex items-center justify-center gap-2"
+            style="background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;box-shadow:0 4px 14px rgba(124,58,237,.35);">
+            ✨ Humanize Content
           </button>
-          <button onclick="window.exportAiReport()"
-            class="py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-xl transition border border-gray-200 dark:border-gray-700">
-            📄 Export PDF
-          </button>
+          <!-- Secondary row -->
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="window.runHeatmapAnalysis()" id="ai-heatmap-btn"
+              class="py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-bold rounded-xl transition border border-purple-200 dark:border-purple-700">
+              🌡️ Sentence Heatmap
+            </button>
+            <button onclick="window.exportAiReport()"
+              class="py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-xl transition border border-gray-200 dark:border-gray-700">
+              📄 Export PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- Humanize result section -->
+        <div id="ai-humanize-section" class="hidden space-y-3">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;">✨ Humanized Version</div>
+            <div style="display:flex;gap:8px;">
+              <button onclick="window.copyHumanized()" id="ai-copy-humanized-btn"
+                style="font-size:11px;font-weight:600;color:#7c3aed;background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:6px;transition:background .15s;"
+                onmouseover="this.style.background='#f5f3ff'" onmouseout="this.style.background='none'">
+                📋 Copy
+              </button>
+              <button onclick="window.exportHumanizedContent()"
+                style="font-size:11px;font-weight:600;color:#059669;background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:6px;transition:background .15s;"
+                onmouseover="this.style.background='#ecfdf5'" onmouseout="this.style.background='none'">
+                ⬇️ Export
+              </button>
+            </div>
+          </div>
+          <p id="ai-humanize-status" class="text-xs text-gray-400 text-center min-h-[14px]"></p>
+          <div id="ai-humanize-output"
+            style="font-size:13px;color:#1f2937;line-height:1.75;background:#faf5ff;border:1.5px solid #e9d5ff;border-radius:12px;padding:14px 16px;white-space:pre-wrap;word-break:break-word;"></div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="window.exportHumanizedContent()"
+              class="flex-1 py-2.5 font-bold text-sm rounded-xl transition active:scale-95"
+              style="background:#059669;color:#fff;">
+              ⬇️ Export Humanized Content
+            </button>
+            <button onclick="window.runAiDetectOnHumanized()" id="ai-recheck-btn"
+              class="flex-1 py-2.5 font-bold text-sm rounded-xl transition border border-gray-200 active:scale-95"
+              style="background:#f9fafb;color:#374151;">
+              🔄 Re-check Score
+            </button>
+          </div>
         </div>
 
         <!-- Heatmap section: shown after clicking Sentence Heatmap -->
@@ -2425,7 +2468,7 @@
    // (deep research timer sync removed — agent runs in-chat, v4)
  </script>
  <!-- AI DETECTOR + PLAGIARISM -->
- <script src="detector.js?v=20260513c"></script>
+ <script src="detector.js?v=20260516a"></script>
 
  <script src="/deep_research.js?v=20260511e"></script>
 </body>

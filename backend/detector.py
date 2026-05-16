@@ -75,6 +75,46 @@ async def detect_ai(text: str) -> dict:
     return _err("Analysis failed. Please try again.")
 
 
+_HUMANIZE_PROMPT = """\
+You are a skilled academic editor specialising in natural, authentic scholarly writing.
+
+Your task: rewrite the text below so it reads as genuinely human-written while preserving ALL of the original meaning, facts, arguments, citations, and academic level.
+
+Rules:
+1. Keep every core idea, argument, data point, citation, and domain-specific term intact
+2. Vary sentence length — mix short direct statements with longer, more developed ones
+3. Add natural hedging where appropriate ("We believe…", "Our data suggest…", "It seems…")
+4. Replace generic AI filler phrases (e.g. "It is important to note", "This study aims to") with more grounded, specific language
+5. Introduce the subtle imperfections of human writing — a parenthetical aside, a slightly colloquial phrase, a sentence that trails off into a qualifier
+6. Preserve the original academic register; do NOT make it informal or casual
+7. Do NOT add new facts, figures, or claims not in the original
+8. Do NOT include any preamble, explanation, or meta-commentary — return ONLY the rewritten text
+
+ORIGINAL TEXT:
+"""
+
+async def humanize_text(text: str) -> dict:
+    """Rewrite AI-generated text to read as authentically human-written."""
+    if not _client:
+        return {"ok": False, "error": "Humanizer not available — Gemini not configured."}
+    loop = asyncio.get_event_loop()
+    try:
+        resp = await loop.run_in_executor(
+            None,
+            lambda: _client.models.generate_content(
+                model="gemini-3-flash-preview",
+                contents=_HUMANIZE_PROMPT + text[:6000],
+            )
+        )
+        humanized = (resp.text or "").strip()
+        if not humanized:
+            return {"ok": False, "error": "Humanizer returned an empty response. Please try again."}
+        return {"ok": True, "humanized": humanized}
+    except Exception as e:
+        print(f"[Humanizer] Error: {e}")
+        return {"ok": False, "error": f"Humanization failed: {str(e)}"}
+
+
 def _err(msg: str) -> dict:
     return {
         "score": 50, "label": "Mixed", "confidence": "Low",
