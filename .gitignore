@@ -13,3 +13,7 @@ Thumbs.db
 .idea/
 # Streamlit
 .streamlit/
+attached_assets/
+artifacts/
+.agents/
+*.zip

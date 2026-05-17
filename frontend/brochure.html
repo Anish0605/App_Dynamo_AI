@@ -28,7 +28,7 @@
   /* ── PAGE SHELL ─────────────────────────────────────── */
   .page {
     width: 210mm;
-    min-height: 297mm;
+    height: 297mm;
     margin: 16px auto;
     background: #fff;
     position: relative;
@@ -80,12 +80,10 @@
     gap: 10px;
   }
 
-  .bolt-icon {
-    width: 40px; height: 40px;
-    background: #FFC107;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
+  .brand-logo {
+    height: 38px;
+    width: auto;
+    display: block;
   }
 
   .brand-name {
@@ -125,8 +123,10 @@
   .flag-mini .f3 { background: #128807; flex: 1; }
 
   .p1-hero {
-    padding: 44px 32px 0;
+    padding: 28px 32px 0;
     flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   .p1-tag {
@@ -194,13 +194,14 @@
     grid-template-columns: 1fr 200px;
     gap: 24px;
     align-items: flex-start;
+    flex: 1;
   }
 
   .p1-visual-stack {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding-top: 12px;
+    padding-top: 4px;
   }
 
   .p1-feature-card {
@@ -1146,7 +1147,7 @@
 <div class="page p1">
   <div class="p1-header">
     <div class="brand-row">
-      <div class="bolt-icon">⚡</div>
+      <img src="/assets/dynamo-logo-clean.png" alt="Dynamo AI" class="brand-logo">
       <div class="brand-name">Dynamo <span>AI</span></div>
     </div>
     <div class="made-in-india-badge">
@@ -1175,7 +1176,7 @@
           <div class="p1-pill"><div class="dot"></div>6-Format Citation Engine</div>
           <div class="p1-pill"><div class="dot"></div>Document Library</div>
           <div class="p1-pill"><div class="dot"></div>Find Research Gaps</div>
-          <div class="p1-pill"><div class="dot"></div>Starting ₹199/mo</div>
+          <div class="p1-pill"><div class="dot"></div>Starting ₹399/mo</div>
         </div>
       </div>
 
@@ -1239,8 +1240,8 @@
 <div class="page p2">
   <div class="p2-header">
     <div class="brand-row">
-      <div class="bolt-icon">⚡</div>
-      <div class="brand-name" style="color:#fff;">Dynamo <span>AI</span></div>
+      <img src="/assets/dynamo-logo-clean.png" alt="Dynamo AI" class="brand-logo">
+      <div class="brand-name">Dynamo <span>AI</span></div>
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:1px;">FEATURES</div>
   </div>
@@ -1378,8 +1379,8 @@
     </div>
     <div class="p2-stat-divider"></div>
     <div class="p2-stat">
-      <div class="num">₹0</div>
-      <div class="label">To Start Today</div>
+      <div class="num">₹399</div>
+      <div class="label">Plus / Month</div>
     </div>
     <div class="p2-stat-divider"></div>
     <div class="p2-stat">
@@ -1398,8 +1399,8 @@
 <div class="page p3">
   <div class="p3-header">
     <div class="brand-row">
-      <div class="bolt-icon">⚡</div>
-      <div class="brand-name" style="color:#fff;">Dynamo <span>AI</span></div>
+      <img src="/assets/dynamo-logo-clean.png" alt="Dynamo AI" class="brand-logo">
+      <div class="brand-name">Dynamo <span>AI</span></div>
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:1px;">WHY DYNAMO AI</div>
   </div>
@@ -1477,7 +1478,7 @@
         </tr>
         <tr>
           <td>INR Pricing (India-native)</td>
-          <td><span class="check">✓ ₹199 / ₹499</span></td>
+          <td><span class="check">✓ ₹399 / ₹999</span></td>
           <td><span class="cross">✗ ~₹1,700/mo</span></td>
           <td><span class="cross">✗ ~₹1,700/mo</span></td>
           <td><span class="cross">✗ ~₹1,700/mo</span></td>
@@ -1510,7 +1511,7 @@
           </div>
           <div class="mii-point">
             <div class="ico">💸</div>
-            <div class="txt">10× cheaper than ChatGPT Plus — ₹199/mo vs ~₹1,700/mo for equivalent</div>
+            <div class="txt">4× cheaper than ChatGPT Plus — ₹399/mo vs ~₹1,700/mo for equivalent power</div>
           </div>
           <div class="mii-point">
             <div class="ico">🔒</div>
@@ -1543,7 +1544,7 @@
 <div class="page p4">
   <div class="p4-header">
     <div class="brand-row">
-      <div class="bolt-icon">⚡</div>
+      <img src="/assets/dynamo-logo-clean.png" alt="Dynamo AI" class="brand-logo">
       <div class="brand-name">Dynamo <span>AI</span></div>
     </div>
     <div class="made-in-india-badge">
@@ -1585,36 +1586,36 @@
     <div class="plan-card featured">
       <div class="popular-tag">Most Popular for Researchers</div>
       <div class="plan-name">Plus</div>
-      <div class="plan-price"><span class="currency">₹</span>199<span class="period">/month</span></div>
+      <div class="plan-price"><span class="currency">₹</span>399<span class="period">/month</span></div>
       <ul class="plan-features-list">
-        <li><span class="tick">✓</span>100 AI chats per day</li>
+        <li><span class="tick">✓</span>Unlimited AI chats</li>
         <li><span class="tick">✓</span>Research Mode (Claude + Gemini + GPT)</li>
         <li><span class="tick">✓</span>6-Format Citation Engine</li>
         <li><span class="tick">✓</span>Document Library (persistent)</li>
         <li><span class="tick">✓</span>Find Research Gaps</li>
         <li><span class="tick">✓</span>25 AI images / month</li>
-        <li><span class="tick">✓</span>5 AI videos / month</li>
+        <li><span class="tick">✓</span>15 AI videos / month</li>
         <li><span class="tick">✓</span>Radio Mode</li>
         <li><span class="tick">✓</span>All Free features included</li>
       </ul>
-      <div class="plan-btn yellow-btn">Start Plus — ₹199/mo</div>
+      <div class="plan-btn yellow-btn">Start Plus — ₹399/mo</div>
     </div>
 
     <!-- Pro -->
     <div class="plan-card">
       <div class="plan-name">Pro</div>
-      <div class="plan-price"><span class="currency">₹</span>499<span class="period">/month</span></div>
+      <div class="plan-price"><span class="currency">₹</span>999<span class="period">/month</span></div>
       <ul class="plan-features-list">
-        <li><span class="tick">✓</span>300 AI chats per day</li>
+        <li><span class="tick">✓</span>Unlimited AI chats</li>
         <li><span class="tick">✓</span>DeepThink Mode (advanced reasoning)</li>
-        <li><span class="tick">✓</span>All Research Mode features</li>
+        <li><span class="tick">✓</span>Deep Research Agent</li>
+        <li><span class="tick">✓</span>Unlimited PDF & File Uploads</li>
         <li><span class="tick">✓</span>100 AI images / month</li>
         <li><span class="tick">✓</span>25 AI videos / month</li>
-        <li><span class="tick">✓</span>Priority support</li>
-        <li><span class="tick">✓</span>Early access to new features</li>
+        <li><span class="tick">✓</span>Priority speed & support</li>
         <li><span class="tick">✓</span>All Plus features included</li>
       </ul>
-      <div class="plan-btn">Start Pro — ₹499/mo</div>
+      <div class="plan-btn">Start Pro — ₹999/mo</div>
     </div>
   </div>
 
@@ -1622,7 +1623,7 @@
     <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,193,7,0.2); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 16px;">
       <div style="font-size: 22px;">💡</div>
       <div>
-        <div style="font-size:13px;font-weight:700;color:#fff;">Compared to ChatGPT Plus (~₹1,700/mo) or Perplexity Pro (~₹1,700/mo) — Dynamo AI's Plus plan is <span style="color:#FFC107;">8× more affordable</span> with features designed specifically for academic research that others don't even offer.</div>
+        <div style="font-size:13px;font-weight:700;color:#fff;">Compared to ChatGPT Plus (~₹1,700/mo) or Perplexity Pro (~₹1,700/mo) — Dynamo AI's Plus plan is <span style="color:#FFC107;">4× more affordable</span> with research-specific features others simply don't offer: citation engine, plagiarism detector, research gap finder, and persistent document memory.</div>
       </div>
     </div>
   </div>
@@ -1667,7 +1668,7 @@
   <div class="p5-top">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <div class="brand-row">
-        <div class="bolt-icon">⚡</div>
+        <img src="/assets/dynamo-logo-clean.png" alt="Dynamo AI" class="brand-logo">
         <div class="brand-name">Dynamo <span>AI</span></div>
       </div>
       <div class="made-in-india-badge">
@@ -1777,8 +1778,8 @@
 <div class="page p6">
   <div class="p6-header">
     <div class="brand-row">
-      <div class="bolt-icon">⚡</div>
-      <div class="brand-name" style="color:#fff;">Dynamo <span>AI</span></div>
+      <img src="/assets/dynamo-logo-clean.png" alt="Dynamo AI" class="brand-logo">
+      <div class="brand-name">Dynamo <span>AI</span></div>
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:1px;">COLLEGE EDITION — PAGE 2</div>
   </div>
@@ -1816,26 +1817,20 @@
       <div class="benefit-card">
         <div class="bc-icon">💰</div>
         <div class="bc-title">Most Affordable Academic AI in India</div>
-        <div class="bc-desc">₹199/mo per researcher for full Research Mode. Institutional bulk plans available. 10× cheaper than equivalent foreign tools — making it accessible for every researcher, not just funded labs.</div>
+        <div class="bc-desc">₹399/mo per researcher for full Research Mode. Institutional bulk plans available. 4× cheaper than equivalent foreign tools — making it accessible for every researcher, not just funded labs.</div>
       </div>
-    </div>
-
-    <div class="testimonial-strip">
-      <div class="star-rating">★★★★★</div>
-      <div class="t-quote">"Dynamo AI found 4 significant research gaps in my literature review in under 2 minutes — gaps I had missed after 3 weeks of manual searching. The citation engine alone saves me hours every week."</div>
-      <div class="t-who">— PhD Research Scholar, Engineering Department · Indian University</div>
     </div>
 
     <div class="cta-block">
       <div class="cta-left">
         <div class="cta-title">Start with <span class="accent">Free.</span> Scale as you Grow.</div>
         <div class="cta-desc">
-          Every researcher gets a free plan instantly — no credit card, no setup required. Professors and scholars can try Dynamo AI today and upgrade to Plus (₹199/mo) or Pro (₹499/mo) when ready. Contact us for bulk institutional licensing with custom pricing for your college or university.
+          Every researcher gets a free plan instantly — no credit card, no setup required. Professors and scholars can try Dynamo AI today and upgrade to Plus (₹399/mo) or Pro (₹999/mo) when ready. Contact us for bulk institutional licensing with custom pricing for your college or university.
         </div>
         <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;">
           <div style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;"><span style="color:#FFC107;">✓</span>Free plan — 10 chats/day forever</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;"><span style="color:#FFC107;">✓</span>Plus — ₹199/mo for researchers</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;"><span style="color:#FFC107;">✓</span>Pro — ₹499/mo for power users</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;"><span style="color:#FFC107;">✓</span>Plus — ₹399/mo for researchers</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;"><span style="color:#FFC107;">✓</span>Pro — ₹999/mo for power users</div>
           <div style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;"><span style="color:#FFC107;">✓</span>Institutional bulk — contact us</div>
         </div>
       </div>
