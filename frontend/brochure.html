@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamo AI — Marketing Brochure</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #FFC107;
+    --yellow-dark: #e6a800;
+    --black: #0a0e1a;
+    --dark: #111827;
+    --gray: #374151;
+    --light: #f9fafb;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #e5e7eb;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ── PAGE SHELL ─────────────────────────────────────── */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 16px auto;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+  }
+
+  @media print {
+    body { background: none; }
+    .page { margin: 0; box-shadow: none; page-break-after: always; }
+    .no-print { display: none !important; }
+  }
+
+  /* ── NAV BAR (screen only) ────────────────────────── */
+  .no-print {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    background: #1f2937; color: #fff; padding: 12px 24px;
+    display: flex; align-items: center; gap: 16px; font-size: 14px;
+  }
+  .no-print a { color: #FFC107; text-decoration: none; font-weight: 600; }
+  .no-print .btn {
+    margin-left: auto; background: #FFC107; color: #000;
+    padding: 8px 20px; border-radius: 8px; font-weight: 700;
+    border: none; cursor: pointer; font-size: 14px;
+  }
+  body { padding-top: 52px; }
+  @media print { body { padding-top: 0; } }
+
+  /* ═══════════════════════════════════════════════════════
+     PAGE 1 — COVER (GENERAL)
+  ═══════════════════════════════════════════════════════ */
+  .p1 {
+    background: #0a0e1a;
+    display: flex;
+    flex-direction: column;
+    min-height: 297mm;
+  }
+
+  .p1-header {
+    padding: 28px 32px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bolt-icon {
+    width: 40px; height: 40px;
+    background: #FFC107;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  .brand-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+
+  .brand-name span { color: #FFC107; }
+
+  .made-in-india-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255,193,7,0.12);
+    border: 1px solid rgba(255,193,7,0.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #FFC107;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .flag-mini {
+    display: flex;
+    flex-direction: column;
+    width: 18px;
+    height: 12px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .flag-mini .f1 { background: #FF9933; flex: 1; }
+  .flag-mini .f2 { background: #fff; flex: 1; position: relative; }
+  .flag-mini .f3 { background: #128807; flex: 1; }
+
+  .p1-hero {
+    padding: 44px 32px 0;
+    flex: 1;
+  }
+
+  .p1-tag {
+    display: inline-block;
+    background: rgba(255,193,7,0.15);
+    border: 1px solid rgba(255,193,7,0.4);
+    color: #FFC107;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+
+  .p1-headline {
+    font-size: 46px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    margin-bottom: 16px;
+  }
+
+  .p1-headline .accent { color: #FFC107; }
+
+  .p1-sub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.65;
+    max-width: 360px;
+    margin-bottom: 36px;
+  }
+
+  .p1-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+
+  .p1-pill {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .p1-pill .dot {
+    width: 6px; height: 6px;
+    background: #FFC107;
+    border-radius: 50%;
+  }
+
+  /* Right-side visual */
+  .p1-layout {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  .p1-visual-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 12px;
+  }
+
+  .p1-feature-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .p1-feature-card .icon-box {
+    width: 36px; height: 36px;
+    background: rgba(255,193,7,0.15);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .p1-feature-card .fc-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .p1-feature-card .fc-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 2px;
+  }
+
+  .p1-bottom-bar {
+    background: #FFC107;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+
+  .p1-bottom-bar .cta-text {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0a0e1a;
+  }
+
+  .p1-bottom-bar .cta-sub {
+    font-size: 11px;
+    color: rgba(10,14,26,0.65);
+    margin-top: 2px;
+  }
+
+  .p1-bottom-bar .free-badge {
+    background: #0a0e1a;
+    color: #FFC107;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .p1-bottom-bar .url {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0a0e1a;
+  }
+
+  .page-num {
+    position: absolute;
+    bottom: 14px;
+    right: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .page-num-dark {
+    position: absolute;
+    bottom: 14px;
+    right: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(10,14,26,0.3);
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     PAGE 2 — FEATURES FOR RESEARCHERS
+  ═══════════════════════════════════════════════════════ */
+  .p2 {
+    min-height: 297mm;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .p2-header {
+    background: #0a0e1a;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #FFC107;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: 26px;
+    font-weight: 900;
+    color: #0a0e1a;
+    letter-spacing: -0.8px;
+    line-height: 1.15;
+  }
+
+  .section-title .accent { color: #FFC107; }
+
+  .p2-intro {
+    padding: 28px 32px 18px;
+  }
+
+  .p2-sub {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 8px;
+    line-height: 1.6;
+    max-width: 480px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 32px 20px;
+    flex: 1;
+  }
+
+  .feat-card {
+    border: 1.5px solid #f3f4f6;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+
+  .feat-card:hover { border-color: #FFC107; }
+
+  .feat-icon-box {
+    width: 42px; height: 42px;
+    min-width: 42px;
+    background: linear-gradient(135deg, rgba(255,193,7,0.15), rgba(255,193,7,0.05));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    border: 1px solid rgba(255,193,7,0.2);
+  }
+
+  .feat-body { flex: 1; }
+
+  .feat-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+  }
+
+  .feat-desc {
+    font-size: 11px;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+
+  .feat-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-top: 5px;
+    background: rgba(255,193,7,0.15);
+    color: #92700a;
+  }
+
+  .feat-badge.new { background: rgba(34,197,94,0.12); color: #15803d; }
+  .feat-badge.pro { background: rgba(139,92,246,0.12); color: #7c3aed; }
+  .feat-badge.unique { background: rgba(239,68,68,0.1); color: #b91c1c; }
+
+  .p2-footer {
+    background: linear-gradient(135deg, #0a0e1a 0%, #1f2937 100%);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .p2-stat {
+    text-align: center;
+    flex: 1;
+  }
+
+  .p2-stat .num {
+    font-size: 22px;
+    font-weight: 900;
+    color: #FFC107;
+  }
+
+  .p2-stat .label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 2px;
+    font-weight: 500;
+  }
+
+  .p2-stat-divider {
+    width: 1px;
+    height: 32px;
+    background: rgba(255,255,255,0.1);
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     PAGE 3 — WHY DYNAMO AI vs OTHERS + MADE IN INDIA
+  ═══════════════════════════════════════════════════════ */
+  .p3 {
+    min-height: 297mm;
+    background: #f9fafb;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .p3-header {
+    background: #0a0e1a;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .p3-content { padding: 24px 32px; flex: 1; }
+
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  }
+
+  .comparison-table th {
+    padding: 12px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .comparison-table th:first-child { text-align: left; }
+
+  .comparison-table thead tr {
+    background: #0a0e1a;
+    color: #fff;
+  }
+
+  .comparison-table thead th.highlight {
+    background: #FFC107;
+    color: #0a0e1a;
+  }
+
+  .comparison-table td {
+    padding: 10px 14px;
+    font-size: 12px;
+    text-align: center;
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+  }
+
+  .comparison-table td:first-child {
+    text-align: left;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .comparison-table tbody tr:nth-child(odd) { background: #fff; }
+  .comparison-table tbody tr:nth-child(even) { background: #f9fafb; }
+
+  .comparison-table tbody tr:hover { background: rgba(255,193,7,0.04); }
+
+  .check { color: #16a34a; font-size: 14px; font-weight: 700; }
+  .cross { color: #dc2626; font-size: 14px; font-weight: 700; }
+  .partial { color: #d97706; font-size: 14px; }
+
+  .made-in-india-section {
+    background: linear-gradient(135deg, #0a0e1a 0%, #1a2235 100%);
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .india-flag {
+    display: flex;
+    flex-direction: column;
+    width: 52px;
+    height: 34px;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .india-flag .f1 { background: #FF9933; flex: 1; }
+  .india-flag .f2 { background: #fff; flex: 1; display: flex; align-items: center; justify-content: center; }
+  .india-flag .f2 .chakra { font-size: 10px; color: #000080; }
+  .india-flag .f3 { background: #128807; flex: 1; }
+
+  .mii-text h3 {
+    font-size: 18px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+
+  .mii-text h3 .accent { color: #FFC107; }
+
+  .mii-text p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.6;
+  }
+
+  .mii-points {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+    flex: 1;
+  }
+
+  .mii-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  .mii-point .ico { font-size: 16px; flex-shrink: 0; }
+
+  .mii-point .txt {
+    font-size: 11px;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.4;
+    font-weight: 500;
+  }
+
+  .p3-research-strip {
+    background: #FFC107;
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .p3-research-strip .big-text {
+    font-size: 18px;
+    font-weight: 900;
+    color: #0a0e1a;
+  }
+
+  .p3-research-strip .sm-text {
+    font-size: 11px;
+    color: rgba(10,14,26,0.7);
+    margin-top: 2px;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     PAGE 4 — PRICING + CTA (GENERAL)
+  ═══════════════════════════════════════════════════════ */
+  .p4 {
+    min-height: 297mm;
+    background: #0a0e1a;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .p4-header {
+    padding: 24px 32px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .p4-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #FFC107;
+    margin-bottom: 8px;
+  }
+
+  .p4-title {
+    font-size: 28px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.8px;
+  }
+
+  .p4-title .accent { color: #FFC107; }
+
+  .p4-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 6px;
+  }
+
+  .pricing-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    padding: 24px 32px;
+  }
+
+  .plan-card {
+    border-radius: 16px;
+    padding: 22px 18px;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+    position: relative;
+  }
+
+  .plan-card.featured {
+    border-color: #FFC107;
+    background: rgba(255,193,7,0.06);
+  }
+
+  .popular-tag {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #FFC107;
+    color: #0a0e1a;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .plan-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .plan-price {
+    font-size: 32px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -1px;
+  }
+
+  .plan-price .currency { font-size: 18px; vertical-align: top; margin-top: 6px; display: inline-block; }
+  .plan-price .period { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.4); }
+
+  .plan-features-list {
+    list-style: none;
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .plan-features-list li {
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.7);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .plan-features-list li .tick {
+    color: #FFC107;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .plan-btn {
+    display: block;
+    text-align: center;
+    margin-top: 18px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+  }
+
+  .plan-btn.yellow-btn {
+    background: #FFC107;
+    color: #0a0e1a;
+  }
+
+  .p4-contact {
+    background: rgba(255,255,255,0.04);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 20px 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 120px;
+    gap: 16px;
+    align-items: center;
+    margin-top: auto;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .contact-item .ico {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .contact-item .ct-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+
+  .contact-item .ct-val {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .qr-placeholder {
+    width: 80px; height: 80px;
+    background: #fff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #666;
+    text-align: center;
+    font-weight: 600;
+    padding: 6px;
+  }
+
+  .p4-tagline {
+    text-align: center;
+    padding: 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .p4-tagline span { color: rgba(255,193,7,0.5); }
+
+  /* ═══════════════════════════════════════════════════════
+     PAGE 5 — COLLEGE BROCHURE PAGE 1
+  ═══════════════════════════════════════════════════════ */
+  .p5 {
+    min-height: 297mm;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .p5-top {
+    background: linear-gradient(135deg, #0a0e1a 0%, #1a2235 100%);
+    padding: 28px 32px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .p5-top::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255,193,7,0.2) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .p5-top-label {
+    background: rgba(255,193,7,0.15);
+    border: 1px solid rgba(255,193,7,0.3);
+    display: inline-block;
+    color: #FFC107;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .p5-top-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  .p5-top-title .accent { color: #FFC107; }
+
+  .p5-top-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.65;
+    max-width: 420px;
+    position: relative;
+  }
+
+  .p5-body { padding: 24px 32px; flex: 1; }
+
+  .use-case-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .use-case-card {
+    background: #f9fafb;
+    border: 1.5px solid #f3f4f6;
+    border-radius: 12px;
+    padding: 16px 14px;
+    text-align: center;
+  }
+
+  .use-case-card .uc-icon { font-size: 24px; margin-bottom: 8px; }
+  .use-case-card .uc-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 6px;
+  }
+  .use-case-card .uc-desc {
+    font-size: 10.5px;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+
+  .workflow-section {
+    background: #0a0e1a;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+
+  .workflow-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 14px;
+  }
+
+  .workflow-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    position: relative;
+  }
+
+  .workflow-step {
+    text-align: center;
+    position: relative;
+  }
+
+  .ws-num {
+    width: 32px; height: 32px;
+    background: #FFC107;
+    color: #0a0e1a;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    margin: 0 auto 8px;
+  }
+
+  .ws-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .ws-desc {
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+  }
+
+  .ws-arrow {
+    position: absolute;
+    top: 12px;
+    right: -12px;
+    color: rgba(255,193,7,0.4);
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .p5-bottom-bar {
+    background: #FFC107;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+
+  .p5-bottom-bar .bb-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #0a0e1a;
+  }
+
+  .p5-bottom-bar .bb-sub {
+    font-size: 11px;
+    color: rgba(10,14,26,0.65);
+    margin-top: 2px;
+  }
+
+  .p5-bottom-bar .bb-contacts {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .p5-bottom-bar .bb-contacts .item {
+    font-size: 11px;
+    font-weight: 600;
+    color: #0a0e1a;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     PAGE 6 — COLLEGE BROCHURE PAGE 2
+  ═══════════════════════════════════════════════════════ */
+  .p6 {
+    min-height: 297mm;
+    background: #f9fafb;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .p6-header {
+    background: #0a0e1a;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .p6-body { padding: 24px 32px; flex: 1; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .benefit-card {
+    background: #fff;
+    border: 1.5px solid #f3f4f6;
+    border-radius: 12px;
+    padding: 18px;
+  }
+
+  .benefit-card .bc-icon { font-size: 22px; margin-bottom: 8px; }
+  .benefit-card .bc-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 6px;
+  }
+  .benefit-card .bc-desc {
+    font-size: 11px;
+    color: #6b7280;
+    line-height: 1.55;
+  }
+
+  .testimonial-strip {
+    background: linear-gradient(135deg, rgba(255,193,7,0.08), rgba(255,193,7,0.02));
+    border: 1.5px solid rgba(255,193,7,0.2);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+
+  .t-quote {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .t-who {
+    font-size: 11px;
+    color: #6b7280;
+    font-weight: 600;
+  }
+
+  .cta-block {
+    background: #0a0e1a;
+    border-radius: 14px;
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .cta-block .cta-left { flex: 1; }
+  .cta-block .cta-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .cta-block .cta-title .accent { color: #FFC107; }
+  .cta-block .cta-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.6;
+  }
+
+  .cta-block .cta-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cta-block .yellow-btn-big {
+    background: #FFC107;
+    color: #0a0e1a;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 12px 22px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+
+  .cta-block .sec-btn {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 500;
+  }
+
+  .p6-footer {
+    background: #0a0e1a;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .p6-footer .footer-left { display: flex; align-items: center; gap: 10px; }
+  .p6-footer .footer-brand {
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .p6-footer .footer-brand span { color: #FFC107; }
+  .p6-footer .footer-right {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    text-align: right;
+  }
+
+  /* Separator line between pages */
+  .page-sep {
+    text-align: center;
+    padding: 12px;
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 700;
+    letter-spacing: 1px;
+    background: #e5e7eb;
+  }
+  @media print { .page-sep { display: none; } }
+
+  .divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 0 32px;
+  }
+
+  .star-rating { color: #FFC107; font-size: 12px; letter-spacing: 2px; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<!-- NAV (screen only) -->
+<div class="no-print">
+  <span>⚡ Dynamo AI — Marketing Brochure (6 Pages)</span>
+  <span style="color:#9ca3af; margin-left:8px; font-size:12px;">Pages 1–4: General · Pages 5–6: College Edition</span>
+  <button class="btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 1 — GENERAL BROCHURE COVER
+════════════════════════════════════════════════════════ -->
+<div class="page p1">
+  <div class="p1-header">
+    <div class="brand-row">
+      <div class="bolt-icon">⚡</div>
+      <div class="brand-name">Dynamo <span>AI</span></div>
+    </div>
+    <div class="made-in-india-badge">
+      <div class="flag-mini">
+        <div class="f1"></div>
+        <div class="f2"></div>
+        <div class="f3"></div>
+      </div>
+      Made in India
+    </div>
+  </div>
+
+  <div class="p1-hero">
+    <div class="p1-tag">For Researchers · PhD Scholars · Professors</div>
+    <div class="p1-layout">
+      <div>
+        <div class="p1-headline">
+          India's AI<br>Research<br><span class="accent">Operating</span><br><span class="accent">System.</span>
+        </div>
+        <div class="p1-sub">
+          Stop switching between 10 tools. Dynamo AI brings deep research intelligence, document analysis, citation generation, and AI memory — all in one platform built for Indian academics.
+        </div>
+        <div class="p1-pills">
+          <div class="p1-pill"><div class="dot"></div>DeepThink Research Mode</div>
+          <div class="p1-pill"><div class="dot"></div>AI Plagiarism Detector</div>
+          <div class="p1-pill"><div class="dot"></div>6-Format Citation Engine</div>
+          <div class="p1-pill"><div class="dot"></div>Document Library</div>
+          <div class="p1-pill"><div class="dot"></div>Find Research Gaps</div>
+          <div class="p1-pill"><div class="dot"></div>Starting ₹199/mo</div>
+        </div>
+      </div>
+
+      <div class="p1-visual-stack">
+        <div class="p1-feature-card">
+          <div class="icon-box">🔬</div>
+          <div>
+            <div class="fc-title">Research Mode</div>
+            <div class="fc-sub">Claude + Gemini + GPT pipeline</div>
+          </div>
+        </div>
+        <div class="p1-feature-card">
+          <div class="icon-box">🧠</div>
+          <div>
+            <div class="fc-title">AI Memory</div>
+            <div class="fc-sub">Remembers your context always</div>
+          </div>
+        </div>
+        <div class="p1-feature-card">
+          <div class="icon-box">📄</div>
+          <div>
+            <div class="fc-title">Document Library</div>
+            <div class="fc-sub">Upload once, use forever</div>
+          </div>
+        </div>
+        <div class="p1-feature-card">
+          <div class="icon-box">🔍</div>
+          <div>
+            <div class="fc-title">Gap Finder</div>
+            <div class="fc-sub">Identify missing research angles</div>
+          </div>
+        </div>
+        <div class="p1-feature-card">
+          <div class="icon-box">✅</div>
+          <div>
+            <div class="fc-title">AI Detector</div>
+            <div class="fc-sub">In-house, free — no API needed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p1-bottom-bar">
+    <div>
+      <div class="cta-text">🎁 Free Plan Available — No Credit Card Required</div>
+      <div class="cta-sub">Get started in 30 seconds at app.dynamoai.in</div>
+    </div>
+    <div class="url">app.dynamoai.in</div>
+    <div class="free-badge">Try Free →</div>
+  </div>
+
+  <div class="page-num">01</div>
+</div>
+
+<div class="page-sep">── PAGE 1 OF 6 ──</div>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 2 — FEATURES FOR RESEARCHERS
+════════════════════════════════════════════════════════ -->
+<div class="page p2">
+  <div class="p2-header">
+    <div class="brand-row">
+      <div class="bolt-icon">⚡</div>
+      <div class="brand-name" style="color:#fff;">Dynamo <span>AI</span></div>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:1px;">FEATURES</div>
+  </div>
+
+  <div class="p2-intro">
+    <div class="section-label">What Dynamo AI Can Do</div>
+    <div class="section-title">18+ Capabilities Built for <span class="accent">Deep Academic Work</span></div>
+    <div class="p2-sub">Every feature is designed around how researchers, PhD scholars, and professors actually work — not generic productivity tasks.</div>
+  </div>
+
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon-box">🔬</div>
+      <div class="feat-body">
+        <div class="feat-title">Research Mode (Multi-Model Pipeline)</div>
+        <div class="feat-desc">Routes your query through Claude Sonnet → Gemini → GPT for the most comprehensive, cross-validated answer. Cite 6 academic formats: APA 7, MLA, Chicago, Harvard, IEEE, Vancouver.</div>
+        <span class="feat-badge pro">PLUS Plan</span>
+      </div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon-box">🧠</div>
+      <div class="feat-body">
+        <div class="feat-title">DeepThink Mode</div>
+        <div class="feat-desc">Advanced reasoning using Gemini with built-in chain-of-thought. Best for complex analysis, hypothesis evaluation, and structured academic arguments.</div>
+        <span class="feat-badge pro">PRO Plan</span>
+      </div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon-box">🔍</div>
+      <div class="feat-body">
+        <div class="feat-title">Find Research Gaps</div>
+        <div class="feat-desc">After any AI response, Dynamo searches recent papers via the web and identifies 3–5 specific knowledge gaps — with suggested angles, missing coverage, and sources.</div>
+        <span class="feat-badge unique">Unique to Dynamo</span>
+      </div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon-box">📂</div>
+      <div class="feat-body">
+        <div class="feat-title">Document Library</div>
+        <div class="feat-desc">Upload your PDFs, DOCX, and text files to a persistent library. Dynamo auto-injects document summaries into every future chat — no re-uploading ever.</div>
+        <span class="feat-badge new">New — May 2026</span>
+      </div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon-box">📄</div>
+      <div class="feat-body">
+        <div class="feat-title">Any File Analysis</div>
+        <div class="feat-desc">Chat with PDFs, Word, Excel, CSV, and images. Ask questions, extract sections, get Q&A — backed by your actual document content with exact references.</div>
+        <span class="feat-badge">Core Feature</span>
+      </div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon-box">✅</div>
+      <div class="feat-body">
+        <div class="feat-title">AI Text Detector + Plagiarism Checker</div>
+        <div class="feat-desc">In-house tool (no extra API cost). AI writing score 0–100 with signals. Plagiarism check via web + Semantic Scholar. Essential for academic integrity.</div>
+        <span class="feat-badge new">New — May 2026</span>
+      </div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon-box">🌐</div>
+      <div class="feat-body">
+        <div class="feat-title">Real-Time Web Search</div>
+        <div class="feat-desc">Get current research findings, news, and data. All answers cite their sources. No training cutoff — always up to date for literature reviews.</div>
+        <span class="feat-badge">Core Feature</span>
+      </div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon-box">🗂️</div>
+      <div class="feat-body">
+        <div class="feat-title">AI Memory System</div>
+        <div class="feat-desc">Dynamo remembers your research domain, preferences, and past sessions. No more repeating context — it compounds intelligence across conversations.</div>
+        <span class="feat-badge unique">Unique to Dynamo</span>
+      </div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon-box">🕸️</div>
+      <div class="feat-body">
+        <div class="feat-title">Mindmaps & Flowcharts</div>
+        <div class="feat-desc">Generate visual knowledge maps from any topic. Use flowcharts to map research methodologies, system architectures, and literature taxonomies.</div>
+        <span class="feat-badge">Visual Tools</span>
+      </div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon-box">🎧</div>
+      <div class="feat-body">
+        <div class="feat-title">Radio Mode (Audio Output)</div>
+        <div class="feat-desc">Listen to any AI response as audio. Research on the go — during commutes or lab work. Text-to-speech with natural voice synthesis.</div>
+        <span class="feat-badge new">New Feature</span>
+      </div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon-box">📊</div>
+      <div class="feat-body">
+        <div class="feat-title">Data Analysis + Charts</div>
+        <div class="feat-desc">Upload your research datasets (Excel, CSV). Dynamo runs statistical analysis, generates charts, and exports insights — no coding needed.</div>
+        <span class="feat-badge">Analyst Mode</span>
+      </div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon-box">📋</div>
+      <div class="feat-body">
+        <div class="feat-title">PDF Report Export</div>
+        <div class="feat-desc">Convert any research chat into a formatted, downloadable PDF report with one click. Shareable research summaries, briefs, and documentation.</div>
+        <span class="feat-badge">Export</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="p2-footer">
+    <div class="p2-stat">
+      <div class="num">18+</div>
+      <div class="label">AI Capabilities</div>
+    </div>
+    <div class="p2-stat-divider"></div>
+    <div class="p2-stat">
+      <div class="num">3</div>
+      <div class="label">AI Model Tiers</div>
+    </div>
+    <div class="p2-stat-divider"></div>
+    <div class="p2-stat">
+      <div class="num">6</div>
+      <div class="label">Citation Formats</div>
+    </div>
+    <div class="p2-stat-divider"></div>
+    <div class="p2-stat">
+      <div class="num">₹0</div>
+      <div class="label">To Start Today</div>
+    </div>
+    <div class="p2-stat-divider"></div>
+    <div class="p2-stat">
+      <div class="num">100%</div>
+      <div class="label">Made in India</div>
+    </div>
+  </div>
+  <div class="page-num-dark">02</div>
+</div>
+
+<div class="page-sep">── PAGE 2 OF 6 ──</div>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 3 — WHY DYNAMO AI vs OTHERS
+════════════════════════════════════════════════════════ -->
+<div class="page p3">
+  <div class="p3-header">
+    <div class="brand-row">
+      <div class="bolt-icon">⚡</div>
+      <div class="brand-name" style="color:#fff;">Dynamo <span>AI</span></div>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:1px;">WHY DYNAMO AI</div>
+  </div>
+
+  <div class="p3-content">
+    <div class="section-label">Head-to-Head Comparison</div>
+    <div class="section-title" style="margin-bottom:16px;">Dynamo AI vs <span class="accent">Other AI Tools</span></div>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th class="highlight">⚡ Dynamo AI</th>
+          <th>ChatGPT Plus</th>
+          <th>Gemini Pro</th>
+          <th>Perplexity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Research Gap Finder</td>
+          <td><span class="check">✓ Built-in</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td>Persistent AI Memory</td>
+          <td><span class="check">✓ Full</span></td>
+          <td><span class="partial">~ Limited</span></td>
+          <td><span class="partial">~ Project only</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td>Document Library (persistent)</td>
+          <td><span class="check">✓ Yes</span></td>
+          <td><span class="partial">~ Per project</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td>AI + Plagiarism Detector</td>
+          <td><span class="check">✓ Free, In-house</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td>Citation Engine (6 formats)</td>
+          <td><span class="check">✓ APA·MLA·Chicago+</span></td>
+          <td><span class="partial">~ Basic</span></td>
+          <td><span class="partial">~ Basic</span></td>
+          <td><span class="partial">~ Basic</span></td>
+        </tr>
+        <tr>
+          <td>Multi-Model Research Pipeline</td>
+          <td><span class="check">✓ Claude+Gemini+GPT</span></td>
+          <td><span class="cross">✗ GPT only</span></td>
+          <td><span class="cross">✗ Gemini only</span></td>
+          <td><span class="partial">~ Limited</span></td>
+        </tr>
+        <tr>
+          <td>Audio / Radio Mode</td>
+          <td><span class="check">✓ Built-in</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td>Mindmaps + Flowcharts</td>
+          <td><span class="check">✓ Yes</span></td>
+          <td><span class="partial">~ Via plugins</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td>INR Pricing (India-native)</td>
+          <td><span class="check">✓ ₹199 / ₹499</span></td>
+          <td><span class="cross">✗ ~₹1,700/mo</span></td>
+          <td><span class="cross">✗ ~₹1,700/mo</span></td>
+          <td><span class="cross">✗ ~₹1,700/mo</span></td>
+        </tr>
+        <tr>
+          <td>Data on Indian Servers</td>
+          <td><span class="check">✓ India-first</span></td>
+          <td><span class="cross">✗ US servers</span></td>
+          <td><span class="cross">✗ US servers</span></td>
+          <td><span class="cross">✗ US servers</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="made-in-india-section">
+      <div>
+        <div class="india-flag">
+          <div class="f1"></div>
+          <div class="f2"><span class="chakra">⊙</span></div>
+          <div class="f3"></div>
+        </div>
+      </div>
+      <div class="mii-text" style="flex:1;">
+        <h3>Why Choose an <span class="accent">Indian AI</span> for Indian Research?</h3>
+        <p>Foreign AI tools are not built with Indian academia in mind. Dynamo AI is built by Indian engineers, priced for Indian budgets, and optimised for how Indian researchers, PhD scholars, and professors actually work.</p>
+        <div class="mii-points">
+          <div class="mii-point">
+            <div class="ico">🇮🇳</div>
+            <div class="txt">India-first product — team, support, and infrastructure based in India</div>
+          </div>
+          <div class="mii-point">
+            <div class="ico">💸</div>
+            <div class="txt">10× cheaper than ChatGPT Plus — ₹199/mo vs ~₹1,700/mo for equivalent</div>
+          </div>
+          <div class="mii-point">
+            <div class="ico">🔒</div>
+            <div class="txt">Data sovereignty — your research data stays on Indian infrastructure</div>
+          </div>
+          <div class="mii-point">
+            <div class="ico">📞</div>
+            <div class="txt">Indian support team — reach us at +91 7200316800 in your timezone</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p3-research-strip">
+      <div style="font-size:28px;">🏆</div>
+      <div>
+        <div class="big-text">The only AI platform purpose-built for Indian academic research.</div>
+        <div class="sm-text">Research gaps, citation engines, plagiarism detection, document memory — no other tool has all of this, at any price.</div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num-dark">03</div>
+</div>
+
+<div class="page-sep">── PAGE 3 OF 6 ──</div>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 4 — PRICING + CTA (GENERAL)
+════════════════════════════════════════════════════════ -->
+<div class="page p4">
+  <div class="p4-header">
+    <div class="brand-row">
+      <div class="bolt-icon">⚡</div>
+      <div class="brand-name">Dynamo <span>AI</span></div>
+    </div>
+    <div class="made-in-india-badge">
+      <div class="flag-mini">
+        <div class="f1"></div>
+        <div class="f2"></div>
+        <div class="f3"></div>
+      </div>
+      Made in India
+    </div>
+  </div>
+
+  <div style="padding: 20px 32px 0;">
+    <div class="p4-section-label">Pricing</div>
+    <div class="p4-title">Research-Grade AI. <span class="accent">Indian Prices.</span></div>
+    <div class="p4-sub">No hidden fees. Cancel anytime. Upgrade as your research scales.</div>
+  </div>
+
+  <div class="pricing-row">
+    <!-- Free -->
+    <div class="plan-card">
+      <div class="plan-name">Free</div>
+      <div class="plan-price"><span class="currency">₹</span>0<span class="period">/month</span></div>
+      <ul class="plan-features-list">
+        <li><span class="tick">✓</span>10 AI chats per day</li>
+        <li><span class="tick">✓</span>Fast Mode (Gemini Flash)</li>
+        <li><span class="tick">✓</span>Web search</li>
+        <li><span class="tick">✓</span>Voice input</li>
+        <li><span class="tick">✓</span>AI Text & Plagiarism Detector</li>
+        <li><span class="tick">✓</span>File upload & analysis</li>
+        <li><span class="tick">✓</span>Mindmaps & Flowcharts</li>
+        <li><span class="tick">✓</span>AI Memory</li>
+        <li><span class="tick">✓</span>No credit card needed</li>
+      </ul>
+      <div class="plan-btn">Get Started Free</div>
+    </div>
+
+    <!-- Plus -->
+    <div class="plan-card featured">
+      <div class="popular-tag">Most Popular for Researchers</div>
+      <div class="plan-name">Plus</div>
+      <div class="plan-price"><span class="currency">₹</span>199<span class="period">/month</span></div>
+      <ul class="plan-features-list">
+        <li><span class="tick">✓</span>100 AI chats per day</li>
+        <li><span class="tick">✓</span>Research Mode (Claude + Gemini + GPT)</li>
+        <li><span class="tick">✓</span>6-Format Citation Engine</li>
+        <li><span class="tick">✓</span>Document Library (persistent)</li>
+        <li><span class="tick">✓</span>Find Research Gaps</li>
+        <li><span class="tick">✓</span>25 AI images / month</li>
+        <li><span class="tick">✓</span>5 AI videos / month</li>
+        <li><span class="tick">✓</span>Radio Mode</li>
+        <li><span class="tick">✓</span>All Free features included</li>
+      </ul>
+      <div class="plan-btn yellow-btn">Start Plus — ₹199/mo</div>
+    </div>
+
+    <!-- Pro -->
+    <div class="plan-card">
+      <div class="plan-name">Pro</div>
+      <div class="plan-price"><span class="currency">₹</span>499<span class="period">/month</span></div>
+      <ul class="plan-features-list">
+        <li><span class="tick">✓</span>300 AI chats per day</li>
+        <li><span class="tick">✓</span>DeepThink Mode (advanced reasoning)</li>
+        <li><span class="tick">✓</span>All Research Mode features</li>
+        <li><span class="tick">✓</span>100 AI images / month</li>
+        <li><span class="tick">✓</span>25 AI videos / month</li>
+        <li><span class="tick">✓</span>Priority support</li>
+        <li><span class="tick">✓</span>Early access to new features</li>
+        <li><span class="tick">✓</span>All Plus features included</li>
+      </ul>
+      <div class="plan-btn">Start Pro — ₹499/mo</div>
+    </div>
+  </div>
+
+  <div style="padding: 0 32px 16px;">
+    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,193,7,0.2); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 16px;">
+      <div style="font-size: 22px;">💡</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff;">Compared to ChatGPT Plus (~₹1,700/mo) or Perplexity Pro (~₹1,700/mo) — Dynamo AI's Plus plan is <span style="color:#FFC107;">8× more affordable</span> with features designed specifically for academic research that others don't even offer.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p4-contact">
+    <div class="contact-item">
+      <div class="ico">🌐</div>
+      <div>
+        <div class="ct-label">Website</div>
+        <div class="ct-val">app.dynamoai.in</div>
+      </div>
+    </div>
+    <div class="contact-item">
+      <div class="ico">📞</div>
+      <div>
+        <div class="ct-label">Phone</div>
+        <div class="ct-val">+91 7200316800</div>
+      </div>
+    </div>
+    <div class="contact-item">
+      <div class="ico">📧</div>
+      <div>
+        <div class="ct-label">Email</div>
+        <div class="ct-val">support@dynamoai.in</div>
+      </div>
+    </div>
+    <div>
+      <div class="qr-placeholder">Scan to try Dynamo AI free</div>
+    </div>
+  </div>
+
+  <div class="p4-tagline">⚡ Power Your <span>Curiosity</span> ⚡</div>
+  <div class="page-num">04</div>
+</div>
+
+<div class="page-sep">── END OF GENERAL BROCHURE (Pages 1–4) · COLLEGE EDITION BELOW (Pages 5–6) ──</div>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 5 — COLLEGE BROCHURE PAGE 1
+════════════════════════════════════════════════════════ -->
+<div class="page p5">
+  <div class="p5-top">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div class="brand-row">
+        <div class="bolt-icon">⚡</div>
+        <div class="brand-name">Dynamo <span>AI</span></div>
+      </div>
+      <div class="made-in-india-badge">
+        <div class="flag-mini">
+          <div class="f1"></div>
+          <div class="f2"></div>
+          <div class="f3"></div>
+        </div>
+        Made in India · For Indian Institutions
+      </div>
+    </div>
+
+    <div class="p5-top-label">For Colleges, Universities & Research Institutions</div>
+    <div class="p5-top-title">
+      Empower Your <span class="accent">Faculty, PhD Scholars</span><br>& Research Departments
+    </div>
+    <div class="p5-top-sub">
+      Dynamo AI gives every researcher at your institution access to a research-grade AI assistant — with real-time web search, multi-model intelligence, citation engines, plagiarism detection, and persistent document memory. Built in India. Priced for India.
+    </div>
+  </div>
+
+  <div class="p5-body">
+    <div class="section-label" style="margin-bottom:12px;">How Dynamo AI Helps Your Institution</div>
+
+    <div class="use-case-grid">
+      <div class="use-case-card">
+        <div class="uc-icon">👨‍🎓</div>
+        <div class="uc-title">PhD Scholars</div>
+        <div class="uc-desc">Conduct literature reviews, find research gaps, analyse datasets, and draft thesis sections — all within one platform. AI remembers their research domain across every session.</div>
+      </div>
+      <div class="use-case-card">
+        <div class="uc-icon">👩‍🏫</div>
+        <div class="uc-title">Professors & Faculty</div>
+        <div class="uc-desc">Prepare research papers with 6-format citations, create study materials, quiz banks, and course summaries. AI-powered plagiarism checking for student submissions.</div>
+      </div>
+      <div class="use-case-card">
+        <div class="uc-icon">🏛️</div>
+        <div class="uc-title">Research Departments</div>
+        <div class="uc-desc">Centralise document intelligence across your department. Upload research papers, lab reports, and institutional documents — accessible and searchable via AI across all researchers.</div>
+      </div>
+    </div>
+
+    <div class="workflow-section">
+      <div class="workflow-title">⚡ A Typical Research Workflow with Dynamo AI</div>
+      <div class="workflow-steps">
+        <div class="workflow-step">
+          <div class="ws-num">1</div>
+          <div class="ws-title">Upload Documents</div>
+          <div class="ws-desc">Add your papers, thesis drafts, and research data to Document Library</div>
+          <div class="ws-arrow">→</div>
+        </div>
+        <div class="workflow-step">
+          <div class="ws-num">2</div>
+          <div class="ws-title">Research Mode</div>
+          <div class="ws-desc">Ask deep questions — Claude + Gemini + GPT cross-validates your literature</div>
+          <div class="ws-arrow">→</div>
+        </div>
+        <div class="workflow-step">
+          <div class="ws-num">3</div>
+          <div class="ws-title">Find Gaps</div>
+          <div class="ws-desc">Click "Find Research Gaps" — get 3–5 specific missing angles with sources</div>
+          <div class="ws-arrow">→</div>
+        </div>
+        <div class="workflow-step">
+          <div class="ws-num">4</div>
+          <div class="ws-title">Export & Cite</div>
+          <div class="ws-desc">Generate citations (APA 7, IEEE, MLA+) and export as PDF report — done</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#f9fafb;border:1.5px solid #f3f4f6;border-radius:12px;padding:16px 18px;margin-bottom:0;">
+      <div class="section-label" style="margin-bottom:10px;">Research Features Available on Day One</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#374151;font-weight:600;"><span style="color:#FFC107;font-weight:800;">✓</span>Real-time Web Search</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#374151;font-weight:600;"><span style="color:#FFC107;font-weight:800;">✓</span>Multi-Model Intelligence</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#374151;font-weight:600;"><span style="color:#FFC107;font-weight:800;">✓</span>Document Library</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#374151;font-weight:600;"><span style="color:#FFC107;font-weight:800;">✓</span>Citation Engine (6 Formats)</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#374151;font-weight:600;"><span style="color:#FFC107;font-weight:800;">✓</span>AI + Plagiarism Detector</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#374151;font-weight:600;"><span style="color:#FFC107;font-weight:800;">✓</span>Find Research Gaps</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#374151;font-weight:600;"><span style="color:#FFC107;font-weight:800;">✓</span>Data Analysis + Charts</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#374151;font-weight:600;"><span style="color:#FFC107;font-weight:800;">✓</span>PDF Report Export</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#374151;font-weight:600;"><span style="color:#FFC107;font-weight:800;">✓</span>Mindmaps & Flowcharts</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p5-bottom-bar">
+    <div>
+      <div class="bb-title">Interested in a campus partnership or bulk licensing?</div>
+      <div class="bb-sub">Contact us for institutional pricing — significantly reduced rates for verified colleges and universities.</div>
+    </div>
+    <div class="bb-contacts">
+      <div class="item">📞 +91 7200316800</div>
+      <div class="item">📧 support@dynamoai.in</div>
+      <div class="item">🌐 app.dynamoai.in</div>
+    </div>
+  </div>
+  <div class="page-num-dark">05</div>
+</div>
+
+<div class="page-sep">── PAGE 5 OF 6 ──</div>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 6 — COLLEGE BROCHURE PAGE 2
+════════════════════════════════════════════════════════ -->
+<div class="page p6">
+  <div class="p6-header">
+    <div class="brand-row">
+      <div class="bolt-icon">⚡</div>
+      <div class="brand-name" style="color:#fff;">Dynamo <span>AI</span></div>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:1px;">COLLEGE EDITION — PAGE 2</div>
+  </div>
+
+  <div class="p6-body">
+    <div class="section-label" style="margin-bottom:4px;">Why Institutions Choose Dynamo AI</div>
+    <div class="section-title" style="margin-bottom:16px;">Measurable Benefits for <span class="accent">Academic Outcomes</span></div>
+
+    <div class="two-col" style="margin-bottom:14px;">
+      <div class="benefit-card">
+        <div class="bc-icon">📈</div>
+        <div class="bc-title">Accelerate Research Output</div>
+        <div class="bc-desc">PhD scholars report 3–5× faster literature review cycles using Research Mode. Finding gaps that used to take days now takes minutes — with Semantic Scholar + web validation built in.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="bc-icon">✅</div>
+        <div class="bc-title">Academic Integrity at Scale</div>
+        <div class="bc-desc">The AI + Plagiarism Detector is built-in and free. Professors can check student submissions, and scholars can verify their drafts — no subscription to Turnitin or DrillBit needed.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="bc-icon">🧠</div>
+        <div class="bc-title">Persistent Research Memory</div>
+        <div class="bc-desc">Unlike ChatGPT or Gemini, Dynamo AI never forgets your researcher's context. Thesis domain, preferred methodologies, and past insights are retained across every session.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="bc-icon">🏫</div>
+        <div class="bc-title">Institution-Wide Document Intelligence</div>
+        <div class="bc-desc">Every researcher can build a personal Document Library. Upload institutional papers, past PhD theses, and lab reports — instantly searchable and queryable through natural conversation.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="bc-icon">🇮🇳</div>
+        <div class="bc-title">Made in India — Data Stays in India</div>
+        <div class="bc-desc">Unlike US-hosted tools, Dynamo AI is India-first. Sensitive research data doesn't leave Indian infrastructure. UGC and institutional compliance is taken seriously from day one.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="bc-icon">💰</div>
+        <div class="bc-title">Most Affordable Academic AI in India</div>
+        <div class="bc-desc">₹199/mo per researcher for full Research Mode. Institutional bulk plans available. 10× cheaper than equivalent foreign tools — making it accessible for every researcher, not just funded labs.</div>
+      </div>
+    </div>
+
+    <div class="testimonial-strip">
+      <div class="star-rating">★★★★★</div>
+      <div class="t-quote">"Dynamo AI found 4 significant research gaps in my literature review in under 2 minutes — gaps I had missed after 3 weeks of manual searching. The citation engine alone saves me hours every week."</div>
+      <div class="t-who">— PhD Research Scholar, Engineering Department · Indian University</div>
+    </div>
+
+    <div class="cta-block">
+      <div class="cta-left">
+        <div class="cta-title">Start with <span class="accent">Free.</span> Scale as you Grow.</div>
+        <div class="cta-desc">
+          Every researcher gets a free plan instantly — no credit card, no setup required. Professors and scholars can try Dynamo AI today and upgrade to Plus (₹199/mo) or Pro (₹499/mo) when ready. Contact us for bulk institutional licensing with custom pricing for your college or university.
+        </div>
+        <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;"><span style="color:#FFC107;">✓</span>Free plan — 10 chats/day forever</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;"><span style="color:#FFC107;">✓</span>Plus — ₹199/mo for researchers</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;"><span style="color:#FFC107;">✓</span>Pro — ₹499/mo for power users</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;"><span style="color:#FFC107;">✓</span>Institutional bulk — contact us</div>
+        </div>
+      </div>
+      <div class="cta-right">
+        <div class="yellow-btn-big">Try Free at<br>app.dynamoai.in</div>
+        <div class="sec-btn">📞 +91 7200316800</div>
+        <div class="sec-btn">📧 support@dynamoai.in</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p6-footer">
+    <div class="footer-left">
+      <div class="bolt-icon" style="width:32px;height:32px;font-size:16px;">⚡</div>
+      <div class="footer-brand">Dynamo <span>AI</span></div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-left:8px;">India's Research AI Platform</div>
+    </div>
+    <div class="footer-right">
+      <div>app.dynamoai.in · support@dynamoai.in · +91 7200316800</div>
+      <div style="margin-top:4px;">⚡ Power Your Curiosity · Made with pride in India 🇮🇳</div>
+    </div>
+  </div>
+  <div class="page-num-dark">06</div>
+</div>
+
+<div class="page-sep">── END OF COLLEGE BROCHURE (Pages 5–6) ──</div>
+
+</body>
+</html>
