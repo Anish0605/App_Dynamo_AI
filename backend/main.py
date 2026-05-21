@@ -1186,6 +1186,24 @@ async def save_document_text(req: SaveTextDocReq):
         return {"success": False, "error": str(e)}
 
 # --------------------------------------------------
+# PITCH DECK DOWNLOAD
+# --------------------------------------------------
+
+PPTX_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Dynamo_AI_Pitch_Deck.pptx")
+
+@app.get("/download/pitch-deck")
+def download_pitch_deck():
+    if not os.path.exists(PPTX_PATH):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Pitch deck not found")
+    return FileResponse(
+        path=PPTX_PATH,
+        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        filename="Dynamo_AI_Pitch_Deck.pptx",
+        headers={"Content-Disposition": "attachment; filename=Dynamo_AI_Pitch_Deck.pptx"},
+    )
+
+# --------------------------------------------------
 # STATIC FILES (frontend — must come last)
 # --------------------------------------------------
 
