@@ -29,4 +29,10 @@ title = "Pricing Research 2026 — Competitor analysis + Plan structure for tomo
 id = "CRtoY1naXzPPrbXeKymwb"
 uri = "file://Dynamo_AI_Pitch_Deck.pptx"
 type = "slides"
-title = "Dynamo AI Pitch Deck v2 — 17 Slides (PPTX)"
+title = "Full Deck — 17 Slides (updated)"
+
+[[outputs]]
+id = "VZFNaUU_sTgM8w2fphJvQ"
+uri = "file://Dynamo_AI_Slide12_Market.pptx"
+type = "slides"
+title = "Slide 12 Only — Market (TAM/SAM/SOM)"

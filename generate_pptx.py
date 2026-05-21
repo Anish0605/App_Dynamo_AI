@@ -641,7 +641,7 @@ txb(sl, "Start with the highest-pain users. Expand outward to institutions.",
 tiers = [
     ("TAM", "Total Addressable Market",
      "All researchers, educators & students using digital tools across India.",
-     "₹2,400 Cr+", "annual academic productivity spend (India)", MUTED,
+     "₹2,400 Cr+", "estimated annual academic productivity market (India)", MUTED,
      RGBColor(0x12, 0x17, 0x28), RGBColor(0x30, 0x35, 0x50)),
     ("SAM", "Serviceable Available Market",
      "India's 200K+ PhD scholars + 1.5M professors & academic researchers.",

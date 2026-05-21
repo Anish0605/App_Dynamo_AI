@@ -1190,6 +1190,7 @@ async def save_document_text(req: SaveTextDocReq):
 # --------------------------------------------------
 
 PPTX_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Dynamo_AI_Pitch_Deck.pptx")
+SLIDE12_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Dynamo_AI_Slide12_Market.pptx")
 
 @app.get("/download/pitch-deck")
 def download_pitch_deck():
@@ -1201,6 +1202,18 @@ def download_pitch_deck():
         media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
         filename="Dynamo_AI_Pitch_Deck.pptx",
         headers={"Content-Disposition": "attachment; filename=Dynamo_AI_Pitch_Deck.pptx"},
+    )
+
+@app.get("/download/slide12-market")
+def download_slide12():
+    if not os.path.exists(SLIDE12_PATH):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Slide 12 not found")
+    return FileResponse(
+        path=SLIDE12_PATH,
+        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        filename="Dynamo_AI_Slide12_Market.pptx",
+        headers={"Content-Disposition": "attachment; filename=Dynamo_AI_Slide12_Market.pptx"},
     )
 
 # --------------------------------------------------
