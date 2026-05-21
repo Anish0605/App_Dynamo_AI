@@ -181,7 +181,7 @@ txb(sl, "The Research Operating System for Academia.",
 txb(sl, "RESEARCH  ·  WRITE  ·  CITE  ·  PRESENT  —  ALL IN ONE PLACE.",
     Inches(0.5), Inches(4.15), Inches(12), Inches(0.4),
     size=13, bold=True, color=YELLOW)
-txb(sl, "Built for India's 200,000+ PhD scholars, researchers and educators.",
+txb(sl, "Built for researchers, scholars and educators.",
     Inches(0.5), Inches(4.7), Inches(10), Inches(0.4),
     size=13, color=MUTED)
 txb(sl, "FOUNDER: ANISH KRISNA S  ·  MS DATA SCIENCE",
@@ -279,18 +279,24 @@ footer(sl)
 sl = add_slide()
 header(sl, 4, "THE SOLUTION")
 section_tag(sl, "INTRODUCING")
-txb(sl, "One platform. Six superpowers.",
-    Inches(0.4), Inches(1.35), Inches(10), Inches(0.75), size=38, bold=True, color=WHITE)
-txb(sl, "Dynamo AI replaces 6+ disconnected tools with a single intelligent platform built for academics.",
-    Inches(0.4), Inches(2.1), Inches(9.5), Inches(0.4), size=14, color=MUTED)
+txb(sl, "One platform. One continuous academic workflow.",
+    Inches(0.4), Inches(1.35), Inches(11), Inches(0.75), size=36, bold=True, color=WHITE)
+txb(sl, "Every step of your research — from discovery to final presentation — happens in one place.",
+    Inches(0.4), Inches(2.1), Inches(11), Inches(0.4), size=14, color=MUTED)
 
 features = [
-    ("🔬", "Research Discovery",    "Real-time search across web + Semantic Scholar"),
-    ("📖", "Literature Analysis",   "Find gaps, summarise papers, surface insights"),
-    ("✍️",  "Academic Writing",      "Draft & refine with DeepThink AI mode"),
-    ("📋", "Citation Generation",   "Auto-format APA, MLA, IEEE, Chicago, Harvard, Vancouver"),
-    ("📊", "Presentation Creation", "Mindmaps, flowcharts, decks — instantly"),
-    ("🧠", "Knowledge Management",  "AI Memory + Document Library, persistent across chats"),
+    ("🔬", "Discover relevant papers and evidence instantly",
+     "Search across web + Semantic Scholar in seconds — no tab switching"),
+    ("📖", "Identify insights, patterns and research gaps",
+     "Analyse and summarise papers automatically, surface what matters"),
+    ("✍️",  "Draft academic content with structured assistance",
+     "Write with DeepThink AI — built for academic rigour and depth"),
+    ("📋", "Generate publication-ready citations automatically",
+     "APA, MLA, IEEE, Chicago, Harvard, Vancouver — formatted on demand"),
+    ("📊", "Convert research into presentations, mind maps and flowcharts",
+     "Go from notes to polished deck or visual in minutes"),
+    ("🧠", "Preserve research context across documents and sessions",
+     "AI Memory + Document Library keep your work accessible — always"),
 ]
 for i, (icon, title, desc) in enumerate(features):
     col = i % 3; row = i // 3
@@ -406,7 +412,7 @@ header(sl, 7, "PRODUCT · PART 2")
 section_tag(sl, "PRODUCT · PERSISTENT INTELLIGENCE")
 txb(sl, "It remembers. So you don't have to.",
     Inches(0.4), Inches(1.35), Inches(11), Inches(0.7), size=32, bold=True, color=WHITE)
-txb(sl, "AI Memory and Document Library make Dynamo the first AI that actually knows your research context — chat after chat.",
+txb(sl, "Your research context persists across sessions, documents and projects.",
     Inches(0.4), Inches(2.05), Inches(12), Inches(0.45), size=13, color=MUTED)
 
 # Profile / Quota
@@ -418,90 +424,125 @@ picture_card(sl, SHOT_PROFILE,
 # AI Memory
 picture_card(sl, SHOT_AI_MEMORY,
              Inches(4.55), Inches(2.6), Inches(4.2), Inches(4.0),
-             caption="AI Memory",
-             sub="Auto-captured facts about your research interests, goals & topics")
+             caption="AI Memory — Research Context Retention",
+             sub="Dynamo remembers your topics, goals & interests across every session")
 
 # Document Library
 picture_card(sl, SHOT_DOC_LIBRARY,
              Inches(9.0), Inches(2.6), Inches(3.9), Inches(4.0),
              caption="Document Library",
-             sub="PDFs · DOCX · TXT — summaries injected into every chat")
+             sub="Access all research materials in one place — summaries injected into every chat")
 
-txb(sl, "Built-in differentiator: no other academic AI tool today has both persistent Memory AND a Document Library.",
+txb(sl, "Your research context remains available across sessions, projects and uploaded documents — automatically.",
     Inches(0.4), Inches(6.85), Inches(12.5), Inches(0.3),
     size=10, color=YELLOW, align=PP_ALIGN.CENTER, bold=True)
 footer(sl)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 08 — Demo Video  (NEW — YouTube placeholder)
+# SLIDE 08 — Researcher Journey (Before / After)
 # ═══════════════════════════════════════════════════════════════════════════════
 sl = add_slide()
-header(sl, 8, "WATCH IT WORK")
-section_tag(sl, "PRODUCT DEMO")
-txb(sl, "See Dynamo AI in 90 seconds.",
-    Inches(0.4), Inches(1.35), Inches(10), Inches(0.7), size=36, bold=True, color=WHITE)
-txb(sl, "A full end-to-end walkthrough — from research question to finished deck.",
-    Inches(0.4), Inches(2.05), Inches(11), Inches(0.4), size=14, color=MUTED)
+header(sl, 8, "THE JOURNEY")
+section_tag(sl, "THE RESEARCHER JOURNEY")
+txb(sl, "The same workflow. A completely different experience.",
+    Inches(0.4), Inches(1.35), Inches(12), Inches(0.7), size=32, bold=True, color=WHITE)
+txb(sl, "Dynamo AI doesn't add another tool. It replaces the entire fragmented workflow with one.",
+    Inches(0.4), Inches(2.05), Inches(12), Inches(0.38), size=13, color=MUTED)
 
-# Large video player frame
-vl, vt, vw, vh = Inches(2.4), Inches(2.7), Inches(8.5), Inches(3.6)
-rect(sl, vl, vt, vw, vh, fill_color=BLACK, line_color=YELLOW, line_width=Pt(3))
-# Subtle inner frame
-rect(sl, vl + Inches(0.15), vt + Inches(0.15), vw - Inches(0.3), vh - Inches(0.3),
-     fill_color=BLACK2, line_color=BORDER)
+# ── LEFT COLUMN: Without Dynamo ───────────────────────────────────────────────
+lc_l, lc_t, lc_w = Inches(0.4), Inches(2.55), Inches(5.8)
+rect(sl, lc_l, lc_t, lc_w, Inches(4.55),
+     fill_color=RGBColor(0x14, 0x08, 0x08), line_color=RED)
+txb(sl, "✗  WITHOUT DYNAMO AI", lc_l + Inches(0.2), lc_t + Inches(0.15),
+    lc_w - Inches(0.3), Inches(0.28), size=9, bold=True, color=RED)
+txb(sl, "Multiple tools. Fragmented workflow.",
+    lc_l + Inches(0.2), lc_t + Inches(0.45), lc_w - Inches(0.3), Inches(0.28),
+    size=10, color=MUTED)
 
-# Play button (yellow circle approximated as oval)
-play_d = Inches(1.4)
-play_l = vl + (vw - play_d) / 2
-play_t = vt + (vh - play_d) / 2 - Inches(0.05)
-play = sl.shapes.add_shape(9, play_l, play_t, play_d, play_d)  # MSO_SHAPE.OVAL = 9
-play.fill.solid()
-play.fill.fore_color.rgb = YELLOW
-play.line.fill.background()
-txb(sl, "▶", play_l, play_t + Inches(0.18), play_d, play_d,
-    size=54, bold=True, color=BLACK, align=PP_ALIGN.CENTER)
+before_steps = [
+    ("Search Papers",        "Google Scholar, databases"),
+    ("Take Notes",           "Word, Notion, sticky notes"),
+    ("Write Draft",          "MS Word / Docs"),
+    ("Generate Citations",   "Zotero / Mendeley"),
+    ("Create Slides",        "PowerPoint / Canva"),
+    ("Store Documents",      "Drive / email to self"),
+]
+for i, (step, tool) in enumerate(before_steps):
+    sy = lc_t + Inches(0.85 + i * 0.58)
+    rect(sl, lc_l + Inches(0.2), sy, lc_w - Inches(0.4), Inches(0.48),
+         fill_color=RGBColor(0x20, 0x10, 0x10), line_color=RGBColor(0x55, 0x20, 0x20))
+    txb(sl, f"→  {step}", lc_l + Inches(0.32), sy + Inches(0.04),
+        Inches(2.2), Inches(0.25), size=11, bold=True, color=WHITE)
+    txb(sl, tool, lc_l + Inches(0.32), sy + Inches(0.26),
+        Inches(3.0), Inches(0.2), size=8, color=RED)
+    if i < len(before_steps) - 1:
+        txb(sl, "↕  switch app", lc_l + Inches(0.32),
+            sy + Inches(0.5), Inches(2), Inches(0.18),
+            size=7, color=RGBColor(0x77, 0x33, 0x33))
 
-# Watch label below player
-txb(sl, "WATCH THE FULL DEMO",
-    Inches(0.4), Inches(6.45), Inches(12.5), Inches(0.32),
-    size=11, bold=True, color=YELLOW, align=PP_ALIGN.CENTER)
+# ── BIG ARROW centre ──────────────────────────────────────────────────────────
+txb(sl, "⟹", Inches(6.35), Inches(4.5), Inches(0.8), Inches(0.6),
+    size=36, bold=True, color=YELLOW, align=PP_ALIGN.CENTER)
 
-# URL strip (editable placeholder — replace with real YouTube link)
-rect(sl, Inches(3.5), Inches(6.78), Inches(6.3), Inches(0.35),
-     fill_color=CARD, line_color=YELLOW)
-txb(sl, "▶  youtube.com/watch?v=YOUR_VIDEO_ID",
-    Inches(3.55), Inches(6.82), Inches(6.2), Inches(0.3),
-    size=12, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+# ── RIGHT COLUMN: With Dynamo ─────────────────────────────────────────────────
+rc_l = Inches(7.3)
+rect(sl, rc_l, lc_t, lc_w, Inches(4.55),
+     fill_color=RGBColor(0x06, 0x18, 0x0c), line_color=GREEN)
+txb(sl, "✓  WITH DYNAMO AI", rc_l + Inches(0.2), lc_t + Inches(0.15),
+    lc_w - Inches(0.3), Inches(0.28), size=9, bold=True, color=GREEN)
+txb(sl, "Single platform. Single workflow.",
+    rc_l + Inches(0.2), lc_t + Inches(0.45), lc_w - Inches(0.3), Inches(0.28),
+    size=10, color=MUTED)
 
-# Founder note (very small, easy to remove before pitch)
-txb(sl, "[ Founder: replace placeholder URL with your unlisted YouTube demo link before submission ]",
-    Inches(0.4), Inches(7.18), Inches(12.5), Inches(0.22),
-    size=7, color=RGBColor(0x55, 0x55, 0x66), align=PP_ALIGN.CENTER)
+after_steps = [
+    ("Discover evidence-backed papers",  "Evidence-backed research assistance"),
+    ("Analyse & take smart notes",       "Insights, gaps and summaries — instant"),
+    ("Draft academic content",           "Structured assistance with DeepThink AI"),
+    ("Generate citations automatically", "6 formats — APA, MLA, IEEE and more"),
+    ("Convert research to a deck",       "Slides, mindmaps, flowcharts — in seconds"),
+    ("Store in Document Library",        "Access all research materials in one place"),
+]
+for i, (step, tool) in enumerate(after_steps):
+    sy = lc_t + Inches(0.85 + i * 0.58)
+    rect(sl, rc_l + Inches(0.2), sy, lc_w - Inches(0.4), Inches(0.48),
+         fill_color=RGBColor(0x08, 0x22, 0x10), line_color=RGBColor(0x18, 0x55, 0x28))
+    txb(sl, f"✓  {step}", rc_l + Inches(0.32), sy + Inches(0.04),
+        Inches(2.8), Inches(0.25), size=11, bold=True, color=WHITE)
+    txb(sl, tool, rc_l + Inches(0.32), sy + Inches(0.26),
+        Inches(3.2), Inches(0.2), size=8, color=GREEN)
+
+# ── Bottom callout ────────────────────────────────────────────────────────────
+rect(sl, Inches(0.4), Inches(7.18), Inches(12.5), Inches(0.2),
+     fill_color=RGBColor(0x18, 0x14, 0x00), line_color=YELLOW)
+txb(sl, "Dynamo AI is not another AI chatbot. It is the academic workflow platform where researchers do all their work.",
+    Inches(0.6), Inches(7.2), Inches(12.1), Inches(0.18),
+    size=9, bold=True, color=YELLOW, align=PP_ALIGN.CENTER)
+footer(sl)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SLIDE 09 — Why Dynamo Wins  (NEW)
 # ═══════════════════════════════════════════════════════════════════════════════
 sl = add_slide()
-header(sl, 9, "WHY DYNAMO WINS")
-section_tag(sl, "WHY DYNAMO WINS")
-txb(sl, "Five reasons we win this category.",
+header(sl, 9, "WHY RESEARCHERS CHOOSE DYNAMO AI")
+section_tag(sl, "WHY RESEARCHERS CHOOSE DYNAMO AI")
+txb(sl, "Why researchers choose Dynamo AI.",
     Inches(0.4), Inches(1.35), Inches(11), Inches(0.75), size=36, bold=True, color=WHITE)
-txb(sl, "We're not another generic chatbot. Every design decision serves one user: the researcher.",
-    Inches(0.4), Inches(2.1), Inches(11), Inches(0.4), size=14, color=MUTED)
+txb(sl, "Dynamo AI is not another AI chatbot. It is the academic workflow platform where researchers do all their work.",
+    Inches(0.4), Inches(2.1), Inches(12), Inches(0.4), size=14, color=MUTED)
 
 reasons = [
     ("🎓", "Built for Academic Workflows",
      "Not a generic AI chat. Every feature — modes, citation engine, study guides — is shaped around how researchers actually work."),
     ("🔗", "Research → Write → Cite → Present",
      "The full academic pipeline lives inside a single workspace. Switching tools is the problem we exist to remove."),
-    ("🧠", "Persistent Academic Memory",
-     "AI Memory + Document Library give Dynamo lasting context about your work — no other academic AI does both."),
-    ("🇮🇳", "India-First Pricing & Product",
-     "Designed for Indian researchers. INR pricing (₹399 / ₹999), local payment rails (Razorpay), Hindi roadmap."),
+    ("🧠", "Academic Memory Layer",
+     "Research context remains available across sessions, projects and uploaded documents — automatically, without any manual effort."),
+    ("📋", "Generate publication-ready citations automatically",
+     "6 academic citation formats, structured assistance, and evidence-backed research in one place."),
     ("👨‍🔬", "Built by Someone Who Lived It",
-     "Founder is a former data scientist who built Dynamo to solve a problem he experienced first-hand."),
+     "Founder is a data scientist who built Dynamo to solve a workflow problem he experienced first-hand."),
 ]
 for i, (icon, title, desc) in enumerate(reasons):
     # 2 + 3 layout — top row 2 wide cards, bottom row 3
@@ -540,15 +581,15 @@ txb(sl, "One workflow. Everyone else is a slice.",
 txb(sl, "Other tools each solve a single piece of the research workflow. Dynamo AI brings them together in a single workspace.",
     Inches(0.4), Inches(2.1), Inches(11), Inches(0.4), size=13, color=MUTED)
 
-cols_hdr = ["Capability", "ChatGPT", "Consensus", "Elicit", "Jenni", "⚡ Dynamo AI"]
-col_ws   = [3.2, 1.6, 1.6, 1.6, 1.6, 1.9]
+cols_hdr = ["Researcher Outcome", "ChatGPT", "Consensus", "Jenni", "⚡ Dynamo AI"]
+col_ws   = [4.2, 1.8, 1.8, 1.8, 1.95]
 rows_data = [
-    ["Research Search",        "~", "y", "y", "n", "y"],
-    ["Academic Writing",       "y", "n", "n", "y", "y"],
-    ["Citation Formatting",    "~", "y", "y", "y", "y"],
-    ["Document Library",       "n", "n", "n", "n", "y"],
-    ["Presentation Creation",  "n", "n", "n", "n", "y"],
-    ["Single Workspace",       "n", "n", "n", "n", "y"],
+    ["Find evidence from research papers",      "~", "y", "n", "y"],
+    ["Write academic research papers",          "y", "n", "y", "y"],
+    ["Manage research knowledge & memory",      "n", "n", "n", "y"],
+    ["Generate formatted citations",            "~", "y", "y", "y"],
+    ["Create presentations & visuals",          "n", "n", "n", "y"],
+    ["Complete research workflow end-to-end",   "n", "n", "n", "y"],
 ]
 row_h = Inches(0.46)
 lft0 = Inches(0.4)
@@ -579,7 +620,7 @@ for ri, row in enumerate(rows_data):
 
 rect(sl, Inches(0.4), Inches(6.35), Inches(12.5), Inches(0.65),
      fill_color=RGBColor(0x18, 0x14, 0x00), line_color=YELLOW)
-txb(sl, "💡  Dynamo AI brings Research, Writing, Citations, Memory and Presentations under one login — built for the academic workflow.",
+txb(sl, "💡  Dynamo AI is the only platform where a researcher can complete their entire workflow — without switching tools.",
     Inches(0.6), Inches(6.45), Inches(12.1), Inches(0.45), size=11, color=WHITE)
 footer(sl)
 
@@ -640,8 +681,8 @@ txb(sl, "Start with the highest-pain users. Expand outward to institutions.",
 
 tiers = [
     ("TAM", "Total Addressable Market",
-     "All researchers, educators & students using digital tools across India.",
-     "₹2,400 Cr+", "estimated annual academic productivity market (India)", MUTED,
+     "Researchers, educators and institutions across India using digital academic tools.",
+     "India-wide", "academic research & education sector", MUTED,
      RGBColor(0x12, 0x17, 0x28), RGBColor(0x30, 0x35, 0x50)),
     ("SAM", "Serviceable Available Market",
      "India's 200K+ PhD scholars + 1.5M professors & academic researchers.",
@@ -699,7 +740,7 @@ plans = [
     ("Pro", "₹999", "/mo", "Power users & professors", WHITE,
      CARD, RGBColor(0x30, 0x35, 0x50),
      ["• Everything in Plus", "• DeepThink Mode", "• Deep Research Agent",
-      "• Unlimited PDF uploads", "• Priority speed & support"]),
+      "• Unlimited PDF uploads", "• Advanced academic workflows"]),
 ]
 for i, (name, price, per, sub, txt_c, bg_c, bd_c, feats) in enumerate(plans):
     lft = Inches(0.4 + i * 4.3)
@@ -806,7 +847,7 @@ phases = [
     ("Phase 2", "Q4 2026 – Q1 2027","Scale & Expand",     YELLOW,
      ["Mobile apps (iOS + Android)", "First 3 university pilots", "1,000 paid users (₹10L+ MRR)", "Hindi language support"]),
     ("Phase 3", "Q2–Q4 2027",       "Institutional Play", BLUE,
-     ["10,000+ active users", "10+ institutional contracts", "Team scale to 15", "Series A fundraising"]),
+     ["10,000+ active users", "10+ institutional contracts", "Team scale to 15", "National Academic Adoption"]),
 ]
 for i, (phase, q, title, color, items) in enumerate(phases):
     lft = Inches(0.4 + i * 4.3)
@@ -872,8 +913,13 @@ txb(sl, "MISSION", Inches(4.75), Inches(4.58), Inches(5), Inches(0.25),
 txb(sl, '"Build the operating system for academic work — so India\'s brightest minds spend their time on insight, not on busywork."',
     Inches(4.75), Inches(4.9), Inches(8.4), Inches(0.9), size=13, color=WHITE)
 
-txb(sl, "Founded Dynamo AI after seeing first-hand how fragmented academic tools were stealing thousands of hours from researchers across India.",
-    Inches(4.6), Inches(6.1), Inches(8.75), Inches(0.55), size=11, color=MUTED)
+# Why I Built section
+rect(sl, Inches(4.6), Inches(5.75), Inches(8.75), Inches(1.35),
+     fill_color=CARD, line_color=BORDER)
+txb(sl, "WHY I BUILT DYNAMO AI", Inches(4.75), Inches(5.88), Inches(5), Inches(0.25),
+    size=9, bold=True, color=YELLOW)
+txb(sl, "I experienced how fragmented academic workflows force researchers to spend more time managing tools than producing insight. Dynamo AI was created to unify research, writing, citations and knowledge management into a single academic workspace — so scholars can focus on what actually matters.",
+    Inches(4.75), Inches(6.15), Inches(8.4), Inches(0.88), size=10, color=WHITE)
 footer(sl)
 
 
