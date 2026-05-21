@@ -24,3 +24,9 @@ id = "YFeU1HBY_PFbxArd0897y"
 uri = "file://PRICING_RESEARCH_2026.md"
 type = "text"
 title = "Pricing Research 2026 — Competitor analysis + Plan structure for tomorrow"
+
+[[outputs]]
+id = "CRtoY1naXzPPrbXeKymwb"
+uri = "file://Dynamo_AI_Pitch_Deck.pptx"
+type = "slides"
+title = "Dynamo AI Pitch Deck — 14 Slides (PPTX)"
