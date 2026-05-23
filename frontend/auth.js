@@ -217,7 +217,11 @@ let _authSubmitting = false;
 
 window.handleAuthSubmit = async function handleAuthSubmit() {
   if (_authSubmitting) return;
-  if (!firebaseAuth) return alert("Firebase not ready");
+  if (!firebaseAuth) {
+    const errorBox = document.getElementById("auth-error");
+    if (errorBox) { errorBox.textContent = "Authentication service failed to load. Please refresh the page."; errorBox.style.display = "block"; }
+    return;
+  }
 
   const email = document.getElementById("auth-email")?.value.trim();
   const password = document.getElementById("auth-password")?.value;
