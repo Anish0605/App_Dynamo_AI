@@ -38,7 +38,7 @@ def apimart_call(model, prompt):
 def gemini_fallback_call(prompt):
     """Reliable Gemini fallback used when APIMart is unavailable."""
     response = _client.models.generate_content(
-        model="gemini-3.1-flash-lite-preview",
+        model="gemini-3.5-flash",
         contents=prompt
     )
     return response.text
@@ -254,7 +254,7 @@ def research_pipeline(topic: str, web_context: str = "", citation_format: str = 
 
     # 2. Gemini → analyze trends, gaps, contradictions
     analysis = pipeline_call(
-        "gemini-3.1",
+        "gemini-3.5-flash",
         f"Analyze the following research findings. Identify: (1) key themes, (2) research gaps, (3) contradictions or debates, (4) future directions.\n\nFINDINGS:\n{extracted}",
         step_name="analyze"
     )

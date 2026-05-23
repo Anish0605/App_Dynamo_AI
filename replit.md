@@ -29,10 +29,13 @@ Dynamo AI is a professional-grade Research Operating System. It combines a FastA
 - **Firebase** — Authentication
 - **Pollinations AI** — Image generation
 
-## AI Model Tiers (April 2026)
-- **Fast Mode** (default): `gemini-3.1-flash-lite-preview` — fastest, cheapest
-- **DeepThink** (`deep_dive=True`): `gemini-3-flash-preview` — built-in thinking, ~5x intelligence vs lite. `deep_dive` always wins over the default `model_name`. Falls back to lite if unavailable.
-- **Research Mode** (`mode="research"`): APIMart-routed pipeline (Claude Sonnet 4.5 → Gemini 3.1 → GPT-5.4) via `multi_model_router.py` — DO NOT modify
+## AI Model Tiers (Updated May 2026 — Google I/O)
+- **Fast Mode** (default): `gemini-3.5-flash` — frontier-level intelligence at 4× the speed of other frontier models, less than half the cost. Upgraded from `gemini-3.1-flash-lite-preview` on May 23 2026 (Google I/O announcement). Falls back to `gemini-3.1-flash-lite-preview` if quota unavailable.
+- **DeepThink** (`deep_dive=True`): `gemini-3.5-flash` — same model but with structured deep-reasoning system prompt. `deep_dive` always wins over the default `model_name`. Falls back to `gemini-3.1-flash-lite-preview` if unavailable.
+- **Research Mode** (`mode="research"`): APIMart-routed pipeline (Claude Sonnet 4.5 → Gemini 3.5 Flash → GPT-5.4) via `multi_model_router.py` — DO NOT modify
+- **Deep Research Agent**: `deep-research-preview-04-2026` / `deep-research-max-preview-04-2026` (Gemini Interactions API) with `gemini-3.5-flash` for internal synthesis steps
+- **Coming (June 2026)**: Gemini 3.5 Pro (internally used at Google, rolling out next month) — plan to upgrade DeepThink to Pro when available
+- **Coming (weeks)**: Gemini Omni Flash — multimodal video generation/editing via API — plan to integrate into video generation pipeline
 
 ## Composer Architecture (Split Two-Menu + Right-Side Flyouts, April 28, 2026)
 Bottom input bar: textarea on top, action row below, single yellow-bordered wrapper (`frontend/Index.html` ~1364-1400).

@@ -128,21 +128,24 @@ def get_ai_response(
     # -------------------------
     # GEMINI EXECUTION
     # -------------------------
-    # Model selection logic (priority: deep_dive > non-default model_name > default lite):
-    #   • DeepThink mode (deep_dive=True) → gemini-3-flash-preview (built-in thinking, ~5x vs lite)
-    #   • Fast mode (default)             → gemini-3.1-flash-lite-preview
+    # Model selection logic (priority: deep_dive > non-default model_name > default):
+    #   • DeepThink mode (deep_dive=True) → gemini-3.5-flash (frontier intelligence + deep reasoning prompt)
+    #   • Fast mode (default)             → gemini-3.5-flash (4× faster, frontier-level, < half cost vs 3.1 Pro)
     #   • Explicit non-default model_name → respected
-    DEFAULT_LITE = "gemini-3.1-flash-lite-preview"
-    DEEPTHINK_MODEL = "gemini-3-flash-preview"
+    #   Fallback: gemini-3.1-flash-lite-preview (stable safety net if 3.5 quota not yet active)
+    #   Upgraded May 2026 (Google I/O): 3.5 Flash beats 3.1 Pro on almost all benchmarks.
+    DEFAULT_MODEL = "gemini-3.5-flash"
+    DEEPTHINK_MODEL = "gemini-3.5-flash"
+    FALLBACK_MODEL = "gemini-3.1-flash-lite-preview"
     try:
         if deep_dive:
-            # DeepThink ALWAYS wins — overrides any default lite that the frontend
-            # sends so DeepThink actually feels different from Fast mode.
+            # DeepThink ALWAYS wins — overrides any default that the frontend
+            # sends so DeepThink actually feels deeper than Fast mode.
             resolved_model = DEEPTHINK_MODEL
-        elif model_name and model_name != DEFAULT_LITE:
+        elif model_name and model_name != FALLBACK_MODEL:
             resolved_model = model_name
         else:
-            resolved_model = DEFAULT_LITE
+            resolved_model = DEFAULT_MODEL
 
         response = _client.models.generate_content(
             model=resolved_model,
@@ -150,10 +153,10 @@ def get_ai_response(
         )
         return response.text
     except Exception as e:
-        # If the new model fails (e.g. quota / region), gracefully fall back to lite
+        # Graceful fallback to stable lite model if 3.5 quota / region unavailable
         try:
             response = _client.models.generate_content(
-                model="gemini-3.1-flash-lite-preview",
+                model=FALLBACK_MODEL,
                 contents=full_prompt
             )
             return response.text

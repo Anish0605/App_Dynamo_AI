@@ -125,7 +125,7 @@ async def _run_research(job_id: str, query: str, model: str):
         plan_resp = await loop.run_in_executor(
             None,
             lambda: _client.models.generate_content(
-                model="gemini-3-flash-preview",
+                model="gemini-3.5-flash",
                 contents=plan_prompt,
             )
         )
@@ -189,7 +189,7 @@ async def _run_research(job_id: str, query: str, model: str):
         insights_resp = await loop.run_in_executor(
             None,
             lambda: _client.models.generate_content(
-                model="gemini-3-flash-preview",
+                model="gemini-3.5-flash",
                 contents=extract_prompt,
             )
         )
@@ -212,7 +212,7 @@ async def _run_research(job_id: str, query: str, model: str):
         gaps_resp = await loop.run_in_executor(
             None,
             lambda: _client.models.generate_content(
-                model="gemini-3-flash-preview",
+                model="gemini-3.5-flash",
                 contents=gaps_prompt,
             )
         )
@@ -251,7 +251,7 @@ async def _run_research(job_id: str, query: str, model: str):
         report_resp = await loop.run_in_executor(
             None,
             lambda: _client.models.generate_content(
-                model="gemini-3-flash-preview",
+                model="gemini-3.5-flash",
                 contents=synthesis_prompt,
             )
         )
