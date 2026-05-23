@@ -8,6 +8,17 @@
   // ── Open / Close ──────────────────────────────────────────────────────────
 
   window.openWatchesModal = function (prefillTopic = "") {
+    // Pro-only gate
+    const plan = (window.appState?.supabaseUser?.plan || "free").toLowerCase();
+    if (plan !== "pro") {
+      if (window._showProGate) {
+        window._showProGate("Research Watcher");
+      } else {
+        alert("Research Watcher is a Pro feature. Upgrade to Pro to use it.");
+      }
+      return;
+    }
+
     const modal = document.getElementById("watches-modal");
     if (!modal) return;
     modal.classList.remove("hidden");

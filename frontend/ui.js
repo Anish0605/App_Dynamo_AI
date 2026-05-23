@@ -124,7 +124,7 @@ function _showPlusGate(featureName) {
       <h3 style="font-size:17px;font-weight:900;color:#111;margin:0 0 8px 0;">${featureName} requires Plus or Pro</h3>
       <p style="font-size:13px;color:#6b7280;line-height:1.65;margin:0 0 22px 0;">
         Upgrade to unlock <strong>Research mode</strong>, <strong>AI Detector</strong>,
-        <strong>Plagiarism Checker</strong>, and all research tools — from just <strong>₹199/mo</strong>.
+        <strong>Plagiarism Checker</strong>, and all research tools — from just <strong>₹399/mo</strong>.
       </p>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <a href="/pricing.html" style="display:block;padding:12px 16px;background:#facc15;color:#111;font-weight:800;font-size:14px;border-radius:12px;text-decoration:none;">
@@ -135,7 +135,7 @@ function _showPlusGate(featureName) {
           Maybe later
         </button>
       </div>
-      <p style="font-size:10px;color:#d1d5db;margin:14px 0 0 0;">Plus — ₹199/mo &nbsp;·&nbsp; Pro — ₹399/mo &nbsp;·&nbsp; Cancel anytime</p>
+      <p style="font-size:10px;color:#d1d5db;margin:14px 0 0 0;">Plus — ₹399/mo &nbsp;·&nbsp; Pro — ₹999/mo &nbsp;·&nbsp; Cancel anytime</p>
     </div>`;
   wrap.addEventListener("click", e => { if (e.target === wrap) wrap.remove(); });
   document.body.appendChild(wrap);
@@ -153,7 +153,7 @@ function _showProGate(featureName) {
       <h3 style="font-size:17px;font-weight:900;color:#111;margin:0 0 8px 0;">${featureName} is Pro only</h3>
       <p style="font-size:13px;color:#6b7280;line-height:1.65;margin:0 0 22px 0;">
         <strong>DeepThink mode</strong>, <strong>Deep Research Agent</strong>, and <strong>Find Research Gaps</strong>
-        are exclusively available on the <strong>Pro plan (₹399/mo)</strong>.
+        are exclusively available on the <strong>Pro plan (₹999/mo)</strong>.
       </p>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <a href="/pricing.html" style="display:block;padding:12px 16px;background:#9333ea;color:#fff;font-weight:800;font-size:14px;border-radius:12px;text-decoration:none;">
@@ -164,11 +164,15 @@ function _showProGate(featureName) {
           Maybe later
         </button>
       </div>
-      <p style="font-size:10px;color:#d1d5db;margin:14px 0 0 0;">Pro — ₹399/mo &nbsp;·&nbsp; Cancel anytime</p>
+      <p style="font-size:10px;color:#d1d5db;margin:14px 0 0 0;">Pro — ₹999/mo &nbsp;·&nbsp; Cancel anytime</p>
     </div>`;
   wrap.addEventListener("click", e => { if (e.target === wrap) wrap.remove(); });
   document.body.appendChild(wrap);
 }
+
+// Expose gate functions globally so other modules (e.g. watches.js) can call them
+window._showPlusGate = _showPlusGate;
+window._showProGate  = _showProGate;
 
 /* --------------------------------------------------
    🆕 SET MODE — fast / deep / research (mutually exclusive)
