@@ -26,6 +26,7 @@ import mindmap
 import multi_model_router
 import flashcard as flashcard_module
 import deck_engine
+import watches as watches_module
 
 from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
@@ -1217,6 +1218,38 @@ def download_slide12():
     )
 
 # --------------------------------------------------
+# RESEARCH WATCHER ENDPOINTS
+# --------------------------------------------------
+
+class WatchCreateReq(BaseModel):
+    user_id: str
+    topic: str
+    frequency: str = "weekly"
+
+class WatchToggleReq(BaseModel):
+    user_id: str
+    is_active: bool
+
+@app.get("/watches")
+async def get_watches_ep(user_id: str):
+    w = watches_module.get_watches(supabase_client.supabase, user_id)
+    return {"watches": w}
+
+@app.post("/watches")
+async def create_watch_ep(req: WatchCreateReq):
+    w = watches_module.create_watch(supabase_client.supabase, req.user_id, req.topic, req.frequency)
+    return {"watch": w}
+
+@app.delete("/watches/{watch_id}")
+async def delete_watch_ep(watch_id: str, user_id: str):
+    watches_module.delete_watch(supabase_client.supabase, watch_id, user_id)
+    return {"success": True}
+
+@app.patch("/watches/{watch_id}")
+async def toggle_watch_ep(watch_id: str, req: WatchToggleReq):
+    w = watches_module.toggle_watch(supabase_client.supabase, watch_id, req.user_id, req.is_active)
+    return {"watch": w}
+
 # STATIC FILES (frontend — must come last)
 # --------------------------------------------------
 

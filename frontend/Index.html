@@ -1121,6 +1121,17 @@
         </div>
       </div>
 
+      <div class="profile-item" id="watches-btn" onclick="event.stopPropagation(); document.getElementById('profile-modal').classList.add('hidden'); window.openWatchesModal();">
+        <div class="profile-item-left">
+          <i data-lucide="bell" class="text-orange-500"></i>
+          <span>Research Watcher</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span id="watches-count-badge" style="display:none;background:#fff7ed;color:#c2410c;font-size:11px;font-weight:700;border-radius:20px;padding:2px 9px;line-height:1.4;align-items:center;justify-content:center;"></span>
+          <span class="profile-arrow">›</span>
+        </div>
+      </div>
+
       <div class="profile-item logout" id="logout-btn">
         <div class="profile-item-left">
           <i data-lucide="log-out" class="text-red-600"></i>
@@ -2424,6 +2435,9 @@
  <!-- DOCUMENT LIBRARY -->
  <script src="documents.js?v=20260505a"></script>
 
+ <!-- RESEARCH WATCHER -->
+ <script src="watches.js?v=20260523a"></script>
+
  <!-- AUTH MUST BE LAST -->
  <script src="auth.js?v=20260505b"></script>
 
@@ -2470,6 +2484,6 @@
  <!-- AI DETECTOR + PLAGIARISM -->
  <script src="detector.js?v=20260516a"></script>
 
- <script src="/deep_research.js?v=20260511e"></script>
+ <script src="/deep_research.js?v=20260523a"></script>
 </body>
 </html>

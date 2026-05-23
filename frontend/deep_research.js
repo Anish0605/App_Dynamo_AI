@@ -249,6 +249,11 @@
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           Verify with Papers
         </button>
+        <button id="${id}-notify-btn" onclick="window.drNotifyMe('${q}')"
+          style="font-size:12px;font-weight:700;color:#c2410c;background:#fff7ed;border:1.5px solid #fed7aa;padding:7px 14px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Notify Me
+        </button>
         ${data.fallback ? `<span style="font-size:11px;color:#f97316;background:#fff7ed;border:1px solid #fed7aa;padding:4px 10px;border-radius:999px;font-weight:600;display:inline-flex;align-items:center;">Enhanced mode</span>` : ""}
       `;
     }
@@ -600,6 +605,17 @@ Rules:
         btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Verify with Papers`;
         btn.disabled = false; btn.style.opacity = "1";
       }
+    }
+  };
+
+  // ── Notify Me (Research Watcher) ─────────────────────────────────────────────
+
+  window.drNotifyMe = function (encodedQuery) {
+    const topic = decodeURIComponent(encodedQuery.replace(/\\'/g, "'")).slice(0, 200);
+    if (typeof window.openWatchesModal === "function") {
+      window.openWatchesModal(topic);
+    } else {
+      alert("Research Watcher not loaded. Please refresh the page.");
     }
   };
 
