@@ -69,7 +69,22 @@ async function syncUserWithSupabase(firebaseUser) {
       userData = newUser;
     }
 
-    // 2b. Patch full_name if missing in existing record
+    // 2b. Daily quota reset (frontend mirrors backend logic)
+    if (userData && userData.quota_date !== today) {
+      try {
+        await window.supabaseClient
+          .from("users")
+          .update({ daily_quota_used: 0, quota_date: today })
+          .eq("id", userData.id);
+        userData.daily_quota_used = 0;
+        userData.quota_date = today;
+        console.log("✅ Daily quota reset for", userData.email, "→ new date:", today);
+      } catch (resetErr) {
+        console.warn("⚠️ Quota reset failed:", resetErr);
+      }
+    }
+
+    // 2c. Patch full_name if missing in existing record
     if (userData && !userData.full_name && firebaseUser.displayName) {
       const { data: patched } = await window.supabaseClient
         .from("users")
