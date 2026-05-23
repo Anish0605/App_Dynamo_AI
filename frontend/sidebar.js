@@ -641,11 +641,43 @@ window.loadChatHistory = async () => {
     const rawContent = msg.content;
     const text = (typeof rawContent === "string" ? rawContent : rawContent?.text) || "";
     if (!text) return; // skip empty messages
+
     if (msg.role === "user") {
       window.renderUserMessage(text, false);
-    } else {
-      window.renderAssistantMessage(marked.parse(text), text, false);
+      return;
     }
+
+    // ── Assistant messages ──────────────────────────────────
+
+    // [Quiz rendered] placeholder — show a non-interactive card
+    if (text.trim() === "[Quiz rendered]") {
+      const c = document.getElementById("chat-messages");
+      if (c) {
+        const el = document.createElement("div");
+        el.className = "flex justify-start mb-4";
+        el.innerHTML = `<div class="bg-gray-100 dark:bg-gray-800 rounded-2xl px-4 py-3 text-sm text-gray-500 dark:text-gray-400 italic">🎮 Interactive quiz was played in this session</div>`;
+        c.appendChild(el);
+      }
+      return;
+    }
+
+    // Quiz JSON saved to DB — re-render interactively
+    if (text.includes('"quiz"')) {
+      try {
+        const start = text.indexOf("{");
+        const end   = text.lastIndexOf("}");
+        if (start !== -1 && end !== -1) {
+          const parsed = JSON.parse(text.slice(start, end + 1));
+          if (parsed.quiz && Array.isArray(parsed.quiz) && parsed.quiz.length > 0) {
+            window.renderQuiz(parsed.quiz);
+            return;
+          }
+        }
+      } catch (_) { /* fall through to markdown */ }
+    }
+
+    // Default: render as markdown
+    window.renderAssistantMessage(marked.parse(text), text, false);
   });
 
   if (typeof window.hideHero === "function") window.hideHero();

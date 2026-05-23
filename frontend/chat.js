@@ -1069,30 +1069,30 @@ window.sendFromInput = async () => {
     // ---------------- QUIZ ----------------
     if (res.content && res.content.includes('"quiz"')) {
       try {
-        let cleanText = res.content.trim();
-
-        cleanText = cleanText
-          .replace(/```json/g, "")
+        let cleanText = res.content.trim()
+          .replace(/```json/gi, "")
           .replace(/```/g, "");
 
         const start = cleanText.indexOf("{");
-        const end = cleanText.lastIndexOf("}");
-
-        if (start !== -1 && end !== -1) {
-          cleanText = cleanText.slice(start, end + 1);
-        }
+        const end   = cleanText.lastIndexOf("}");
+        if (start !== -1 && end !== -1) cleanText = cleanText.slice(start, end + 1);
 
         const parsed = JSON.parse(cleanText);
 
-        window.renderQuiz(parsed.quiz);
-        
-        // ✅ Don't save quiz to chatHistory - it contaminates context
-        window.chatHistory.push({ role: "assistant", content: "[Quiz rendered]" });
+        if (parsed.quiz && Array.isArray(parsed.quiz) && parsed.quiz.length > 0) {
+          window.renderQuiz(parsed.quiz);
 
-        return; // ✅ CRITICAL FIX (STOP DOUBLE RESPONSE)
+          // Save placeholder to DB so history shows something
+          if (window.appState?.supabaseUserId) saveMessage("assistant", "[Quiz rendered]");
 
+          // Don't add raw JSON to context
+          window.chatHistory.push({ role: "assistant", content: "[Quiz rendered]" });
+
+          return;
+        }
       } catch (e) {
-        console.warn("Quiz parse failed");
+        console.warn("Quiz parse failed:", e.message);
+        // Fall through — raw JSON renders as text; we still save it below
       }
     }
 
