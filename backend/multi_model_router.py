@@ -254,7 +254,7 @@ def research_pipeline(topic: str, web_context: str = "", citation_format: str = 
 
     # 2. Gemini → analyze trends, gaps, contradictions
     analysis = pipeline_call(
-        "gemini-3.5-flash",
+        "gemini-3.1",
         f"Analyze the following research findings. Identify: (1) key themes, (2) research gaps, (3) contradictions or debates, (4) future directions.\n\nFINDINGS:\n{extracted}",
         step_name="analyze"
     )
