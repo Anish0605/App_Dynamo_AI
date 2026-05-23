@@ -39,11 +39,10 @@
     document.body.style.overflow = "";
   };
 
-  // Click-outside to close
-  document.addEventListener("click", (e) => {
-    const modal = document.getElementById("watches-modal");
-    const inner = document.getElementById("watches-modal-inner");
-    if (modal && !modal.classList.contains("hidden") && inner && !inner.contains(e.target)) {
+  // Click-outside to close — only fires when clicking the backdrop itself,
+  // not when clicking buttons that re-render innerHTML (which detaches them from DOM)
+  document.getElementById("watches-modal")?.addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) {
       window.closeWatchesModal();
     }
   });
