@@ -2317,6 +2317,35 @@
     </div>
   </div>
 
+  <!-- RESEARCH WATCHER MODAL -->
+  <div id="watches-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div id="watches-modal-inner" class="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="max-height:85vh;">
+
+      <!-- HEADER -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-yellow-400 flex items-center justify-center">
+            <i data-lucide="bell" class="w-4 h-4 text-black"></i>
+          </div>
+          <div>
+            <h3 id="watches-title" class="text-sm font-bold text-gray-900 dark:text-white">Research Watcher</h3>
+            <p id="watches-subtitle" class="text-[11px] text-gray-400">Get notified when a topic has new developments</p>
+          </div>
+        </div>
+        <button onclick="window.closeWatchesModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- BODY (populated by watches.js) -->
+      <div id="watches-body" class="px-5 py-4 overflow-y-auto flex-1"></div>
+
+      <!-- FOOTER (populated by watches.js) -->
+      <div id="watches-footer" class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"></div>
+
+    </div>
+  </div>
+
   <!-- AUTH MODAL -->
   <div id="auth-modal" class="hidden fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm overflow-y-auto" style="-webkit-overflow-scrolling:touch;">
     <div class="flex min-h-full items-center justify-center p-4">
@@ -2436,7 +2465,7 @@
  <script src="documents.js?v=20260505a"></script>
 
  <!-- RESEARCH WATCHER -->
- <script src="watches.js?v=20260523a"></script>
+ <script src="watches.js?v=20260523b"></script>
 
  <!-- AUTH MUST BE LAST -->
  <script src="auth.js?v=20260505b"></script>

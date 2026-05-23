@@ -27,6 +27,7 @@ import multi_model_router
 import flashcard as flashcard_module
 import deck_engine
 import watches as watches_module
+import watcher_check
 
 from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
@@ -1249,6 +1250,18 @@ async def delete_watch_ep(watch_id: str, user_id: str):
 async def toggle_watch_ep(watch_id: str, req: WatchToggleReq):
     w = watches_module.toggle_watch(supabase_client.supabase, watch_id, req.user_id, req.is_active)
     return {"watch": w}
+
+@app.post("/watches/{watch_id}/check")
+async def check_watch_ep(watch_id: str, user_id: str):
+    watch_list = watches_module.get_watches(supabase_client.supabase, user_id)
+    watch = next((w for w in watch_list if w["id"] == watch_id), None)
+    if not watch:
+        return {"error": "Watch not found"}
+    user = supabase_client.supabase.table("users").select("email,full_name").eq("id", user_id).single().execute()
+    email = user.data.get("email", "") if user.data else ""
+    name = user.data.get("full_name", "") if user.data else ""
+    result = watcher_check.check_topic(watch["topic"], email, name)
+    return result
 
 # STATIC FILES (frontend — must come last)
 # --------------------------------------------------
