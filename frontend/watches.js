@@ -195,7 +195,7 @@
       if (err) { err.textContent = "Please enter a topic."; err.style.display = "block"; }
       return;
     }
-    const user = window._supabaseUser;
+    const user = window.appState?.supabaseUser;
     if (!user) {
       if (err) { err.textContent = "Please log in first."; err.style.display = "block"; }
       return;
@@ -231,7 +231,7 @@
   // ── Delete ────────────────────────────────────────────────────────────────
 
   window._watchDelete = async function (id) {
-    const user = window._supabaseUser;
+    const user = window.appState?.supabaseUser;
     if (!user) return;
     _watches = _watches.filter(w => w.id !== id);
     _updateWatchBadge();
@@ -242,7 +242,7 @@
   // ── Toggle pause/resume ───────────────────────────────────────────────────
 
   window._watchToggle = async function (id, newState) {
-    const user = window._supabaseUser;
+    const user = window.appState?.supabaseUser;
     if (!user) return;
     _watches = _watches.map(w => w.id === id ? { ...w, is_active: newState } : w);
     _renderList();
@@ -256,7 +256,7 @@
   // ── Check now (triggers Brevo if noteworthy) ──────────────────────────────
 
   window._watchCheck = async function (id) {
-    const user = window._supabaseUser;
+    const user = window.appState?.supabaseUser;
     if (!user) return;
     const btn = document.getElementById(`check-btn-${id}`);
     if (btn) { btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.08-4.5"/></svg>`; btn.disabled = true; }
@@ -305,7 +305,7 @@
   // ── Load from backend ─────────────────────────────────────────────────────
 
   async function _loadWatches() {
-    const user = window._supabaseUser;
+    const user = window.appState?.supabaseUser;
     if (!user) return;
     try {
       const res = await fetch(`${B()}/watches?user_id=${encodeURIComponent(user.id)}`);
@@ -327,13 +327,15 @@
     badge.style.display = active > 0 ? "inline-flex" : "none";
   }
 
-  // ── Hook into setAppUser to load badge on login ───────────────────────────
+  // ── Load badge once user is ready (poll for appState) ────────────────────
 
-  const _origSetAppUser = window.setAppUser;
-  window.setAppUser = function (user) {
-    if (_origSetAppUser) _origSetAppUser(user);
-    if (user) setTimeout(_loadWatches, 900);
-  };
+  (function _waitForUser() {
+    if (window.appState?.supabaseUser?.id) {
+      _loadWatches();
+    } else {
+      setTimeout(_waitForUser, 600);
+    }
+  })();
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
