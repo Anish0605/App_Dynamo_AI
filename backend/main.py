@@ -28,6 +28,7 @@ import flashcard as flashcard_module
 import deck_engine
 import watches as watches_module
 import watcher_check
+import watcher_scheduler
 
 from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
@@ -42,6 +43,14 @@ import detector as detector_module
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
 
 app = FastAPI(title="Dynamo AI Hub")
+
+@app.on_event("startup")
+async def _startup():
+    watcher_scheduler.start()
+
+@app.on_event("shutdown")
+async def _shutdown():
+    watcher_scheduler.stop()
 
 app.add_middleware(
     CORSMiddleware,
@@ -1261,6 +1270,8 @@ async def check_watch_ep(watch_id: str, user_id: str):
     email = user.data.get("email", "") if user.data else ""
     name = user.data.get("full_name", "") if user.data else ""
     result = watcher_check.check_topic(watch["topic"], email, name)
+    # Always stamp last_checked_at after manual check too
+    watches_module.mark_checked(supabase_client.supabase, watch_id)
     return result
 
 # STATIC FILES (frontend — must come last)

@@ -22,3 +22,4 @@ edge-tts
 pydub
 openpyxl
 aiohttp
+apscheduler
