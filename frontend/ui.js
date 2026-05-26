@@ -272,8 +272,11 @@ window.setMode = (mode, btn) => {
 // Track active flyout for resize repositioning + race-free open/close
 let _flyoutState = { sub: null, btn: null, rafId: 0 };
 
-const _positionFlyout = (sub, btn) => {
-  const r = btn.getBoundingClientRect();
+const _positionFlyout = (sub, btnOrRect) => {
+  // Accept either a live element or a pre-captured DOMRect
+  const r = (btnOrRect instanceof Element)
+    ? btnOrRect.getBoundingClientRect()
+    : btnOrRect;
   // Pre-measure
   sub.style.left = '-9999px';
   sub.style.top  = '0px';
@@ -298,6 +301,9 @@ window.toggleSubMenu = (id, btn) => {
 
   const wasOpen = sub.classList.contains('open');
 
+  // Capture rect BEFORE _closeAllFlyouts() — parent flyout may hide and zero out btn.getBoundingClientRect()
+  const btnRect = btn ? btn.getBoundingClientRect() : null;
+
   // Close everything first
   window._closeAllFlyouts();
 
@@ -311,7 +317,7 @@ window.toggleSubMenu = (id, btn) => {
 
   // Open this one
   sub.classList.remove('hidden');
-  _positionFlyout(sub, btn);
+  _positionFlyout(sub, btnRect || btn);
   _flyoutState.rafId = requestAnimationFrame(() => {
     sub.classList.add('open');
     _flyoutState.rafId = 0;
