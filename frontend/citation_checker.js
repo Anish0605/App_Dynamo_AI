@@ -44,6 +44,10 @@
     if (!_requirePlusOrPro()) return;
     if (document.getElementById("_cc-modal")) return;
 
+    // Citation Checker runs in Research mode — activate it automatically
+    const researchBtn = document.querySelector('[data-mode="research"]');
+    if (researchBtn) window.setMode?.("research", researchBtn);
+
     const modal = document.createElement("div");
     modal.id = "_cc-modal";
     modal.style.cssText = "position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;";

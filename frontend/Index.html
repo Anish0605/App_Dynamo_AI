@@ -1303,12 +1303,16 @@
           <button class="menu-row has-tag" data-mode-btn data-mode="research" onclick="window.setMode('research', this)">
             <span class="ico">🔬</span><span>Research</span><span class="tag pro">PLUS</span>
           </button>
+          <button class="menu-row menu-more-row" aria-expanded="false"
+                  onclick="window.toggleSubMenu('research-more-flyout', this); event.stopPropagation();">
+            <span class="ico">···</span><span>More</span>
+            <span class="chev">›</span>
+          </button>
           <button class="menu-row has-tag" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this)">
             <span class="ico">💡</span><span>DeepThink</span><span class="tag pro">PRO</span>
           </button>
-          <!-- More → right-side flyout -->
           <button class="menu-row menu-more-row" aria-expanded="false"
-                  onclick="window.toggleSubMenu('mode-more-flyout', this); event.stopPropagation();">
+                  onclick="window.toggleSubMenu('deep-more-flyout', this); event.stopPropagation();">
             <span class="ico">···</span><span>More</span>
             <span class="chev">›</span>
           </button>
@@ -1359,8 +1363,8 @@
           <button class="menu-row" onclick="window.startWritePaper('Chicago')"><span class="ico">📄</span><span>Chicago</span></button>
         </div>
 
-        <!-- Mode More flyout -->
-        <div id="mode-more-flyout" class="menu-flyout hidden">
+        <!-- Research More flyout — Write a Paper + Citation Checker -->
+        <div id="research-more-flyout" class="menu-flyout hidden">
           <button class="menu-row menu-more-row" aria-expanded="false"
                   onclick="window.toggleSubMenu('paper-flyout', this); event.stopPropagation();">
             <span class="ico">✍️</span><span>Write a Paper</span>
@@ -1370,7 +1374,10 @@
             <span class="ico">✅</span><span>Citation Checker</span>
             <span class="tag new">NEW</span>
           </button>
-          <div style="height:1px;background:#f3f4f6;margin:4px 6px;"></div>
+        </div>
+
+        <!-- DeepThink More flyout — Research gaps + Deep research agent -->
+        <div id="deep-more-flyout" class="menu-flyout hidden">
           <button id="gap-finder-btn" class="menu-row" onclick="window.findResearchGaps(); window._closeAllFlyouts(); window.closePlus?.();"
                   title="Use after a DeepThink reply to find unexplored angles">
             <span class="ico">🔍</span><span>Find research gaps</span>
