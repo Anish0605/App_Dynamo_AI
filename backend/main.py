@@ -29,6 +29,7 @@ import deck_engine
 import watches as watches_module
 import watcher_check
 import watcher_scheduler
+import citation_checker as citation_checker_module
 
 from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_chat,save_message,fetch_chat_messages)
 from export_routes import router as export_router
@@ -1065,6 +1066,23 @@ async def check_self_plagiarism_endpoint(req: SelfPlagReq):
         from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Both documents must contain text.")
     return await detector_module.check_self_plagiarism(req.text_a, req.text_b)
+
+
+class CitationCheckReq(BaseModel):
+    text: str = ""
+    bibliography: str = ""
+    format: str = "APA 7th"
+    user_id: str = ""
+
+@app.post("/check-citations")
+async def check_citations_endpoint(req: CitationCheckReq):
+    if not req.text.strip() and not req.bibliography.strip():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Provide text or bibliography to check.")
+    import config as _cfg
+    from google import genai as _genai
+    client = _genai.Client(api_key=_cfg.GEMINI_API_KEY)
+    return await citation_checker_module.check_citations(req.text, req.bibliography, req.format, client)
 
 
 import deep_research as dr_module
