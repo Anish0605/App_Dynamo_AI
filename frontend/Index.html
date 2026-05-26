@@ -1178,6 +1178,57 @@
 
     <!-- MAIN -->
     <main id="chat-area" class="flex-1 overflow-y-auto relative flex flex-col md:scrollbar-hide scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600">
+
+      <!-- ── WRITER TOOLBAR (shown only in Write a Paper mode) ── -->
+      <div id="writer-toolbar" style="display:none;background:#111827;border-bottom:1px solid #1f2937;padding:10px 20px;position:sticky;top:0;z-index:20;flex-wrap:wrap;align-items:center;gap:10px;">
+        <!-- Mode badge -->
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:#facc1520;border:1px solid #facc1540;border-radius:10px;font-size:12px;font-weight:700;color:#facc15;">
+          ✍️ Write a Paper
+        </div>
+        <div style="width:1px;height:22px;background:#374151;"></div>
+        <!-- Format -->
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;color:#9ca3af;font-weight:500;">Format</span>
+          <select id="wp-format" onchange="window._wpSet('format',this.value)" style="background:#1f2937;border:1px solid #374151;border-radius:8px;color:#facc15;font-size:13px;font-weight:600;padding:5px 10px;cursor:pointer;outline:none;">
+            <option value="APA 7th">APA 7th</option>
+            <option value="IEEE">IEEE</option>
+            <option value="MLA 9th">MLA 9th</option>
+            <option value="Harvard">Harvard</option>
+            <option value="Vancouver">Vancouver</option>
+            <option value="Chicago">Chicago</option>
+          </select>
+        </div>
+        <!-- Type -->
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;color:#9ca3af;font-weight:500;">Type</span>
+          <select id="wp-type" onchange="window._wpSet('type',this.value)" style="background:#1f2937;border:1px solid #374151;border-radius:8px;color:#f9fafb;font-size:13px;font-weight:600;padding:5px 10px;cursor:pointer;outline:none;">
+            <option value="Research Paper">Research Paper</option>
+            <option value="Literature Review">Literature Review</option>
+            <option value="Essay">Essay</option>
+            <option value="Thesis Chapter">Thesis Chapter</option>
+            <option value="Case Study">Case Study</option>
+            <option value="Report">Report</option>
+          </select>
+        </div>
+        <!-- Length -->
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;color:#9ca3af;font-weight:500;">Length</span>
+          <select id="wp-length" onchange="window._wpSet('length',this.value)" style="background:#1f2937;border:1px solid #374151;border-radius:8px;color:#f9fafb;font-size:13px;font-weight:600;padding:5px 10px;cursor:pointer;outline:none;">
+            <option value="1000w">1000 words</option>
+            <option value="2000w">2000 words</option>
+            <option value="3000w" selected>3000 words</option>
+            <option value="5000w">5000 words</option>
+            <option value="8000w">8000 words</option>
+          </select>
+        </div>
+        <!-- Spacer -->
+        <div style="flex:1;"></div>
+        <!-- Quota badge -->
+        <div id="wp-quota-badge" style="font-size:11px;color:#9ca3af;font-weight:500;white-space:nowrap;"></div>
+        <!-- Exit -->
+        <button onclick="window.clearWritePaper()" style="padding:6px 12px;background:transparent;border:1px solid #374151;border-radius:8px;color:#9ca3af;font-size:12px;font-weight:600;cursor:pointer;">✕ Exit writer</button>
+      </div>
+
      <div id="chat-messages" class="max-w-4xl mx-auto w-full px-4 py-6 space-y-6"></div>
       <!-- HERO SECTION -->
       <section id="hero-section" class="flex-1 flex flex-col items-center justify-center text-center px-4 py-6 md:px-6 md:py-12 min-h-0">
@@ -1352,23 +1403,11 @@
 
         <!-- ═══ RIGHT-SIDE FLYOUTS (position: fixed, ChatGPT style) ═══ -->
 
-        <!-- Write a Paper flyout -->
-        <div id="paper-flyout" class="menu-flyout hidden">
-          <div style="padding:6px 8px 3px;font-size:10px;font-weight:700;letter-spacing:.06em;color:#9ca3af;text-transform:uppercase;">Citation format</div>
-          <button class="menu-row" onclick="window.startWritePaper('APA7')"><span class="ico">📄</span><span>APA 7th</span></button>
-          <button class="menu-row" onclick="window.startWritePaper('IEEE')"><span class="ico">📄</span><span>IEEE</span></button>
-          <button class="menu-row" onclick="window.startWritePaper('MLA')"><span class="ico">📄</span><span>MLA 9th</span></button>
-          <button class="menu-row" onclick="window.startWritePaper('Harvard')"><span class="ico">📄</span><span>Harvard</span></button>
-          <button class="menu-row" onclick="window.startWritePaper('Vancouver')"><span class="ico">📄</span><span>Vancouver</span></button>
-          <button class="menu-row" onclick="window.startWritePaper('Chicago')"><span class="ico">📄</span><span>Chicago</span></button>
-        </div>
-
         <!-- Research More flyout — Write a Paper + Citation Checker -->
         <div id="research-more-flyout" class="menu-flyout hidden">
-          <button class="menu-row menu-more-row" aria-expanded="false"
-                  onclick="window.toggleSubMenu('paper-flyout', this); event.stopPropagation();">
+          <button class="menu-row has-tag" onclick="window.openWritePaper(); window._closeAllFlyouts(); window.closePlus?.();">
             <span class="ico">✍️</span><span>Write a Paper</span>
-            <span class="chev">›</span>
+            <span class="tag new">NEW</span>
           </button>
           <button class="menu-row has-tag" onclick="window.openCitationChecker(); window._closeAllFlyouts(); window.closePlus?.();">
             <span class="ico">✅</span><span>Citation Checker</span>
@@ -2487,6 +2526,7 @@
 
  <!-- FEATURE LAYERS -->
  <script src="analysis_ui.js?v=20260425"></script>
+ <script src="write_paper.js?v=20260526a"></script>
  <script src="ui.js?v=20260526b"></script>
  <script src="export_tools.js?v=20260423"></script>
  <script src="profile.js?v=20260425"></script>

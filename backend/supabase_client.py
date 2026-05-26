@@ -91,9 +91,9 @@ check_folders_table()
 # --------------------------------------------------
 
 PLAN_LIMITS = {
-    "free":  {"daily_chat": 10,  "images_month": 0,   "videos_month": 0},
-    "plus":  {"daily_chat": 100, "images_month": 25,  "videos_month": 5},
-    "pro":   {"daily_chat": 300, "images_month": 100, "videos_month": 25},
+    "free":  {"daily_chat": 10,  "images_month": 0,   "videos_month": 0,  "papers_month": 0},
+    "plus":  {"daily_chat": 100, "images_month": 25,  "videos_month": 5,  "papers_month": 3},
+    "pro":   {"daily_chat": 300, "images_month": 100, "videos_month": 25, "papers_month": 5},
 }
 
 
@@ -118,6 +118,7 @@ def _apply_monthly_reset(user):
                 .update({
                     "image_count_used": 0,
                     "video_count_used": 0,
+                    "paper_count_used": 0,
                     "quota_month": current_month
                 }) \
                 .eq("id", user["id"]) \
@@ -125,6 +126,7 @@ def _apply_monthly_reset(user):
 
             user["image_count_used"] = 0
             user["video_count_used"] = 0
+            user["paper_count_used"] = 0
             user["quota_month"] = current_month
             print("Monthly quota reset for user:", user["id"])
 
@@ -133,6 +135,7 @@ def _apply_monthly_reset(user):
             print("Monthly reset error (columns may need migration):", e)
             user.setdefault("image_count_used", 0)
             user.setdefault("video_count_used", 0)
+            user.setdefault("paper_count_used", 0)
 
     return user
 
@@ -378,6 +381,42 @@ def increment_video_quota(user):
 
     except Exception as e:
         print("Video quota increment error (column may need migration):", e)
+
+
+# --------------------------------------------------
+# PAPER WRITE-UP QUOTA
+# --------------------------------------------------
+
+def check_paper_quota(user):
+    """Returns (allowed, used, limit).
+    Free users are never allowed. Plus=3/month, Pro=5/month."""
+    if not user:
+        return False, 0, 0
+
+    plan = user.get("plan", "free")
+    limits = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])
+    monthly_limit = limits["papers_month"]
+
+    if monthly_limit == 0:
+        return False, 0, 0
+
+    used = user.get("paper_count_used") or 0
+    return used < monthly_limit, used, monthly_limit
+
+
+def increment_paper_quota(user):
+    try:
+        new_value = (user.get("paper_count_used") or 0) + 1
+
+        supabase.table("users") \
+            .update({"paper_count_used": new_value}) \
+            .eq("id", user["id"]) \
+            .execute()
+
+        user["paper_count_used"] = new_value
+
+    except Exception as e:
+        print("Paper quota increment error (column may need migration):", e)
 
 
 # --------------------------------------------------

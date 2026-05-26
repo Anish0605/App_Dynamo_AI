@@ -1074,6 +1074,38 @@ class CitationCheckReq(BaseModel):
     format: str = "APA 7th"
     user_id: str = ""
 
+class StartPaperReq(BaseModel):
+    user_id: str = ""
+
+@app.post("/start-paper")
+async def start_paper(req: StartPaperReq):
+    if not req.user_id:
+        return {"ok": False, "error": "auth"}
+
+    user = supabase_client.get_user_by_supabase_id(req.user_id)
+    if not user:
+        return {"ok": False, "error": "auth"}
+
+    plan = user.get("plan", "free").lower()
+    if plan == "free":
+        return {"ok": False, "error": "upgrade"}
+
+    user = supabase_client._apply_monthly_reset(user)
+    allowed, used, limit = supabase_client.check_paper_quota(user)
+
+    if not allowed:
+        return {
+            "ok": False,
+            "error": "quota",
+            "used": used,
+            "limit": limit,
+            "plan": plan
+        }
+
+    supabase_client.increment_paper_quota(user)
+    return {"ok": True, "used": used + 1, "limit": limit, "plan": plan}
+
+
 @app.post("/check-citations")
 async def check_citations_endpoint(req: CitationCheckReq):
     if not req.text.strip() and not req.bibliography.strip():
