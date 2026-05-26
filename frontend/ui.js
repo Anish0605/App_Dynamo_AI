@@ -304,8 +304,12 @@ window.toggleSubMenu = (id, btn) => {
   // Capture rect BEFORE _closeAllFlyouts() — parent flyout may hide and zero out btn.getBoundingClientRect()
   const btnRect = btn ? btn.getBoundingClientRect() : null;
 
-  // Close everything first
-  window._closeAllFlyouts();
+  // If btn lives inside another flyout, keep that parent flyout open while we open the child
+  const parentFlyout = btn?.closest?.('.menu-flyout');
+  const exceptIds = parentFlyout?.id ? [parentFlyout.id] : [];
+
+  // Close all flyouts except the parent (if this is a nested flyout)
+  window._closeAllFlyouts(exceptIds);
 
   if (wasOpen) return; // toggle off
 
@@ -329,21 +333,26 @@ window.toggleSubMenu = (id, btn) => {
 };
 
 // Close all flyouts (helper) — race-safe: also clears pending rAF + hides any flyout regardless of .open
-window._closeAllFlyouts = () => {
+// exceptIds: array of flyout IDs to keep open (used when opening a child flyout from within a parent)
+window._closeAllFlyouts = (exceptIds = []) => {
   if (_flyoutState.rafId) {
     cancelAnimationFrame(_flyoutState.rafId);
     _flyoutState.rafId = 0;
   }
   document.querySelectorAll('.menu-flyout').forEach(el => {
+    if (exceptIds.includes(el.id)) return;
     el.classList.remove('open');
     el.classList.add('hidden');
   });
   document.querySelectorAll('.menu-more-row.expanded').forEach(el => {
+    if (exceptIds.some(id => el.closest('#' + id))) return;
     el.classList.remove('expanded');
     el.setAttribute('aria-expanded', 'false');
   });
-  _flyoutState.sub = null;
-  _flyoutState.btn = null;
+  if (!exceptIds.length) {
+    _flyoutState.sub = null;
+    _flyoutState.btn = null;
+  }
 };
 
 // Outside-click closes flyouts (without closing parent dropdown)
