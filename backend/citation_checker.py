@@ -49,17 +49,21 @@ type values: "error" for critical problems, "warning" for format issues, "info" 
 sources status: start all as "verified" — the system will downgrade based on live DOI checks.
 If bibliography is empty, mark every in-text citation as an error."""
 
-    try:
-        resp = gemini_client.models.generate_content(
-            model="gemini-2.5-flash-preview-05-20",
-            contents=prompt
-        )
-        raw = resp.text.strip()
-        raw = re.sub(r'^```[a-z]*\n?', '', raw)
-        raw = re.sub(r'\n?```$', '', raw)
-        return json.loads(raw)
-    except Exception as e:
-        return {
+    for model in ("gemini-3.5-flash", "gemini-3.1-flash-lite-preview"):
+        try:
+            resp = gemini_client.models.generate_content(
+                model=model,
+                contents=prompt
+            )
+            raw = resp.text.strip()
+            raw = re.sub(r'^```[a-z]*\n?', '', raw)
+            raw = re.sub(r'\n?```$', '', raw)
+            return json.loads(raw)
+        except Exception as e:
+            last_err = e
+            continue
+    e = last_err
+    return {
             "issues": [{
                 "id": 1, "type": "error",
                 "title": "Analysis error",
