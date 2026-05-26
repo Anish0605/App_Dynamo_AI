@@ -1303,6 +1303,11 @@
           <button class="menu-row has-tag" data-mode-btn data-mode="research" onclick="window.setMode('research', this)">
             <span class="ico">🔬</span><span>Research</span><span class="tag pro">PLUS</span>
           </button>
+          <button class="menu-row menu-more-row" aria-expanded="false"
+                  onclick="window.toggleSubMenu('paper-flyout', this); event.stopPropagation();">
+            <span class="ico">✍️</span><span>Write a Paper</span>
+            <span class="chev">›</span>
+          </button>
           <button class="menu-row has-tag" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this)">
             <span class="ico">💡</span><span>DeepThink</span><span class="tag pro">PRO</span>
           </button>
@@ -1347,6 +1352,17 @@
         </div>
 
         <!-- ═══ RIGHT-SIDE FLYOUTS (position: fixed, ChatGPT style) ═══ -->
+
+        <!-- Write a Paper flyout -->
+        <div id="paper-flyout" class="menu-flyout hidden">
+          <div style="padding:6px 8px 3px;font-size:10px;font-weight:700;letter-spacing:.06em;color:#9ca3af;text-transform:uppercase;">Citation format</div>
+          <button class="menu-row" onclick="window.startWritePaper('APA7')"><span class="ico">📄</span><span>APA 7th</span></button>
+          <button class="menu-row" onclick="window.startWritePaper('IEEE')"><span class="ico">📄</span><span>IEEE</span></button>
+          <button class="menu-row" onclick="window.startWritePaper('MLA')"><span class="ico">📄</span><span>MLA 9th</span></button>
+          <button class="menu-row" onclick="window.startWritePaper('Harvard')"><span class="ico">📄</span><span>Harvard</span></button>
+          <button class="menu-row" onclick="window.startWritePaper('Vancouver')"><span class="ico">📄</span><span>Vancouver</span></button>
+          <button class="menu-row" onclick="window.startWritePaper('Chicago')"><span class="ico">📄</span><span>Chicago</span></button>
+        </div>
 
         <!-- Mode More flyout -->
         <div id="mode-more-flyout" class="menu-flyout hidden">
@@ -1416,6 +1432,14 @@
 
         <!-- MAIN INPUT WRAPPER (Gemini-style: textarea on top, action row below) -->
         <div class="border-2 border-yellow-400 rounded-2xl md:rounded-3xl bg-white dark:bg-gray-900 px-3 md:px-4 py-2.5 md:py-3 shadow-xl">
+          <!-- Write a Paper active indicator chip -->
+          <div id="write-paper-chip" class="hidden items-center gap-1.5 mb-2 px-1">
+            <span class="flex items-center gap-1.5 text-xs font-semibold bg-yellow-50 border border-yellow-300 text-yellow-800 rounded-full px-2.5 py-1">
+              ✍️ <span id="write-paper-chip-label">Write a Paper · APA7</span>
+            </span>
+            <button onclick="window.clearWritePaper()" title="Cancel paper mode"
+              class="text-gray-400 hover:text-gray-600 text-xs leading-none ml-0.5">✕</button>
+          </div>
           <!-- TEXTAREA -->
           <textarea id="chat-input" rows="1" placeholder="Ask Dynamo anything..." class="block w-full resize-none bg-transparent outline-none py-1.5 px-1 text-sm sm:text-base text-gray-900 dark:text-white max-h-32 md:max-h-48 scrollbar-hide" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
 
@@ -2435,7 +2459,7 @@
  <script src="audio_engine.js?v=20260423"></script>
  
  <!-- CHAT SYSTEM (must load before sidebar so render functions are available) -->
- <script src="chat.js?v=20260523a"></script>
+ <script src="chat.js?v=20260526a"></script>
 
  <!-- SIDERBAR -->
  <script src="sidebar.js?v=20260523a"></script>
@@ -2451,7 +2475,7 @@
 
  <!-- FEATURE LAYERS -->
  <script src="analysis_ui.js?v=20260425"></script>
- <script src="ui.js?v=20260523a"></script>
+ <script src="ui.js?v=20260526a"></script>
  <script src="export_tools.js?v=20260423"></script>
  <script src="profile.js?v=20260425"></script>
  

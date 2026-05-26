@@ -177,6 +177,46 @@ window._showProGate  = _showProGate;
 /* --------------------------------------------------
    🆕 SET MODE — fast / deep / research (mutually exclusive)
 -------------------------------------------------- */
+/* --------------------------------------------------
+   ✍️ WRITE A PAPER — sets Research mode + citation format
+-------------------------------------------------- */
+window.startWritePaper = (format) => {
+  const supa = window.appState?.supabaseUser;
+  if (!supa) { window.openAuthModal?.('login'); return; }
+  const plan = (supa.plan || 'free').toLowerCase();
+  if (plan === 'free') { _showPlusGate('Write a Paper'); return; }
+
+  // Activate Research mode (handles plan gate + UI sync internally)
+  const researchBtn = document.querySelector('[data-mode="research"]');
+  window.setMode('research', researchBtn);
+
+  // Store chosen citation format for chat.js to pick up
+  window._paperCitationFormat = format;
+
+  // Show indicator chip above the input bar
+  const chip  = document.getElementById('write-paper-chip');
+  const label = document.getElementById('write-paper-chip-label');
+  if (chip && label) {
+    label.textContent = `Write a Paper · ${format}`;
+    chip.classList.remove('hidden');
+    chip.classList.add('flex');
+  }
+
+  // Close all menus
+  window._closeAllFlyouts();
+  window.closePlus?.();
+  document.getElementById('chat-input')?.focus();
+};
+
+window.clearWritePaper = () => {
+  window._paperCitationFormat = null;
+  const chip = document.getElementById('write-paper-chip');
+  if (chip) {
+    chip.classList.add('hidden');
+    chip.classList.remove('flex');
+  }
+};
+
 window.setMode = (mode, btn) => {
   // Plan gates
   if (mode === 'research' || mode === 'deep') {

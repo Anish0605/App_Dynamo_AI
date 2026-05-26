@@ -389,10 +389,16 @@ window.sendFromInput = async () => {
     return;
   }
 
-  // 📑 Citation Format Picker — Research Mode only, for research paper requests
+  // 📑 Citation Format — Research Mode only
+  // Path A: user came via "Write a Paper ›" flyout (format pre-set)
+  // Path B: user typed a paper-sounding prompt manually → show picker bubble
   let selectedCitationFormat = "";
   const isResearchModeNow = window.dynamoUI?.model === "research";
-  if (isResearchModeNow && !hasFile && !isVideoReq && isResearchPaperPrompt(msg)) {
+  if (window._paperCitationFormat) {
+    selectedCitationFormat = window._paperCitationFormat;
+    window._paperCitationFormat = null;
+    window.clearWritePaper?.();
+  } else if (isResearchModeNow && !hasFile && !isVideoReq && isResearchPaperPrompt(msg)) {
     window.isSending = false; // Release lock while user picks format
     selectedCitationFormat = await showCitationPickerBubble();
     window.isSending = true;  // Re-acquire lock

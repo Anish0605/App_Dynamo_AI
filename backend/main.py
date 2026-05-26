@@ -344,8 +344,10 @@ async def chat(req: ChatReq):
     is_research_mode = (req.mode == "research")
 
     if is_research_mode:
-        print(f"RESEARCH MODE TRIGGERED | citation_format={req.citation_format or 'none'}")
-        # Fetch web context first for the research pipeline
+        has_citation = bool(req.citation_format and req.citation_format.strip())
+        print(f"[Research] mode={'PAPER' if has_citation else 'CHAT'} | citation={req.citation_format or 'none'}")
+
+        # Fetch web context — used by both branches
         research_web_context = ""
         research_sources = []
         try:
@@ -354,28 +356,48 @@ async def chat(req: ChatReq):
         except Exception as e:
             print(f"[Research] Web search failed: {e}")
 
-        try:
-            paper_content = multi_model_router.research_pipeline(
-                topic=req.message,
-                web_context=research_web_context,
-                citation_format=req.citation_format
+        if has_citation:
+            # ── Branch B: Write a Paper ── APIMart multi-model pipeline (unchanged)
+            try:
+                paper_content = multi_model_router.research_pipeline(
+                    topic=req.message,
+                    web_context=research_web_context,
+                    citation_format=req.citation_format
+                )
+                result = {
+                    "type": "research",
+                    "content": paper_content,
+                    "sources": research_sources
+                }
+            except Exception as e:
+                print(f"[Research Pipeline] Fatal error: {e}")
+                import traceback; traceback.print_exc()
+                result = {
+                    "type": "research",
+                    "content": (
+                        f"## Research Error\n\n"
+                        f"The research pipeline encountered an error: **{e}**\n\n"
+                        f"Please check your APIMart API key and try again."
+                    ),
+                    "sources": []
+                }
+        else:
+            # ── Branch A: Research Chat ── Deep Tavily search + Gemini DeepThink
+            # Returns a thorough conversational answer backed by live web data.
+            doc_context = documents_module.format_docs_for_prompt(saved_docs) if saved_docs else ""
+            response = model.get_ai_response(
+                prompt=req.message,
+                history=history,
+                model_name=req.model or "",
+                context=research_web_context,
+                deep_dive=True,
+                memories=memories,
+                doc_context=doc_context
             )
             result = {
-                "type": "research",
-                "content": paper_content,
+                "type": "chat",
+                "content": response,
                 "sources": research_sources
-            }
-        except Exception as e:
-            print(f"[Research Pipeline] Fatal error: {e}")
-            import traceback; traceback.print_exc()
-            result = {
-                "type": "research",
-                "content": (
-                    f"## Research Error\n\n"
-                    f"The research pipeline encountered an error: **{e}**\n\n"
-                    f"Please check your APIMart API key and try again."
-                ),
-                "sources": []
             }
 
         # Increment quota and save message for research mode too
