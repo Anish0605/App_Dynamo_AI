@@ -1303,11 +1303,6 @@
           <button class="menu-row has-tag" data-mode-btn data-mode="research" onclick="window.setMode('research', this)">
             <span class="ico">🔬</span><span>Research</span><span class="tag pro">PLUS</span>
           </button>
-          <button class="menu-row menu-more-row" aria-expanded="false"
-                  onclick="window.toggleSubMenu('paper-flyout', this); event.stopPropagation();">
-            <span class="ico">✍️</span><span>Write a Paper</span>
-            <span class="chev">›</span>
-          </button>
           <button class="menu-row has-tag" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this)">
             <span class="ico">💡</span><span>DeepThink</span><span class="tag pro">PRO</span>
           </button>
@@ -1366,6 +1361,16 @@
 
         <!-- Mode More flyout -->
         <div id="mode-more-flyout" class="menu-flyout hidden">
+          <button class="menu-row menu-more-row" aria-expanded="false"
+                  onclick="window.toggleSubMenu('paper-flyout', this); event.stopPropagation();">
+            <span class="ico">✍️</span><span>Write a Paper</span>
+            <span class="chev">›</span>
+          </button>
+          <button class="menu-row has-tag" onclick="window.openCitationChecker(); window._closeAllFlyouts(); window.closePlus?.();">
+            <span class="ico">✅</span><span>Citation Checker</span>
+            <span class="tag new">NEW</span>
+          </button>
+          <div style="height:1px;background:#f3f4f6;margin:4px 6px;"></div>
           <button id="gap-finder-btn" class="menu-row" onclick="window.findResearchGaps(); window._closeAllFlyouts(); window.closePlus?.();"
                   title="Use after a DeepThink reply to find unexplored angles">
             <span class="ico">🔍</span><span>Find research gaps</span>
@@ -2475,7 +2480,7 @@
 
  <!-- FEATURE LAYERS -->
  <script src="analysis_ui.js?v=20260425"></script>
- <script src="ui.js?v=20260526a"></script>
+ <script src="ui.js?v=20260526b"></script>
  <script src="export_tools.js?v=20260423"></script>
  <script src="profile.js?v=20260425"></script>
  

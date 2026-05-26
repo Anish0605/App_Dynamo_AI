@@ -180,6 +180,15 @@ window._showProGate  = _showProGate;
 /* --------------------------------------------------
    ✍️ WRITE A PAPER — sets Research mode + citation format
 -------------------------------------------------- */
+window.openCitationChecker = () => {
+  // Placeholder — feature coming soon. Will be wired to the full modal once built.
+  const toast = document.createElement("div");
+  toast.style.cssText = "position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;font-size:13px;font-weight:600;padding:10px 20px;border-radius:12px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.25);";
+  toast.textContent = "✅ Citation Checker — coming soon!";
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2800);
+};
+
 window.startWritePaper = (format) => {
   const supa = window.appState?.supabaseUser;
   if (!supa) { window.openAuthModal?.('login'); return; }
