@@ -27,7 +27,7 @@
         <div style="font-size:38px;margin-bottom:12px;">🔒</div>
         <h3 style="font-size:17px;font-weight:900;color:#111;margin:0 0 8px 0;">Citation Checker is a Plus &amp; Pro feature</h3>
         <p style="font-size:13px;color:#6b7280;line-height:1.65;margin:0 0 22px 0;">
-          Upgrade to verify citations, fix formatting errors, and check DOIs — starting at <strong>₹199/mo</strong>.
+          Upgrade to verify citations, fix formatting errors, and check DOIs — starting at <strong>₹399/mo</strong>.
         </p>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <a href="/pricing.html" style="display:block;padding:12px 16px;background:#facc15;color:#111;font-weight:800;font-size:14px;border-radius:12px;text-decoration:none;">⚡ See Plans &amp; Upgrade</a>
