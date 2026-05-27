@@ -145,7 +145,7 @@
       </div>
 
       <!-- Results -->
-      <div id="_cc-results" style="flex:1;display:none;flex-direction:column;overflow:hidden;">
+      <div id="_cc-results" style="flex:1;min-height:0;display:none;flex-direction:column;overflow:hidden;">
 
         <!-- Score bar -->
         <div style="background:#fff;border-bottom:1px solid #f0f0f0;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-shrink:0;">
@@ -173,10 +173,10 @@
         </div>
 
         <!-- Issues list -->
-        <div id="_cc-issues-panel" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>
+        <div id="_cc-issues-panel" style="flex:1;min-height:0;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>
 
         <!-- Sources panel -->
-        <div id="_cc-sources-panel" style="flex:1;overflow-y:auto;padding:12px;display:none;flex-direction:column;gap:8px;">
+        <div id="_cc-sources-panel" style="flex:1;min-height:0;overflow-y:auto;padding:12px;display:none;flex-direction:column;gap:8px;">
           <div style="font-size:11px;color:#9ca3af;margin-bottom:4px;">Dynamo AI verifies that each cited source is real and accessible via Crossref.</div>
         </div>
       </div>
