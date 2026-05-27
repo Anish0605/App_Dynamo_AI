@@ -1113,7 +1113,7 @@ async def check_citations_endpoint(req: CitationCheckReq):
         raise HTTPException(status_code=400, detail="Provide text or bibliography to check.")
     import config as _cfg
     from google import genai as _genai
-    client = _genai.Client(api_key=_cfg.GEMINI_API_KEY)
+    client = _genai.Client(api_key=_cfg.GEMINI_KEY)
     return await citation_checker_module.check_citations(req.text, req.bibliography, req.format, client)
 
 
