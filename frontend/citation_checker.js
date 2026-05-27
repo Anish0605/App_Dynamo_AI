@@ -397,9 +397,9 @@
           </div>
           <div style="font-size:11px;color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_esc(issue.location || "")}</div>
         </div>
-        <span style="color:#d1d5db;font-size:11px;flex-shrink:0;" id="_cc-chev-${issue.id}">▼</span>
+        <span style="color:#d1d5db;font-size:11px;flex-shrink:0;" id="_cc-chev-${issue.id}">▲</span>
       </button>
-      <div id="_cc-detail-${issue.id}" style="display:none;padding:0 13px 12px 13px;border-top:1px solid ${c.border};">
+      <div id="_cc-detail-${issue.id}" style="display:block;padding:0 13px 12px 13px;border-top:1px solid ${c.border};">
         <p style="font-size:12px;color:#374151;margin:10px 0 8px 0;line-height:1.6;">${_esc(issue.detail)}</p>
         <div style="background:#fff;border:1px dashed #d1d5db;border-radius:9px;padding:9px 11px;margin-bottom:10px;">
           <div style="font-size:10px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Suggested Fix</div>
