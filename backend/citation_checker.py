@@ -22,6 +22,8 @@ Check for ALL of the following:
 5. Missing DOIs or URLs for journal articles
 6. Author name inconsistencies or truncation errors
 
+IMPORTANT: You MUST return all four top-level keys: "issues", "sources", "corrected_entries", and "summary". The "corrected_entries" array is REQUIRED — it must contain one object per bibliography entry.
+
 Return ONLY a JSON object with this exact structure — no markdown fences, no explanation:
 {{
   "issues": [
@@ -42,12 +44,22 @@ Return ONLY a JSON object with this exact structure — no markdown fences, no e
       "status": "verified"
     }}
   ],
+  "corrected_entries": [
+    {{
+      "label": "[1]",
+      "original": "The original bibliography entry exactly as given",
+      "corrected": "The fully corrected bibliography entry in proper {fmt} format with ALL issues fixed",
+      "changes": ["One short phrase per fix applied, e.g. 'Reordered author name to A. Vaswani'"]
+    }}
+  ],
   "summary": "One sentence overall quality assessment"
 }}
 
-type values: "error" for critical problems, "warning" for format issues, "info" for suggestions.
-sources status: start all as "verified" — the system will downgrade based on live DOI checks.
-If bibliography is empty, mark every in-text citation as an error."""
+Rules:
+- type: "error" for critical problems, "warning" for format issues, "info" for suggestions
+- sources status: start all as "verified" — the system will downgrade based on live DOI checks
+- corrected_entries: MUST include every bibliography entry, one object each. Apply ALL fixes from the issues list to produce the corrected field. If an entry needs no changes, set corrected equal to original and changes to [].
+- If bibliography is empty, return empty corrected_entries []"""
 
     for model in ("gemini-3.5-flash", "gemini-3.1-flash-lite-preview"):
         try:
@@ -72,6 +84,7 @@ If bibliography is empty, mark every in-text citation as an error."""
                 "location": "—"
             }],
             "sources": [],
+            "corrected_entries": [],
             "summary": "Analysis failed — please retry"
         }
 
@@ -93,21 +106,73 @@ async def _verify_doi(doi: str) -> str:
         return "warning"
 
 
+async def _get_corrected_entries(bibliography: str, issues: list, fmt: str, gemini_client) -> list:
+    """Dedicated second call — ask Gemini to produce corrected bibliography entries."""
+    if not bibliography.strip():
+        return []
+    issues_summary = "\n".join(
+        f"- [{x.get('location','')}] {x.get('title','')}: {x.get('fix','')}"
+        for x in issues
+    )
+    prompt = f"""You are correcting a bibliography to {fmt} format.
+
+ORIGINAL BIBLIOGRAPHY:
+{bibliography[:4000]}
+
+ISSUES TO FIX:
+{issues_summary}
+
+Return ONLY a JSON array — no markdown, no explanation:
+[
+  {{
+    "label": "[1]",
+    "original": "original entry text exactly",
+    "corrected": "fully corrected entry in {fmt} format with ALL issues fixed",
+    "changes": ["one short phrase per change made"]
+  }}
+]
+
+Include every entry. If an entry needs no changes set corrected=original and changes=[]."""
+
+    for model in ("gemini-3.5-flash", "gemini-3.1-flash-lite-preview"):
+        try:
+            resp = gemini_client.models.generate_content(model=model, contents=prompt)
+            raw = resp.text.strip()
+            raw = re.sub(r'^```[a-z]*\n?', '', raw)
+            raw = re.sub(r'\n?```$', '', raw)
+            data = json.loads(raw)
+            # Normalise: changes must be a list
+            for e in data:
+                if isinstance(e.get("changes"), str):
+                    e["changes"] = [e["changes"]] if e["changes"] else []
+            return data
+        except Exception:
+            continue
+    return []
+
+
 async def check_citations(text: str, bibliography: str, fmt: str, gemini_client) -> dict:
     result = await _run_gemini(text, bibliography, fmt, gemini_client)
     issues = result.get("issues", [])
     sources = result.get("sources", [])
 
-    # Live DOI verification (run concurrently)
+    # Run DOI verification + corrected entries generation concurrently
     doi_checks = [(i, src) for i, src in enumerate(sources) if src.get("doi")]
+    tasks = []
     if doi_checks:
-        statuses = await asyncio.gather(*[_verify_doi(src["doi"]) for _, src in doi_checks])
+        tasks = [_verify_doi(src["doi"]) for _, src in doi_checks]
+    corrected_task = asyncio.create_task(_get_corrected_entries(bibliography, issues, fmt, gemini_client))
+
+    if doi_checks:
+        statuses = await asyncio.gather(*tasks)
         for (i, src), status in zip(doi_checks, statuses):
             sources[i]["status"] = status
             if status == "warning":
                 sources[i]["journal"] = (src.get("journal") or "") + " — DOI unverified"
             elif status == "missing":
                 sources[i]["journal"] = (src.get("journal") or "") + " — DOI not found"
+
+    corrected_entries = await corrected_task
 
     errors = sum(1 for x in issues if x.get("type") == "error")
     warnings = sum(1 for x in issues if x.get("type") == "warning")
@@ -117,5 +182,6 @@ async def check_citations(text: str, bibliography: str, fmt: str, gemini_client)
         "score": score,
         "issues": issues,
         "sources": sources,
+        "corrected_entries": corrected_entries,
         "summary": result.get("summary", "")
     }

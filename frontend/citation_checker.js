@@ -170,6 +170,7 @@
         <div style="display:flex;background:#fff;border-bottom:1px solid #f0f0f0;padding:0 18px;flex-shrink:0;">
           <button id="_cc-tab-issues" onclick="window._ccSetTab('issues')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid #facc15;color:#111;margin-bottom:-1px;">Issues</button>
           <button id="_cc-tab-sources" onclick="window._ccSetTab('sources')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:#9ca3af;margin-bottom:-1px;">Source Verification</button>
+          <button id="_cc-tab-corrected" onclick="window._ccSetTab('corrected')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:#9ca3af;margin-bottom:-1px;">✓ Corrected</button>
         </div>
 
         <!-- Issues list -->
@@ -179,6 +180,9 @@
         <div id="_cc-sources-panel" style="flex:1;min-height:0;overflow-y:auto;padding:12px;display:none;flex-direction:column;gap:8px;">
           <div style="font-size:11px;color:#9ca3af;margin-bottom:4px;">Dynamo AI verifies that each cited source is real and accessible via Crossref.</div>
         </div>
+
+        <!-- Corrected Citations panel -->
+        <div id="_cc-corrected-panel" style="flex:1;min-height:0;overflow-y:auto;padding:12px;display:none;flex-direction:column;gap:10px;"></div>
       </div>
     </div>
   </div>
@@ -243,13 +247,16 @@
 
     // Tab state
     window._ccSetTab = (tab) => {
-      const isIssues = tab === "issues";
-      document.getElementById("_cc-issues-panel").style.display = isIssues ? "flex" : "none";
-      document.getElementById("_cc-sources-panel").style.display = isIssues ? "none" : "flex";
-      document.getElementById("_cc-tab-issues").style.borderBottomColor = isIssues ? "#facc15" : "transparent";
-      document.getElementById("_cc-tab-issues").style.color = isIssues ? "#111" : "#9ca3af";
-      document.getElementById("_cc-tab-sources").style.borderBottomColor = isIssues ? "transparent" : "#facc15";
-      document.getElementById("_cc-tab-sources").style.color = isIssues ? "#9ca3af" : "#111";
+      const tabs = ["issues", "sources", "corrected"];
+      tabs.forEach(t => {
+        const panel = document.getElementById(`_cc-${t}-panel`);
+        const btn = document.getElementById(`_cc-tab-${t}`);
+        if (!panel || !btn) return;
+        const active = t === tab;
+        panel.style.display = active ? "flex" : "none";
+        btn.style.borderBottomColor = active ? "#facc15" : "transparent";
+        btn.style.color = active ? "#111" : "#9ca3af";
+      });
     };
 
     console.log("citation_checker.js modal opened ✅");
@@ -347,6 +354,54 @@
       panel.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="font-size:36px;margin-bottom:10px;">🎉</div><div style="font-weight:800;font-size:14px;color:#16a34a;">All citations look correct!</div><div style="font-size:12px;color:#9ca3af;margin-top:6px;">Your ${format} citations passed all checks.</div></div>`;
     } else {
       issues.forEach(issue => _renderIssueCard(panel, issue));
+    }
+
+    // Corrected Citations panel
+    const correctedPanel = document.getElementById("_cc-corrected-panel");
+    const correctedEntries = data.corrected_entries ?? [];
+    correctedPanel.innerHTML = "";
+    if (correctedEntries.length === 0) {
+      correctedPanel.innerHTML = `<div style="text-align:center;padding:32px 20px;color:#9ca3af;font-size:12px;">Run a check to see corrected citations here.</div>`;
+    } else {
+      // Header with Copy All button
+      const hasChanges = correctedEntries.some(e => (e.changes || []).length > 0);
+      const allCorrected = correctedEntries.map(e => e.corrected || e.original || "").join("\n");
+      const hdr = document.createElement("div");
+      hdr.style.cssText = "display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0;";
+      hdr.innerHTML = `
+        <div>
+          <div style="font-size:12px;font-weight:800;color:#111;">Corrected Bibliography</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:2px;">${hasChanges ? "Fixes applied — ready to copy" : "No changes needed"}</div>
+        </div>
+        <button id="_cc-copy-all" style="padding:7px 14px;border-radius:9px;background:#111;color:#fff;font-size:11px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;flex-shrink:0;">📋 Copy All</button>`;
+      correctedPanel.appendChild(hdr);
+      hdr.querySelector("#_cc-copy-all").addEventListener("click", () => {
+        navigator.clipboard.writeText(allCorrected).then(() => {
+          const btn = document.getElementById("_cc-copy-all");
+          if (btn) { btn.textContent = "✓ Copied!"; setTimeout(() => { btn.innerHTML = "📋 Copy All"; }, 2000); }
+        });
+      });
+
+      correctedEntries.forEach(entry => {
+        const hasEntryChanges = (entry.changes || []).length > 0;
+        const card = document.createElement("div");
+        card.style.cssText = `border-radius:12px;border:1px solid ${hasEntryChanges ? "#bbf7d0" : "#e5e7eb"};background:${hasEntryChanges ? "#f0fdf4" : "#f9fafb"};padding:12px 14px;`;
+        const changesList = (entry.changes || []).map(c => `<li style="margin-bottom:3px;">${_esc(c)}</li>`).join("");
+        card.innerHTML = `
+          <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:${hasEntryChanges ? "10px" : "0"};">
+            <span style="font-size:11px;font-weight:800;color:#6b7280;flex-shrink:0;padding-top:1px;">${_esc(entry.label || "")}</span>
+            <div style="flex:1;min-width:0;">
+              ${hasEntryChanges ? `<div style="font-size:11px;color:#9ca3af;text-decoration:line-through;line-height:1.5;margin-bottom:6px;">${_esc(entry.original || "")}</div>` : ""}
+              <div style="font-size:12px;font-weight:600;color:#111;line-height:1.6;">${_esc(entry.corrected || entry.original || "")}</div>
+            </div>
+            <button onclick="navigator.clipboard.writeText(${JSON.stringify(entry.corrected || entry.original || "")}).then(()=>{this.textContent='✓';setTimeout(()=>{this.textContent='📋'},1500)})" style="padding:4px 8px;border-radius:7px;background:#fff;border:1px solid #d1d5db;font-size:12px;cursor:pointer;flex-shrink:0;color:#6b7280;">📋</button>
+          </div>
+          ${hasEntryChanges ? `<div style="background:#fff;border-radius:8px;padding:8px 10px;border:1px solid #bbf7d0;">
+            <div style="font-size:10px;font-weight:800;color:#16a34a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Changes made</div>
+            <ul style="margin:0;padding-left:16px;font-size:11px;color:#374151;line-height:1.6;">${changesList}</ul>
+          </div>` : ""}`;
+        correctedPanel.appendChild(card);
+      });
     }
 
     // Sources list
