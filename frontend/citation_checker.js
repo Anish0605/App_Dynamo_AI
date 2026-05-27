@@ -157,13 +157,14 @@
             </svg>
             <div id="_cc-score-num" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#111;">—</div>
           </div>
-          <div style="flex:1;">
+          <div style="flex:1;min-width:0;">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
               <span style="font-weight:800;font-size:13px;color:#111;">Citation Health:</span>
               <span id="_cc-score-label" style="font-weight:800;font-size:13px;"></span>
             </div>
             <div style="display:flex;align-items:center;gap:10px;font-size:11px;" id="_cc-counts"></div>
           </div>
+          <button id="_cc-view-corrected" onclick="window._ccSetTab('corrected')" style="display:none;padding:8px 14px;border-radius:10px;background:#111;color:#fff;font-size:11px;font-weight:800;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;">✓ View Corrected</button>
         </div>
 
         <!-- Tabs -->
@@ -360,6 +361,9 @@
     const correctedPanel = document.getElementById("_cc-corrected-panel");
     const correctedEntries = data.corrected_entries ?? [];
     correctedPanel.innerHTML = "";
+    // Show/hide the "View Corrected" button in score bar
+    const vcBtn = document.getElementById("_cc-view-corrected");
+    if (vcBtn) vcBtn.style.display = correctedEntries.length > 0 ? "block" : "none";
     if (correctedEntries.length === 0) {
       correctedPanel.innerHTML = `<div style="text-align:center;padding:32px 20px;color:#9ca3af;font-size:12px;">Run a check to see corrected citations here.</div>`;
     } else {
@@ -431,7 +435,7 @@
     }
   }
 
-  function _renderIssueCard(panel, issue, isFixed = false) {
+  function _renderIssueCard(panel, issue) {
     const TYPE = {
       error:   { bg: "#fef2f2", border: "#fecaca", badge_bg: "#fee2e2", badge_color: "#991b1b", dot: "#ef4444", icon: "✖" },
       warning: { bg: "#fefce8", border: "#fde68a", badge_bg: "#fef9c3", badge_color: "#854d0e", dot: "#facc15", icon: "⚠" },
@@ -439,73 +443,25 @@
     };
     const c = TYPE[issue.type] || TYPE.info;
     const card = document.createElement("div");
-    card.id = `_cc-issue-${issue.id}`;
-    card.style.cssText = `border-radius:12px;border:1px solid ${c.border};background:${c.bg};overflow:hidden;`;
-
+    card.style.cssText = `border-radius:12px;border:1px solid ${c.border};background:${c.bg};padding:12px 13px;`;
     card.innerHTML = `
-      <button style="width:100%;display:flex;align-items:flex-start;gap:10px;padding:11px 13px;background:transparent;border:none;cursor:pointer;text-align:left;" onclick="_ccToggleIssue(${issue.id})">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">
         <span style="width:20px;height:20px;border-radius:50%;background:${c.dot};color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">${c.icon}</span>
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
             <span style="font-size:12px;font-weight:800;color:#111;">${_esc(issue.title)}</span>
             <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;background:${c.badge_bg};color:${c.badge_color};">${issue.type}</span>
           </div>
-          <div style="font-size:11px;color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_esc(issue.location || "")}</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:2px;">${_esc(issue.location || "")}</div>
         </div>
-        <span style="color:#d1d5db;font-size:11px;flex-shrink:0;" id="_cc-chev-${issue.id}">▲</span>
-      </button>
-      <div id="_cc-detail-${issue.id}" style="display:block;padding:0 13px 12px 13px;border-top:1px solid ${c.border};">
-        <p style="font-size:12px;color:#374151;margin:10px 0 8px 0;line-height:1.6;">${_esc(issue.detail)}</p>
-        <div style="background:#fff;border:1px dashed #d1d5db;border-radius:9px;padding:9px 11px;margin-bottom:10px;">
-          <div style="font-size:10px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Suggested Fix</div>
-          <p style="font-size:11px;color:#374151;margin:0;line-height:1.65;">${_esc(issue.fix)}</p>
-        </div>
-        <button onclick="_ccApplyFix(${issue.id})" style="padding:7px 14px;border-radius:9px;background:#111;color:#fff;font-size:11px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;">✓ Apply Fix</button>
+      </div>
+      <p style="font-size:12px;color:#374151;margin:0 0 8px 30px;line-height:1.6;">${_esc(issue.detail)}</p>
+      <div style="background:#fff;border-left:3px solid ${c.dot};border-radius:0 8px 8px 0;padding:8px 11px;margin-left:30px;">
+        <div style="font-size:10px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Fix</div>
+        <p style="font-size:11px;color:#374151;margin:0;line-height:1.6;">${_esc(issue.fix)}</p>
       </div>`;
-
     panel.appendChild(card);
   }
-
-  window._ccToggleIssue = function (id) {
-    const detail = document.getElementById(`_cc-detail-${id}`);
-    const chev = document.getElementById(`_cc-chev-${id}`);
-    const open = detail.style.display === "block";
-    detail.style.display = open ? "none" : "block";
-    chev.textContent = open ? "▼" : "▲";
-  };
-
-  window._ccApplyFix = function (id) {
-    _fixedIds.add(id);
-    const card = document.getElementById(`_cc-issue-${id}`);
-    if (!card) return;
-    card.style.transition = "opacity .3s";
-    card.style.opacity = "0";
-    setTimeout(() => {
-      card.remove();
-      // Update counts in header
-      const remaining = document.getElementById("_cc-issues-panel")?.querySelectorAll('[id^="_cc-issue-"]').length || 0;
-      const tabBtn = document.getElementById("_cc-tab-issues");
-      if (tabBtn) tabBtn.textContent = `Issues (${remaining})`;
-      // Bump score visually
-      const numEl = document.getElementById("_cc-score-num");
-      const arc = document.getElementById("_cc-arc");
-      if (numEl && arc) {
-        const cur = parseInt(numEl.textContent) || 0;
-        const next = Math.min(100, cur + 15);
-        numEl.textContent = next;
-        const circumference = 2 * Math.PI * 22;
-        arc.style.strokeDashoffset = circumference * (1 - next / 100);
-        const col = next >= 80 ? "#22c55e" : next >= 50 ? "#facc15" : "#ef4444";
-        arc.style.stroke = col;
-        const lbl = document.getElementById("_cc-score-label");
-        if (lbl) { lbl.textContent = next >= 80 ? "Good" : next >= 50 ? "Needs work" : "Poor"; lbl.style.color = col; }
-      }
-      if (remaining === 0) {
-        const panel = document.getElementById("_cc-issues-panel");
-        if (panel) panel.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="font-size:36px;margin-bottom:10px;">🎉</div><div style="font-weight:800;font-size:14px;color:#16a34a;">All issues resolved!</div><div style="font-size:12px;color:#9ca3af;margin-top:6px;">Your citations look great.</div></div>`;
-      }
-    }, 300);
-  };
 
   function _close() {
     document.getElementById("_cc-modal")?.remove();
