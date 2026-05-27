@@ -164,14 +164,14 @@
             </div>
             <div style="display:flex;align-items:center;gap:10px;font-size:11px;" id="_cc-counts"></div>
           </div>
-          <button id="_cc-view-corrected" onclick="window._ccSetTab('corrected')" style="display:none;padding:8px 14px;border-radius:10px;background:#111;color:#fff;font-size:11px;font-weight:800;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;">✓ View Corrected</button>
+          <button id="_cc-view-corrected" onclick="window._ccSetTab('corrected')" style="display:none;padding:8px 14px;border-radius:10px;background:#111;color:#fff;font-size:11px;font-weight:800;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;">📋 View Fixed Refs</button>
         </div>
 
         <!-- Tabs -->
         <div style="display:flex;background:#fff;border-bottom:1px solid #f0f0f0;padding:0 18px;flex-shrink:0;">
           <button id="_cc-tab-issues" onclick="window._ccSetTab('issues')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid #facc15;color:#111;margin-bottom:-1px;">Issues</button>
           <button id="_cc-tab-sources" onclick="window._ccSetTab('sources')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:#9ca3af;margin-bottom:-1px;">Source Verification</button>
-          <button id="_cc-tab-corrected" onclick="window._ccSetTab('corrected')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:#9ca3af;margin-bottom:-1px;">✓ Corrected</button>
+          <button id="_cc-tab-corrected" onclick="window._ccSetTab('corrected')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:#9ca3af;margin-bottom:-1px;">📋 Fixed Refs</button>
         </div>
 
         <!-- Issues list -->
@@ -374,11 +374,22 @@
       hdr.style.cssText = "display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0;";
       hdr.innerHTML = `
         <div>
-          <div style="font-size:12px;font-weight:800;color:#111;">Corrected Bibliography</div>
-          <div style="font-size:11px;color:#9ca3af;margin-top:2px;">${hasChanges ? "Fixes applied — ready to copy" : "No changes needed"}</div>
+          <div style="font-size:12px;font-weight:800;color:#111;">Fixed Reference List</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:2px;">${hasChanges ? "Copy these and replace your Bibliography / References section" : "No changes needed — your reference list looks good"}</div>
         </div>
         <button id="_cc-copy-all" style="padding:7px 14px;border-radius:9px;background:#111;color:#fff;font-size:11px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;flex-shrink:0;">📋 Copy All</button>`;
       correctedPanel.appendChild(hdr);
+
+      // Info banner — clarify what this tab fixes
+      const infoBanner = document.createElement("div");
+      infoBanner.style.cssText = "background:#fefce8;border:1px solid #fde68a;border-radius:9px;padding:9px 12px;display:flex;align-items:flex-start;gap:8px;flex-shrink:0;";
+      infoBanner.innerHTML = `
+        <span style="font-size:14px;flex-shrink:0;">ℹ️</span>
+        <div style="font-size:11px;color:#713f12;line-height:1.5;">
+          <strong>What's being fixed:</strong> Your <strong>Bibliography / References section</strong> (the list at the end of your document). In-text citations like (Smith, 2021) are <em>not</em> changed here — see the Issues tab for those.
+        </div>`;
+      correctedPanel.appendChild(infoBanner);
+
       hdr.querySelector("#_cc-copy-all").addEventListener("click", () => {
         navigator.clipboard.writeText(allCorrected).then(() => {
           const btn = document.getElementById("_cc-copy-all");
