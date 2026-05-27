@@ -388,22 +388,54 @@
 
       correctedEntries.forEach(entry => {
         const hasEntryChanges = (entry.changes || []).length > 0;
+        const correctedText = entry.corrected || entry.original || "";
+        const changesList = (entry.changes || []).map(c => `<li style="margin-bottom:3px;">${_esc(c)}</li>`).join("");
+
         const card = document.createElement("div");
         card.style.cssText = `border-radius:12px;border:1px solid ${hasEntryChanges ? "#bbf7d0" : "#e5e7eb"};background:${hasEntryChanges ? "#f0fdf4" : "#f9fafb"};padding:12px 14px;`;
-        const changesList = (entry.changes || []).map(c => `<li style="margin-bottom:3px;">${_esc(c)}</li>`).join("");
-        card.innerHTML = `
-          <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:${hasEntryChanges ? "10px" : "0"};">
-            <span style="font-size:11px;font-weight:800;color:#6b7280;flex-shrink:0;padding-top:1px;">${_esc(entry.label || "")}</span>
-            <div style="flex:1;min-width:0;">
-              ${hasEntryChanges ? `<div style="font-size:11px;color:#9ca3af;text-decoration:line-through;line-height:1.5;margin-bottom:6px;">${_esc(entry.original || "")}</div>` : ""}
-              <div style="font-size:12px;font-weight:600;color:#111;line-height:1.6;">${_esc(entry.corrected || entry.original || "")}</div>
-            </div>
-            <button onclick="navigator.clipboard.writeText(${JSON.stringify(entry.corrected || entry.original || "")}).then(()=>{this.textContent='✓';setTimeout(()=>{this.textContent='📋'},1500)})" style="padding:4px 8px;border-radius:7px;background:#fff;border:1px solid #d1d5db;font-size:12px;cursor:pointer;flex-shrink:0;color:#6b7280;">📋</button>
-          </div>
-          ${hasEntryChanges ? `<div style="background:#fff;border-radius:8px;padding:8px 10px;border:1px solid #bbf7d0;">
-            <div style="font-size:10px;font-weight:800;color:#16a34a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Changes made</div>
-            <ul style="margin:0;padding-left:16px;font-size:11px;color:#374151;line-height:1.6;">${changesList}</ul>
-          </div>` : ""}`;
+
+        const topRow = document.createElement("div");
+        topRow.style.cssText = `display:flex;align-items:flex-start;gap:8px;margin-bottom:${hasEntryChanges ? "10px" : "0"};`;
+
+        const labelSpan = document.createElement("span");
+        labelSpan.style.cssText = "font-size:11px;font-weight:800;color:#6b7280;flex-shrink:0;padding-top:1px;";
+        labelSpan.textContent = entry.label || "";
+
+        const textWrap = document.createElement("div");
+        textWrap.style.cssText = "flex:1;min-width:0;";
+        if (hasEntryChanges) {
+          const orig = document.createElement("div");
+          orig.style.cssText = "font-size:11px;color:#9ca3af;text-decoration:line-through;line-height:1.5;margin-bottom:6px;";
+          orig.textContent = entry.original || "";
+          textWrap.appendChild(orig);
+        }
+        const corrDiv = document.createElement("div");
+        corrDiv.style.cssText = "font-size:12px;font-weight:600;color:#111;line-height:1.6;";
+        corrDiv.textContent = correctedText;
+        textWrap.appendChild(corrDiv);
+
+        const copyBtn = document.createElement("button");
+        copyBtn.style.cssText = "padding:4px 8px;border-radius:7px;background:#fff;border:1px solid #d1d5db;font-size:12px;cursor:pointer;flex-shrink:0;color:#6b7280;";
+        copyBtn.textContent = "📋";
+        copyBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(correctedText).then(() => {
+            copyBtn.textContent = "✓";
+            setTimeout(() => { copyBtn.textContent = "📋"; }, 1500);
+          });
+        });
+
+        topRow.appendChild(labelSpan);
+        topRow.appendChild(textWrap);
+        topRow.appendChild(copyBtn);
+        card.appendChild(topRow);
+
+        if (hasEntryChanges) {
+          const changesBox = document.createElement("div");
+          changesBox.style.cssText = "background:#fff;border-radius:8px;padding:8px 10px;border:1px solid #bbf7d0;";
+          changesBox.innerHTML = `<div style="font-size:10px;font-weight:800;color:#16a34a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Changes made</div><ul style="margin:0;padding-left:16px;font-size:11px;color:#374151;line-height:1.6;">${changesList}</ul>`;
+          card.appendChild(changesBox);
+        }
+
         correctedPanel.appendChild(card);
       });
     }
