@@ -11,8 +11,8 @@ from supabase_client import supabase
 router = APIRouter()
 
 PLAN_PRICES = {
-    "plus": 19900,
-    "pro":  49900,
+    "plus": 39900,
+    "pro":  99900,
 }
 
 PLAN_LABELS = {
