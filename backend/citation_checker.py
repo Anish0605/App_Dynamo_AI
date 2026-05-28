@@ -15,14 +15,19 @@ BIBLIOGRAPHY / REFERENCES:
 {bibliography[:4000]}
 
 Check for ALL of the following:
-1. Missing bibliography entries (in-text citation has no matching entry)
-2. Unused bibliography entries (listed but never cited in text)
-3. Year mismatches between in-text and bibliography
-4. {fmt}-specific format violations (et al. threshold, author ordering, punctuation, required fields)
-5. Missing DOIs or URLs for journal articles
-6. Author name inconsistencies or truncation errors
+IN-TEXT CITATION ISSUES (category: "in_text"):
+1. Missing bibliography entries (in-text citation has no matching entry in bibliography)
+2. Year mismatches between in-text citation and bibliography
+3. {fmt}-specific in-text format violations (wrong bracket style, et al. threshold, author ordering, missing year, punctuation)
+4. Unused bibliography entries (listed but never cited in text)
 
-IMPORTANT: You MUST return all four top-level keys: "issues", "sources", "corrected_entries", and "summary". The "corrected_entries" array is REQUIRED — it must contain one object per bibliography entry.
+REFERENCE LIST ISSUES (category: "reference"):
+5. Missing DOIs or URLs for journal articles
+6. Author name formatting errors (wrong order, wrong abbreviation, truncation)
+7. {fmt}-specific reference format violations (wrong field order, missing volume/page/publisher, incorrect italics, capitalization)
+8. Year or title errors in bibliography entries
+
+IMPORTANT: Each issue MUST have a "category" field: use "in_text" for issues found in the body text, and "reference" for issues in the bibliography/reference list.
 
 Return ONLY a JSON object with this exact structure — no markdown fences, no explanation:
 {{
@@ -30,6 +35,7 @@ Return ONLY a JSON object with this exact structure — no markdown fences, no e
     {{
       "id": 1,
       "type": "error",
+      "category": "in_text",
       "title": "Short title max 8 words",
       "detail": "Full clear explanation of the specific problem",
       "fix": "Exact corrected text or instruction",
@@ -57,6 +63,7 @@ Return ONLY a JSON object with this exact structure — no markdown fences, no e
 
 Rules:
 - type: "error" for critical problems, "warning" for format issues, "info" for suggestions
+- category: REQUIRED on every issue — "in_text" or "reference"
 - sources status: start all as "verified" — the system will downgrade based on live DOI checks
 - corrected_entries: MUST include every bibliography entry, one object each. Apply ALL fixes from the issues list to produce the corrected field. If an entry needs no changes, set corrected equal to original and changes to [].
 - If bibliography is empty, return empty corrected_entries []"""
@@ -78,6 +85,7 @@ Rules:
     return {
             "issues": [{
                 "id": 1, "type": "error",
+                "category": "reference",
                 "title": "Analysis error",
                 "detail": f"Dynamo AI could not analyse citations: {e}",
                 "fix": "Please try again or check your input",
@@ -141,7 +149,6 @@ Include every entry. If an entry needs no changes set corrected=original and cha
             raw = re.sub(r'^```[a-z]*\n?', '', raw)
             raw = re.sub(r'\n?```$', '', raw)
             data = json.loads(raw)
-            # Normalise: changes must be a list
             for e in data:
                 if isinstance(e.get("changes"), str):
                     e["changes"] = [e["changes"]] if e["changes"] else []
@@ -156,6 +163,12 @@ async def check_citations(text: str, bibliography: str, fmt: str, gemini_client)
     issues = result.get("issues", [])
     sources = result.get("sources", [])
 
+    # Ensure every issue has a category (fallback for older Gemini responses)
+    for issue in issues:
+        if "category" not in issue:
+            loc = (issue.get("location") or "").lower()
+            issue["category"] = "in_text" if "in-text" in loc or "paragraph" in loc else "reference"
+
     # Run DOI verification + corrected entries generation concurrently
     doi_checks = [(i, src) for i, src in enumerate(sources) if src.get("doi")]
     tasks = []
@@ -168,9 +181,26 @@ async def check_citations(text: str, bibliography: str, fmt: str, gemini_client)
         for (i, src), status in zip(doi_checks, statuses):
             sources[i]["status"] = status
             if status == "warning":
-                sources[i]["journal"] = (src.get("journal") or "") + " — DOI unverified"
+                # Inject unverified DOI as a reference issue so it shows in the grouped issues panel
+                issues.append({
+                    "id": 9000 + i,
+                    "type": "warning",
+                    "category": "reference",
+                    "title": f"DOI unverified — {src.get('ref', '')}",
+                    "detail": f"The DOI for '{src.get('ref', '')}' could not be confirmed via Crossref. It may be incorrect or not yet indexed.",
+                    "fix": f"Check the DOI manually: https://doi.org/{src.get('doi', '')}",
+                    "location": f"Bibliography — {src.get('ref', '')}"
+                })
             elif status == "missing":
-                sources[i]["journal"] = (src.get("journal") or "") + " — DOI not found"
+                issues.append({
+                    "id": 9000 + i,
+                    "type": "warning",
+                    "category": "reference",
+                    "title": f"No DOI found — {src.get('ref', '')}",
+                    "detail": f"'{src.get('ref', '')}' has no DOI. Journal articles should include a DOI in {fmt} format.",
+                    "fix": "Add a DOI or URL. If unavailable, add 'No DOI' note per your institution's guidelines.",
+                    "location": f"Bibliography — {src.get('ref', '')}"
+                })
 
     corrected_entries = await corrected_task
 

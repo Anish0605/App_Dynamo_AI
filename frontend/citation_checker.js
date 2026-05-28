@@ -170,19 +170,13 @@
         <!-- Tabs -->
         <div style="display:flex;background:#fff;border-bottom:1px solid #f0f0f0;padding:0 18px;flex-shrink:0;">
           <button id="_cc-tab-issues" onclick="window._ccSetTab('issues')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid #facc15;color:#111;margin-bottom:-1px;">Issues</button>
-          <button id="_cc-tab-sources" onclick="window._ccSetTab('sources')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:#9ca3af;margin-bottom:-1px;">Source Verification</button>
-          <button id="_cc-tab-corrected" onclick="window._ccSetTab('corrected')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:#9ca3af;margin-bottom:-1px;">📋 Fixed Refs</button>
+          <button id="_cc-tab-corrected" onclick="window._ccSetTab('corrected')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:#9ca3af;margin-bottom:-1px;">📋 Fixed Reference List</button>
         </div>
 
-        <!-- Issues list -->
-        <div id="_cc-issues-panel" style="flex:1;min-height:0;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>
+        <!-- Issues panel (two groups: in-text + reference list) -->
+        <div id="_cc-issues-panel" style="flex:1;min-height:0;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:0;"></div>
 
-        <!-- Sources panel -->
-        <div id="_cc-sources-panel" style="flex:1;min-height:0;overflow-y:auto;padding:12px;display:none;flex-direction:column;gap:8px;">
-          <div style="font-size:11px;color:#9ca3af;margin-bottom:4px;">Dynamo AI verifies that each cited source is real and accessible via Crossref.</div>
-        </div>
-
-        <!-- Corrected Citations panel -->
+        <!-- Fixed Refs panel -->
         <div id="_cc-corrected-panel" style="flex:1;min-height:0;overflow-y:auto;padding:12px;display:none;flex-direction:column;gap:10px;"></div>
       </div>
     </div>
@@ -246,10 +240,9 @@
       _runCheck(text, bib, _format);
     });
 
-    // Tab state
+    // Tab state — only 2 tabs: issues + corrected
     window._ccSetTab = (tab) => {
-      const tabs = ["issues", "sources", "corrected"];
-      tabs.forEach(t => {
+      ["issues", "corrected"].forEach(t => {
         const panel = document.getElementById(`_cc-${t}-panel`);
         const btn = document.getElementById(`_cc-tab-${t}`);
         if (!panel || !btn) return;
@@ -348,13 +341,42 @@
     // Tab label
     document.getElementById("_cc-tab-issues").textContent = `Issues (${issues.length})`;
 
-    // Issues list
+    // Issues list — two grouped sections
     const panel = document.getElementById("_cc-issues-panel");
     panel.innerHTML = "";
+
     if (issues.length === 0) {
       panel.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="font-size:36px;margin-bottom:10px;">🎉</div><div style="font-weight:800;font-size:14px;color:#16a34a;">All citations look correct!</div><div style="font-size:12px;color:#9ca3af;margin-top:6px;">Your ${format} citations passed all checks.</div></div>`;
     } else {
-      issues.forEach(issue => _renderIssueCard(panel, issue));
+      const inTextIssues = issues.filter(i => i.category === "in_text");
+      const refIssues = issues.filter(i => i.category === "reference" || !i.category);
+
+      function _renderGroup(label, emoji, groupIssues, emptyMsg) {
+        const section = document.createElement("div");
+        section.style.cssText = "display:flex;flex-direction:column;gap:8px;margin-bottom:16px;";
+
+        const header = document.createElement("div");
+        header.style.cssText = "display:flex;align-items:center;gap:8px;padding:6px 2px;";
+        header.innerHTML = `
+          <span style="font-size:16px;">${emoji}</span>
+          <span style="font-size:12px;font-weight:900;color:#111;text-transform:uppercase;letter-spacing:.05em;">${label}</span>
+          <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:${groupIssues.length > 0 ? "#fee2e2" : "#dcfce7"};color:${groupIssues.length > 0 ? "#991b1b" : "#166534"};">${groupIssues.length > 0 ? groupIssues.length + " issue" + (groupIssues.length > 1 ? "s" : "") : "✓ No issues"}</span>`;
+        section.appendChild(header);
+
+        if (groupIssues.length === 0) {
+          const ok = document.createElement("div");
+          ok.style.cssText = "padding:10px 14px;border-radius:10px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:12px;color:#16a34a;font-weight:600;";
+          ok.textContent = emptyMsg;
+          section.appendChild(ok);
+        } else {
+          groupIssues.forEach(issue => _renderIssueCard(section, issue));
+        }
+
+        panel.appendChild(section);
+      }
+
+      _renderGroup("In-Text Citations", "📝", inTextIssues, "In-text citations follow " + format + " style correctly.");
+      _renderGroup("Reference List / Bibliography", "📚", refIssues, "All bibliography entries are correctly formatted.");
     }
 
     // Corrected Citations panel
