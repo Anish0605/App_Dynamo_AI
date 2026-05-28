@@ -70,9 +70,11 @@ Rules:
 
     for model in ("gemini-3.5-flash", "gemini-3.1-flash-lite-preview"):
         try:
+            from google.genai import types as _gtypes
             resp = gemini_client.models.generate_content(
                 model=model,
-                contents=prompt
+                contents=prompt,
+                config=_gtypes.GenerateContentConfig(temperature=0)
             )
             raw = resp.text.strip()
             raw = re.sub(r'^```[a-z]*\n?', '', raw)
@@ -144,7 +146,11 @@ Include every entry. If an entry needs no changes set corrected=original and cha
 
     for model in ("gemini-3.5-flash", "gemini-3.1-flash-lite-preview"):
         try:
-            resp = gemini_client.models.generate_content(model=model, contents=prompt)
+            from google.genai import types as _gtypes
+            resp = gemini_client.models.generate_content(
+                model=model, contents=prompt,
+                config=_gtypes.GenerateContentConfig(temperature=0)
+            )
             raw = resp.text.strip()
             raw = re.sub(r'^```[a-z]*\n?', '', raw)
             raw = re.sub(r'\n?```$', '', raw)
@@ -206,7 +212,12 @@ async def check_citations(text: str, bibliography: str, fmt: str, gemini_client)
 
     errors = sum(1 for x in issues if x.get("type") == "error")
     warnings = sum(1 for x in issues if x.get("type") == "warning")
-    score = max(0, min(100, 100 - errors * 20 - warnings * 7))
+    # Gradual deduction: -12 per error, -4 per warning, minimum 5 if any issue exists
+    if errors == 0 and warnings == 0:
+        score = 100
+    else:
+        raw = 100 - errors * 12 - warnings * 4
+        score = max(5, min(99, raw))
 
     return {
         "score": score,
