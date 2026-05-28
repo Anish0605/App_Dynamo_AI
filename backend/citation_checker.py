@@ -181,14 +181,14 @@ async def check_citations(text: str, bibliography: str, fmt: str, gemini_client)
         for (i, src), status in zip(doi_checks, statuses):
             sources[i]["status"] = status
             if status == "warning":
-                # Inject unverified DOI as a reference issue so it shows in the grouped issues panel
+                doi_val = src.get("doi", "")
                 issues.append({
                     "id": 9000 + i,
-                    "type": "warning",
+                    "type": "error",
                     "category": "reference",
-                    "title": f"DOI unverified — {src.get('ref', '')}",
-                    "detail": f"The DOI for '{src.get('ref', '')}' could not be confirmed via Crossref. It may be incorrect or not yet indexed.",
-                    "fix": f"Check the DOI manually: https://doi.org/{src.get('doi', '')}",
+                    "title": f"DOI not found — {src.get('ref', '')}",
+                    "detail": f"The DOI '{doi_val}' returned no result from doi.org. This usually means the DOI is incorrect or was copied with a typo. A broken DOI is a critical reference error.",
+                    "fix": f"Search for this paper by title on Google Scholar or the publisher's website to find the correct DOI. Then update your reference to use the correct DOI.",
                     "location": f"Bibliography — {src.get('ref', '')}"
                 })
             elif status == "missing":
@@ -196,9 +196,9 @@ async def check_citations(text: str, bibliography: str, fmt: str, gemini_client)
                     "id": 9000 + i,
                     "type": "warning",
                     "category": "reference",
-                    "title": f"No DOI found — {src.get('ref', '')}",
-                    "detail": f"'{src.get('ref', '')}' has no DOI. Journal articles should include a DOI in {fmt} format.",
-                    "fix": "Add a DOI or URL. If unavailable, add 'No DOI' note per your institution's guidelines.",
+                    "title": f"No DOI — {src.get('ref', '')}",
+                    "detail": f"No DOI was found for '{src.get('ref', '')}'. Journal articles should include a DOI in {fmt} format.",
+                    "fix": "Search for this paper on Google Scholar or Crossref (search.crossref.org) to find and add the correct DOI.",
                     "location": f"Bibliography — {src.get('ref', '')}"
                 })
 
