@@ -147,11 +147,21 @@
       <!-- Results -->
       <div id="_cc-results" style="flex:1;min-height:0;display:none;flex-direction:column;overflow:hidden;">
 
-        <!-- Status bar (no score) -->
-        <div id="_cc-status-bar" style="background:#fff;border-bottom:1px solid #f0f0f0;padding:12px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0;">
-          <div id="_cc-status-icon" style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:#f3f4f6;">—</div>
+        <!-- Score bar -->
+        <div style="background:#fff;border-bottom:1px solid #f0f0f0;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-shrink:0;">
+          <div style="position:relative;width:62px;height:62px;flex-shrink:0;">
+            <svg viewBox="0 0 56 56" width="62" height="62" style="transform:rotate(-90deg);">
+              <circle cx="28" cy="28" r="22" fill="none" stroke="#f3f4f6" stroke-width="6"/>
+              <circle id="_cc-arc" cx="28" cy="28" r="22" fill="none" stroke="#facc15" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="138.23" stroke-dashoffset="138.23" style="transition:stroke-dashoffset .8s ease,stroke .6s ease;"/>
+            </svg>
+            <div id="_cc-score-num" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#111;">—</div>
+          </div>
           <div style="flex:1;min-width:0;">
-            <div id="_cc-status-label" style="font-weight:900;font-size:13px;color:#111;margin-bottom:3px;">Checking…</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-weight:800;font-size:13px;color:#111;">Citation Health:</span>
+              <span id="_cc-score-label" style="font-weight:800;font-size:13px;"></span>
+            </div>
             <div style="display:flex;align-items:center;gap:10px;font-size:11px;" id="_cc-counts"></div>
           </div>
           <button id="_cc-view-corrected" onclick="window._ccSetTab('corrected')" style="display:none;padding:8px 14px;border-radius:10px;background:#111;color:#fff;font-size:11px;font-weight:800;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;">📋 View Fixed Refs</button>
@@ -306,32 +316,25 @@
     document.getElementById("_cc-results").style.display = "flex";
     window._ccSetTab("issues");
 
-    // Status bar — no score number, just clear status
+    // Score ring
     const errors = issues.filter(i => i.type === "error").length;
     const warnings = issues.filter(i => i.type === "warning").length;
+    const infos = issues.filter(i => i.type === "info").length;
+    const arc = document.getElementById("_cc-arc");
+    const circumference = 138.23; // 2*PI*22
+    arc.style.strokeDashoffset = circumference * (1 - score / 100);
+    const scoreColor = score >= 80 ? "#22c55e" : score >= 50 ? "#facc15" : "#ef4444";
+    arc.style.stroke = scoreColor;
+    document.getElementById("_cc-score-num").textContent = score;
+    const label = score >= 80 ? "Good" : score >= 50 ? "Needs work" : "Poor";
+    const lblEl = document.getElementById("_cc-score-label");
+    lblEl.textContent = label;
+    lblEl.style.color = scoreColor;
 
-    const iconEl = document.getElementById("_cc-status-icon");
-    const labelEl = document.getElementById("_cc-status-label");
-    if (errors > 0) {
-      iconEl.textContent = "❌";
-      iconEl.style.background = "#fee2e2";
-      labelEl.textContent = `${errors} error${errors !== 1 ? "s" : ""} found — fix before submitting`;
-      labelEl.style.color = "#991b1b";
-    } else if (warnings > 0) {
-      iconEl.textContent = "⚠️";
-      iconEl.style.background = "#fef9c3";
-      labelEl.textContent = `${warnings} warning${warnings !== 1 ? "s" : ""} — review recommended`;
-      labelEl.style.color = "#854d0e";
-    } else {
-      iconEl.textContent = "✅";
-      iconEl.style.background = "#dcfce7";
-      labelEl.textContent = "All citations look correct!";
-      labelEl.style.color = "#166534";
-    }
     document.getElementById("_cc-counts").innerHTML =
-      (errors > 0 ? `<span style="display:flex;align-items:center;gap:4px;"><span style="width:7px;height:7px;border-radius:50%;background:#ef4444;display:inline-block;"></span><b style="color:#374151;">${errors}</b> <span style="color:#9ca3af;">error${errors !== 1 ? "s" : ""}</span></span>` : "") +
-      (warnings > 0 ? `<span style="display:flex;align-items:center;gap:4px;"><span style="width:7px;height:7px;border-radius:50%;background:#facc15;display:inline-block;"></span><b style="color:#374151;">${warnings}</b> <span style="color:#9ca3af;">warning${warnings !== 1 ? "s" : ""}</span></span>` : "") +
-      (errors === 0 && warnings === 0 ? `<span style="color:#16a34a;font-size:11px;">No errors or warnings</span>` : "");
+      `<span style="display:flex;align-items:center;gap:4px;"><span style="width:7px;height:7px;border-radius:50%;background:#ef4444;display:inline-block;"></span><b style="color:#374151;">${errors}</b> <span style="color:#9ca3af;">errors</span></span>` +
+      `<span style="display:flex;align-items:center;gap:4px;"><span style="width:7px;height:7px;border-radius:50%;background:#facc15;display:inline-block;"></span><b style="color:#374151;">${warnings}</b> <span style="color:#9ca3af;">warnings</span></span>` +
+      `<span style="display:flex;align-items:center;gap:4px;"><span style="width:7px;height:7px;border-radius:50%;background:#60a5fa;display:inline-block;"></span><b style="color:#374151;">${infos}</b> <span style="color:#9ca3af;">info</span></span>`;
 
     // Tab label
     document.getElementById("_cc-tab-issues").textContent = `Issues (${issues.length})`;
@@ -341,8 +344,14 @@
     panel.innerHTML = "";
 
     if (issues.length === 0) {
-      panel.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="font-size:36px;margin-bottom:10px;">🎉</div><div style="font-weight:800;font-size:14px;color:#16a34a;">All citations look correct!</div><div style="font-size:12px;color:#9ca3af;margin-top:6px;">Your ${format} citations passed all checks.</div></div>`;
+      panel.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="font-size:36px;margin-bottom:10px;">🎉</div><div style="font-weight:800;font-size:14px;color:#16a34a;">All citations look correct!</div><div style="font-size:12px;color:#9ca3af;margin-top:6px;">Your ${format} citations passed all checks — score 100.</div></div>`;
     } else {
+      // Re-check hint
+      const hint = document.createElement("div");
+      hint.style.cssText = "background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:9px 12px;display:flex;align-items:flex-start;gap:8px;margin-bottom:12px;flex-shrink:0;";
+      hint.innerHTML = `<span style="font-size:13px;flex-shrink:0;">💡</span><div style="font-size:11px;color:#0c4a6e;line-height:1.5;"><strong>How to reach 100:</strong> Fix the issues below in your text and references, then paste the corrected versions back on the left and click <strong>Check Citations</strong> again. Your score will go up each round.</div>`;
+      panel.appendChild(hint);
+
       const inTextIssues = issues.filter(i => i.category === "in_text");
       const refIssues = issues.filter(i => i.category === "reference" || !i.category);
 
