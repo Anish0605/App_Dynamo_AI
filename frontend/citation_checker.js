@@ -57,7 +57,7 @@
 
   <!-- Header -->
   <div style="display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid #f0f0f0;flex-shrink:0;background:#fff;">
-    <img src="/assets/dynamo-logo-new.png?v=20260527a" alt="Dynamo AI" style="width:34px;height:34px;border-radius:10px;object-fit:cover;flex-shrink:0;">
+    <img src="/assets/dynamo-logo-new.png?v=20260527a" alt="Dynamo AI" style="width:42px;height:42px;border-radius:10px;object-fit:cover;flex-shrink:0;">
     <div style="flex:1;min-width:0;">
       <div style="font-weight:800;font-size:14px;color:#111;">Dynamo AI — Citation Checker</div>
       <div style="font-size:11px;color:#9ca3af;margin-top:1px;">Verify APA, IEEE, MLA, Harvard &amp; more · Powered by Dynamo AI</div>
