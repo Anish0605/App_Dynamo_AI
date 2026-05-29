@@ -36,6 +36,7 @@ from export_routes import router as export_router
 from presentation_engine import build_presentation, build_smart_presentation
 from payments import router as payments_router
 import detector as detector_module
+import pitch_export
 
 # --------------------------------------------------
 # FASTAPI APP
@@ -1345,6 +1346,17 @@ async def check_watch_ep(watch_id: str, user_id: str):
     # Always stamp last_checked_at after manual check too
     watches_module.mark_checked(supabase_client.supabase, watch_id)
     return result
+
+# ─── PITCH DECK DOWNLOAD ────────────────────────────────────────────
+@app.get("/download/investor-deck.pptx")
+async def download_investor_deck():
+    from fastapi.responses import Response
+    data = pitch_export.build_investor_pptx()
+    return Response(
+        content=data,
+        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        headers={"Content-Disposition": 'attachment; filename="Dynamo_AI_Investor_Deck.pptx"'},
+    )
 
 # STATIC FILES (frontend — must come last)
 # --------------------------------------------------
