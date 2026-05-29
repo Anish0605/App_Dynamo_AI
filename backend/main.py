@@ -37,6 +37,7 @@ from presentation_engine import build_presentation, build_smart_presentation
 from payments import router as payments_router
 import detector as detector_module
 import pitch_export
+import pitch_screenshot
 
 # --------------------------------------------------
 # FASTAPI APP
@@ -1347,7 +1348,7 @@ async def check_watch_ep(watch_id: str, user_id: str):
     watches_module.mark_checked(supabase_client.supabase, watch_id)
     return result
 
-# ─── PITCH DECK DOWNLOAD ────────────────────────────────────────────
+# ─── PITCH DECK DOWNLOADS ────────────────────────────────────────────
 @app.get("/download/investor-deck.pptx")
 async def download_investor_deck():
     from fastapi.responses import Response
@@ -1356,6 +1357,28 @@ async def download_investor_deck():
         content=data,
         media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
         headers={"Content-Disposition": 'attachment; filename="Dynamo_AI_Investor_Deck.pptx"'},
+    )
+
+@app.get("/download/investor-deck-visual.pptx")
+async def download_investor_deck_visual():
+    """Screenshot-based PPTX — pixel-perfect match of the canvas slides."""
+    from fastapi.responses import Response
+    data = await pitch_screenshot.build_image_pptx()
+    return Response(
+        content=data,
+        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        headers={"Content-Disposition": 'attachment; filename="Dynamo_AI_Investor_Deck_Visual.pptx"'},
+    )
+
+@app.get("/download/investor-deck.pdf")
+async def download_investor_deck_pdf():
+    """Screenshot-based PDF — pixel-perfect match of the canvas slides."""
+    from fastapi.responses import Response
+    data = await pitch_screenshot.build_pdf()
+    return Response(
+        content=data,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'attachment; filename="Dynamo_AI_Investor_Deck.pdf"'},
     )
 
 # STATIC FILES (frontend — must come last)
