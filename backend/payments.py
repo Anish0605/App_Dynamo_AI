@@ -11,8 +11,10 @@ from supabase_client import supabase
 router = APIRouter()
 
 PLAN_PRICES = {
-    "plus": 39900,
-    "pro":  99900,
+    "plus":        39900,
+    "pro":         99900,
+    "plus_annual": 382900,
+    "pro_annual":  958900,
 }
 
 PLAN_LABELS = {
@@ -31,6 +33,7 @@ class CreateOrderRequest(BaseModel):
     user_id: str
     email: str | None = None
     name: str | None = None
+    billing: str = "monthly"
 
 
 class VerifyPaymentRequest(BaseModel):
@@ -39,24 +42,28 @@ class VerifyPaymentRequest(BaseModel):
     razorpay_signature: str
     plan: str
     user_id: str
+    billing: str = "monthly"
 
 
 @router.post("/create-order")
 async def create_order(req: CreateOrderRequest):
     plan = req.plan.lower()
-    if plan not in PLAN_PRICES:
+    billing = req.billing.lower() if req.billing else "monthly"
+    if plan not in ("plus", "pro"):
         raise HTTPException(status_code=400, detail=f"Invalid plan: {plan}. Choose 'plus' or 'pro'.")
 
-    amount_paise = PLAN_PRICES[plan]
+    price_key = f"{plan}_annual" if billing == "annual" else plan
+    amount_paise = PLAN_PRICES[price_key]
     client = get_razorpay_client()
 
-    receipt = f"rcpt_{plan}_{uuid.uuid4().hex[:8]}"
+    receipt = f"rcpt_{plan}_{billing[:1]}_{uuid.uuid4().hex[:8]}"
     order_data = client.order.create({
         "amount": amount_paise,
         "currency": "INR",
         "receipt": receipt,
         "notes": {
             "plan": plan,
+            "billing": billing,
             "user_id": req.user_id
         }
     })
@@ -67,6 +74,7 @@ async def create_order(req: CreateOrderRequest):
         "currency": order_data["currency"],
         "key_id": config.RAZORPAY_KEY_ID,
         "plan": plan,
+        "billing": billing,
     }
 
 
@@ -88,7 +96,10 @@ async def verify_payment(req: VerifyPaymentRequest):
     if not hmac.compare_digest(generated_signature, req.razorpay_signature):
         raise HTTPException(status_code=400, detail="Invalid payment signature. Payment not verified.")
 
-    expires_at = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
+    billing = req.billing.lower() if req.billing else "monthly"
+    days = 365 if billing == "annual" else 30
+    expires_at = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
+    price_key = f"{plan}_annual" if billing == "annual" else plan
 
     if supabase:
         try:
@@ -103,7 +114,7 @@ async def verify_payment(req: VerifyPaymentRequest):
                 "plan": plan,
                 "razorpay_order_id": req.razorpay_order_id,
                 "razorpay_payment_id": req.razorpay_payment_id,
-                "amount": PLAN_PRICES[plan],
+                "amount": PLAN_PRICES[price_key],
                 "status": "paid",
                 "expires_at": expires_at,
             }).execute()
