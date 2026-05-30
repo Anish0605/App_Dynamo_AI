@@ -54,3 +54,9 @@ id = "XYNNMq5DrRWmnCs32FO2x"
 uri = "file://frontend/dynamo_ai_investor_deck.pdf"
 type = "pdf"
 title = "Investor Deck — PDF (16:9, pixel-perfect)"
+
+[[outputs]]
+id = "zu5I86BdNPaYM7z70jtpa"
+uri = "file://frontend/Dynamo_AI_Gemini_Cost_Analysis.docx"
+type = "word_document"
+title = "Dynamo AI — Gemini API Usage & Cost Analysis (Word)"
