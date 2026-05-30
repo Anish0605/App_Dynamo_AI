@@ -47,10 +47,10 @@ title = "Dynamo AI Investor Deck (PPTX — 12 slides, 16:9)"
 id = "FsCHt9_EmZ5dKZvCGrOMZ"
 uri = "file://frontend/dynamo_ai_investor_deck_visual.pptx"
 type = "slides"
-title = "Investor Deck — Visual PPTX (exact canvas look, editable in Google Slides)"
+title = "Investor Deck — PPTX (16:9, design-locked for Google Slides & PowerPoint)"
 
 [[outputs]]
 id = "XYNNMq5DrRWmnCs32FO2x"
 uri = "file://frontend/dynamo_ai_investor_deck.pdf"
 type = "pdf"
-title = "Investor Deck — PDF (pixel-perfect, for sharing / presenting)"
+title = "Investor Deck — PDF (16:9, pixel-perfect)"
