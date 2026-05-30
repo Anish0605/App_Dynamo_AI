@@ -434,7 +434,8 @@ async def chat(req: ChatReq):
         context=context,
         deep_dive=req.deep_dive,
         memories=memories,
-        doc_context=doc_context
+        doc_context=doc_context,
+        force_json=is_quiz_request,
     )
 
     # -------------------------

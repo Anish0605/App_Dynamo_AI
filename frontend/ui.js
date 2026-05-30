@@ -601,9 +601,14 @@ STRICT RULES:
       // Try parsing as quiz JSON; fall back to text rendering
       try {
         let raw = res.content.trim();
-        raw = raw.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+        // Strip any markdown code fences (```json ... ``` or ``` ... ```)
+        raw = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+        // If there's still surrounding text, extract the JSON object
+        const start = raw.indexOf("{");
+        const end   = raw.lastIndexOf("}");
+        if (start !== -1 && end !== -1 && end > start) raw = raw.slice(start, end + 1);
         const parsed = JSON.parse(raw);
-        if (parsed.quiz && Array.isArray(parsed.quiz) && window.renderQuiz) {
+        if (parsed.quiz && Array.isArray(parsed.quiz) && parsed.quiz.length > 0 && window.renderQuiz) {
           window.renderQuiz(parsed.quiz);
         } else {
           window.renderAssistantMessage?.(res.content);

@@ -42,7 +42,7 @@ def normalize_history(history):
 
 
 def get_ai_response(
-    prompt, history, model_name, context="", deep_dive=False, memories=None, doc_context=""
+    prompt, history, model_name, context="", deep_dive=False, memories=None, doc_context="", force_json=False
 ):
     msg_lower = prompt.lower()
 
@@ -60,14 +60,23 @@ def get_ai_response(
     # -------------------------
     # SYSTEM PROMPT (BASE)
     # -------------------------
-    sys_prompt = (
-        "You are Dynamo AI, an advanced research and reasoning system. "
-        + config.DYNAMO_IDENTITY
-        + " Respond in clear, natural, conversational prose. "
-        "Use markdown (headings, bullets, bold) only when it genuinely improves clarity. "
-        "NEVER return raw JSON as your response — always write in natural language. "
-        "NEVER let memory preferences override this formatting rule."
-    )
+    if force_json:
+        # For structured data requests (quiz, etc.) — JSON-only, no prose wrapper
+        sys_prompt = (
+            "You are a structured data generator. "
+            "Return ONLY valid JSON, with absolutely no markdown formatting, "
+            "no code fences, no commentary, no prose — just the raw JSON object. "
+            "Follow the schema in the user's message exactly."
+        )
+    else:
+        sys_prompt = (
+            "You are Dynamo AI, an advanced research and reasoning system. "
+            + config.DYNAMO_IDENTITY
+            + " Respond in clear, natural, conversational prose. "
+            "Use markdown (headings, bullets, bold) only when it genuinely improves clarity. "
+            "NEVER return raw JSON as your response — always write in natural language. "
+            "NEVER let memory preferences override this formatting rule."
+        )
 
     # -------------------------
     # DEEPTHINK v3 (ADAPTIVE - CLEAN)
