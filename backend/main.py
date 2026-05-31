@@ -307,6 +307,19 @@ async def chat(req: ChatReq):
                 "type": "error",
                 "content": "⚠️ You have reached your daily limit."
         }
+
+    # -------------------------
+    # 🔒 1.2 PRO FEATURE GATE — DeepThink & Find Research Gaps (backend enforcement)
+    # Frontend already blocks non-Pro users; this prevents direct API calls bypassing the UI.
+    # -------------------------
+    if req.deep_dive:
+        _plan = (user.get("plan", "free") if user else "free").lower()
+        if _plan != "pro":
+            return {
+                "type": "text",
+                "content": "🔒 **DeepThink** and **Find Research Gaps** are **Pro-only** features.\n\n[Upgrade to Pro →](/pricing.html)"
+            }
+
     # -------------------------
     # 💬 2. CHAT HANDLING
     # -------------------------
@@ -1209,6 +1222,18 @@ async def deep_research_start(req: DeepResearchStartReq):
     if not req.query.strip():
         from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
+
+    # ── Backend Pro gate — prevents direct API calls bypassing the frontend ──
+    if req.user_id:
+        _dr_user = get_user_by_supabase_id(req.user_id)
+        _dr_plan = (_dr_user.get("plan", "free") if _dr_user else "free").lower()
+    else:
+        _dr_plan = "free"
+
+    if _dr_plan != "pro":
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Deep Research Agent is a Pro-only feature.")
+
     job_id = await dr_module.start_research(
         query=req.query.strip(),
         user_id=req.user_id,
