@@ -68,19 +68,21 @@ Rules:
 - corrected_entries: MUST include every bibliography entry, one object each. Apply ALL fixes from the issues list to produce the corrected field. If an entry needs no changes, set corrected equal to original and changes to [].
 - If bibliography is empty, return empty corrected_entries []"""
 
-    try:
-        from google.genai import types as _gtypes
-        resp = gemini_client.models.generate_content(
-            model="gemini-3.5-flash",
-            contents=prompt,
-            config=_gtypes.GenerateContentConfig(temperature=0)
-        )
-        raw = resp.text.strip()
-        raw = re.sub(r'^```[a-z]*\n?', '', raw)
-        raw = re.sub(r'\n?```$', '', raw)
-        return json.loads(raw)
-    except Exception as e:
-        last_err = e
+    for model in ("gemini-3.5-flash", "gemini-3.1-flash-lite-preview"):
+        try:
+            from google.genai import types as _gtypes
+            resp = gemini_client.models.generate_content(
+                model=model,
+                contents=prompt,
+                config=_gtypes.GenerateContentConfig(temperature=0)
+            )
+            raw = resp.text.strip()
+            raw = re.sub(r'^```[a-z]*\n?', '', raw)
+            raw = re.sub(r'\n?```$', '', raw)
+            return json.loads(raw)
+        except Exception as e:
+            last_err = e
+            continue
     e = last_err
     return {
             "issues": [{
@@ -142,22 +144,24 @@ Return ONLY a JSON array — no markdown, no explanation:
 
 Include every entry. If an entry needs no changes set corrected=original and changes=[]."""
 
-    try:
-        from google.genai import types as _gtypes
-        resp = gemini_client.models.generate_content(
-            model="gemini-3.5-flash", contents=prompt,
-            config=_gtypes.GenerateContentConfig(temperature=0)
-        )
-        raw = resp.text.strip()
-        raw = re.sub(r'^```[a-z]*\n?', '', raw)
-        raw = re.sub(r'\n?```$', '', raw)
-        data = json.loads(raw)
-        for e in data:
-            if isinstance(e.get("changes"), str):
-                e["changes"] = [e["changes"]] if e["changes"] else []
-        return data
-    except Exception:
-        return []
+    for model in ("gemini-3.5-flash", "gemini-3.1-flash-lite-preview"):
+        try:
+            from google.genai import types as _gtypes
+            resp = gemini_client.models.generate_content(
+                model=model, contents=prompt,
+                config=_gtypes.GenerateContentConfig(temperature=0)
+            )
+            raw = resp.text.strip()
+            raw = re.sub(r'^```[a-z]*\n?', '', raw)
+            raw = re.sub(r'\n?```$', '', raw)
+            data = json.loads(raw)
+            for e in data:
+                if isinstance(e.get("changes"), str):
+                    e["changes"] = [e["changes"]] if e["changes"] else []
+            return data
+        except Exception:
+            continue
+    return []
 
 
 async def check_citations(text: str, bibliography: str, fmt: str, gemini_client) -> dict:
