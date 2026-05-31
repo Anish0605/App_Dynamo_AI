@@ -42,7 +42,7 @@ def normalize_history(history):
 
 
 def get_ai_response(
-    prompt, history, model_name, context="", deep_dive=False, memories=None, doc_context="", force_json=False
+    prompt, history, model_name, context="", deep_dive=False, memories=None, doc_context="", force_json=False, plan="free"
 ):
     msg_lower = prompt.lower()
 
@@ -138,13 +138,15 @@ def get_ai_response(
     # GEMINI EXECUTION
     # -------------------------
     # Model selection logic (priority: deep_dive > non-default model_name > default):
-    #   • DeepThink mode (deep_dive=True) → gemini-3.5-flash (frontier intelligence + deep reasoning prompt) — Pro only
-    #   • Fast mode (default)             → gemini-3.1-flash-lite-preview (cost-optimised, high speed)
-    #   • Explicit non-default model_name → respected
+    #   • DeepThink (deep_dive=True)  → gemini-3.5-flash — Pro only
+    #   • Fast mode, Plus/Pro user    → gemini-3.5-flash  (paid users get the better model even in Fast mode)
+    #   • Fast mode, Free user        → gemini-3.1-flash-lite-preview  (cost-optimised)
     #   Fallback: gemini-3.1-flash-lite-preview
-    DEFAULT_MODEL = "gemini-3.1-flash-lite-preview"
+    FAST_MODEL_FREE = "gemini-3.1-flash-lite-preview"
+    FAST_MODEL_PAID = "gemini-3.5-flash"
     DEEPTHINK_MODEL = "gemini-3.5-flash"
-    FALLBACK_MODEL = "gemini-3.1-flash-lite-preview"
+    FALLBACK_MODEL  = "gemini-3.1-flash-lite-preview"
+    DEFAULT_MODEL   = FAST_MODEL_PAID if plan in ("plus", "pro") else FAST_MODEL_FREE
     try:
         if deep_dive:
             # DeepThink ALWAYS wins — overrides any default that the frontend

@@ -457,6 +457,7 @@ async def chat(req: ChatReq):
         memories=memories,
         doc_context=doc_context,
         force_json=is_quiz_request,
+        plan=(user.get("plan", "free") if user else "free"),
     )
 
     # -------------------------
