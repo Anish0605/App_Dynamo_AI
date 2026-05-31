@@ -219,7 +219,7 @@
     document.getElementById("ai-result").classList.add("hidden");
 
     try {
-      const res = await window.callBackend("/detect-ai", { text });
+      const res = await window.callBackend("/detect-ai", { text, user_id: window.appState?.supabaseUser?.id || "" });
       _renderAiResult(res);
       _setStatus("ai-status", "", "");
     } catch (err) {
@@ -358,7 +358,7 @@
     document.getElementById("plag-result").classList.add("hidden");
 
     try {
-      const res = await window.callBackend("/check-plagiarism", { text });
+      const res = await window.callBackend("/check-plagiarism", { text, user_id: window.appState?.supabaseUser?.id || "" });
       _renderPlagResult(res);
       _setStatus("plag-status", "", "");
     } catch (err) {
@@ -598,7 +598,7 @@
     outputEl.innerHTML = "";
 
     try {
-      const res       = await window.callBackend("/detect-ai-heatmap", { text });
+      const res       = await window.callBackend("/detect-ai-heatmap", { text, user_id: window.appState?.supabaseUser?.id || "" });
       const sentences = res.sentences || [];
 
       if (!sentences.length) {
@@ -700,7 +700,7 @@
     document.getElementById("selfplag-post-actions")?.classList.add("hidden");
 
     try {
-      const res = await window.callBackend("/check-self-plagiarism", { text_a: textA, text_b: textB });
+      const res = await window.callBackend("/check-self-plagiarism", { text_a: textA, text_b: textB, user_id: window.appState?.supabaseUser?.id || "" });
       _renderSelfPlagResult(res);
       document.getElementById("selfplag-post-actions")?.classList.remove("hidden");
       _setStatus("selfplag-status", "", "");
@@ -900,7 +900,7 @@
     if (output) { output.textContent = ""; }
 
     try {
-      const res = await window.callBackend("/humanize", { text });
+      const res = await window.callBackend("/humanize", { text, user_id: window.appState?.supabaseUser?.id || "" });
 
       if (!res.ok || !res.humanized) {
         _setStatus("ai-humanize-status", "⚠️ " + (res.error || "Humanization failed. Please try again."), "error");

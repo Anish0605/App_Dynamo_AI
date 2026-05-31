@@ -68,11 +68,11 @@ async function loadProfileData() {
     const emailInput = document.getElementById("new-email-input");
     if (emailInput) emailInput.value = email;
 
-    // Refresh from Supabase
+    // Refresh from Supabase (also fetch quota fields)
     if (window.supabaseClient && firebaseUser?.uid) {
       const { data } = await window.supabaseClient
         .from("users")
-        .select("plan, full_name, email")
+        .select("plan, full_name, email, daily_quota_used, quota_date, image_count_used, video_count_used, quota_month")
         .eq("firebase_uid", firebaseUser.uid)
         .single();
 
@@ -84,12 +84,46 @@ async function loadProfileData() {
         if (nameInput)  nameInput.value  = freshName;
         if (emailInput) emailInput.value = freshEmail;
         if (window.appState.supabaseUser) {
-          window.appState.supabaseUser.plan      = data.plan;
-          window.appState.supabaseUser.full_name = freshName;
+          window.appState.supabaseUser.plan           = data.plan;
+          window.appState.supabaseUser.full_name      = freshName;
+          window.appState.supabaseUser.daily_quota_used = data.daily_quota_used ?? 0;
         }
+        updateCreditPills(data.plan || "free", data);
       }
     }
   } catch (err) { console.error("❌ loadProfileData error:", err); }
+}
+
+/* ── CREDIT PILLS ── */
+function updateCreditPills(plan, data) {
+  const LIMITS = {
+    free:  { chat: 10,  img: 0,   vid: 0   },
+    plus:  { chat: 100, img: 25,  vid: 5   },
+    pro:   { chat: 300, img: 100, vid: 25  },
+  };
+  const p = (plan || "free").toLowerCase();
+  const lim = LIMITS[p] || LIMITS.free;
+
+  // Reset today's counter if quota_date is stale
+  const today = new Date().toISOString().slice(0, 10);
+  const msgUsed = (data.quota_date === today) ? (data.daily_quota_used ?? 0) : 0;
+  const imgUsed = data.image_count_used ?? 0;
+  const vidUsed = data.video_count_used ?? 0;
+
+  const msgPill = document.getElementById("compact-msg");
+  const imgPill = document.getElementById("compact-img");
+  const vidPill = document.getElementById("compact-vid");
+  const bar     = document.getElementById("profile-msg-bar");
+
+  if (msgPill) msgPill.textContent = `💬 ${msgUsed}/${lim.chat}`;
+  if (imgPill) imgPill.textContent = `🖼️ ${imgUsed}/${lim.img}`;
+  if (vidPill) vidPill.textContent = `🎬 ${vidUsed}/${lim.vid}`;
+
+  if (bar) {
+    const pct = lim.chat > 0 ? Math.min(100, Math.round((msgUsed / lim.chat) * 100)) : 0;
+    bar.style.width = pct + "%";
+    bar.style.background = pct >= 90 ? "#ef4444" : pct >= 70 ? "#f59e0b" : "#22c55e";
+  }
 }
 
 /* ── UI SETTER ── */

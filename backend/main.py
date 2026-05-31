@@ -360,6 +360,14 @@ async def chat(req: ChatReq):
     is_research_mode = (req.mode == "research")
 
     if is_research_mode:
+        # Gate: Plus/Pro only — free users cannot use Research Mode
+        _research_plan = (user.get("plan", "free") if user else "free").lower()
+        if _research_plan == "free":
+            return {
+                "type": "error",
+                "content": "🔒 **Research Mode** is available on **Plus** and **Pro** plans.\n\nUpgrade to unlock Research Mode, AI Memory, PDF uploads, and much more. [View Plans](/pricing.html)"
+            }
+
         has_citation = bool(req.citation_format and req.citation_format.strip())
         print(f"[Research] mode={'PAPER' if has_citation else 'CHAT'} | citation={req.citation_format or 'none'}")
 
@@ -536,7 +544,7 @@ async def chat(req: ChatReq):
         # Layer 2 — does it contain real personal context?
         return bool(_PERSONAL_SIGNAL_RE.search(msg))
 
-    if user and _should_extract_memory(req.message):
+    if user and user.get("plan", "free") != "free" and _should_extract_memory(req.message):
         def _extract_and_save():
             try:
                 new_memories = memory_module.extract_memories(req.message, response)
@@ -1078,12 +1086,25 @@ async def generate_video(req: VideoReq):
 
 class DetectorReq(BaseModel):
     text: str
+    user_id: str = ""
+
+def _check_detector_plan(user_id: str):
+    """Returns True if allowed (Plus/Pro), raises 403 if free user."""
+    if user_id:
+        _u = get_user_by_supabase_id(user_id)
+        if _u and (_u.get("plan", "free") or "free").lower() == "free":
+            from fastapi import HTTPException
+            raise HTTPException(
+                status_code=403,
+                detail="AI Detector & Plagiarism Checker requires a Plus or Pro plan. Visit /pricing.html to upgrade."
+            )
 
 @app.post("/detect-ai")
 async def detect_ai_endpoint(req: DetectorReq):
     if not req.text.strip():
         from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Text cannot be empty.")
+    _check_detector_plan(req.user_id)
     return await detector_module.detect_ai(req.text)
 
 @app.post("/check-plagiarism")
@@ -1091,6 +1112,7 @@ async def check_plagiarism_endpoint(req: DetectorReq):
     if not req.text.strip():
         from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Text cannot be empty.")
+    _check_detector_plan(req.user_id)
     return await detector_module.check_plagiarism(req.text)
 
 @app.post("/extract-text")
@@ -1136,6 +1158,7 @@ async def detect_ai_heatmap_endpoint(req: DetectorReq):
     if not req.text.strip():
         from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Text cannot be empty.")
+    _check_detector_plan(req.user_id)
     return await detector_module.detect_ai_sentences(req.text)
 
 
@@ -1145,12 +1168,14 @@ async def humanize_endpoint(req: DetectorReq):
     if not req.text.strip():
         from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Text cannot be empty.")
+    _check_detector_plan(req.user_id)
     return await detector_module.humanize_text(req.text)
 
 
 class SelfPlagReq(BaseModel):
     text_a: str
     text_b: str
+    user_id: str = ""
 
 @app.post("/check-self-plagiarism")
 async def check_self_plagiarism_endpoint(req: SelfPlagReq):
@@ -1158,6 +1183,7 @@ async def check_self_plagiarism_endpoint(req: SelfPlagReq):
     if not req.text_a.strip() or not req.text_b.strip():
         from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Both documents must contain text.")
+    _check_detector_plan(req.user_id)
     return await detector_module.check_self_plagiarism(req.text_a, req.text_b)
 
 
@@ -1331,7 +1357,7 @@ Rules: Be precise. Only cite [P1]–[P{len(papers[:6])}] — no invented referen
     resp = await loop.run_in_executor(
         None,
         lambda: _client.models.generate_content(
-            model="gemini-3-flash-preview",
+            model="gemini-3.5-flash",
             contents=prompt,
         )
     )
