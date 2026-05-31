@@ -138,12 +138,11 @@ def get_ai_response(
     # GEMINI EXECUTION
     # -------------------------
     # Model selection logic (priority: deep_dive > non-default model_name > default):
-    #   • DeepThink mode (deep_dive=True) → gemini-3.5-flash (frontier intelligence + deep reasoning prompt)
-    #   • Fast mode (default)             → gemini-3.5-flash (4× faster, frontier-level, < half cost vs 3.1 Pro)
+    #   • DeepThink mode (deep_dive=True) → gemini-3.5-flash (frontier intelligence + deep reasoning prompt) — Pro only
+    #   • Fast mode (default)             → gemini-3.1-flash-lite-preview (cost-optimised, high speed)
     #   • Explicit non-default model_name → respected
-    #   Fallback: gemini-3.1-flash-lite-preview (stable safety net if 3.5 quota not yet active)
-    #   Upgraded May 2026 (Google I/O): 3.5 Flash beats 3.1 Pro on almost all benchmarks.
-    DEFAULT_MODEL = "gemini-3.5-flash"
+    #   Fallback: gemini-3.1-flash-lite-preview
+    DEFAULT_MODEL = "gemini-3.1-flash-lite-preview"
     DEEPTHINK_MODEL = "gemini-3.5-flash"
     FALLBACK_MODEL = "gemini-3.1-flash-lite-preview"
     try:
