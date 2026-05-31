@@ -446,9 +446,26 @@ async def chat(req: ChatReq):
         save_message(chat_id, "assistant", response)
 
     # -------------------------
-    # 🧠 6.5 EXTRACT MEMORIES (background)
+    # 🧠 6.5 EXTRACT MEMORIES (background — conditional)
+    # Only run if the message has personal context worth saving:
+    #   • >150 characters (trivial/short queries have nothing to extract)
+    #   • contains at least one personal signal word
+    #   • not a system placeholder message ([Quiz], [Image], etc.)
     # -------------------------
-    if user:
+    _MEMORY_SIGNALS = (
+        " i ", "i'm ", "i am ", "i need ", "i want ", "i have ",
+        "i study", "i'm studying", "my ", "my exam", "my course",
+        "my college", "my degree", "i struggle", "i find ", "i use ",
+        "i prefer", "for me ", "help me", "teach me", "i don't understand",
+    )
+    _msg_lower = req.message.lower()
+    _should_extract = (
+        user
+        and len(req.message) > 150
+        and not req.message.startswith("[")          # skip [Quiz rendered] / [Image] etc.
+        and any(sig in _msg_lower for sig in _MEMORY_SIGNALS)
+    )
+    if _should_extract:
         def _extract_and_save():
             try:
                 new_memories = memory_module.extract_memories(req.message, response)
@@ -458,6 +475,8 @@ async def chat(req: ChatReq):
                 print(f"Background memory extraction error: {e}")
         loop = asyncio.get_event_loop()
         loop.run_in_executor(None, _extract_and_save)
+    else:
+        print(f"[Memory] Skipped extraction — short/trivial/placeholder message ({len(req.message)} chars)")
 
     # -------------------------
     # 🔥 6.6 INCREMENT QUOTA

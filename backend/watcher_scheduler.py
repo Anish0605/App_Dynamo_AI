@@ -22,8 +22,18 @@ def _run_due_watches():
             return
 
         all_watches = watches_module.get_all_active_watches(sb)
+
+        # ── Pro-only gate: only check watches for Pro plan users ──
+        pro_user_ids = set()
+        try:
+            pro_rows = sb.table("users").select("id").eq("plan", "pro").execute()
+            pro_user_ids = {r["id"] for r in (pro_rows.data or [])}
+        except Exception as e:
+            print(f"[Watcher] Could not fetch Pro users: {e}")
+
+        all_watches = [w for w in all_watches if w.get("user_id") in pro_user_ids]
         due = [w for w in all_watches if watches_module.is_due(w)]
-        print(f"[Watcher] Hourly run: {len(all_watches)} active, {len(due)} due")
+        print(f"[Watcher] Daily run: {len(all_watches)} Pro-user watches active, {len(due)} due")
 
         for watch in due:
             try:
@@ -70,14 +80,14 @@ def start():
     _scheduler = AsyncIOScheduler()
     _scheduler.add_job(
         _run_due_watches,
-        trigger=IntervalTrigger(hours=1),
+        trigger=IntervalTrigger(hours=24),
         id="watch_check",
-        name="Research Watcher hourly check",
+        name="Research Watcher daily check (Pro only)",
         replace_existing=True,
-        misfire_grace_time=300,
+        misfire_grace_time=600,
     )
     _scheduler.start()
-    print("[Watcher] Scheduler started — checks run every hour ✅")
+    print("[Watcher] Scheduler started — checks run every 24 hours, Pro users only ✅")
 
 
 def stop():
