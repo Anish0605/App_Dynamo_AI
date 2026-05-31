@@ -446,26 +446,84 @@ async def chat(req: ChatReq):
         save_message(chat_id, "assistant", response)
 
     # -------------------------
-    # 🧠 6.5 EXTRACT MEMORIES (background — conditional)
-    # Only run if the message has personal context worth saving:
-    #   • >150 characters (trivial/short queries have nothing to extract)
-    #   • contains at least one personal signal word
-    #   • not a system placeholder message ([Quiz], [Image], etc.)
+    # 🧠 6.5 EXTRACT MEMORIES (background — smart two-layer filter)
+    #
+    # Layer 1 — Social blocklist (exact full-message match, zero cost):
+    #   Instantly skips greetings and filler: "hi", "good morning", "thanks", etc.
+    #
+    # Layer 2 — Personal signal regex (no length gate):
+    #   Catches ANY message with real personal context regardless of length.
+    #   "I failed NEET" (13 chars) → EXTRACT ✅
+    #   "what is photosynthesis" (no signal) → SKIP ✅
+    #   "hi" (social) → SKIP ✅
     # -------------------------
-    _MEMORY_SIGNALS = (
-        " i ", "i'm ", "i am ", "i need ", "i want ", "i have ",
-        "i study", "i'm studying", "my ", "my exam", "my course",
-        "my college", "my degree", "i struggle", "i find ", "i use ",
-        "i prefer", "for me ", "help me", "teach me", "i don't understand",
+    import re as _re
+
+    _SOCIAL_BLOCKLIST = {
+        "hi", "hello", "hey", "hii", "hiii", "yo",
+        "good morning", "good evening", "good night", "good afternoon",
+        "morning", "evening",
+        "thanks", "thank you", "thank you so much", "thanks a lot",
+        "thx", "ty", "tysm",
+        "ok", "okay", "ok thanks", "okay thanks", "ok got it", "okay got it",
+        "sure", "sure thing", "alright", "got it", "noted", "understood",
+        "yes", "no", "nope", "yep", "yeah", "nah",
+        "great", "perfect", "awesome", "cool", "nice", "good", "excellent",
+        "wow", "amazing", "interesting", "hmm", "haha", "lol", "😊", "👍",
+        "sounds good", "makes sense", "agreed", "exactly", "correct",
+        "bye", "goodbye", "see you", "see ya", "later", "cya",
+        "what", "what?", "how", "why", "when", "where",
+    }
+
+    _PERSONAL_SIGNAL_RE = _re.compile(
+        r"""
+        \b(
+            i['']m \s          |  # I'm studying, I'm preparing
+            i \s am \s         |  # I am a student
+            i \s need          |  # I need help
+            i \s want          |  # I want to learn
+            i \s have          |  # I have an exam
+            i \s study         |  # I study at
+            i \s struggle      |  # I struggle with
+            i \s fail(ed)?     |  # I failed / I fail
+            i \s find \s it    |  # I find it hard
+            i \s don['']t \s understand |
+            i \s prefer        |  # I prefer
+            i \s use \s        |  # I use
+            i['']m \s preparing|  # I'm preparing for
+            i \s am \s preparing|
+            i \s scored        |  # I scored 80%
+            i \s got           |  # I got rejected
+            i \s joined        |  # I joined a course
+            help \s me \b      |  # help me understand
+            teach \s me \b     |  # teach me
+            my \s exam         |  # my exam is next week
+            my \s course       |  # my course covers
+            my \s college      |  # my college
+            my \s university   |
+            my \s degree       |  # my degree is
+            my \s goal         |  # my goal is
+            my \s name \s is   |  # my name is
+            my \s subject      |  # my subject
+            my \s teacher      |
+            my \s professor    |
+            (hard|difficult|tough|challenging|confusing) \s for \s me \b |  # hard for me / difficult for me
+            i['']m \s in \s (year|class|grade|sem|semester) |
+            i \s am \s in \s (year|class|grade|sem|semester)
+        )
+        """,
+        _re.IGNORECASE | _re.VERBOSE,
     )
-    _msg_lower = req.message.lower()
-    _should_extract = (
-        user
-        and len(req.message) > 150
-        and not req.message.startswith("[")          # skip [Quiz rendered] / [Image] etc.
-        and any(sig in _msg_lower for sig in _MEMORY_SIGNALS)
-    )
-    if _should_extract:
+
+    def _should_extract_memory(msg: str) -> bool:
+        stripped = msg.strip().lower()
+        # Layer 1 — pure social phrase? skip immediately
+        if stripped in _SOCIAL_BLOCKLIST:
+            return False
+        # Layer 2 — does it contain real personal context?
+        return bool(_PERSONAL_SIGNAL_RE.search(msg))
+
+    if user and _should_extract_memory(req.message):
         def _extract_and_save():
             try:
                 new_memories = memory_module.extract_memories(req.message, response)
@@ -476,7 +534,7 @@ async def chat(req: ChatReq):
         loop = asyncio.get_event_loop()
         loop.run_in_executor(None, _extract_and_save)
     else:
-        print(f"[Memory] Skipped extraction — short/trivial/placeholder message ({len(req.message)} chars)")
+        print(f"[Memory] Skipped — no personal context detected: '{req.message[:60]}'")
 
     # -------------------------
     # 🔥 6.6 INCREMENT QUOTA
