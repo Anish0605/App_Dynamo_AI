@@ -63,7 +63,7 @@ async def detect_ai(text: str) -> dict:
         resp = await loop.run_in_executor(
             None,
             lambda: _client.models.generate_content(
-                model="gemini-3-flash-preview",
+                model="gemini-3.5-flash",
                 contents=_AI_PROMPT + text[:4000],
             )
         )
@@ -102,7 +102,7 @@ async def humanize_text(text: str) -> dict:
         resp = await loop.run_in_executor(
             None,
             lambda: _client.models.generate_content(
-                model="gemini-3-flash-preview",
+                model="gemini-3.5-flash",
                 contents=_HUMANIZE_PROMPT + text[:6000],
             )
         )
@@ -251,7 +251,7 @@ async def check_plagiarism(text: str) -> dict:
             resp = await loop.run_in_executor(
                 None,
                 lambda: _client.models.generate_content(
-                    model="gemini-3-flash-preview",
+                    model="gemini-3.5-flash",
                     contents=prompt,
                 )
             )
@@ -324,7 +324,7 @@ async def detect_ai_sentences(text: str) -> dict:
         resp = await loop.run_in_executor(
             None,
             lambda: _client.models.generate_content(
-                model="gemini-3-flash-preview",
+                model="gemini-3.5-flash",
                 contents=_HEATMAP_PROMPT + sample,
             )
         )
@@ -377,7 +377,7 @@ async def check_self_plagiarism(text_a: str, text_b: str) -> dict:
         resp = await loop.run_in_executor(
             None,
             lambda: _client.models.generate_content(
-                model="gemini-3-flash-preview",
+                model="gemini-3.5-flash",
                 contents=prompt,
             )
         )
