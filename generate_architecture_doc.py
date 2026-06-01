@@ -21,171 +21,206 @@ import os
 # ─────────────────────────────────────────────────────────────────────────────
 
 def make_diagram():
-    fig, ax = plt.subplots(1, 1, figsize=(18, 13))
-    ax.set_xlim(0, 18)
-    ax.set_ylim(0, 13)
+    W, H = 28, 20
+    fig, ax = plt.subplots(1, 1, figsize=(W, H))
+    ax.set_xlim(0, W)
+    ax.set_ylim(0, H)
     ax.axis("off")
-    fig.patch.set_facecolor("#0f1117")
-    ax.set_facecolor("#0f1117")
+    fig.patch.set_facecolor("#0d1117")
+    ax.set_facecolor("#0d1117")
 
-    def box(x, y, w, h, label, sublabel="", color="#1e293b", text_color="white", fontsize=9, border="#334155"):
+    def box(x, y, w, h, label, sublabel="", color="#1e293b",
+            text_color="white", fontsize=11, border="#334155", sublabel_size=9):
         rect = FancyBboxPatch((x, y), w, h,
-                              boxstyle="round,pad=0.08",
-                              facecolor=color, edgecolor=border, linewidth=1.5)
+                              boxstyle="round,pad=0.12",
+                              facecolor=color, edgecolor=border, linewidth=2.0)
         ax.add_patch(rect)
-        cy = y + h / 2 + (0.15 if sublabel else 0)
+        cy = y + h / 2 + (0.22 if sublabel else 0)
         ax.text(x + w/2, cy, label, ha="center", va="center",
-                fontsize=fontsize, fontweight="bold", color=text_color, wrap=True)
+                fontsize=fontsize, fontweight="bold", color=text_color,
+                multialignment="center")
         if sublabel:
-            ax.text(x + w/2, cy - 0.32, sublabel, ha="center", va="center",
-                    fontsize=6.5, color="#94a3b8")
+            ax.text(x + w/2, cy - 0.48, sublabel, ha="center", va="center",
+                    fontsize=sublabel_size, color="#cbd5e1", multialignment="center")
 
-    def arrow(x1, y1, x2, y2, color="#64748b"):
+    def arrow(x1, y1, x2, y2, color="#475569", lw=2.5):
         ax.annotate("", xy=(x2, y2), xytext=(x1, y1),
-                    arrowprops=dict(arrowstyle="-|>", color=color, lw=1.5))
-
-    def layer_label(x, y, text, color):
-        ax.text(x, y, text, fontsize=7.5, color=color, fontweight="bold",
-                rotation=90, va="center", ha="center")
+                    arrowprops=dict(arrowstyle="-|>", color=color, lw=lw,
+                                   mutation_scale=18))
 
     # ── Title ──
-    ax.text(9, 12.6, "Dynamo AI — Full System Architecture",
-            ha="center", va="center", fontsize=14, fontweight="bold", color="white")
-    ax.text(9, 12.25, "Academic Research Operating System  |  FastAPI + Gemini + Supabase + Firebase",
-            ha="center", va="center", fontsize=8, color="#94a3b8")
+    ax.text(W/2, 19.55, "Dynamo AI — Full System Architecture",
+            ha="center", va="center", fontsize=20, fontweight="bold", color="white")
+    ax.text(W/2, 19.1, "Academic Research Operating System  ·  FastAPI + Gemini + Supabase + Firebase + APIMart",
+            ha="center", va="center", fontsize=12, color="#94a3b8")
 
-    # ── Layer backgrounds ──
-    layers = [
-        (0.2, 10.6, 17.6, 1.5, "#111827", "#1d4ed8", "LAYER 1\nFRONTEND"),
-        (0.2,  8.2, 17.6, 2.2, "#111827", "#047857", "LAYER 2\nAI ROUTER"),
-        (0.2,  4.9, 17.6, 3.1, "#111827", "#7c3aed", "LAYER 3\nAI MODELS"),
-        (0.2,  2.2, 17.6, 2.5, "#111827", "#b45309", "LAYER 4\nSERVICES"),
-        (0.2,  0.2, 17.6, 1.8, "#111827", "#be123c", "LAYER 5\nDATA STORE"),
+    # ── Layer band definitions ──
+    # (x, y, w, h, fill, edge, label, label_color)
+    bands = [
+        (0.4, 16.3, W-0.8, 2.5,  "#0c1a2e", "#2563eb", "LAYER 1 — FRONTEND",           "#60a5fa"),
+        (0.4, 11.8, W-0.8, 4.2,  "#071d14", "#059669", "LAYER 2 — API GATEWAY",         "#34d399"),
+        (0.4,  7.0, W-0.8, 4.5,  "#140d24", "#7c3aed", "LAYER 3 — AI MODELS",           "#c084fc"),
+        (0.4,  3.5, W-0.8, 3.2,  "#1c1006", "#d97706", "LAYER 4 — EXTERNAL SERVICES",   "#fbbf24"),
+        (0.4,  0.4, W-0.8, 2.8,  "#1a0510", "#e11d48", "LAYER 5 — QUOTA ENGINE",        "#fb7185"),
     ]
-    for lx, ly, lw, lh, fc, lc, ll in layers:
-        rect = FancyBboxPatch((lx, ly), lw, lh,
-                              boxstyle="round,pad=0.1",
-                              facecolor=fc, edgecolor=lc, linewidth=1.5, alpha=0.4)
+    for bx, by, bw, bh, fc, ec, bl, blc in bands:
+        rect = FancyBboxPatch((bx, by), bw, bh, boxstyle="round,pad=0.12",
+                              facecolor=fc, edgecolor=ec, linewidth=2.0, alpha=0.55)
         ax.add_patch(rect)
-        label_lines = ll.split("\n")
-        ax.text(0.55, ly + lh/2 + 0.1, label_lines[0], fontsize=6, color=lc,
-                fontweight="bold", ha="center", va="center", rotation=90)
-        ax.text(0.55, ly + lh/2 - 0.2, label_lines[1], fontsize=5.5, color=lc,
-                ha="center", va="center", rotation=90)
+        ax.text(bx + 0.55, by + bh/2, bl, fontsize=10, color=blc,
+                fontweight="bold", rotation=90, ha="center", va="center")
 
-    # ── Layer 1: Frontend ──
+    # ─── LAYER 1: Frontend ───────────────────────────────────────────────────
+    fe_y = 16.65
+    fe_h = 1.7
+    fe_gap = 0.25
+    fe_x0  = 1.4
+    fe_w   = (W - fe_x0 - 0.6 - 5*fe_gap) / 6
+
     fe_items = [
-        (1.0, 10.75, 2.4, 1.1, "Chat Interface", "Markdown renderer\nCode blocks · LaTeX", "#1e3a5f"),
-        (3.6, 10.75, 2.4, 1.1, "Study Tools", "Flashcards · Quiz · Radio\nStudy Guide", "#1e3a5f"),
-        (6.2, 10.75, 2.4, 1.1, "Research Hub", "Deep Research · Watcher\nCitation Checker", "#1e3a5f"),
-        (8.8, 10.75, 2.4, 1.1, "Create Tools", "Images · Video · Deck\nMindmap · Flowchart", "#1e3a5f"),
-        (11.4, 10.75, 2.4, 1.1, "AI Detector", "AI Detect · Plagiarism\nHumanizer · Self-Plag", "#1e3a5f"),
-        (14.0, 10.75, 2.4, 1.1, "Profile / Auth", "Firebase Auth\nQuota · Plans · Billing", "#1e3a5f"),
+        ("Chat Interface",  "Markdown · LaTeX\nCode blocks"),
+        ("Study Tools",     "Flashcards · Quiz\nRadio Mode"),
+        ("Research Hub",    "Deep Research\nWatcher · Citations"),
+        ("Create Tools",    "Images · Video\nDeck · Mindmap"),
+        ("AI Detector",     "AI Score · Plagiarism\nHumanizer"),
+        ("Profile / Auth",  "Firebase Auth\nQuota · Billing"),
     ]
-    for args in fe_items:
-        box(*args, text_color="white", fontsize=8, border="#3b82f6")
+    for i, (lbl, sub) in enumerate(fe_items):
+        bx = fe_x0 + i*(fe_w + fe_gap)
+        box(bx, fe_y, fe_w, fe_h, lbl, sub,
+            color="#1e3a5f", text_color="white", fontsize=12, border="#3b82f6", sublabel_size=9.5)
 
-    ax.text(9, 10.5, "Static HTML / Tailwind CSS / Vanilla JS  —  Served on port 5000",
-            ha="center", va="center", fontsize=6.5, color="#60a5fa")
+    ax.text(W/2, 16.45,
+            "Static HTML / Tailwind CSS / Vanilla JS  ·  Served on port 5000 via FastAPI StaticFiles",
+            ha="center", va="center", fontsize=10, color="#60a5fa")
 
-    # ── Layer 2: AI Router (FastAPI main.py) ──
-    ax.text(9, 10.25, "▼  HTTPS Request  ▼", ha="center", va="center", fontsize=7, color="#64748b")
+    # arrow down
+    arrow(W/2, 16.3, W/2, 15.95)
 
-    box(1.0, 8.4, 7.5, 1.7, "FastAPI Backend  (main.py)",
-        "Quota check → Plan gate → Keyword router → Mode selector → Response builder",
-        color="#064e3b", text_color="white", fontsize=9, border="#10b981")
+    # ─── LAYER 2: API Gateway ────────────────────────────────────────────────
+    # Main FastAPI box
+    box(1.4, 14.45, 12.0, 1.35,
+        "FastAPI Backend  (main.py — single process, port 5000)",
+        "Auth check  ›  Quota gate  ›  Plan gate  ›  Keyword router  ›  Mode selector  ›  AI call  ›  Memory extract  ›  Save to DB",
+        color="#064e3b", text_color="white", fontsize=13, border="#10b981", sublabel_size=10)
 
-    # Routing boxes
-    route_items = [
-        (9.0, 8.55, 2.1, 0.6, "Fast Mode", "Plan-aware model\nselection", "#1a3a2a"),
-        (11.3, 8.55, 2.1, 0.6, "DeepThink", "Pro only\ndeep reasoning", "#1a3a2a"),
-        (13.6, 8.55, 2.1, 0.6, "Research\nMode", "Plus/Pro\nAPIMart pipeline", "#1a3a2a"),
-        (15.9, 8.55, 1.4, 0.6, "Deep\nResearch", "Pro only\nAgent", "#1a3a2a"),
+    # Mode routing boxes (right side)
+    modes = [
+        ("Fast\nMode",     "Free: lite model\nPlus/Pro: 3.5-flash"),
+        ("DeepThink",      "Pro only\ndeep reasoning"),
+        ("Research\nMode", "Plus/Pro\nClaude→Gemini→GPT"),
+        ("Deep\nResearch", "Pro only\nAgentic agent"),
     ]
-    for args in route_items:
-        box(*args, text_color="#86efac", fontsize=7.5, border="#16a34a")
+    m_x0  = 13.8
+    m_w   = (W - m_x0 - 0.6 - 3*0.22) / 4
+    m_y   = 13.0
+    m_h   = 2.75
+    for i, (lbl, sub) in enumerate(modes):
+        bx = m_x0 + i*(m_w + 0.22)
+        box(bx, m_y, m_w, m_h, lbl, sub,
+            color="#065f46", text_color="#86efac", fontsize=11, border="#10b981", sublabel_size=9)
 
-    box(9.0, 9.35, 7.3, 0.65, "Mode Dispatcher  +  Plan Gates  +  Quota Enforcer",
-        "", color="#065f46", text_color="#6ee7b7", fontsize=8, border="#10b981")
+    # Dispatcher bar spanning full width
+    box(1.4, 12.0, W-2.0, 0.85,
+        "Mode Dispatcher  ·  Plan Enforcement Gates  ·  Quota Enforcer  ·  Keyword Router",
+        color="#022c22", text_color="#6ee7b7", fontsize=12, border="#059669")
 
-    ax.text(9, 8.3, "▼  AI Calls  ▼", ha="center", va="center", fontsize=7, color="#64748b")
+    arrow(W/2, 12.0, W/2, 11.45)
 
-    # ── Layer 3: AI Models ──
-    model_items = [
-        (0.8, 7.4, 2.8, 1.1, "Gemini 3.1\nFlash Lite", "Fast Mode (Free)\nUtility tasks", "#3b0764"),
-        (3.8, 7.4, 2.8, 1.1, "Gemini 3.5\nFlash", "Fast (Plus/Pro)\nDeepThink · Detector\nResearch fallback", "#3b0764"),
-        (6.8, 7.4, 2.8, 1.1, "Gemini Deep\nResearch Agent", "deep-research-\npreview-04-2026\nPro only", "#3b0764"),
-        (9.8, 7.4, 2.6, 1.1, "Claude\nSonnet 4.5", "Research pipeline\nStep 1: extract", "#3b0764"),
-        (12.6, 7.4, 2.6, 1.1, "Gemini 3.1\n(APIMart)", "Research pipeline\nStep 2: analyse", "#3b0764"),
-        (15.4, 7.4, 2.2, 1.1, "GPT-5.4\n(APIMart)", "Research pipeline\nStep 3: write", "#3b0764"),
+    # ─── LAYER 3: AI Models ──────────────────────────────────────────────────
+    model_h = 2.0
+    model_y = 8.9
+
+    # Sub-label: API group bars
+    box(1.4, 7.15, 9.2, 0.65, "Google GenAI SDK  (Direct API)",
+        color="#1e1035", text_color="#c084fc", fontsize=11, border="#7c3aed")
+    box(10.8, 7.15, 4.1, 0.65, "Gemini Interactions API",
+        color="#1e1035", text_color="#c084fc", fontsize=11, border="#7c3aed")
+    box(15.1, 7.15, W-15.7, 0.65, "APIMart Gateway  (with Gemini 3.5-flash fallback)",
+        color="#1e1035", text_color="#c084fc", fontsize=11, border="#7c3aed")
+
+    models = [
+        (1.4,  "Gemini 3.1\nFlash Lite",          "Fast Mode (Free)\nUtility tasks\nWatcher · Deck",   "#2d1260"),
+        (5.6,  "Gemini 3.5\nFlash",               "Fast (Plus/Pro)\nDeepThink · Detector\nFallback",    "#2d1260"),
+        (9.8,  "Gemini\nDeep Research",            "deep-research-\npreview-04-2026\nPro only",          "#2d1260"),
+        (13.5, "Claude\nSonnet 4.5",               "Research Step 1\nExtract & structure",               "#1a2850"),
+        (17.2, "Gemini 3.1\n(APIMart)",            "Research Step 2\nAnalyse & synthesise",              "#1a2850"),
+        (21.0, "GPT-5.4\n(APIMart)",               "Research Step 3\nWrite final report",                "#1a2850"),
     ]
-    for args in model_items:
-        box(*args, text_color="#e9d5ff", fontsize=8, border="#a855f7")
+    m_fw = 3.7
+    for mx, lbl, sub, c in models:
+        box(mx, model_y, m_fw, model_h, lbl, sub,
+            color=c, text_color="#e9d5ff", fontsize=12, border="#a855f7", sublabel_size=9.5)
 
-    # Model tier bar
-    box(0.8, 6.7, 5.8, 0.55, "Gemini Direct API  (google-genai SDK)", "",
-        color="#2e1065", text_color="#c4b5fd", fontsize=8, border="#7c3aed")
-    box(6.8, 6.7, 2.8, 0.55, "Gemini Interactions API", "",
-        color="#2e1065", text_color="#c4b5fd", fontsize=8, border="#7c3aed")
-    box(9.8, 6.7, 7.8, 0.55, "APIMart Gateway  (with Gemini fallback)", "",
-        color="#2e1065", text_color="#c4b5fd", fontsize=8, border="#7c3aed")
+    arrow(W/2, 8.9, W/2, 8.3)
 
     # Specialised modules row
     spec_items = [
-        (0.8, 5.05, 2.0, 1.45, "Memory\nEngine", "Extract memories\nfrom chat\n(Plus/Pro only)", "#1c1917"),
-        (3.0, 5.05, 2.0, 1.45, "Document\nLibrary", "PDF/DOCX\nsummarize & inject\ninto system prompt", "#1c1917"),
-        (5.2, 5.05, 2.0, 1.45, "Plagiarism\nChecker", "Tavily + Semantic\nScholar + Gemini\nscoring", "#1c1917"),
-        (7.4, 5.05, 2.0, 1.45, "Citation\nChecker", "DOI verify\n8 format styles\nAuto-correct", "#1c1917"),
-        (9.6, 5.05, 2.0, 1.45, "Research\nWatcher", "Daily monitor\nBrevo email\nPro only", "#1c1917"),
-        (11.8, 5.05, 2.0, 1.45, "Content\nFactory", "Deck · Mindmap\nFlowchart · Quiz\nFlashcards", "#1c1917"),
-        (14.0, 5.05, 2.0, 1.45, "Media\nEngine", "Image (Pollinations)\nVideo · Voice\nEdge TTS", "#1c1917"),
-        (16.2, 5.05, 1.4, 1.45, "File\nAnalysis", "PDF · DOCX\nTXT extract\n+Gemini", "#1c1917"),
+        ("Memory\nEngine",     "Extracts & injects\npersonal context\n(Plus/Pro)"),
+        ("Document\nLibrary",  "PDF/DOCX/TXT\nsummarise & inject\ninto prompt"),
+        ("Plagiarism\nChecker","Tavily + Semantic\nScholar + Gemini\nscoring"),
+        ("Citation\nChecker",  "8 format styles\nDOI verify\nAuto-correct"),
+        ("Research\nWatcher",  "Daily monitor\nBrevo email digest\n(Pro only)"),
+        ("Content\nFactory",   "Mindmap · Flowchart\nDeck · Flashcards\nQuiz"),
+        ("Media\nEngine",      "Image (Pollinations)\nVideo · Voice\nEdge TTS"),
     ]
-    for args in spec_items:
-        box(*args, text_color="#d1d5db", fontsize=7.5, border="#4b5563")
+    s_x0 = 1.4
+    s_w  = (W - s_x0 - 0.6 - 6*0.22) / 7
+    s_y  = 7.17
+    s_h  = 1.55
+    for i, (lbl, sub) in enumerate(spec_items):
+        bx = s_x0 + i*(s_w + 0.22)
+        box(bx, s_y, s_w, s_h, lbl, sub,
+            color="#1c1917", text_color="#d1d5db", fontsize=11, border="#52525b", sublabel_size=9)
 
-    # ── Layer 4: External Services ──
-    svc_items = [
-        (0.8, 2.4, 2.5, 1.7, "Supabase\nPostgreSQL", "users · memories\ndocuments · chats\nsubscriptions · folders", "#451a03"),
-        (3.5, 2.4, 2.5, 1.7, "Firebase\nAuth", "Google OAuth\nEmail+Password\nUID bridge", "#451a03"),
-        (6.2, 2.4, 2.5, 1.7, "Tavily\nSearch", "Live web search\nDeep search mode\nResearch pipeline", "#451a03"),
-        (8.9, 2.4, 2.5, 1.7, "Semantic\nScholar", "200M+ papers\nAcademic search\nDOI resolution", "#451a03"),
-        (11.6, 2.4, 2.5, 1.7, "Razorpay\nPayments", "Plus ₹399/mo\nPro ₹999/mo\nWebhook verify", "#451a03"),
-        (14.3, 2.4, 2.5, 1.7, "Brevo\nEmail", "Research Watcher\nalerts & digests\nSMTP", "#451a03"),
+    arrow(W/2, 7.17, W/2, 6.65)
+
+    # ─── LAYER 4: External Services ─────────────────────────────────────────
+    svcs = [
+        ("Supabase\nPostgreSQL", "users · memories\ndocuments · chats\nsubscriptions"),
+        ("Firebase\nAuth",       "Google OAuth\nEmail+Password\nUID bridge"),
+        ("Tavily\nSearch",       "Live web results\nDeep search\n(Research pipeline)"),
+        ("Semantic\nScholar",    "200M+ papers\nAcademic search\nDOI resolution"),
+        ("Razorpay\nPayments",   "Plus ₹399/mo\nPro ₹999/mo\nHMAC verify"),
+        ("Brevo\nEmail",         "Watcher digests\nTransactional\nSMTP"),
+        ("Pollinations\nAI",     "Image generation\nFree API\nPlus/Pro only"),
     ]
-    for args in svc_items:
-        box(*args, text_color="#fde68a", fontsize=8, border="#d97706")
+    s2_x0 = 1.4
+    s2_w  = (W - s2_x0 - 0.6 - 6*0.22) / 7
+    s2_y  = 3.75
+    s2_h  = 2.65
+    for i, (lbl, sub) in enumerate(svcs):
+        bx = s2_x0 + i*(s2_w + 0.22)
+        box(bx, s2_y, s2_w, s2_h, lbl, sub,
+            color="#1c0a00", text_color="#fde68a", fontsize=12, border="#d97706", sublabel_size=9.5)
 
-    # ── Layer 5: Quota / Plan system ──
-    box(0.8, 0.4, 16.8, 1.6,
-        "Freemium Quota System  (supabase_client.py)",
-        "Free: 10 msg/day · Plus: 100 msg/day · Pro: 300 msg/day  |  Image · Video · Paper monthly caps  |  Daily reset at midnight UTC",
-        color="#4c0519", text_color="#fda4af", fontsize=9, border="#e11d48")
+    arrow(W/2, 3.75, W/2, 3.2)
 
-    # ── Key arrows ──
-    arrow(9, 10.6, 9, 10.25)   # frontend → router
-    arrow(9, 8.4,  9, 8.0)     # router → models
-    arrow(9, 6.65, 9, 6.3)     # models → specialised
-    arrow(9, 5.0,  9, 4.2)     # specialised → services
-    arrow(9, 2.35, 9, 2.1)     # services → quota
+    # ─── LAYER 5: Quota Engine ───────────────────────────────────────────────
+    box(1.4, 0.65, W-2.0, 2.35,
+        "Freemium Quota Engine  (supabase_client.py)",
+        "Free: 10 msg/day  ·  Plus: 100 msg/day (₹399/mo)  ·  Pro: 300 msg/day (₹999/mo)\n"
+        "Image caps: 0 / 25 / 100 per month  ·  Video caps: 0 / 5 / 25 per month  ·  Lazy daily reset at midnight UTC",
+        color="#3b0614", text_color="#fda4af", fontsize=13, border="#e11d48", sublabel_size=10.5)
 
-    # ── Legend ──
-    legend_items = [
-        ("#3b82f6", "Frontend (JS/HTML)"),
-        ("#10b981", "FastAPI Backend"),
-        ("#a855f7", "AI Models"),
-        ("#6b7280", "Specialised Modules"),
-        ("#d97706", "External Services"),
-        ("#e11d48", "Quota Engine"),
+    # ── Legend ──────────────────────────────────────────────────────────────
+    legend = [
+        ("#2563eb", "Frontend"),
+        ("#059669", "FastAPI"),
+        ("#7c3aed", "AI Models"),
+        ("#52525b", "Modules"),
+        ("#d97706", "Services"),
+        ("#e11d48", "Quota"),
     ]
-    for i, (color, label) in enumerate(legend_items):
-        ax.add_patch(mpatches.Rectangle((1.0 + i*2.8, 0.08), 0.25, 0.15,
-                                        color=color, transform=ax.transData))
-        ax.text(1.32 + i*2.8, 0.155, label, fontsize=6.5, color="white", va="center")
+    lx0, ly = 1.4, 0.27
+    for i, (c, lbl) in enumerate(legend):
+        bx = lx0 + i * 4.3
+        ax.add_patch(mpatches.Rectangle((bx, ly), 0.45, 0.22, color=c))
+        ax.text(bx + 0.58, ly + 0.11, lbl, fontsize=10, color="white", va="center")
 
-    plt.tight_layout(pad=0.3)
+    plt.tight_layout(pad=0.2)
     path = "/home/runner/workspace/architecture_diagram.png"
-    plt.savefig(path, dpi=160, bbox_inches="tight", facecolor=fig.get_facecolor())
+    plt.savefig(path, dpi=200, bbox_inches="tight", facecolor=fig.get_facecolor())
     plt.close()
     print(f"Diagram saved: {path}")
     return path
