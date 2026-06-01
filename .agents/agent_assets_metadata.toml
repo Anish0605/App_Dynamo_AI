@@ -60,3 +60,15 @@ id = "zu5I86BdNPaYM7z70jtpa"
 uri = "file://frontend/Dynamo_AI_Gemini_Cost_Analysis.docx"
 type = "word_document"
 title = "Dynamo AI — Gemini API Usage & Cost Analysis (Word)"
+
+[[outputs]]
+id = "Mpbow2gUZ06b-05ED2Y3e"
+uri = "file://Dynamo_AI_Architecture_Paper.docx"
+type = "word_document"
+title = "Dynamo AI — Architecture Research Paper (.docx)"
+
+[[outputs]]
+id = "bmCatXT8naBRXaHJwfLSp"
+uri = "file://architecture_diagram.png"
+type = "image"
+title = "Dynamo AI — Full System Architecture Diagram"
