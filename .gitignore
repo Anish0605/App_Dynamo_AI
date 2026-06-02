@@ -5,15 +5,32 @@ __pycache__/
 venv/
 env/
 .env
+
 # OS
 .DS_Store
 Thumbs.db
+
 # IDEs
 .vscode/
 .idea/
-# Streamlit
-.streamlit/
+
+# Replit-internal (never commit these)
 attached_assets/
 artifacts/
 .agents/
+.local/
 *.zip
+
+# Generated output files (download locally, don't commit)
+architecture_diagram.png
+Dynamo_AI_Architecture_Paper.docx
+Dynamo_AI_Pitch_Deck.pptx
+Dynamo_AI_Slide12_Market.pptx
+
+# Generator scripts (Replit-only utilities)
+generate_architecture_doc.py
+generate_pptx.py
+generate_slide12_only.py
+
+# Test / internal notes
+TEST_PROMPTS_DYNAMO_AI.md
