@@ -1,17 +1,21 @@
 # main.py — Dynamo AI Central Router (FINAL, CLEAN)
 
 from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from starlette.responses import JSONResponse
 import uvicorn
 import os
+import json
 
 import asyncio
 import traceback
 import config
 import model
+import re
 import memory as memory_module
 import documents as documents_module
 import search
@@ -35,9 +39,77 @@ from supabase_client import (get_or_create_user,get_user_by_supabase_id,create_c
 from export_routes import router as export_router
 from presentation_engine import build_presentation, build_smart_presentation
 from payments import router as payments_router
+from trial import router as trial_router
+from admin_dashboard import router as admin_dashboard_router
+from fap import router as fap_router
 import detector as detector_module
 import pitch_export
 import pitch_screenshot
+import request_auth
+
+BATCH_MAX_FILES = 5
+BATCH_MAX_FILE_BYTES = 25 * 1024 * 1024
+BATCH_MAX_TOTAL_BYTES = 100 * 1024 * 1024
+# JSON/base64 expands raw file bytes by roughly one third. The small extra
+# allowance covers the request metadata while the decoded limit remains 100 MB.
+BATCH_MAX_REQUEST_BYTES = ((BATCH_MAX_TOTAL_BYTES + 2) // 3) * 4 + (1024 * 1024)
+
+
+class BatchUploadBodyLimitMiddleware:
+    """Reject oversized batch bodies before FastAPI parses their JSON/base64."""
+
+    def __init__(self, app, max_bytes: int):
+        self.app = app
+        self.max_bytes = max_bytes
+
+    async def __call__(self, scope, receive, send):
+        if (
+            scope["type"] != "http"
+            or scope.get("method") != "POST"
+            or scope.get("path") != "/chat-with-files"
+        ):
+            await self.app(scope, receive, send)
+            return
+
+        headers = dict(scope.get("headers") or [])
+        content_length = headers.get(b"content-length")
+        if content_length:
+            try:
+                if int(content_length) > self.max_bytes:
+                    await JSONResponse(
+                        {"detail": "The combined upload payload is too large."},
+                        status_code=413,
+                    )(scope, receive, send)
+                    return
+            except ValueError:
+                await JSONResponse(
+                    {"detail": "Invalid Content-Length header."},
+                    status_code=400,
+                )(scope, receive, send)
+                return
+
+        messages = []
+        received_bytes = 0
+        while True:
+            message = await receive()
+            if message["type"] == "http.request":
+                received_bytes += len(message.get("body", b""))
+                if received_bytes > self.max_bytes:
+                    await JSONResponse(
+                        {"detail": "The combined upload payload is too large."},
+                        status_code=413,
+                    )(scope, receive, send)
+                    return
+            messages.append(message)
+            if message["type"] != "http.request" or not message.get("more_body", False):
+                break
+
+        async def replay_receive():
+            if messages:
+                return messages.pop(0)
+            return {"type": "http.disconnect"}
+
+        await self.app(scope, replay_receive, send)
 
 # --------------------------------------------------
 # FASTAPI APP
@@ -46,6 +118,7 @@ import pitch_screenshot
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
 
 app = FastAPI(title="Dynamo AI Hub")
+app.add_middleware(BatchUploadBodyLimitMiddleware, max_bytes=BATCH_MAX_REQUEST_BYTES)
 
 @app.on_event("startup")
 async def _startup():
@@ -54,6 +127,18 @@ async def _startup():
 @app.on_event("shutdown")
 async def _shutdown():
     watcher_scheduler.stop()
+
+
+@app.middleware("http")
+async def firebase_auth_context(request, call_next):
+    """Attach verified Firebase identity to the current request."""
+    authorization = request.headers.get("authorization", "")
+    token = authorization[7:].strip() if authorization.lower().startswith("bearer ") else None
+    auth_tokens = request_auth.begin_request(token)
+    try:
+        return await call_next(request)
+    finally:
+        request_auth.end_request(auth_tokens)
 
 app.add_middleware(
     CORSMiddleware,
@@ -64,6 +149,9 @@ app.add_middleware(
 
 app.include_router(export_router)
 app.include_router(payments_router)
+app.include_router(trial_router)
+app.include_router(admin_dashboard_router)
+app.include_router(fap_router)
 
 # --------------------------------------------------
 # MODELS
@@ -82,12 +170,43 @@ class ChatReq(BaseModel):
     use_search: bool = True
     deep_dive: bool = False
     force_image: bool = False
-    model: str = "gemini-3.1-flash-lite-preview"
+    model: str = "gemini-3.5-flash-lite"
     mode: str = "chat"  # "chat" | "research" — explicit mode flag
     chat_id: str | None = None
     user_id: str | None = None
     smart_action: bool = False  # True = skip keyword routing (Summarise, Explain, etc.)
     citation_format: str = ""   # e.g. "IEEE", "APA7", "MLA", "Harvard", "Vancouver", "Chicago", "Springer", "ACS"
+    humanize_output: bool = False  # True = auto-run the humanizer on the final long-form output before returning
+
+
+PAID_ACCESS_MESSAGE = (
+    "Paid access is required to use Dynamo AI. "
+    "Please choose a plan at /pricing.html."
+)
+
+
+def require_paid_user(user_id: str, feature: str = "Dynamo AI"):
+    """Fail closed for anonymous, missing, and Free accounts.
+
+    Firebase authentication remains separate from this check: users can still
+    sign up and log in, but only active paid/demo accounts may consume AI
+    services.
+    """
+    user = request_auth.require_authenticated_user(
+        user_id,
+        supabase_client.get_user_by_firebase_uid,
+    )
+    if not supabase_client.has_paid_access(user):
+        raise HTTPException(
+            status_code=403,
+            detail=f"{feature} requires an active paid plan. Visit /pricing.html to upgrade.",
+        )
+    # Approved demos retain unrestricted product access even if their stored
+    # plan is free. Use an effective Pro tier for downstream feature gates
+    # without changing the persisted account plan.
+    if supabase_client.is_demo_account(user) and (user.get("plan") or "").lower() == "free":
+        user = {**user, "plan": "pro"}
+    return user
 # --------------------------------------------------
 # HEALTH
 # --------------------------------------------------
@@ -119,6 +238,22 @@ async def serve_pricing():
 @app.get("/guide.html")
 async def serve_guide():
     return FileResponse(os.path.join(FRONTEND_DIR, "guide.html"))
+
+@app.get("/invite-pro-trial")
+async def serve_invite_trial():
+    return FileResponse(os.path.join(FRONTEND_DIR, "invite-pro-trial.html"))
+
+@app.get("/partner-signup")
+async def serve_partner_signup():
+    return FileResponse(os.path.join(FRONTEND_DIR, "partner-signup.html"))
+
+@app.get("/partner-dashboard")
+async def serve_partner_dashboard():
+    return FileResponse(os.path.join(FRONTEND_DIR, "partner-dashboard.html"))
+
+@app.get("/partner-admin")
+async def serve_partner_admin():
+    return FileResponse(os.path.join(FRONTEND_DIR, "partner-admin.html"))
 
 # --------------------------------------------------
 # SITEMAP FOR GOOGLE SEARCH CONSOLE
@@ -170,20 +305,41 @@ class GetUserReq(BaseModel):
 @app.post("/get-user")
 async def get_user_fresh(req: GetUserReq):
     """Get fresh user data with daily quota reset applied."""
-    user = supabase_client.get_user_by_supabase_id(req.user_id)
+    user = request_auth.require_authenticated_user(
+        req.user_id,
+        supabase_client.get_user_by_firebase_uid,
+    )
     
     if not user:
         return {"error": "User not found"}
     
+    trial_expires_at = None
+    if user.get("plan") in ("pro_trial", "pro_validation") and supabase_client.supabase and user.get("id"):
+        try:
+            sub_res = supabase_client.supabase \
+                .table("subscriptions") \
+                .select("expires_at") \
+                .eq("user_id", user["id"]) \
+                .eq("status", "trial_active") \
+                .order("created_at", desc=True) \
+                .limit(1) \
+                .execute()
+            if sub_res.data:
+                trial_expires_at = sub_res.data[0].get("expires_at")
+        except Exception:
+            pass
+
     return {
         "id": user.get("id"),
         "email": user.get("email"),
         "plan": user.get("plan"),
+        "access_allowed": supabase_client.has_paid_access(user),
         "daily_quota_used": user.get("daily_quota_used", 0),
         "quota_date": user.get("quota_date"),
         "image_count_used": user.get("image_count_used", 0),
         "video_count_used": user.get("video_count_used", 0),
-        "quota_month": user.get("quota_month")
+        "quota_month": user.get("quota_month"),
+        "trial_expires_at": trial_expires_at,
     }
     
 # --------------------------------------------------
@@ -192,11 +348,9 @@ async def get_user_fresh(req: GetUserReq):
 
 @app.post("/flashcard")
 async def generate_flashcard(req: FlashcardReq):
-    user = None
-    if req.user_id:
-        user = get_user_by_supabase_id(req.user_id)
-        if user and not supabase_client.check_user_quota(user):
-            return {"type": "error", "content": "⚠️ You have reached your daily limit."}
+    user = require_paid_user(req.user_id, "Flashcards")
+    if not supabase_client.check_user_quota(user):
+        return {"type": "error", "content": "⚠️ You have reached your daily limit."}
 
     result = flashcard_module.generate_flashcards(req.topic, req.difficulty, req.count)
 
@@ -215,6 +369,9 @@ async def generate_flashcard(req: FlashcardReq):
 
 @app.post("/chat")
 async def chat(req: ChatReq):
+    # This check must happen before keyword routing because routes such as
+    # video, flowchart, and mindmap can otherwise bypass the normal chat gate.
+    user = require_paid_user(req.user_id)
 
     msg_lower = req.message.lower()
 
@@ -227,8 +384,15 @@ async def chat(req: ChatReq):
     if not req.smart_action:
 
         # 📊 Flowchart Detection
-        FLOWCHART_KEYWORDS = ["flowchart", "process flow", "workflow", "steps"]
-        if any(k in msg_lower for k in FLOWCHART_KEYWORDS):
+        # Only route explicit diagram requests. Broad terms such as "workflow"
+        # and "steps" commonly appear inside research questions and abstracts;
+        # routing those messages to the JSON-only flowchart parser causes the
+        # normal prose response to be rejected as "invalid format".
+        flowchart_intent = bool(re.search(
+            r"\b(flowchart|flow diagram|process flow|workflow diagram)\b",
+            msg_lower,
+        ))
+        if flowchart_intent:
             try:
                 return flowchart.generate_flowchart(req.message)
             except BaseException as e:
@@ -277,10 +441,6 @@ async def chat(req: ChatReq):
     # -------------------------
     # 🧠 1. USER HANDLING
     # -------------------------
-    user = None
-    if req.user_id:
-        user = get_user_by_supabase_id(req.user_id)
-
     # 🖼 Image — check plan & quota before generating
     if is_image_prompt:
         plan = user.get("plan", "free") if user else "free"
@@ -314,7 +474,7 @@ async def chat(req: ChatReq):
     # -------------------------
     if req.deep_dive:
         _plan = (user.get("plan", "free") if user else "free").lower()
-        if _plan != "pro":
+        if _plan not in ("pro", "pro_trial", "pro_validation"):
             return {
                 "type": "text",
                 "content": "🔒 **DeepThink** and **Find Research Gaps** are **Pro-only** features.\n\n[Upgrade to Pro →](/pricing.html)"
@@ -362,7 +522,7 @@ async def chat(req: ChatReq):
     if is_research_mode:
         # Gate: Plus/Pro only — free users cannot use Research Mode
         _research_plan = (user.get("plan", "free") if user else "free").lower()
-        if _research_plan == "free":
+        if _research_plan not in ("plus", "pro", "pro_trial", "pro_validation"):
             return {
                 "type": "error",
                 "content": "🔒 **Research Mode** is available on **Plus** and **Pro** plans.\n\nUpgrade to unlock Research Mode, AI Memory, PDF uploads, and much more. [View Plans](/pricing.html)"
@@ -388,10 +548,24 @@ async def chat(req: ChatReq):
                     web_context=research_web_context,
                     citation_format=req.citation_format
                 )
+                humanized_note = None
+                try:
+                    h = await detector_module.humanize_text(paper_content)
+                    if h.get("ok") and h.get("humanized"):
+                        paper_content = h["humanized"]
+                        humanized_note = {
+                            "verified_human": h.get("verified_human"),
+                            "verification_score": h.get("verification_score"),
+                        }
+                except Exception as e:
+                    print(f"[Research Pipeline] Auto-humanize skipped due to error: {e}")
+
                 result = {
                     "type": "research",
                     "content": paper_content,
-                    "sources": research_sources
+                    "sources": research_sources,
+                    "auto_humanized": humanized_note,
+                    "is_paper": True,
                 }
             except Exception as e:
                 print(f"[Research Pipeline] Fatal error: {e}")
@@ -461,11 +635,10 @@ async def chat(req: ChatReq):
     )
 
     # -------------------------
-    # 💾 6. SAVE TO DB
+    # 💾 6. SAVE TO DB (user message now; assistant message saved after auto-humanize below)
     # -------------------------
     if chat_id:
         save_message(chat_id, "user", req.message)
-        save_message(chat_id, "assistant", response)
 
     # -------------------------
     # 🧠 6.5 EXTRACT MEMORIES (background — smart two-layer filter)
@@ -564,13 +737,33 @@ async def chat(req: ChatReq):
     if user:
         supabase_client.increment_quota(user)
     # -------------------------
-    # 📤 7. RETURN
+    # 📤 7. AUTO-HUMANIZE (long-form writing features only, e.g. Draft Academic Paper)
+    # -------------------------
+    auto_humanized = None
+    if req.humanize_output and response:
+        try:
+            h = await detector_module.humanize_text(response)
+            if h.get("ok") and h.get("humanized"):
+                response = h["humanized"]
+                auto_humanized = {
+                    "verified_human": h.get("verified_human"),
+                    "verification_score": h.get("verification_score"),
+                }
+        except Exception as e:
+            print(f"[Chat] Auto-humanize skipped due to error: {e}")
+
+    if chat_id:
+        save_message(chat_id, "assistant", response)
+
+    # -------------------------
+    # 📤 8. RETURN
     # -------------------------
     return {
         "type": "text",
         "content": response,
         "chat_id": chat_id,
-        "sources": sources if req.use_search else []
+        "sources": sources if req.use_search else [],
+        "auto_humanized": auto_humanized,
     }
 
 # --------------------------------------------------
@@ -612,9 +805,11 @@ async def test_apimart():
 class FollowUpReq(BaseModel):
     message: str
     response: str
+    user_id: str = ""
 
 @app.post("/follow-ups")
 async def follow_ups(req: FollowUpReq):
+    require_paid_user(req.user_id, "Follow-up suggestions")
     from google import genai as _genai
     import config as cfg
     import json
@@ -629,7 +824,7 @@ async def follow_ups(req: FollowUpReq):
     )
     try:
         r = _gclient.models.generate_content(
-            model="gemini-3.1-flash-lite-preview",
+            model="gemini-3.5-flash-lite",
             contents=prompt
         )
         text = r.text.strip()
@@ -673,12 +868,24 @@ async def clear_memories(user_id: str):
 
 @app.get("/documents")
 async def get_documents(user_id: str):
-    docs = documents_module.fetch_documents(supabase_client.supabase, user_id)
+    user = request_auth.require_authenticated_user(
+        user_id,
+        supabase_client.get_user_by_firebase_uid,
+    )
+    docs = documents_module.fetch_documents(supabase_client.supabase, user["id"])
     return {"documents": docs}
 
 @app.delete("/documents/{doc_id}")
-async def delete_document_ep(doc_id: str):
-    ok = documents_module.delete_document(supabase_client.supabase, doc_id)
+async def delete_document_ep(doc_id: str, user_id: str):
+    user = request_auth.require_authenticated_user(
+        user_id,
+        supabase_client.get_user_by_firebase_uid,
+    )
+    ok = documents_module.delete_document(
+        supabase_client.supabase,
+        doc_id,
+        user_id=user["id"],
+    )
     return {"success": ok}
 
 @app.post("/save-document")
@@ -695,6 +902,7 @@ async def save_document_ep(
         return {"success": False, "error": "Not logged in"}
 
     try:
+        require_paid_user(user_id, "Document Library")
         file_bytes = await file.read()
         file_size_kb = len(file_bytes) // 1024
 
@@ -727,6 +935,8 @@ async def save_document_ep(
         else:
             return {"success": False, "error": "Failed to save document."}
 
+    except HTTPException:
+        raise
     except Exception as e:
         import traceback
         traceback.print_exc()
@@ -783,64 +993,322 @@ async def move_chat_to_folder(chat_id: str, req: ChatFolderMove):
 # CHAT WITH FILE (FormData — separate endpoint)
 # --------------------------------------------------
 
+class FileUploadReq(BaseModel):
+    file_data: str
+    file_name: str = "upload"
+    file_type: str = "application/octet-stream"
+    message: str = ""
+    history: list = []
+    chat_id: str = ""
+    user_id: str = ""
+
 @app.post("/chat-with-file")
-async def chat_with_file(
-    file: UploadFile = File(...),
-    message: str = Form(""),
-    user_id: str = Form(""),
-    chat_id: str = Form(""),
-    history: str = Form("[]")
-):
-    import json as _json
+async def chat_with_file(req: FileUploadReq):
+    import base64 as _b64
+    import traceback as _tb
+
+    print(f"[chat-with-file] user_id={req.user_id!r} filename={req.file_name!r} chat_id={req.chat_id!r}")
 
     try:
-        parsed_history = _json.loads(history)
-    except Exception:
-        parsed_history = []
+        user = require_paid_user(req.user_id, "File analysis")
+        user_plan = user.get("plan", "free")
 
-    try:
-        file_bytes = await file.read()
-        analysis_result = analysis.process_file_universally(file_bytes, file.filename)
+        file_bytes = _b64.b64decode(req.file_data)
+        print(f"[chat-with-file] decoded {len(file_bytes)} bytes")
 
-        file_content = analysis_result.get("content", "")[:3000]
-        user_instruction = message.strip() if message.strip() else "Summarize this document."
+        analysis_result = analysis.process_file_universally(file_bytes, req.file_name)
+        print(f"[chat-with-file] analysis type={analysis_result.get('type')} error={analysis_result.get('error')}")
+
+        file_content = analysis_result.get("content", "")[:6000]
+        user_instruction = req.message.strip() if req.message.strip() else "Summarize this document."
 
         combined_prompt = (
-            f"The user uploaded a file: {file.filename}\n\n"
+            f"The user uploaded a file: {req.file_name}\n\n"
             f"File content:\n{file_content}\n\n"
             f"User instruction: {user_instruction}"
         )
 
         response = model.get_ai_response(
             prompt=combined_prompt,
-            history=parsed_history,
-            model_name="gemini-3.1-flash-lite-preview",
+            history=req.history,
+            model_name="",
             context="",
-            deep_dive=False
+            deep_dive=False,
+            plan=user_plan
         )
+
+        print(f"[chat-with-file] AI responded, length={len(response or '')}")
 
         return {
             "type": "text",
-            "content": response,
-            "chat_id": chat_id or None,
-            "file_analyzed": file.filename
+            "content": response or "I've read the file but couldn't generate a response. Please try again.",
+            "chat_id": req.chat_id or None,
+            "file_analyzed": req.file_name
         }
+    except HTTPException:
+        raise
     except Exception as e:
+        _tb.print_exc()
+        print(f"[chat-with-file] ERROR: {e}")
+        return {
+            "type": "text",
+            "content": f"⚠️ Sorry, I couldn't process that file. Error: {str(e)}"
+        }
+
+
+# --------------------------------------------------
+# CHAT WITH MULTIPLE FILES (ADDITIVE BATCH ENDPOINT)
+# --------------------------------------------------
+
+BATCH_SUPPORTED_EXTENSIONS = (
+    ".csv", ".xlsx", ".xls", ".pdf", ".docx", ".txt",
+    ".png", ".jpg", ".jpeg", ".webp",
+)
+
+
+class BatchFileItem(BaseModel):
+    file_data: str
+    file_name: str = "upload"
+    file_type: str = "application/octet-stream"
+
+
+class BatchFileUploadReq(BaseModel):
+    files: list[BatchFileItem] = Field(default_factory=list)
+    message: str = ""
+    history: list = Field(default_factory=list)
+    chat_id: str = ""
+    user_id: str = ""
+
+
+def _decode_batch_file(file_item: BatchFileItem) -> bytes:
+    """Decode a client file payload without accepting arbitrary oversized data."""
+    import base64 as _b64
+
+    encoded = (file_item.file_data or "").strip()
+    if encoded.startswith("data:") and "," in encoded:
+        encoded = encoded.split(",", 1)[1]
+    max_encoded_bytes = ((BATCH_MAX_FILE_BYTES + 2) // 3) * 4
+    if len(encoded) > max_encoded_bytes:
+        raise ValueError("The file exceeds the 25 MB per-file limit.")
+    try:
+        return _b64.b64decode(encoded, validate=True)
+    except Exception as exc:
+        raise ValueError("The file data is not valid base64.") from exc
+
+
+def _batch_result_context(analysis_result: dict) -> str:
+    """Turn the existing analyzer's different result shapes into model context."""
+    context_parts = []
+    if analysis_result.get("content"):
+        context_parts.append(str(analysis_result["content"]))
+    if analysis_result.get("insight"):
+        context_parts.append(f"Analysis note: {analysis_result['insight']}")
+    if analysis_result.get("columns"):
+        context_parts.append(
+            "Columns: " + ", ".join(str(column) for column in analysis_result["columns"])
+        )
+    if analysis_result.get("rows"):
+        context_parts.append(
+            "Rows preview:\n" + json.dumps(analysis_result["rows"][:10], ensure_ascii=False)
+        )
+    return "\n\n".join(context_parts).strip()[:6000]
+
+
+def _batch_failure_reason(analysis_result: dict, context: str) -> str | None:
+    if analysis_result.get("error"):
+        return str(analysis_result["error"])[:240]
+    if context:
+        return None
+    return "No readable content was extracted from this file."
+
+
+@app.post("/chat-with-files")
+async def chat_with_files(req: BatchFileUploadReq):
+    """Analyze a small batch while preserving the established single-file route."""
+    import traceback as _tb
+
+    user = require_paid_user(req.user_id, "File analysis")
+    if not supabase_client.check_user_quota(user):
         return {
             "type": "error",
-            "content": f"File analysis failed: {str(e)}"
+            "content": "⚠️ You have reached your daily limit.",
         }
+
+    if not req.files:
+        raise HTTPException(status_code=400, detail="Please attach at least one file.")
+    if len(req.files) > BATCH_MAX_FILES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"You can attach up to {BATCH_MAX_FILES} files at a time.",
+        )
+
+    decoded_files = []
+    preflight_failures = []
+    total_bytes = 0
+    for file_item in req.files:
+        file_name = os.path.basename(file_item.file_name or "upload")
+        extension = os.path.splitext(file_name.lower())[1]
+        if extension not in BATCH_SUPPORTED_EXTENSIONS:
+            preflight_failures.append({
+                "file_name": file_name,
+                "status": "failed",
+                "error": (
+                    "Unsupported file type. Use PDF, DOCX, TXT, CSV, Excel, "
+                    "or image files."
+                ),
+            })
+            continue
+        try:
+            file_bytes = _decode_batch_file(file_item)
+        except ValueError as exc:
+            preflight_failures.append({
+                "file_name": file_name,
+                "status": "failed",
+                "error": str(exc)[:240],
+            })
+            continue
+        total_bytes += len(file_bytes)
+        if total_bytes > BATCH_MAX_TOTAL_BYTES:
+            raise HTTPException(
+                status_code=413,
+                detail="The combined file size exceeds the 100 MB total limit.",
+            )
+        if len(file_bytes) > BATCH_MAX_FILE_BYTES:
+            preflight_failures.append({
+                "file_name": file_name,
+                "status": "failed",
+                "error": "The file exceeds the 25 MB per-file limit.",
+            })
+            continue
+        decoded_files.append((file_name, file_item.file_type, file_bytes))
+
+    print(
+        f"[chat-with-files] user_id={req.user_id!r} "
+        f"files={len(decoded_files)} chat_id={req.chat_id!r} "
+        f"bytes={total_bytes}"
+    )
+
+    file_results = list(preflight_failures)
+    context_sections = []
+    for file_name, file_type, file_bytes in decoded_files:
+        try:
+            analysis_result = analysis.process_file_universally(file_bytes, file_name)
+            file_context = _batch_result_context(analysis_result)
+            failure_reason = _batch_failure_reason(analysis_result, file_context)
+            if failure_reason:
+                file_results.append({
+                    "file_name": file_name,
+                    "status": "failed",
+                    "error": failure_reason,
+                })
+                continue
+            file_results.append({
+                "file_name": file_name,
+                "status": "processed",
+                "type": analysis_result.get("type", "text"),
+            })
+            context_sections.append(
+                f"===== FILE: {file_name} =====\n{file_context}"
+            )
+        except Exception as exc:
+            _tb.print_exc()
+            file_results.append({
+                "file_name": file_name,
+                "status": "failed",
+                "error": f"Analysis failed: {str(exc)[:200]}",
+            })
+
+    processed_files = [
+        result["file_name"]
+        for result in file_results
+        if result["status"] == "processed"
+    ]
+    failed_files = [
+        result for result in file_results if result["status"] == "failed"
+    ]
+
+    if not context_sections:
+        failure_summary = "\n".join(
+            f"- {item['file_name']}: {item['error']}" for item in failed_files
+        )
+        return {
+            "type": "text",
+            "content": (
+                "⚠️ I couldn't extract usable content from any of the attached files.\n\n"
+                f"{failure_summary}"
+            ),
+            "chat_id": req.chat_id or None,
+            "processed_files": [],
+            "failed_files": failed_files,
+            "file_results": file_results,
+        }
+
+    user_instruction = req.message.strip() or "Summarize and compare the attached files."
+    combined_prompt = (
+        "The user uploaded multiple files for one request. Analyze only the file "
+        "content provided below. Keep each file's identity clear, compare or "
+        "connect them when useful, and do not claim that a failed file was read.\n\n"
+        + "\n\n".join(context_sections)
+        + f"\n\nUser instruction: {user_instruction}"
+    )
+    if failed_files:
+        combined_prompt += (
+            "\n\nFiles that could not be processed:\n"
+            + "\n".join(
+                f"- {item['file_name']}: {item['error']}" for item in failed_files
+            )
+        )
+
+    try:
+        response = model.get_ai_response(
+            prompt=combined_prompt,
+            history=req.history,
+            model_name="",
+            context="",
+            deep_dive=False,
+            plan=user.get("plan", "free"),
+        )
+        supabase_client.increment_quota(user)
+    except Exception as exc:
+        _tb.print_exc()
+        print(f"[chat-with-files] AI ERROR: {exc}")
+        return {
+            "type": "text",
+            "content": "⚠️ I processed the files but couldn't generate a response. Please try again.",
+            "chat_id": req.chat_id or None,
+            "processed_files": processed_files,
+            "failed_files": failed_files,
+            "file_results": file_results,
+        }
+
+    status_note = ""
+    if failed_files:
+        status_note = "\n\n" + "\n".join(
+            f"⚠️ {item['file_name']}: {item['error']}" for item in failed_files
+        )
+    return {
+        "type": "text",
+        "content": (response or "I've read the files but couldn't generate a response.") + status_note,
+        "chat_id": req.chat_id or None,
+        "processed_files": processed_files,
+        "failed_files": failed_files,
+        "file_results": file_results,
+    }
 
 # --------------------------------------------------
 # 🎤 SPEECH-TO-TEXT (VOICE TRANSCRIPTION)
 # --------------------------------------------------
 
 @app.post("/transcribe-audio")
-async def transcribe_audio(audio: UploadFile = File(...)):
+async def transcribe_audio(
+    audio: UploadFile = File(...),
+    user_id: str = Form(""),
+):
     """
     Convert audio to text using Google Cloud Speech-to-Text or fallback.
     """
     try:
+        require_paid_user(user_id, "Voice input")
         from google import genai as _genai
         from google.genai import types as _gtypes
         import base64
@@ -851,7 +1319,7 @@ async def transcribe_audio(audio: UploadFile = File(...)):
 
         # Ask Gemini to transcribe
         response = _gclient.models.generate_content(
-            model="gemini-3.1-flash-lite-preview",
+            model="gemini-3.5-flash-lite",
             contents=[
                 _gtypes.Part.from_bytes(data=audio_bytes, mime_type="audio/wav"),
                 "Please transcribe this audio to text. Return ONLY the transcribed text, no explanations."
@@ -862,6 +1330,8 @@ async def transcribe_audio(audio: UploadFile = File(...)):
             "text": response.text.strip(),
             "status": "success"
         }
+    except HTTPException:
+        raise
     except Exception as e:
         return {
             "text": "",
@@ -870,13 +1340,102 @@ async def transcribe_audio(audio: UploadFile = File(...)):
         }
 
 # --------------------------------------------------
-# FILE ANALYSIS
+# FILE ANALYSIS (legacy — unchanged)
 # --------------------------------------------------
 
 @app.post("/analyze-data")
-async def analyze_data(file: UploadFile = File(...)):
+async def analyze_data(
+    file: UploadFile = File(...),
+    user_id: str = Form(""),
+):
+    require_paid_user(user_id, "File analysis")
     contents = await file.read()
     return analysis.process_file_universally(contents, file.filename)
+
+
+# --------------------------------------------------
+# DATA ANALYSIS CHAT (new — Tools → Data Analysis)
+# Separate from /chat-with-file. Only handles CSV/XLSX.
+# --------------------------------------------------
+
+class DataAnalysisReq(BaseModel):
+    file_data: str          # base64-encoded file bytes
+    file_name: str = "data.csv"
+    message:   str = ""
+    user_id:   str = ""
+
+@app.post("/data-analysis-chat")
+async def data_analysis_chat(req: DataAnalysisReq):
+    import base64 as _b64
+    import traceback as _tb
+
+    try:
+        require_paid_user(req.user_id, "Data Analysis")
+        file_bytes = _b64.b64decode(req.file_data)
+
+        result = analysis.analyze_spreadsheet_deep(file_bytes, req.file_name)
+
+        if "error" in result:
+            return {"type": "text", "content": f"⚠️ {result['error']}"}
+
+        user_q = req.message.strip() or "Perform a comprehensive, professional data analysis of this dataset."
+
+        system_prompt = (
+            "You are a world-class quantitative data analyst — think Julius AI or a senior quant at Goldman Sachs. "
+            "The user has uploaded a spreadsheet. You have been given the REAL extracted data: exact column names, "
+            "actual row values, comprehensive statistics (mean, median, std dev, quartiles, IQR), "
+            "top and bottom performers with their exact names and values, and outliers. "
+            "Use ONLY the real numbers and names provided. NEVER use placeholders like [value], [name], [insert x], etc.\n\n"
+            "Structure your response EXACTLY with these markdown headings (use emojis as shown):\n\n"
+            "## 📊 Executive Summary\n"
+            "2-3 sentences: what this dataset contains and the single most critical finding.\n\n"
+            "## 🔍 Key Findings\n"
+            "6-8 specific bullet points — each must cite at least one real number from the data.\n\n"
+            "## 🏆 Top Performers\n"
+            "List the top 5 entries by name and exact value. For each, write one sentence on why they stand out.\n\n"
+            "## ⚠️ Areas of Concern\n"
+            "List the 3-5 worst performers or outliers by exact name and value. Explain the risk or implication.\n\n"
+            "## 📈 Statistical Deep Dive\n"
+            "Cover: distribution shape (symmetric/skewed?), spread (is std dev large vs mean?), "
+            "concentration (do top 20% dominate the total?), outlier impact, and any notable pattern.\n\n"
+            "## 💡 Strategic Recommendations\n"
+            "Give 4-5 specific, actionable recommendations that reference actual names and numbers from the data.\n\n"
+            "Be direct, insightful, and specific. No generic filler sentences."
+        )
+
+        full_prompt = (
+            f"User question: {user_q}\n\n"
+            f"=== REAL DATASET (use these exact values) ===\n"
+            f"{result['summary_text']}\n"
+            f"=== END DATA ==="
+        )
+
+        text_response = model.get_ai_response(
+            prompt=full_prompt,
+            history=[],
+            model_name="",
+            context=system_prompt,
+            deep_dive=True,
+            plan="pro",
+        )
+
+        return {
+            "type":        "data_analysis",
+            "content":     text_response or "Analysis complete.",
+            "chart":       result.get("chart_b64"),
+            "table":       result.get("table_preview"),
+            "downloadCsv": result.get("download_csv_b64"),
+            "rowCount":    result.get("row_count", 0),
+            "filename":    result.get("filename", req.file_name),
+            "stats":       result.get("stats", {}),
+            "outliers":    result.get("outliers", []),
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        _tb.print_exc()
+        return {"type": "text", "content": f"⚠️ Data analysis failed: {str(e)[:200]}"}
 
 # --------------------------------------------------
 # PPT
@@ -884,6 +1443,7 @@ async def analyze_data(file: UploadFile = File(...)):
 
 @app.post("/generate-ppt-smart")
 async def generate_ppt(payload: dict):
+    require_paid_user(payload.get("user_id", ""), "Presentation generation")
     import json as _json
     import re as _re
     from google import genai as _genai
@@ -929,7 +1489,7 @@ CONVERSATION:
 
     try:
         resp = _gclient.models.generate_content(
-            model="gemini-3.1-flash-lite-preview",
+            model="gemini-3.5-flash-lite",
             contents=slide_prompt
         )
         raw = resp.text.strip()
@@ -970,13 +1530,18 @@ class DeckPlanReq(BaseModel):
     length:      str  = "standard"   # short | standard | deep
     audience:    str  = "Research peers"
     source_text: str  = ""           # paste from PDF / notes
+    user_id:      str = ""
 
 @app.post("/deck/extract")
-async def deck_extract(file: UploadFile = File(...)):
+async def deck_extract(
+    file: UploadFile = File(...),
+    user_id: str = Form(""),
+):
     """
     Extracts raw text from a PDF or Word document for use as deck source material.
     Returns { text: "..." }
     """
+    require_paid_user(user_id, "Research Deck")
     import pdf as pdf_module
     contents = await file.read()
     text = pdf_module.extract_intel(contents, file.filename or "upload.pdf")
@@ -988,6 +1553,7 @@ async def deck_plan(req: DeckPlanReq):
     Step 1: AI generates a structured deck outline JSON.
     Client reviews it before generating the PPTX.
     """
+    require_paid_user(req.user_id, "Research Deck")
     try:
         outline = await deck_engine.plan_deck(
             topic       = req.topic,
@@ -1008,6 +1574,7 @@ async def deck_generate(payload: dict):
     Step 2: Renders the approved outline JSON into a PPTX file.
     Payload is the full outline dict returned by /deck/plan.
     """
+    require_paid_user(payload.get("user_id", ""), "Research Deck")
     return build_smart_presentation(payload)
 
 # --------------------------------------------------
@@ -1021,6 +1588,7 @@ async def generate_radio(req: ChatReq):
     - Read aloud playback
     - Radio mode playback
     """
+    require_paid_user(req.user_id, "Radio Mode")
     return await voice.generate_voice_stream(req.message)
 
 # --------------------------------------------------
@@ -1032,6 +1600,7 @@ async def export_audio(req: ChatReq):
     """
     Downloads AI response as MP3 (single voice).
     """
+    require_paid_user(req.user_id, "Audio export")
     return await voice.generate_simple_voice(req.message)
 
 # --------------------------------------------------
@@ -1049,10 +1618,8 @@ async def generate_video(req: VideoReq):
     Generate a short cinematic video using Runway Gen-3 Turbo.
     Duration locked at 5s for cost control.
     """
-    # Fetch user and enforce video quota
-    user = None
-    if req.user_id:
-        user = get_user_by_supabase_id(req.user_id)
+    # Fetch user and enforce paid access + video quota
+    user = require_paid_user(req.user_id, "Video generation")
 
     plan = user.get("plan", "free") if user else "free"
     if plan == "free":
@@ -1090,15 +1657,14 @@ class DetectorReq(BaseModel):
     user_id: str = ""
 
 def _check_detector_plan(user_id: str):
-    """Returns True if allowed (Plus/Pro), raises 403 if free user."""
-    if user_id:
-        _u = get_user_by_supabase_id(user_id)
-        if _u and (_u.get("plan", "free") or "free").lower() == "free":
-            from fastapi import HTTPException
-            raise HTTPException(
-                status_code=403,
-                detail="AI Detector & Plagiarism Checker requires a Plus or Pro plan. Visit /pricing.html to upgrade."
-            )
+    """Returns True if allowed (Pro/pro_trial only), raises 403 otherwise."""
+    _u = require_paid_user(user_id, "AI Detector & Plagiarism Checker")
+    _plan = (_u.get("plan", "free") or "free").lower()
+    if _plan not in ("pro", "pro_trial", "pro_validation"):
+        raise HTTPException(
+            status_code=403,
+            detail="AI Detector & Plagiarism Checker is a Pro-only feature. Visit /pricing.html to upgrade."
+        )
 
 @app.post("/detect-ai")
 async def detect_ai_endpoint(req: DetectorReq):
@@ -1117,9 +1683,12 @@ async def check_plagiarism_endpoint(req: DetectorReq):
     return await detector_module.check_plagiarism(req.text)
 
 @app.post("/extract-text")
-async def extract_text_endpoint(file: UploadFile = File(...)):
+async def extract_text_endpoint(
+    file: UploadFile = File(...),
+    user_id: str = Form(""),
+):
     """Extract plain text from TXT, PDF, or DOCX uploads for the detector modals."""
-    from fastapi import HTTPException
+    require_paid_user(user_id, "Text extraction")
     ext = (file.filename or "").rsplit(".", 1)[-1].lower()
     content = await file.read()
 
@@ -1145,7 +1714,10 @@ async def extract_text_endpoint(file: UploadFile = File(...)):
         else:
             raise HTTPException(status_code=400, detail=f"Unsupported file type: .{ext}")
 
-        return {"text": text[:15000], "chars": len(text)}
+        # Return the FULL extracted text — the AI Detector, Plagiarism Checker, and
+        # Self-Plagiarism Checker all chunk arbitrarily long documents on the backend,
+        # so truncating here silently dropped the back half of longer uploads.
+        return {"text": text, "chars": len(text)}
 
     except HTTPException:
         raise
@@ -1185,6 +1757,8 @@ async def check_self_plagiarism_endpoint(req: SelfPlagReq):
         from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Both documents must contain text.")
     _check_detector_plan(req.user_id)
+    # Always returns 200 with a structured result, even on timeout (see `error`/`timed_out`
+    # fields), so the frontend can show a clear message instead of a generic network error.
     return await detector_module.check_self_plagiarism(req.text_a, req.text_b)
 
 
@@ -1202,10 +1776,7 @@ async def start_paper(req: StartPaperReq):
     if not req.user_id:
         return {"ok": False, "error": "auth"}
 
-    user = supabase_client.get_user_by_supabase_id(req.user_id)
-    if not user:
-        return {"ok": False, "error": "auth"}
-
+    user = require_paid_user(req.user_id, "Write a Paper")
     plan = user.get("plan", "free").lower()
     if plan == "free":
         return {"ok": False, "error": "upgrade"}
@@ -1231,6 +1802,7 @@ async def check_citations_endpoint(req: CitationCheckReq):
     if not req.text.strip() and not req.bibliography.strip():
         from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Provide text or bibliography to check.")
+    require_paid_user(req.user_id, "Citation Checker")
     import config as _cfg
     from google import genai as _genai
     client = _genai.Client(api_key=_cfg.GEMINI_KEY)
@@ -1250,14 +1822,11 @@ async def deep_research_start(req: DeepResearchStartReq):
         from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
 
-    # ── Backend Pro gate — prevents direct API calls bypassing the frontend ──
-    if req.user_id:
-        _dr_user = get_user_by_supabase_id(req.user_id)
-        _dr_plan = (_dr_user.get("plan", "free") if _dr_user else "free").lower()
-    else:
-        _dr_plan = "free"
+    # ── Backend paid access + Pro gate ──
+    _dr_user = require_paid_user(req.user_id, "Deep Research Agent")
+    _dr_plan = (_dr_user.get("plan", "free") if _dr_user else "free").lower()
 
-    if _dr_plan != "pro":
+    if _dr_plan not in ("pro", "pro_trial", "pro_validation"):
         from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="Deep Research Agent is a Pro-only feature.")
 
@@ -1265,6 +1834,7 @@ async def deep_research_start(req: DeepResearchStartReq):
         query=req.query.strip(),
         user_id=req.user_id,
         use_max=req.use_max,
+        user_plan=_dr_plan,
     )
     return {"job_id": job_id, "status": "starting"}
 
@@ -1274,6 +1844,7 @@ async def deep_research_status(job_id: str):
     job = dr_module.get_job(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found.")
+    require_paid_user(job.get("user_id", ""), "Deep Research Agent")
     dr_module.cleanup_old_jobs()
     return {
         "job_id":       job_id,
@@ -1298,6 +1869,7 @@ class VerifyPapersReq(BaseModel):
 
 @app.post("/deep-research/verify-papers")
 async def verify_papers_endpoint(req: VerifyPapersReq):
+    require_paid_user(req.user_id, "Research verification")
     import asyncio
     loop = asyncio.get_event_loop()
 
@@ -1358,7 +1930,7 @@ Rules: Be precise. Only cite [P1]–[P{len(papers[:6])}] — no invented referen
     resp = await loop.run_in_executor(
         None,
         lambda: _client.models.generate_content(
-            model="gemini-3.5-flash",
+            model="gemini-3.6-flash",
             contents=prompt,
         )
     )
@@ -1367,6 +1939,21 @@ Rules: Be precise. Only cite [P1]–[P{len(papers[:6])}] — no invented referen
 # --------------------------------------------------
 # SAVE DOCUMENT (plain text — used by Deep Research)
 # --------------------------------------------------
+
+class ExportPaperDocxReq(BaseModel):
+    text:  str
+    title: str = "Research Paper"
+    user_id: str = ""
+
+@app.post("/export-paper-docx")
+async def export_paper_docx(req: ExportPaperDocxReq):
+    """Convert a generated paper/report (markdown) into an editable .docx download."""
+    if not req.text.strip():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="No text to export.")
+    require_paid_user(req.user_id, "Paper export")
+    return export.markdown_to_docx(req.text, req.title)
+
 
 class SaveTextDocReq(BaseModel):
     user_id: str
@@ -1379,6 +1966,7 @@ async def save_document_text(req: SaveTextDocReq):
     if not req.user_id or not req.text.strip():
         return {"success": False, "error": "Missing user_id or text"}
     try:
+        require_paid_user(req.user_id, "Document Library")
         doc_data = documents_module.summarize_document(req.text, req.filename)
         user     = get_user_by_supabase_id(req.user_id)
         if not user:
@@ -1446,26 +2034,42 @@ class WatchToggleReq(BaseModel):
 
 @app.get("/watches")
 async def get_watches_ep(user_id: str):
-    w = watches_module.get_watches(supabase_client.supabase, user_id)
+    user = require_paid_user(user_id, "Research Watcher")
+    if (user.get("plan") or "").lower() not in ("pro", "pro_trial", "pro_validation"):
+        raise HTTPException(status_code=403, detail="Research Watcher is a Pro-only feature.")
+    w = watches_module.get_watches(supabase_client.supabase, user["id"])
     return {"watches": w}
 
 @app.post("/watches")
 async def create_watch_ep(req: WatchCreateReq):
+    user = require_paid_user(req.user_id, "Research Watcher")
+    if (user.get("plan") or "").lower() not in ("pro", "pro_trial", "pro_validation") and not supabase_client.is_demo_account(user):
+        raise HTTPException(status_code=403, detail="Research Watcher is a Pro-only feature.")
     w = watches_module.create_watch(supabase_client.supabase, req.user_id, req.topic, req.frequency)
     return {"watch": w}
 
 @app.delete("/watches/{watch_id}")
 async def delete_watch_ep(watch_id: str, user_id: str):
-    watches_module.delete_watch(supabase_client.supabase, watch_id, user_id)
+    user = require_paid_user(user_id, "Research Watcher")
+    if (user.get("plan") or "").lower() not in ("pro", "pro_trial", "pro_validation"):
+        raise HTTPException(status_code=403, detail="Research Watcher is a Pro-only feature.")
+    watches_module.delete_watch(supabase_client.supabase, watch_id, user["id"])
     return {"success": True}
 
 @app.patch("/watches/{watch_id}")
 async def toggle_watch_ep(watch_id: str, req: WatchToggleReq):
-    w = watches_module.toggle_watch(supabase_client.supabase, watch_id, req.user_id, req.is_active)
+    user = require_paid_user(req.user_id, "Research Watcher")
+    if (user.get("plan") or "").lower() not in ("pro", "pro_trial", "pro_validation"):
+        raise HTTPException(status_code=403, detail="Research Watcher is a Pro-only feature.")
+    w = watches_module.toggle_watch(supabase_client.supabase, watch_id, user["id"], req.is_active)
     return {"watch": w}
 
 @app.post("/watches/{watch_id}/check")
 async def check_watch_ep(watch_id: str, user_id: str):
+    user = require_paid_user(user_id, "Research Watcher")
+    if (user.get("plan") or "").lower() not in ("pro", "pro_trial", "pro_validation") and not supabase_client.is_demo_account(user):
+        raise HTTPException(status_code=403, detail="Research Watcher is a Pro-only feature.")
+    user_id = user["id"]
     watch_list = watches_module.get_watches(supabase_client.supabase, user_id)
     watch = next((w for w in watch_list if w["id"] == watch_id), None)
     if not watch:

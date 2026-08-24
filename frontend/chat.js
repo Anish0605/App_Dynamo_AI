@@ -1,7 +1,5 @@
 // chat.js — Dynamo AI (FINAL PRODUCTION READY 🚀 + SEARCH + AUDIO + SMART AI)
 
-console.log("chat.js loaded");
-console.log("chat.js fully loaded ✅");
 /* ---------------- DOM ---------------- */
 const chatContainer = document.getElementById("chat-messages");
 const heroSection = document.getElementById("hero-section");
@@ -12,6 +10,25 @@ window.chatHistory = [];
 window.isAnalyzingFile = false;
 let lastChatType = null;
 let currentChatId = null;
+
+function getPendingUploadFiles() {
+  if (Array.isArray(window.pendingUploadFiles) && window.pendingUploadFiles.length) {
+    return window.pendingUploadFiles;
+  }
+  return window.pendingUploadFile ? [window.pendingUploadFile] : [];
+}
+
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || "");
+      resolve(result.split(",")[1] || "");
+    };
+    reader.onerror = () => reject(new Error(`Failed to read ${file.name || "file"}`));
+    reader.readAsDataURL(file);
+  });
+}
 
 /* ---------------- KEYBOARD SHORTCUTS ---------------- */
 if (chatInput) {
@@ -283,7 +300,6 @@ async function checkMessageLimit() {
         user = res;
         // Update appState to latest user data with reset applied
         window.appState.supabaseUser = user;
-        console.log("✅ User quota refreshed from backend:", { daily_quota_used: user.daily_quota_used, quota_date: user.quota_date });
       }
     } catch (err) {
       console.warn("⚠️ Could not refresh user quota:", err);
@@ -297,7 +313,10 @@ async function checkMessageLimit() {
   const PLAN_LIMITS = {
     free: 10,
     plus: 100,
-    pro: 300
+    plus_trial: 100,
+    pro: 300,
+    pro_trial: 300,
+    pro_validation: 300
   };
 
   const limit = PLAN_LIMITS[plan] ?? 10;
@@ -322,7 +341,6 @@ window.triggerRadioModeInterview = async (filename) => {
   // Build an interview-style prompt (for /chat-with-file endpoint to use)
   const interviewPrompt = `You have just received a document. Act as a professional interviewer conducting an interview. Ask me conversational, engaging questions to understand the content of this document better. Start with your first question, as if you're interviewing me about it. Make it conversational, not analytical.`;
   
-  console.log("🎙️ Starting radio mode interview:", filename);
   
   // Show user's action - set the input value to trigger the send
   chatInput.value = interviewPrompt;
@@ -338,9 +356,10 @@ window.sendFromInput = async () => {
     if (window.isSending) return;
     window.isSending = true;
   const msg = chatInput.value.trim();
+  const pendingFiles = getPendingUploadFiles();
   
   // Allow sending if there's a message OR a pending file
-  const hasFile = window.pendingUploadFile && window.pendingUploadFile.size > 0;
+  const hasFile = pendingFiles.length > 0;
   if (!msg && !hasFile) {
     window.isSending = false;
     return;
@@ -357,13 +376,22 @@ window.sendFromInput = async () => {
   if (msg) renderUserMessage(msg);
   // In radio mode, show file indicator differently (no "Analyzing" - just "File loaded")
   if (hasFile) {
-    const fileLabel = isRadioMode ? `📎 Discussing: ${window.pendingUploadFile.name}` : `📎 Analyzing: ${window.pendingUploadFile.name}`;
+    const fileLabel = pendingFiles.length === 1
+      ? (isRadioMode
+        ? `📎 Discussing: ${pendingFiles[0].name}`
+        : `📎 Analyzing: ${pendingFiles[0].name}`)
+      : `📎 Analyzing ${pendingFiles.length} files:\n${pendingFiles.map(file => `• ${file.name}`).join("\n")}`;
     renderUserMessage(fileLabel);
   }
 
   // 🔒 LOGIN CHECK
   if (!userId) {
     renderAssistantMessage("🔒 Please login / sign up to use DynamoAI.");
+    window.isSending = false;
+    return;
+  }
+  if (!window.hasPaidAccess?.()) {
+    window.showPaidAccessGate?.();
     window.isSending = false;
     return;
   }
@@ -426,12 +454,16 @@ window.sendFromInput = async () => {
 
   try {
     // Filter out quiz/json content from history to prevent contamination
-    const cleanHistory = window.chatHistory
+    const cleanHistory = (window.chatHistory || [])
       .slice(-15)
       .filter(msg => {
-        const content = msg.content || "";
+        // Always coerce content to string — DB may return parsed JSON objects
+        // (saveMessage stores {text:"..."} format; coercing prevents TypeError)
+        const content = String(msg.content || "");
+        // Skip empty messages
+        if (!content.trim()) return false;
         // Skip structured data (quiz JSON, analysis JSON, etc)
-        const isStructuredData = content.trim().startsWith("{") && 
+        const isStructuredData = content.trim().startsWith("{") &&
           (content.includes("quiz") || content.includes("analysis") || content.includes("questions"));
         return !isStructuredData;
       })
@@ -448,25 +480,50 @@ window.sendFromInput = async () => {
       });
       videoLoadingEl?.remove();
     }
-    // If file is attached, use FormData for analysis/dialogue
+    // If file(s) are attached — keep the original single-file contract and
+    // use the additive batch route only when more than one file is selected.
     else if (hasFile) {
-      const fd = new FormData();
-      fd.append("file", window.pendingUploadFile);
-      fd.append("message", msg);
-      fd.append("history", JSON.stringify(cleanHistory));
-      fd.append("use_search", isRadioMode ? "false" : "true");
-      fd.append("deep_dive", isRadioMode ? "false" : "true");
-      fd.append("chat_id", currentChatId || "");
-      fd.append("user_id", window.appState?.supabaseUserId || "");
-      
-      res = await fetch(`${window.BACKEND_URL}/chat-with-file`, {
-        method: "POST",
-        body: fd
-      }).then(r => r.json());
-      
-      // Clear file after sending
-      window.pendingUploadFile = null;
-      window.clearUploadFile?.();
+      let safeHistory = [];
+      try { safeHistory = cleanHistory; } catch (_) {}
+      const encodedFiles = await Promise.all(
+        pendingFiles.map(async file => ({
+          file_data: await readFileAsBase64(file),
+          file_name: file.name || "upload",
+          file_type: file.type || "application/octet-stream"
+        }))
+      );
+      const filePayload = pendingFiles.length === 1
+        ? {
+            ...encodedFiles[0],
+            message: msg,
+            history: safeHistory,
+            chat_id: currentChatId || "",
+            user_id: window.appState?.supabaseUserId || ""
+          }
+        : {
+            files: encodedFiles,
+            message: msg,
+            history: safeHistory,
+            chat_id: currentChatId || "",
+            user_id: window.appState?.supabaseUserId || ""
+          };
+      const fileEndpoint = pendingFiles.length === 1 ? "/chat-with-file" : "/chat-with-files";
+      try {
+        const rawResp = await window.backendFetch(`${window.BACKEND_URL}${fileEndpoint}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(filePayload)
+        });
+        if (!rawResp.ok) {
+          const errText = await rawResp.text().catch(() => `HTTP ${rawResp.status}`);
+          console.error(`${fileEndpoint} server error:`, rawResp.status, errText);
+          throw new Error(`Server returned ${rawResp.status}: ${errText.slice(0, 200)}`);
+        }
+        res = await rawResp.json();
+      } finally {
+        window.pendingUploadFile = null;
+        window.clearUploadFile?.();
+      }
     }
     else {
       // Regular JSON send (no file)
@@ -688,7 +745,6 @@ window.sendFromInput = async () => {
             try {
               await navigator.share(shareData);
             } catch (err) {
-              console.log("Share cancelled");
             }
           } else {
             shareBtn.classList.add("scale-110");
@@ -1139,6 +1195,30 @@ window.sendFromInput = async () => {
       scrollToBottom();
       window.chatHistory.push({ role: "assistant", content: data.content || "" });
       if (window.appState?.supabaseUserId) saveMessage("assistant", data.content || "");
+
+      // "Write a Paper" (Research Mode) — offer a .docx download once the paper is ready
+      if (data.is_paper && data.content) {
+        window.showPaperDownloadTab?.(data.content, msg || "Research Paper");
+      }
+
+      // Auto-humanize note — this paper was auto-rewritten before being returned
+      if (data.auto_humanized) {
+        const ah = data.auto_humanized;
+        const note = ah.verified_human === false
+          ? `Note: this paper was auto-rewritten for natural, human-sounding prose, but still scored ${ah.verification_score}% AI-likelihood on our own detector — review before submitting.`
+          : `This paper was auto-rewritten for natural, human-sounding prose (scored ${ah.verification_score}% AI-likelihood).`;
+        const noteEl = document.createElement("div");
+        noteEl.className = "research-humanize-note";
+        noteEl.style.cssText = "font-size:12px;color:" + (ah.verified_human === false ? "#b45309" : "#6b7280") + ";font-style:italic;margin-top:8px;padding:0 2px;";
+        noteEl.textContent = "ℹ️ " + note;
+        wrapper.appendChild(noteEl);
+
+        // Persist the note as its own message so it survives a reload
+        // (sidebar.js's loadChatHistory re-renders any assistant text as a normal bubble).
+        const noteText = "ℹ️ " + note;
+        window.chatHistory.push({ role: "assistant", content: noteText });
+        if (window.appState?.supabaseUserId) saveMessage("assistant", noteText);
+      }
       return;
     }
 
@@ -1168,7 +1248,7 @@ window.sendFromInput = async () => {
   } catch (e) {
     console.error("Chat error:", e);
     hideThinking();
-    renderAssistantMessage("⚠️ Something went wrong. Please try again.");
+    renderAssistantMessage(`⚠️ Error: ${e?.message || String(e)}. Please screenshot this and report it.`);
   } finally {
     window.isSending = false;
   }
@@ -1387,7 +1467,6 @@ function renderAssistantMessage(html, rawText = "", save = true, sources = []) {
   // 🎙️ AUTO-PLAY AUDIO IN RADIO MODE
   if (window.dynamoUI?.tools?.has('radio') && text && typeof readAloud === 'function') {
     setTimeout(() => {
-      console.log("🎙️ Auto-playing AI response in radio mode");
       readAloud(text, playBtn);
     }, 500);
   }
@@ -1407,10 +1486,14 @@ async function generateFollowUps(userQuestion, aiResponse, bubbleWrapper) {
   if (!userQuestion || !aiResponse || !bubbleWrapper) return;
 
   try {
-    const res = await fetch(`${window.BACKEND_URL}/follow-ups`, {
+    const res = await window.backendFetch(`${window.BACKEND_URL}/follow-ups`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userQuestion, response: aiResponse })
+        body: JSON.stringify({
+          message: userQuestion,
+          response: aiResponse,
+          user_id: window.appState?.supabaseUserId || ""
+        })
     });
     const data = await res.json();
     const questions = data?.follow_ups;
@@ -1470,6 +1553,7 @@ window.startNewChat = () => {
   currentChatId = null;   // ✅ ADD THIS
   window.chatHistory = [];
   window.pendingUploadFile = null;
+  window.pendingUploadFiles = [];
   window.clearUploadFile?.();
   chatContainer.innerHTML = "";
   showHero();
@@ -1559,7 +1643,7 @@ window.findResearchGaps = async () => {
     return;
   }
   const plan = (supa.plan || "free").toLowerCase();
-  if (plan !== "pro") {
+  if (plan !== "pro" && plan !== "pro_trial" && plan !== "pro_validation") {
     renderAssistantMessage("🔒 **Find Research Gaps** is a **Pro** feature. [Upgrade to Pro →](/pricing.html)");
     return;
   }
@@ -1711,13 +1795,306 @@ window.verifyMessage = async function (btn, panel, rawText, userQuery) {
 };
 
 /* =========================================================
+   DATA ANALYSIS FEATURE  (Tools ⚙️ → Data Analysis)
+   Completely separate from existing file upload / chat-with-file.
+   Only these functions are new — nothing above is touched.
+========================================================= */
+
+window.openDataAnalysis = function () {
+  const userId = window.appState?.supabaseUserId;
+  if (!userId) {
+    renderAssistantMessage("🔒 Please log in to use Data Analysis.");
+    return;
+  }
+
+  const _daUser = window.appState?.supabaseUser;
+  const _daPlan = (_daUser?.plan || "free").toLowerCase();
+  const isPro = _daPlan === "pro" || _daPlan === "pro_trial" || _daPlan === "pro_validation";
+  if (!isPro) {
+    renderAssistantMessage(
+      "🔒 **Data Analysis** is a **Pro** feature.\n\n" +
+      "Unlock full spreadsheet analysis — charts, quartiles, outlier detection, and AI-powered insights.\n\n" +
+      "[Upgrade to Pro →](/pricing.html)"
+    );
+    return;
+  }
+
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".csv,.xlsx,.xls";
+  input.style.display = "none";
+  document.body.appendChild(input);
+
+  input.addEventListener("change", async () => {
+    const file = input.files?.[0];
+    document.body.removeChild(input);
+    if (!file) return;
+
+    hideHero();
+
+    // ── Step 1: Show "what do you want to know?" card ────────────
+    const promptCardId = "da-prompt-card-" + Date.now();
+    const promptCard = document.createElement("div");
+    promptCard.className = "flex justify-start mb-4";
+    promptCard.id = promptCardId;
+    promptCard.innerHTML = `
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;
+                  padding:18px 20px;max-width:560px;width:100%;
+                  box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <span style="font-size:20px;">📂</span>
+          <div>
+            <div style="color:#0f172a;font-weight:700;font-size:14px;">${file.name}</div>
+            <div style="color:#94a3b8;font-size:11px;">${(file.size / 1024).toFixed(0)} KB · CSV / Excel</div>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block;color:#475569;font-size:12px;font-weight:600;margin-bottom:6px;">
+            What would you like to know?
+            <span style="color:#94a3b8;font-weight:400;"> (optional — leave blank for full analysis)</span>
+          </label>
+          <textarea id="da-q-${promptCardId}"
+            placeholder="e.g. Which stocks performed best? · What are the key trends? · Summarise my P&L · Show me outliers…"
+            style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;
+                   font-size:13px;resize:vertical;min-height:76px;outline:none;color:#0f172a;
+                   background:#f8fafc;font-family:inherit;line-height:1.5;box-sizing:border-box;"
+            onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))document.getElementById('da-go-${promptCardId}').click()"
+          ></textarea>
+          <div style="color:#94a3b8;font-size:10px;margin-top:3px;">Ctrl+Enter to start</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button id="da-go-${promptCardId}"
+            style="background:#eab308;color:#0f172a;font-weight:700;font-size:13px;
+                   padding:9px 22px;border-radius:9px;border:none;cursor:pointer;
+                   display:inline-flex;align-items:center;gap:6px;"
+            onmouseover="this.style.background='#ca8a04'"
+            onmouseout="this.style.background='#eab308'">
+            📈 Analyse →
+          </button>
+          <button onclick="document.getElementById('${promptCardId}').remove()"
+            style="background:transparent;color:#94a3b8;font-size:12px;padding:9px 14px;
+                   border:1px solid #e2e8f0;border-radius:9px;cursor:pointer;font-weight:500;"
+            onmouseover="this.style.color='#475569'"
+            onmouseout="this.style.color='#94a3b8'">Cancel</button>
+        </div>
+      </div>`;
+
+    chatContainer.appendChild(promptCard);
+    scrollToBottom();
+    setTimeout(() => document.getElementById(`da-q-${promptCardId}`)?.focus(), 80);
+
+    // ── Step 2: On submit → run analysis ─────────────────────────
+    document.getElementById(`da-go-${promptCardId}`).addEventListener("click", async () => {
+      const question = (document.getElementById(`da-q-${promptCardId}`)?.value || "").trim();
+      promptCard.remove();
+
+      renderUserMessage(`📊 Data Analysis: ${file.name}${question ? `\n\n"${question}"` : ""}`);
+
+      const loadingEl = document.createElement("div");
+      loadingEl.className = "flex justify-start mb-4";
+      loadingEl.innerHTML = `
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;
+                    padding:16px 20px;max-width:380px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="color:#d97706;font-weight:700;font-size:13px;margin-bottom:6px;">📈 Analysing your data…</div>
+          <div style="color:#94a3b8;font-size:12px;margin-bottom:12px;">
+            Reading rows · computing quartiles · detecting outliers · generating chart
+          </div>
+          <div class="dynamo-spinner"></div>
+        </div>`;
+      chatContainer.appendChild(loadingEl);
+      scrollToBottom();
+
+      try {
+        const fileBase64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload  = () => resolve((reader.result.split(",")[1]) || "");
+          reader.onerror = () => reject(new Error("File read failed"));
+          reader.readAsDataURL(file);
+        });
+
+        const res = await window.backendFetch(`${window.BACKEND_URL}/data-analysis-chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            file_data: fileBase64,
+            file_name: file.name,
+            message:   question,
+            user_id:   userId,
+          }),
+        }).then(r => r.json());
+
+        loadingEl.remove();
+
+        if (!res || res.type !== "data_analysis") {
+          renderAssistantMessage(res?.content || "⚠️ Analysis failed. Please try again.");
+          return;
+        }
+
+        _renderDataAnalysisResult(res);
+
+      } catch (err) {
+        loadingEl.remove();
+        renderAssistantMessage(`⚠️ Data analysis error: ${err.message}`);
+      }
+    });
+  });
+
+  input.click();
+};
+
+function _renderDataAnalysisResult(res) {
+  const filename = res.filename || "data";
+  const st = res.stats || {};
+
+  // ── KPI cards ────────────────────────────────────────────────────
+  let kpiHtml = "";
+  if (st.sum !== undefined) {
+    const fmt = v => {
+      if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(2) + "M";
+      if (Math.abs(v) >= 1e3) return (v / 1e3).toFixed(1) + "K";
+      return v.toFixed(2);
+    };
+    const kpis = [
+      { icon: "📋", val: (res.rowCount || 0).toLocaleString(), lbl: "Rows Analysed" },
+      { icon: "∑",  val: fmt(st.sum),  lbl: "Total Sum" },
+      { icon: "🎯", val: st.win_rate !== undefined ? st.win_rate.toFixed(1) + "%" : "—", lbl: "Win Rate" },
+      { icon: "📊", val: st.mean !== undefined ? fmt(st.mean) : "—", lbl: "Average" },
+    ];
+    kpiHtml = `
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;">
+        ${kpis.map(k => `
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;
+                      padding:12px 8px;text-align:center;">
+            <div style="font-size:20px;margin-bottom:4px;">${k.icon}</div>
+            <div style="font-size:16px;font-weight:700;color:#0f172a;">${k.val}</div>
+            <div style="font-size:10px;color:#94a3b8;margin-top:2px;">${k.lbl}</div>
+          </div>`).join("")}
+      </div>`;
+  }
+
+  // ── Table preview ────────────────────────────────────────────────
+  let tableHtml = "";
+  const cols = (res.table?.columns || []).slice(0, 8);
+  const rows = (res.table?.rows   || []).slice(0, 5);
+  if (cols.length) {
+    const thCells = cols.map(c =>
+      `<th style="padding:7px 10px;background:#f1f5f9;color:#475569;text-align:left;
+                  border-bottom:2px solid #e2e8f0;white-space:nowrap;font-size:11px;
+                  font-weight:600;">${c}</th>`
+    ).join("");
+    const bodyRows = rows.map((row, ri) =>
+      `<tr style="background:${ri % 2 === 0 ? "#fff" : "#f8fafc"}">
+        ${cols.map((_, i) =>
+          `<td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;color:#334155;
+                      font-size:11px;white-space:nowrap;max-width:150px;
+                      overflow:hidden;text-overflow:ellipsis;">${row[i] ?? ""}</td>`
+        ).join("")}
+       </tr>`
+    ).join("");
+    const extra = (res.table.columns?.length || 0) > 8
+      ? `<div style="color:#94a3b8;font-size:10px;margin-top:5px;">
+           +${res.table.columns.length - 8} more columns hidden</div>` : "";
+    tableHtml = `
+      <div style="margin-bottom:16px;">
+        <div style="color:#64748b;font-size:10px;font-weight:700;margin-bottom:6px;
+                    text-transform:uppercase;letter-spacing:.06em;">
+          📋 Data Preview — first 5 of ${res.rowCount} rows
+        </div>
+        <div style="overflow-x:auto;border-radius:8px;border:1px solid #e2e8f0;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead><tr>${thCells}</tr></thead>
+            <tbody>${bodyRows}</tbody>
+          </table>
+        </div>
+        ${extra}
+      </div>`;
+  }
+
+  // ── Chart ────────────────────────────────────────────────────────
+  const chartHtml = res.chart
+    ? `<div style="margin-bottom:16px;">
+         <div style="color:#64748b;font-size:10px;font-weight:700;margin-bottom:6px;
+                     text-transform:uppercase;letter-spacing:.06em;">📈 Visual Analysis</div>
+         <img src="${res.chart}"
+              style="width:100%;border-radius:10px;display:block;border:1px solid #e2e8f0;"
+              alt="Data Analysis Chart" />
+       </div>`
+    : "";
+
+  // ── Download + hint ──────────────────────────────────────────────
+  let downloadHtml = "";
+  if (res.downloadCsv) {
+    const safeName = filename.replace(/\.[^.]+$/, "");
+    downloadHtml = `
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid #e2e8f0;
+                  display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <a href="data:text/csv;base64,${res.downloadCsv}"
+           download="${safeName}_summary.csv"
+           style="display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;
+                  border:1px solid #86efac;color:#16a34a;padding:8px 16px;
+                  border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;"
+           onmouseover="this.style.background='#dcfce7'"
+           onmouseout="this.style.background='#f0fdf4'">
+          ⬇️ Download Summary CSV
+        </a>
+        <span style="color:#94a3b8;font-size:11px;">💬 Type a follow-up question below to dig deeper</span>
+      </div>`;
+  }
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "flex justify-start mb-4";
+  wrapper.innerHTML = `
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;
+                padding:20px 22px;max-width:800px;width:100%;
+                box-shadow:0 1px 8px rgba(0,0,0,0.07);">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;
+                  padding-bottom:14px;border-bottom:2px solid #f1f5f9;">
+        <span style="font-size:22px;">📈</span>
+        <div>
+          <div style="color:#0f172a;font-weight:700;font-size:15px;">Data Analysis Report</div>
+          <div style="color:#64748b;font-size:11px;">${filename} · ${res.rowCount} rows analysed</div>
+        </div>
+      </div>
+      ${kpiHtml}
+      ${tableHtml}
+      ${chartHtml}
+      <div style="color:#64748b;font-size:10px;font-weight:700;margin-bottom:10px;
+                  text-transform:uppercase;letter-spacing:.06em;">🤖 AI Analysis</div>
+      <div class="da-analysis-text"
+           style="color:#1e293b;font-size:14px;line-height:1.8;"></div>
+      ${downloadHtml}
+    </div>`;
+
+  chatContainer.appendChild(wrapper);
+
+  const textEl = wrapper.querySelector(".da-analysis-text");
+  if (textEl) {
+    if (window.renderMarkdown) {
+      textEl.innerHTML = window.renderMarkdown(res.content || "");
+    } else {
+      textEl.innerHTML = (res.content || "")
+        .replace(/^## (.+)$/gm,
+          '<h3 style="color:#0f172a;font-size:14px;font-weight:700;margin:16px 0 6px;' +
+          'padding-bottom:5px;border-bottom:1px solid #f1f5f9;">$1</h3>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#0f172a;">$1</strong>')
+        .replace(/^- (.+)$/gm, '<li style="margin:4px 0 4px 18px;color:#1e293b;">$1</li>')
+        .replace(/\n\n/g, "<br>")
+        .replace(/\n/g, "<br>");
+    }
+  }
+
+  scrollToBottom();
+  window.chatHistory.push({ role: "assistant", content: "[Data Analysis Complete]" });
+  if (window.appState?.supabaseUserId) saveMessage("assistant", "[Data Analysis Complete]");
+}
+
+/* =========================================================
    AUTO LOAD
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
   const checkUser = setInterval(() => {
     if (window.appState?.supabaseUserId) {
-      console.log("User ready → loading chats");
       window.loadChatSidebar();
       clearInterval(checkUser);
     }

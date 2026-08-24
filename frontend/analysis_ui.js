@@ -1,11 +1,18 @@
 // analysis_ui.js — Dynamo AI (CHATGPT-STYLE FILE UPLOAD + RADIO MODE AWARE)
-console.log("analysis_ui.js loaded");
 
 let lastAnalysisData = null;
 let lastAnalyzedFile = null;
 
-// Store pending file for ChatGPT-style UX (upload → type → send)
+// Store pending files for ChatGPT-style UX (upload → type → send).
+// pendingUploadFile remains for the existing single-file/radio integrations.
 window.pendingUploadFile = null;
+window.pendingUploadFiles = [];
+
+window.FILE_UPLOAD_LIMITS = Object.freeze({
+  maxFiles: 5,
+  maxFileBytes: 25 * 1024 * 1024,
+  maxTotalBytes: 100 * 1024 * 1024
+});
 
 // ===== RADIO MODE CHECK =====
 function isRadioModeActive() {
@@ -20,43 +27,58 @@ if (fileInput) {
     fileInput.click();
   };
 
+  fileInput.multiple = true;
   fileInput.addEventListener("change", async () => {
-    const file = fileInput.files[0];
-    if (!file) return;
+    const files = Array.from(fileInput.files || []);
+    if (!files.length) return;
 
-    // Store file for later send (ChatGPT style)
-    window.pendingUploadFile = file;
+    const limits = window.FILE_UPLOAD_LIMITS;
+    const tooMany = files.length > limits.maxFiles;
+    const tooLarge = files.find(file => file.size > limits.maxFileBytes);
+    const totalBytes = files.reduce((total, file) => total + file.size, 0);
+    if (tooMany || tooLarge || totalBytes > limits.maxTotalBytes) {
+      const reason = tooMany
+        ? `You can attach up to ${limits.maxFiles} files at a time.`
+        : tooLarge
+          ? `"${tooLarge.name}" is larger than 25 MB.`
+          : "The selected files are larger than the 100 MB total limit.";
+      window.renderAssistantMessage?.(`⚠️ ${reason}`);
+      fileInput.value = "";
+      return;
+    }
+
+    // Store files for later send (ChatGPT style)
+    window.pendingUploadFiles = files;
+    window.pendingUploadFile = files.length === 1 ? files[0] : null;
     
     // Check radio mode status
     const radioModeActive = isRadioModeActive();
-    console.log("📎 File ready:", file.name, "| Radio mode:", radioModeActive);
-    console.log("🔍 Debug - dynamoUI.tools:", [...(window.dynamoUI?.tools || [])]);
     
-    // If radio mode is active, show chip and AUTO-SEND initial prompt
-    if (radioModeActive) {
-      console.log("🎧 Radio mode active - initiating dialogue with file");
-      showUploadChip(file.name, true); // true = radio mode
+    // Radio interview remains a single-file flow. Multiple files wait for
+    // the user's prompt instead of silently choosing one file.
+    if (radioModeActive && files.length === 1) {
+      showUploadChip(files, true); // true = radio mode
       
       // Auto-trigger the initial question prompt after a short delay
       setTimeout(async () => {
-        console.log("🎙️ Triggering radio mode interview for:", file.name);
         if (window.triggerRadioModeInterview) {
-          await window.triggerRadioModeInterview(file.name);
+          await window.triggerRadioModeInterview(files[0].name);
         } else {
           console.error("❌ triggerRadioModeInterview function not found!");
         }
       }, 500);
     } else {
       // Normal mode: show chip and optional analysis buttons
-      showUploadChip(file.name, false);
+      showUploadChip(files, false);
     }
   });
 } else {
   console.warn("analyze-file-input element not found");
 }
 
-// Show file attachment chip
-function showUploadChip(filename, isRadioMode = false) {
+// Show file attachment chips
+function showUploadChip(files, isRadioMode = false) {
+  files = Array.isArray(files) ? files : [files];
   let chipContainer = document.getElementById("file-chip-container");
   
   if (!chipContainer) {
@@ -74,38 +96,63 @@ function showUploadChip(filename, isRadioMode = false) {
   // Clear old chips
   chipContainer.innerHTML = "";
   
-  // Create chip
-  const chip = document.createElement("div");
-  chip.className = "flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-full text-sm text-gray-700 dark:text-gray-300 border border-blue-300 dark:border-blue-700";
-  chip.innerHTML = `
-    <i data-lucide="paperclip" class="w-4 h-4"></i>
-    <span>${filename}</span>
-    <button onclick="window.clearUploadFile()" class="ml-1 hover:text-red-500">
-      <i data-lucide="x" class="w-3 h-3"></i>
-    </button>
-  `;
-  chipContainer.appendChild(chip);
+  files.forEach((file, index) => {
+    const chip = document.createElement("div");
+    chip.className = "flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-full text-sm text-gray-700 dark:text-gray-300 border border-blue-300 dark:border-blue-700";
+    chip.innerHTML = `
+      <i data-lucide="paperclip" class="w-4 h-4"></i>
+      <span></span>
+      <button type="button" class="ml-1 hover:text-red-500">
+        <i data-lucide="x" class="w-3 h-3"></i>
+      </button>
+    `;
+    chip.querySelector("span").textContent = file.name;
+    const removeButton = chip.querySelector("button");
+    removeButton.setAttribute("aria-label", `Remove ${file.name}`);
+    removeButton.addEventListener("click", () => {
+      window.removePendingUploadFile(index);
+    });
+    chipContainer.appendChild(chip);
+  });
 
   // "Remember this document" button (shown after file is attached, not radio mode)
-  if (!isRadioMode) {
+  if (!isRadioMode && files.length === 1) {
     const remBtn = document.createElement("button");
     remBtn.id = "remember-doc-btn";
     remBtn.title = "Save this document to your library so Dynamo remembers it forever";
     remBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-yellow-400 text-yellow-700 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 transition";
     remBtn.innerHTML = `<i data-lucide="bookmark-plus" class="w-3.5 h-3.5"></i> Remember this`;
-    remBtn.onclick = () => window.saveCurrentDocument(window.pendingUploadFile);
+    remBtn.onclick = () => window.saveCurrentDocument?.(files[0]);
     chipContainer.appendChild(remBtn);
   }
   
   lucide.createIcons();
 }
 
+// Remove one pending file without disturbing the remaining attachments.
+window.removePendingUploadFile = (index) => {
+  const files = Array.isArray(window.pendingUploadFiles)
+    ? [...window.pendingUploadFiles]
+    : (window.pendingUploadFile ? [window.pendingUploadFile] : []);
+  if (index < 0 || index >= files.length) return;
+
+  files.splice(index, 1);
+  window.pendingUploadFiles = files;
+  window.pendingUploadFile = files.length === 1 ? files[0] : null;
+  if (files.length) {
+    showUploadChip(files, isRadioModeActive() && files.length === 1);
+  } else {
+    window.clearUploadFile();
+  }
+};
+
 // Clear uploaded file
 window.clearUploadFile = () => {
   window.pendingUploadFile = null;
+  window.pendingUploadFiles = [];
+  if (fileInput) fileInput.value = "";
   const chipContainer = document.getElementById("file-chip-container");
   if (chipContainer) chipContainer.innerHTML = "";
-  console.log("📎 File cleared");
 };
 
 /* --------------------------------------------------
