@@ -3,8 +3,55 @@
 from supabase import create_client
 import config
 import requests
-from datetime import datetime, date
+from datetime import datetime, date, timezone
+from zoneinfo import ZoneInfo
 from brevo import add_contact, send_welcome_email
+
+# --------------------------------------------------
+# DEMO / INTERNAL ACCOUNTS
+# Approved demo accounts have permanent demo access without changing the
+# persisted subscription plan.
+# --------------------------------------------------
+DEMO_EMAILS = {
+    "anishkrisnareview@gmail.com",
+    "anishkrisnaonline@gmail.com",
+}
+
+DEMO_ACCESS_UNTIL = {}
+
+
+def is_demo_account(user):
+    """Return whether a user currently has demo-only unlimited access."""
+    if not user:
+        return False
+
+    email = (user.get("email") or "").strip().lower()
+    if email in DEMO_EMAILS:
+        return True
+
+    expires_at = DEMO_ACCESS_UNTIL.get(email)
+    return bool(expires_at and datetime.now(timezone.utc) < expires_at.astimezone(timezone.utc))
+
+
+def expire_demo_access_if_needed(user):
+    """Downgrade an expired dated demo account on its next authenticated request."""
+    if not user:
+        return user
+
+    email = (user.get("email") or "").strip().lower()
+    expires_at = DEMO_ACCESS_UNTIL.get(email)
+    if not expires_at or datetime.now(timezone.utc) < expires_at.astimezone(timezone.utc):
+        return user
+
+    if user.get("plan") in ("pro", "pro_trial", "pro_validation", "plus", "plus_trial"):
+        try:
+            supabase.table("users").update({"plan": "free"}).eq("id", user["id"]).execute()
+            user["plan"] = "free"
+            print(f"Demo access expired for {email}; downgraded to free")
+        except Exception as e:
+            print(f"Demo expiry update failed for {email}: {e}")
+
+    return user
 
 
 def track_event(email, event="user_signup"):
@@ -81,9 +128,13 @@ def check_folders_table():
         print("  SQL Editor: https://supabase.com/dashboard/project/jbulnpcqxtbjobrclsqq/sql")
 
 
-check_migration_status()
-check_memory_table()
-check_folders_table()
+import threading
+def _run_startup_checks():
+    check_migration_status()
+    check_memory_table()
+    check_folders_table()
+
+threading.Thread(target=_run_startup_checks, daemon=True).start()
 
 
 # --------------------------------------------------
@@ -91,10 +142,32 @@ check_folders_table()
 # --------------------------------------------------
 
 PLAN_LIMITS = {
-    "free":  {"daily_chat": 10,  "images_month": 0,   "videos_month": 0,  "papers_month": 0},
-    "plus":  {"daily_chat": 100, "images_month": 25,  "videos_month": 5,  "papers_month": 3},
-    "pro":   {"daily_chat": 300, "images_month": 100, "videos_month": 25, "papers_month": 5},
+    "free":           {"daily_chat": 10,  "images_month": 0,  "videos_month": 0,  "papers_month": 0},
+    "basic":          {"daily_chat": 10,  "images_month": 0,  "videos_month": 0,  "papers_month": 0},
+    "plus":           {"daily_chat": 100, "images_month": 0,  "videos_month": 0,  "papers_month": 3},
+    "plus_trial":     {"daily_chat": 100, "images_month": 0,  "videos_month": 0,  "papers_month": 3},
+    "pro":            {"daily_chat": 300, "images_month": 25, "videos_month": 15, "papers_month": 5},
+    "pro_trial":      {"daily_chat": 300, "images_month": 25, "videos_month": 0,  "papers_month": 5},
+    "pro_validation": {"daily_chat": 300, "images_month": 25, "videos_month": 0,  "papers_month": 5},
 }
+
+PAID_ACCESS_PLANS = {
+    "basic",
+    "plus",
+    "plus_trial",
+    "pro",
+    "pro_trial",
+    "pro_validation",
+}
+
+
+def has_paid_access(user):
+    """Return whether the account may consume Dynamo AI features."""
+    if not user:
+        return False
+    if is_demo_account(user):
+        return True
+    return (user.get("plan") or "free").strip().lower() in PAID_ACCESS_PLANS
 
 
 def _current_month():
@@ -182,8 +255,9 @@ def get_or_create_user(firebase_uid, email=None, full_name=None, phone=None):
                 except Exception as e:
                     print("Quota reset error:", e)
 
-            # Monthly reset
+            # Monthly reset and any dated demo expiry
             user = _apply_monthly_reset(user)
+            user = expire_demo_access_if_needed(user)
 
             return user
 
@@ -233,7 +307,6 @@ def get_user_by_supabase_id(supabase_id):
     Also runs daily and monthly quota reset if needed."""
     if not supabase or not supabase_id:
         return None
-
     try:
         res = supabase.table("users") \
             .select("*") \
@@ -264,13 +337,30 @@ def get_user_by_supabase_id(supabase_id):
             except Exception as e:
                 print("Quota reset error:", e)
 
-        # Monthly reset
         user = _apply_monthly_reset(user)
+        user = expire_demo_access_if_needed(user)
 
         return user
 
     except Exception as e:
         print("get_user_by_supabase_id error:", e)
+        return None
+
+
+def get_user_by_firebase_uid(firebase_uid):
+    """Look up a user by the verified Firebase UID."""
+    if not supabase or not firebase_uid:
+        return None
+    try:
+        res = supabase.table("users").select("*").eq("firebase_uid", firebase_uid).execute()
+        if not res.data:
+            return None
+        user = res.data[0]
+        user = _apply_monthly_reset(user)
+        user = expire_demo_access_if_needed(user)
+        return user
+    except Exception as e:
+        print("get_user_by_firebase_uid error:", e)
         return None
 
 
@@ -281,6 +371,8 @@ def get_user_by_supabase_id(supabase_id):
 def check_user_quota(user):
     if not user:
         return True  # allow if no user (anonymous)
+    if is_demo_account(user):
+        return True  # demo accounts have no limits
 
     plan = user.get("plan", "free")
     used = user.get("daily_quota_used", 0)
@@ -318,6 +410,8 @@ def check_image_quota(user):
     Free users are never allowed. Plus/Pro users have monthly caps."""
     if not user:
         return False
+    if is_demo_account(user):
+        return True  # demo accounts have no limits
 
     plan = user.get("plan", "free")
     limits = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])
@@ -355,6 +449,8 @@ def check_video_quota(user):
     Free users are never allowed. Plus/Pro users have monthly caps."""
     if not user:
         return False
+    if is_demo_account(user):
+        return True  # demo accounts have no limits
 
     plan = user.get("plan", "free")
     limits = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])
@@ -392,6 +488,8 @@ def check_paper_quota(user):
     Free users are never allowed. Plus=3/month, Pro=5/month."""
     if not user:
         return False, 0, 0
+    if is_demo_account(user):
+        return True, 0, 9999  # demo accounts have no limits
 
     plan = user.get("plan", "free")
     limits = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])

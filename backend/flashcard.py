@@ -39,7 +39,7 @@ def generate_flashcards(topic: str, difficulty: str = "medium", count: int = 5) 
     raw = model.get_ai_response(
         prompt=prompt,
         history=[],
-        model_name="gemini-3.1-flash-lite-preview",
+        model_name="gemini-3.5-flash-lite",
         context="",
         deep_dive=False
     )

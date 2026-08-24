@@ -1,5 +1,4 @@
 // sidebar.js — Dynamo AI (IMPROVED UX)
-console.log("sidebar.js loaded");
 
 /* =========================================================
    MULTI-SELECT STATE
@@ -92,7 +91,12 @@ window.loadChatSidebar = async () => {
   const box = document.getElementById("history-list");
   if (!box) return;
 
+  const guestEmpty = document.getElementById("sb-guest-empty");
+  const authedNav  = document.getElementById("sb-authed-nav");
+
   if (!userId) {
+    if (guestEmpty) guestEmpty.classList.remove("hidden");
+    if (authedNav)  authedNav.classList.add("hidden");
     box.innerHTML = `<div class="text-xs text-gray-400 px-2 py-1">Login to see chats</div>`;
     window.allChats = [];
     window.allFolders = [];
@@ -100,6 +104,9 @@ window.loadChatSidebar = async () => {
     window._updateSidebarTabCounts?.();
     return;
   }
+
+  if (guestEmpty) guestEmpty.classList.add("hidden");
+  if (authedNav)  authedNav.classList.remove("hidden");
 
   const [chatRes, folderRes] = await Promise.all([
     supabaseClient

@@ -1,5 +1,4 @@
 // sources_panel.js — Dynamo AI (Perplexity-style Source Citations)
-console.log("sources_panel.js loaded");
 
 /* Inject line-clamp CSS if not present */
 (function() {

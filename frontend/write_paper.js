@@ -105,12 +105,12 @@ window._openWritePaperImpl = async () => {
   if (!supa) { window.openAuthModal?.('login'); return; }
 
   const plan = (supa.plan || 'free').toLowerCase();
-  if (plan === 'free') { _showWriterUpgradeGate(); return; }
+  if (plan === 'free' && !supa.access_allowed) { _showWriterUpgradeGate(); return; }
 
   // Call backend to check quota + increment
   let data;
   try {
-    const res = await fetch(`${window.BACKEND_URL || ''}/start-paper`, {
+    const res = await window.backendFetch(`${window.BACKEND_URL || ''}/start-paper`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: supa.id })
@@ -118,8 +118,8 @@ window._openWritePaperImpl = async () => {
     data = await res.json();
   } catch (e) {
     console.error('start-paper error', e);
-    // Fail open — let user write if backend is unreachable
-    data = { ok: true, used: 1, limit: plan === 'pro' ? 5 : 3 };
+    _showWriterUpgradeGate();
+    return;
   }
 
   if (!data.ok) {
@@ -157,4 +157,3 @@ window._clearWritePaperImpl = () => {
   }
 };
 
-console.log('write_paper.js loaded ✅');

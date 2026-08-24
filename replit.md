@@ -30,9 +30,9 @@ Dynamo AI is a professional-grade Research Operating System. It combines a FastA
 - **Pollinations AI** — Image generation
 
 ## AI Model Tiers (Updated May 2026 — Google I/O)
-- **Fast Mode** (default): `gemini-3.5-flash` — frontier-level intelligence at 4× the speed of other frontier models, less than half the cost. Upgraded from `gemini-3.1-flash-lite-preview` on May 23 2026 (Google I/O announcement). Falls back to `gemini-3.1-flash-lite-preview` if quota unavailable.
-- **DeepThink** (`deep_dive=True`): `gemini-3.5-flash` — same model but with structured deep-reasoning system prompt. `deep_dive` always wins over the default `model_name`. Falls back to `gemini-3.1-flash-lite-preview` if unavailable.
-- **Research Mode** (`mode="research"`): APIMart-routed pipeline (Claude Sonnet 4.5 → Gemini 3.5 Flash → GPT-5.4) via `multi_model_router.py` — DO NOT modify
+- **Fast Mode** (default): `gemini-3.6-flash` (Plus/Pro) / `gemini-3.5-flash-lite` (Free/Basic) — upgraded July 2026. 3.6 Flash is 17% cheaper output, 304 tok/s, March 2026 knowledge cutoff. Free/Basic get 3.5-class quality at ~same price with 75% faster responses.
+- **DeepThink** (`deep_dive=True`): `gemini-3.6-flash` — same model but with structured deep-reasoning system prompt. `deep_dive` always wins over the default `model_name`. Falls back to `gemini-3.5-flash-lite` if unavailable.
+- **Research Mode** (`mode="research"`): APIMart-routed pipeline (Claude Sonnet 4.5 → Gemini 3.6 Flash → GPT-5.4) via `multi_model_router.py` — DO NOT modify
 - **Deep Research Agent**: `deep-research-preview-04-2026` / `deep-research-max-preview-04-2026` (Gemini Interactions API) with `gemini-3.5-flash` for internal synthesis steps
 - **Coming (June 2026)**: Gemini 3.5 Pro (internally used at Google, rolling out next month) — plan to upgrade DeepThink to Pro when available
 - **Coming (weeks)**: Gemini Omni Flash — multimodal video generation/editing via API — plan to integrate into video generation pipeline
@@ -109,8 +109,10 @@ Cache version: `ui.js?v=20260428c`, `chat.js?v=20260428c`
 
 ## Payment Integration
 Razorpay integration in `backend/payments.py`. Endpoints:
-- `POST /create-order` — Creates a Razorpay order (Plus/Pro plan)
+- `POST /create-order` — Creates a Razorpay order (Basic/Plus/Pro plan)
 - `POST /verify-payment` — Verifies HMAC-SHA256 signature, updates `users.plan`, inserts into `subscriptions`
+- `POST /create-subscription` — Creates Razorpay subscription with trial (0 days for Basic, 7 for Plus, 14 for Pro)
+- `POST /verify-subscription` — Verifies subscription signature, activates trial plan
 - `POST /webhook` — Handles Razorpay async events (secondary safety net)
 
 **Supabase migration needed** — Run this SQL in Supabase Dashboard (see `backend/init_db.sql`):
@@ -125,6 +127,16 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     status TEXT,
     created_at TIMESTAMPTZ DEFAULT now(),
     expires_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS trial_feedback (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id),
+    subscription_id TEXT,
+    rating INTEGER,
+    feedback_text TEXT,
+    would_upgrade BOOLEAN,
+    created_at TIMESTAMPTZ DEFAULT now()
 );
 ```
 Dashboard URL: https://supabase.com/dashboard/project/jbulnpcqxtbjobrclsqq/sql/new

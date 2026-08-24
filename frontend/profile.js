@@ -1,5 +1,4 @@
 // profile.js — Dynamo AI
-console.log("✅ profile.js loaded");
 
 let modal = null;
 
@@ -58,7 +57,7 @@ async function loadProfileData() {
 
     const name  = user.full_name || firebaseUser?.displayName || firebaseUser?.email?.split("@")[0] || "User";
     const email = firebaseUser?.email || user.email || "—";
-    const plan  = (user.plan || "free").toUpperCase();
+    const plan  = user.plan || "free";
 
     setProfileUI(name, email, plan);
 
@@ -72,23 +71,38 @@ async function loadProfileData() {
     if (window.supabaseClient && firebaseUser?.uid) {
       const { data } = await window.supabaseClient
         .from("users")
-        .select("plan, full_name, email, daily_quota_used, quota_date, image_count_used, video_count_used, quota_month")
+        .select("id, plan, full_name, email, daily_quota_used, quota_date, image_count_used, video_count_used, quota_month")
         .eq("firebase_uid", firebaseUser.uid)
         .single();
 
       if (data) {
         const freshName  = data.full_name || name;
         const freshEmail = firebaseUser?.email || data.email || email;
-        const freshPlan  = (data.plan || "free").toUpperCase();
-        setProfileUI(freshName, freshEmail, freshPlan);
+        const freshPlan  = data.plan || "free";
+
+        // Fetch trial expiry for pro_trial users
+        let trialExpiry = null;
+        if ((freshPlan === "pro_trial" || freshPlan === "pro_validation") && data.id) {
+          const { data: subData } = await window.supabaseClient
+            .from("subscriptions")
+            .select("expires_at")
+            .eq("user_id", data.id)
+            .eq("status", "trial_active")
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .single();
+          if (subData?.expires_at) trialExpiry = subData.expires_at;
+        }
+
+        setProfileUI(freshName, freshEmail, freshPlan, trialExpiry);
         if (nameInput)  nameInput.value  = freshName;
         if (emailInput) emailInput.value = freshEmail;
         if (window.appState.supabaseUser) {
-          window.appState.supabaseUser.plan           = data.plan;
+          window.appState.supabaseUser.plan           = freshPlan;
           window.appState.supabaseUser.full_name      = freshName;
           window.appState.supabaseUser.daily_quota_used = data.daily_quota_used ?? 0;
         }
-        updateCreditPills(data.plan || "free", data);
+        updateCreditPills(freshPlan, data);
       }
     }
   } catch (err) { console.error("❌ loadProfileData error:", err); }
@@ -97,9 +111,12 @@ async function loadProfileData() {
 /* ── CREDIT PILLS ── */
 function updateCreditPills(plan, data) {
   const LIMITS = {
-    free:  { chat: 10,  img: 0,   vid: 0   },
-    plus:  { chat: 100, img: 25,  vid: 5   },
-    pro:   { chat: 300, img: 100, vid: 25  },
+    free:           { chat: 10,  img: 0,  vid: 0  },
+    plus:           { chat: 100, img: 0,  vid: 0  },
+    plus_trial:     { chat: 100, img: 0,  vid: 0  },
+    pro:            { chat: 300, img: 25, vid: 15 },
+    pro_trial:      { chat: 300, img: 25, vid: 0  },
+    pro_validation: { chat: 300, img: 25, vid: 0  },
   };
   const p = (plan || "free").toLowerCase();
   const lim = LIMITS[p] || LIMITS.free;
@@ -127,13 +144,32 @@ function updateCreditPills(plan, data) {
 }
 
 /* ── UI SETTER ── */
-function setProfileUI(name, email, plan) {
+function setProfileUI(name, email, plan, trialExpiry) {
   const initials = name.substring(0, 2).toUpperCase();
-  document.getElementById("profile-name").innerText    = name;
-  document.getElementById("profile-avatar").innerText  = initials;
-  document.getElementById("profile-plan").innerText    = plan;
+  document.getElementById("profile-name").innerText   = name;
+  document.getElementById("profile-avatar").innerText = initials;
   const emailEl = document.getElementById("profile-email-display");
   if (emailEl) emailEl.innerText = email;
+
+  const planEl = document.getElementById("profile-plan");
+  if (!planEl) return;
+
+  const planLower = (plan || "free").toLowerCase();
+  if (planLower === "pro_trial" || planLower === "pro_validation") {
+    let expiryHtml = "";
+    if (trialExpiry) {
+      const expDate  = new Date(trialExpiry);
+      const formatted = expDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+      expiryHtml = `<span style="display:block;font-size:9px;font-weight:600;opacity:0.8;margin-top:1px;">Expires ${formatted}</span>`;
+    }
+    planEl.innerHTML = `PRO TRIAL${expiryHtml}`;
+    planEl.style.background = "#fed7aa";
+    planEl.style.color      = "#7c2d12";
+  } else {
+    planEl.textContent      = plan.toUpperCase();
+    planEl.style.background = "";
+    planEl.style.color      = "";
+  }
 }
 
 /* ── ACCORDION TOGGLE ── */

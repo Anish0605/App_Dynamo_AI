@@ -3,42 +3,86 @@
 # APIMart is tried first; Gemini is used as reliable fallback for each stage.
 
 import requests
+import json
 import config
 from google import genai
 
 _client = genai.Client(api_key=config.GEMINI_KEY) if config.GEMINI_KEY else None
+FAST_CHAT_MODEL = "deepseek-v3.2"
 
 
-def apimart_call(model, prompt):
-    """Call APIMart API. Raises an exception on any failure so callers can fall back."""
+def _extract_apimart_content(body: str) -> str:
+    """Extract text from either APIMart JSON or its default SSE response."""
+    body = (body or "").strip()
+    if not body:
+        return ""
+
+    # APIMart currently responds with text/event-stream even for non-streaming
+    # requests. Keep accepting regular JSON too for compatibility.
+    if body.startswith("data:"):
+        parts = []
+        for line in body.splitlines():
+            line = line.strip()
+            if not line.startswith("data:"):
+                continue
+            payload = line[5:].strip()
+            if payload == "[DONE]":
+                continue
+            try:
+                chunk = json.loads(payload)
+            except json.JSONDecodeError:
+                continue
+            choice = (chunk.get("choices") or [{}])[0]
+            delta = choice.get("delta") or {}
+            message = choice.get("message") or {}
+            text = delta.get("content") or message.get("content") or ""
+            if text:
+                parts.append(text)
+        return "".join(parts).strip()
+
+    data = json.loads(body)
+    choice = (data.get("choices") or [{}])[0]
+    message = choice.get("message") or {}
+    return (message.get("content") or "").strip()
+
+
+def apimart_call(model, prompt, max_tokens=None, temperature=None):
+    """Call APIMart and normalize JSON/SSE responses for Dynamo's callers."""
+    if not config.APIMART_API_KEY:
+        raise RuntimeError("APIMART_API_KEY is not configured")
+
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "user", "content": prompt}
+        ],
+        "stream": False,
+    }
+    if max_tokens is not None:
+        payload["max_tokens"] = max_tokens
+    if temperature is not None:
+        payload["temperature"] = temperature
+
     res = requests.post(
         "https://api.apimart.ai/v1/chat/completions",
         headers={
-            "Authorization": f"Bearer {config.APIMART_API_KEY}"
+            "Authorization": f"Bearer {config.APIMART_API_KEY}",
+            "Content-Type": "application/json",
         },
-        json={
-            "model": model,
-            "messages": [
-                {"role": "user", "content": prompt}
-            ]
-        },
+        json=payload,
         timeout=30
     )
     res.raise_for_status()
-    body = res.text.strip()
-    if not body:
-        raise ValueError(f"APIMart ({model}): empty response body")
-    data = res.json()
-    content = data["choices"][0]["message"]["content"]
+    content = _extract_apimart_content(res.text)
     if not content or not content.strip():
-        raise ValueError(f"APIMart ({model}): empty content in response")
+        raise ValueError(f"APIMart ({model}): empty or unparseable response")
     return content
 
 
 def gemini_fallback_call(prompt):
     """Reliable Gemini fallback used when APIMart is unavailable."""
     response = _client.models.generate_content(
-        model="gemini-3.5-flash",
+        model="gemini-3.6-flash",
         contents=prompt
     )
     return response.text
@@ -198,6 +242,28 @@ CITATION RULES (Springer Style):
 - Use abbreviated journal names where standard
 - Include DOI for all references when available
 - Include at least 15–20 references
+"""
+    },
+    "ASA": {
+        "name": "ASA",
+        "full_name": "ASA Style (American Sociological Association)",
+        "used_in": "Sociology, Social Sciences, Criminology, Social Work",
+        "in_text": "Author-year without comma: (Author Year) or (Author Year:page)",
+        "ref_format": 'Author, First. Year. "Title of Article." *Journal Name* Volume(Issue):pp–pp.',
+        "example": 'Sharma, Ravi K. 2023. "Caste and Educational Mobility in Urban India." *American Journal of Sociology* 129(2):345–381.',
+        "rules": """
+CITATION RULES (ASA Style):
+- In-text: (Author Year) — NO comma between author and year. e.g., (Sharma 2023)
+- Two authors: (Smith and Jones 2023) — use "and" not "&"
+- Three or more: (Smith et al. 2023)
+- Direct quote: (Author Year:page) e.g., (Sharma 2023:47)
+- Reference list: alphabetical by author surname, hanging indent
+- Journal: Author, First. Year. "Title of Article." *Journal Name* Volume(Issue):pp–pp.
+- Book: Author, First. Year. *Title of Book*. City: Publisher.
+- Edited book: Editor, First (Ed.). Year. *Title of Book*. City: Publisher.
+- Chapter: Author, First. Year. "Chapter Title." Pp. ZZ–ZZ in *Book Title*, edited by A. Editor. City: Publisher.
+- Use Title Case for journal/book titles; sentence case for article titles is also acceptable
+- Include at least 10–15 references
 """
     },
     "ACS": {

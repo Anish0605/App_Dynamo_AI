@@ -14,6 +14,15 @@ window.FILE_UPLOAD_LIMITS = Object.freeze({
   maxTotalBytes: 100 * 1024 * 1024
 });
 
+function canUseMultipleFileUpload() {
+  const user = window.appState?.supabaseUser;
+  const plan = (user?.plan || "free").toLowerCase();
+  // access_allowed on a Free account is reserved for the approved demo path.
+  // The backend remains the final authority for this entitlement.
+  return ["plus", "plus_trial", "pro", "pro_trial", "pro_validation"].includes(plan)
+    || (plan === "free" && user?.access_allowed === true);
+}
+
 // ===== RADIO MODE CHECK =====
 function isRadioModeActive() {
   return window.dynamoUI && window.dynamoUI.tools && window.dynamoUI.tools.has('radio');
@@ -31,6 +40,15 @@ if (fileInput) {
   fileInput.addEventListener("change", async () => {
     const files = Array.from(fileInput.files || []);
     if (!files.length) return;
+
+    if (files.length > 1 && !canUseMultipleFileUpload()) {
+      window.renderAssistantMessage?.(
+        "🔒 Multiple-file analysis is available on Plus and Pro plans, including active trials. " +
+        '<a href="/pricing.html" class="text-yellow-600 hover:underline">View plans and upgrade</a>.'
+      );
+      fileInput.value = "";
+      return;
+    }
 
     const limits = window.FILE_UPLOAD_LIMITS;
     const tooMany = files.length > limits.maxFiles;

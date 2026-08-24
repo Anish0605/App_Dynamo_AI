@@ -3,6 +3,7 @@
 
 from google import genai
 import config
+import multi_model_router
 
 # --------------------------------------------------
 # CLIENT INIT
@@ -135,18 +136,53 @@ def get_ai_response(
     full_prompt += "\n\nUSER: " + prompt + "\nASSISTANT:"
 
     # -------------------------
+    # BUDGET FAST ROUTE
+    # -------------------------
+    # Ordinary chat does not need the expensive Gemini path. APIMart already
+    # powers the paper pipeline, so use its lower-cost DeepSeek route here.
+    # DeepThink/research calls deliberately stay on Gemini because they are
+    # Dynamo's premium reasoning experience. If APIMart is unavailable, the
+    # existing Gemini path below remains the fallback.
+    use_budget_fast = (
+        not deep_dive
+        and (not model_name or model_name.startswith("gemini-"))
+        and bool(config.APIMART_API_KEY)
+    )
+    if use_budget_fast:
+        try:
+            response = multi_model_router.apimart_call(
+                multi_model_router.FAST_CHAT_MODEL,
+                full_prompt,
+                max_tokens=1800 if force_json else 1600,
+                temperature=0.2 if force_json else 0.35,
+            )
+            print(f"[Model] Fast chat: APIMart ({multi_model_router.FAST_CHAT_MODEL})")
+            return response
+        except Exception as e:
+            print(f"[Model] APIMart fast route failed, using Gemini fallback: {e}")
+
+    # -------------------------
     # GEMINI EXECUTION
     # -------------------------
     # Model selection logic (priority: deep_dive > non-default model_name > default):
-    #   • DeepThink (deep_dive=True)  → gemini-3.5-flash — Pro only
-    #   • Fast mode, Plus/Pro user    → gemini-3.5-flash  (paid users get the better model even in Fast mode)
-    #   • Fast mode, Free user        → gemini-3.1-flash-lite-preview  (cost-optimised)
-    #   Fallback: gemini-3.1-flash-lite-preview
-    FAST_MODEL_FREE = "gemini-3.1-flash-lite-preview"
-    FAST_MODEL_PAID = "gemini-3.5-flash"
-    DEEPTHINK_MODEL = "gemini-3.5-flash"
-    FALLBACK_MODEL  = "gemini-3.1-flash-lite-preview"
-    DEFAULT_MODEL   = FAST_MODEL_PAID if plan in ("plus", "pro") else FAST_MODEL_FREE
+    #   • DeepThink (deep_dive=True)  → gemini-3.6-flash — Pro only
+    #   • Fast mode is handled by the budget APIMart route above when available
+    #   • Gemini remains the compatibility fallback for Fast mode
+    #   Fallback: gemini-3.5-flash-lite
+    FAST_MODEL_FREE  = "gemini-3.5-flash-lite"
+    FAST_MODEL_PAID  = "gemini-3.6-flash"
+    DEEPTHINK_MODEL  = "gemini-3.6-flash"
+    FALLBACK_MODEL   = "gemini-3.5-flash-lite"
+    # Trial users (pro_validation) get lite model for Fast mode to reduce cost.
+    # DeepThink still uses the full model — that's the main feature they're testing.
+    IS_TRIAL = (plan in ("pro_trial", "pro_validation"))
+    DEFAULT_MODEL = (
+        FAST_MODEL_FREE if plan in ("free",) or IS_TRIAL
+        else FAST_MODEL_PAID if plan in ("plus", "pro")
+        else FAST_MODEL_FREE
+    )
+    # Trial users: cap output tokens to reduce per-message Gemini cost
+    gen_config = {"max_output_tokens": 1500} if IS_TRIAL else {}
     try:
         if deep_dive:
             # DeepThink ALWAYS wins — overrides any default that the frontend
@@ -159,7 +195,8 @@ def get_ai_response(
 
         response = _client.models.generate_content(
             model=resolved_model,
-            contents=full_prompt
+            contents=full_prompt,
+            config=gen_config if gen_config else None
         )
         return response.text
     except Exception as e:

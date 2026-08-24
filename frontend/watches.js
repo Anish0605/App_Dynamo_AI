@@ -10,7 +10,9 @@
   window.openWatchesModal = function (prefillTopic = "") {
     // Pro-only gate
     const plan = (window.appState?.supabaseUser?.plan || "free").toLowerCase();
-    if (plan !== "pro") {
+    const hasAccess = window.hasPaidAccess?.(window.appState?.supabaseUser);
+    if (!hasAccess || !["pro", "pro_trial", "pro_validation"].includes(plan) &&
+        !window.appState?.supabaseUser?.access_allowed) {
       if (window._showProGate) {
         window._showProGate("Research Watcher");
       } else {
@@ -54,7 +56,7 @@
   // ── Render: List ──────────────────────────────────────────────────────────
 
   function _renderList() {
-    _setHeader("Research Watcher", "Get notified when a topic has new developments");
+    _setHeader("Research Watcher", "Get notified by email when a topic has new developments");
     const body = document.getElementById("watches-body");
     const footer = document.getElementById("watches-footer");
     if (!body || !footer) return;
@@ -210,7 +212,7 @@
       if (err) { err.textContent = "Please log in first."; err.style.display = "block"; }
       return;
     }
-    if (_freq === "daily" && (user.plan === "free")) {
+    if (_freq === "daily" && (user.plan === "free") && !user.access_allowed) {
       if (err) { err.textContent = "Daily checks require a Pro plan."; err.style.display = "block"; }
       return;
     }
@@ -219,7 +221,7 @@
     if (btn) { btn.textContent = "Saving…"; btn.disabled = true; }
 
     try {
-      const res = await fetch(`${B()}/watches`, {
+    const res = await window.backendFetch(`${B()}/watches`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: user.id, topic, frequency: _freq }),
@@ -246,7 +248,7 @@
     _watches = _watches.filter(w => w.id !== id);
     _updateWatchBadge();
     _renderList();
-    fetch(`${B()}/watches/${id}?user_id=${encodeURIComponent(user.id)}`, { method: "DELETE" }).catch(() => {});
+    window.backendFetch(`${B()}/watches/${id}?user_id=${encodeURIComponent(user.id)}`, { method: "DELETE" }).catch(() => {});
   };
 
   // ── Toggle pause/resume ───────────────────────────────────────────────────
@@ -256,7 +258,7 @@
     if (!user) return;
     _watches = _watches.map(w => w.id === id ? { ...w, is_active: newState } : w);
     _renderList();
-    fetch(`${B()}/watches/${id}`, {
+    window.backendFetch(`${B()}/watches/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: user.id, is_active: newState }),
@@ -272,7 +274,7 @@
     if (btn) { btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.08-4.5"/></svg>`; btn.disabled = true; }
 
     try {
-      const res = await fetch(`${B()}/watches/${id}/check?user_id=${encodeURIComponent(user.id)}`, { method: "POST" });
+      const res = await window.backendFetch(`${B()}/watches/${id}/check?user_id=${encodeURIComponent(user.id)}`, { method: "POST" });
       const data = await res.json();
       _showCheckResult(data);
     } catch (e) {
@@ -318,7 +320,7 @@
     const user = window.appState?.supabaseUser;
     if (!user) return;
     try {
-      const res = await fetch(`${B()}/watches?user_id=${encodeURIComponent(user.id)}`);
+      const res = await window.backendFetch(`${B()}/watches?user_id=${encodeURIComponent(user.id)}`);
       const data = await res.json();
       _watches = data.watches || [];
       _updateWatchBadge();
@@ -362,5 +364,4 @@
       .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
-  console.log("watches.js loaded ✅");
 })();

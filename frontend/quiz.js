@@ -1,5 +1,4 @@
 // quiz.js — Dynamo AI Interactive Quiz Engine (ADVANCED)
-console.log("quiz.js loaded");
 
 /* ==================================================
    STATE

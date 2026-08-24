@@ -55,7 +55,7 @@ def generate_mindmap(prompt: str):
         response = model.get_ai_response(
             prompt=system_prompt,
             history=[],
-            model_name="gemini-3.1-flash-lite-preview"
+            model_name="gemini-3.5-flash-lite"
         )
 
         # -------------------------

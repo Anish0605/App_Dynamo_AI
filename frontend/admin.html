@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dynamo AI — Admin Dashboard</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = { darkMode: "class" };
+    document.documentElement.classList.add("dark");
+  </script>
+
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.35s ease forwards; }
+    .star-filled { color: #facc15; }
+    .star-empty  { color: #374151; }
+    th { white-space: nowrap; }
+    td { vertical-align: top; }
+    .truncate-cell {
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .truncate-cell.expanded {
+      white-space: normal;
+      overflow: visible;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gray-950 text-white">
+
+  <!-- Auth gate -->
+  <div id="auth-gate" class="min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-sm bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-2xl fade-up">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-9 h-9 bg-yellow-400 rounded-xl flex items-center justify-center shadow-lg">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-black" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13 2L4.09 12.37A1 1 0 0 0 5 14h5.5l-1.5 8 8.91-10.37A1 1 0 0 0 17 10h-5.5L13 2z"/>
+          </svg>
+        </div>
+        <span class="text-lg font-bold tracking-tight">Dynamo AI</span>
+        <span class="ml-auto text-xs font-bold bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 px-2 py-0.5 rounded-full uppercase tracking-widest">Admin</span>
+      </div>
+
+      <h1 class="text-xl font-extrabold mb-1">Admin Dashboard</h1>
+      <p class="text-sm text-gray-400 mb-6">Enter your admin secret to access trial feedback.</p>
+
+      <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Admin Secret</label>
+      <input
+        id="secret-input"
+        type="password"
+        placeholder="Enter admin secret…"
+        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400 transition mb-3"
+      />
+
+      <div id="auth-error" class="hidden text-red-400 text-sm mb-3"></div>
+
+      <button
+        id="auth-btn"
+        class="w-full py-3 bg-yellow-400 text-black font-bold rounded-xl hover:bg-yellow-300 transition text-sm"
+      >
+        Access Dashboard →
+      </button>
+    </div>
+  </div>
+
+  <!-- Main dashboard (hidden until authed) -->
+  <div id="dashboard" class="hidden min-h-screen">
+
+    <!-- Top bar -->
+    <header class="border-b border-gray-800 px-6 py-4 flex items-center gap-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
+          <svg viewBox="0 0 24 24" class="w-4 h-4 fill-black" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13 2L4.09 12.37A1 1 0 0 0 5 14h5.5l-1.5 8 8.91-10.37A1 1 0 0 0 17 10h-5.5L13 2z"/>
+          </svg>
+        </div>
+        <span class="font-bold tracking-tight text-white">Dynamo AI</span>
+        <span class="text-gray-600 text-sm">/</span>
+        <span class="text-gray-300 text-sm font-medium">Trial Feedback</span>
+      </div>
+      <div class="ml-auto flex items-center gap-3">
+        <button
+          id="refresh-btn"
+          class="text-sm text-gray-400 hover:text-white transition flex items-center gap-1.5"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+          </svg>
+          Refresh
+        </button>
+        <button
+          id="export-btn"
+          class="text-sm bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-200 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export CSV
+        </button>
+        <button
+          id="logout-btn"
+          class="text-xs text-gray-500 hover:text-gray-300 transition"
+        >
+          Sign out
+        </button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="px-6 py-8 max-w-7xl mx-auto">
+
+      <!-- Loading -->
+      <div id="loading-state" class="text-center py-20 text-gray-500">
+        <svg class="w-8 h-8 mx-auto mb-3 animate-spin text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        Loading feedback…
+      </div>
+
+      <!-- Error -->
+      <div id="error-state" class="hidden text-center py-20">
+        <div class="text-red-400 font-semibold" id="error-msg"></div>
+      </div>
+
+      <!-- Data view -->
+      <div id="data-view" class="hidden fade-up space-y-8">
+
+        <!-- Summary cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-gray-900 border border-gray-800 rounded-2xl px-5 py-4">
+            <div class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1">Total Responses</div>
+            <div id="stat-total" class="text-3xl font-extrabold text-white">—</div>
+          </div>
+          <div class="bg-gray-900 border border-gray-800 rounded-2xl px-5 py-4">
+            <div class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1">Avg Rating</div>
+            <div class="flex items-end gap-2">
+              <div id="stat-rating" class="text-3xl font-extrabold text-yellow-400">—</div>
+              <div class="text-gray-500 text-sm mb-1">/ 5</div>
+            </div>
+            <div id="stat-rating-stars" class="text-base mt-0.5"></div>
+          </div>
+          <div class="bg-gray-900 border border-gray-800 rounded-2xl px-5 py-4">
+            <div class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1">Would Upgrade</div>
+            <div id="stat-upgrade" class="text-3xl font-extrabold text-green-400">—</div>
+            <div id="stat-upgrade-sub" class="text-xs text-gray-500 mt-0.5"></div>
+          </div>
+          <div class="bg-gray-900 border border-gray-800 rounded-2xl px-5 py-4">
+            <div class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1">With Text Feedback</div>
+            <div id="stat-text" class="text-3xl font-extrabold text-blue-400">—</div>
+          </div>
+        </div>
+
+        <!-- Rating distribution bar -->
+        <div id="rating-dist-section" class="bg-gray-900 border border-gray-800 rounded-2xl px-6 py-5">
+          <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Rating Distribution</h2>
+          <div id="rating-dist" class="space-y-2"></div>
+        </div>
+
+        <!-- Table -->
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-gray-200">All Responses</h2>
+            <span id="table-count" class="text-xs text-gray-500"></span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-gray-800 text-xs text-gray-500 uppercase tracking-widest">
+                  <th class="text-left px-6 py-3 font-semibold">Email</th>
+                  <th class="text-left px-6 py-3 font-semibold">Rating</th>
+                  <th class="text-left px-6 py-3 font-semibold">Would Upgrade</th>
+                  <th class="text-left px-6 py-3 font-semibold">Feedback</th>
+                  <th class="text-left px-6 py-3 font-semibold">Submitted</th>
+                </tr>
+              </thead>
+              <tbody id="feedback-tbody" class="divide-y divide-gray-800/60">
+              </tbody>
+            </table>
+            <div id="empty-state" class="hidden text-center py-12 text-gray-500 text-sm">
+              No feedback responses yet.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const BACKEND_URL = "";
+    const STORAGE_KEY = "dynamo_admin_secret";
+
+    let currentRows = [];
+
+    // -----------------------------------------------
+    // Auth gate
+    // -----------------------------------------------
+
+    const secretInput  = document.getElementById("secret-input");
+    const authBtn      = document.getElementById("auth-btn");
+    const authError    = document.getElementById("auth-error");
+    const authGate     = document.getElementById("auth-gate");
+    const dashboard    = document.getElementById("dashboard");
+
+    function showError(el, msg) {
+      el.textContent = msg;
+      el.classList.remove("hidden");
+    }
+
+    async function tryAuth(secret) {
+      const res = await fetch(`${BACKEND_URL}/admin/trial-feedback`, {
+        headers: { "X-Admin-Secret": secret }
+      });
+      if (res.status === 401 || res.status === 503) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.detail || "Invalid admin secret");
+      }
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      return res.json();
+    }
+
+    authBtn.addEventListener("click", async () => {
+      const secret = secretInput.value.trim();
+      if (!secret) { showError(authError, "Please enter the admin secret."); return; }
+      authBtn.textContent = "Verifying…";
+      authBtn.disabled = true;
+      authError.classList.add("hidden");
+      try {
+        const data = await tryAuth(secret);
+        sessionStorage.setItem(STORAGE_KEY, secret);
+        authGate.classList.add("hidden");
+        dashboard.classList.remove("hidden");
+        renderDashboard(data);
+      } catch (e) {
+        showError(authError, e.message);
+        authBtn.textContent = "Access Dashboard →";
+        authBtn.disabled = false;
+      }
+    });
+
+    secretInput.addEventListener("keydown", e => { if (e.key === "Enter") authBtn.click(); });
+
+    // Auto-login if secret stored in session
+    const storedSecret = sessionStorage.getItem(STORAGE_KEY);
+    if (storedSecret) {
+      authGate.classList.add("hidden");
+      dashboard.classList.remove("hidden");
+      loadData(storedSecret);
+    }
+
+    // -----------------------------------------------
+    // Refresh / logout
+    // -----------------------------------------------
+
+    document.getElementById("refresh-btn").addEventListener("click", () => {
+      const secret = sessionStorage.getItem(STORAGE_KEY);
+      if (secret) loadData(secret);
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      sessionStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    });
+
+    // -----------------------------------------------
+    // Data loading
+    // -----------------------------------------------
+
+    async function loadData(secret) {
+      document.getElementById("loading-state").classList.remove("hidden");
+      document.getElementById("error-state").classList.add("hidden");
+      document.getElementById("data-view").classList.add("hidden");
+      try {
+        const data = await tryAuth(secret);
+        renderDashboard(data);
+      } catch (e) {
+        document.getElementById("loading-state").classList.add("hidden");
+        document.getElementById("error-msg").textContent = e.message;
+        document.getElementById("error-state").classList.remove("hidden");
+      }
+    }
+
+    // -----------------------------------------------
+    // Render
+    // -----------------------------------------------
+
+    function renderDashboard({ stats, rows }) {
+      currentRows = rows;
+      document.getElementById("loading-state").classList.add("hidden");
+      document.getElementById("data-view").classList.remove("hidden");
+
+      // Summary cards
+      document.getElementById("stat-total").textContent = stats.total ?? "0";
+
+      if (stats.avg_rating != null) {
+        document.getElementById("stat-rating").textContent = stats.avg_rating.toFixed(1);
+        document.getElementById("stat-rating-stars").innerHTML = renderStarsHtml(stats.avg_rating);
+      } else {
+        document.getElementById("stat-rating").textContent = "—";
+      }
+
+      if (stats.pct_would_upgrade != null) {
+        document.getElementById("stat-upgrade").textContent = stats.pct_would_upgrade + "%";
+        document.getElementById("stat-upgrade-sub").textContent =
+          `${stats.upgrades_count} of ${stats.total} answered`;
+      } else {
+        document.getElementById("stat-upgrade").textContent = "—";
+      }
+
+      const textCount = rows.filter(r => r.feedback_text && r.feedback_text.trim()).length;
+      document.getElementById("stat-text").textContent = textCount;
+
+      // Rating distribution
+      renderRatingDist(rows);
+
+      // Table
+      renderTable(rows);
+    }
+
+    function renderStarsHtml(rating) {
+      let html = "";
+      for (let i = 1; i <= 5; i++) {
+        const cls = i <= Math.round(rating) ? "star-filled" : "star-empty";
+        html += `<span class="${cls}">★</span>`;
+      }
+      return html;
+    }
+
+    function renderRatingDist(rows) {
+      const counts = {1:0, 2:0, 3:0, 4:0, 5:0};
+      rows.forEach(r => { if (r.rating != null) counts[r.rating] = (counts[r.rating] || 0) + 1; });
+      const total = Object.values(counts).reduce((a, b) => a + b, 0);
+      const container = document.getElementById("rating-dist");
+      container.innerHTML = "";
+
+      if (total === 0) {
+        document.getElementById("rating-dist-section").classList.add("hidden");
+        return;
+      }
+
+      for (let star = 5; star >= 1; star--) {
+        const count = counts[star] || 0;
+        const pct = total > 0 ? Math.round(100 * count / total) : 0;
+        const div = document.createElement("div");
+        div.className = "flex items-center gap-3 text-sm";
+        div.innerHTML = `
+          <span class="star-filled text-base w-5 text-right">${star}</span>
+          <span class="star-filled text-xs">★</span>
+          <div class="flex-1 bg-gray-800 rounded-full h-2 overflow-hidden">
+            <div class="bg-yellow-400 h-2 rounded-full transition-all" style="width:${pct}%"></div>
+          </div>
+          <span class="text-gray-400 w-8 text-right text-xs">${count}</span>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    function renderTable(rows) {
+      const tbody = document.getElementById("feedback-tbody");
+      const empty = document.getElementById("empty-state");
+      document.getElementById("table-count").textContent =
+        rows.length === 1 ? "1 response" : `${rows.length} responses`;
+
+      tbody.innerHTML = "";
+      if (!rows.length) { empty.classList.remove("hidden"); return; }
+      empty.classList.add("hidden");
+
+      rows.forEach((r, idx) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-gray-800/40 transition";
+
+        const ratingHtml = r.rating != null
+          ? `<span class="font-bold text-yellow-400">${r.rating}</span><span class="text-gray-600">/5</span> <span class="text-xs">${renderStarsHtml(r.rating)}</span>`
+          : `<span class="text-gray-600">—</span>`;
+
+        const upgradeHtml = r.would_upgrade === true
+          ? `<span class="inline-flex items-center gap-1 text-green-400 font-semibold"><span>✓</span> Yes</span>`
+          : r.would_upgrade === false
+          ? `<span class="inline-flex items-center gap-1 text-red-400 font-semibold"><span>✗</span> No</span>`
+          : `<span class="text-gray-600">—</span>`;
+
+        const dateStr = r.submitted_at
+          ? new Date(r.submitted_at).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })
+          : "—";
+
+        const hasFeedback = r.feedback_text && r.feedback_text.trim();
+        const feedbackHtml = hasFeedback
+          ? `<span class="truncate-cell text-gray-300" title="${escHtml(r.feedback_text)}" data-idx="${idx}">${escHtml(r.feedback_text)}</span>`
+          : `<span class="text-gray-600 italic">—</span>`;
+
+        tr.innerHTML = `
+          <td class="px-6 py-3 text-gray-200 font-mono text-xs">${escHtml(r.email)}</td>
+          <td class="px-6 py-3">${ratingHtml}</td>
+          <td class="px-6 py-3">${upgradeHtml}</td>
+          <td class="px-6 py-3 max-w-xs">${feedbackHtml}</td>
+          <td class="px-6 py-3 text-gray-500 text-xs">${dateStr}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Toggle expand on click
+      tbody.querySelectorAll(".truncate-cell").forEach(el => {
+        el.addEventListener("click", () => el.classList.toggle("expanded"));
+      });
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    // -----------------------------------------------
+    // CSV export
+    // -----------------------------------------------
+
+    document.getElementById("export-btn").addEventListener("click", () => {
+      if (!currentRows.length) return;
+      const headers = ["Email", "Rating", "Would Upgrade", "Feedback", "Submitted At"];
+      const csvRows = [headers];
+      currentRows.forEach(r => {
+        csvRows.push([
+          r.email,
+          r.rating ?? "",
+          r.would_upgrade === true ? "Yes" : r.would_upgrade === false ? "No" : "",
+          r.feedback_text || "",
+          r.submitted_at || "",
+        ].map(v => `"${String(v).replace(/"/g, '""')}"`));
+      });
+      const csv = csvRows.map(r => r.join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `trial-feedback-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+
+</body>
+</html>

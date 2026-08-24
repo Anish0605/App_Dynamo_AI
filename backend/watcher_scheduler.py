@@ -23,11 +23,15 @@ def _run_due_watches():
 
         all_watches = watches_module.get_all_active_watches(sb)
 
-        # ── Pro-only gate: only check watches for Pro plan users ──
+        # ── Pro-only gate: only check watches for Pro/demo users ──
         pro_user_ids = set()
         try:
-            pro_rows = sb.table("users").select("id").eq("plan", "pro").execute()
-            pro_user_ids = {r["id"] for r in (pro_rows.data or [])}
+            user_rows = sb.table("users").select("id,email,plan").execute()
+            pro_user_ids = {
+                r["id"] for r in (user_rows.data or [])
+                if (r.get("plan") or "").lower() in ("pro", "pro_trial", "pro_validation")
+                or supabase_client.is_demo_account(r)
+            }
         except Exception as e:
             print(f"[Watcher] Could not fetch Pro users: {e}")
 
@@ -86,6 +90,11 @@ def start():
         replace_existing=True,
         misfire_grace_time=600,
     )
+
+    # ── Trial expiry: runs every 6 hours ──
+    import trial_expiry_scheduler
+    trial_expiry_scheduler.start(_scheduler)
+
     _scheduler.start()
     print("[Watcher] Scheduler started — checks run every 24 hours, Pro users only ✅")
 

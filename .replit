@@ -1,4 +1,4 @@
-modules = ["python-3.12", "nodejs-20"]
+modules = ["python-3.12", "nodejs-20", "postgresql-16"]
 
 [[ports]]
 localPort = 5000
@@ -81,4 +81,9 @@ packages = ["cairo", "ffmpeg-full", "freetype", "ghostscript", "gitFull", "glibc
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["bash", "-c", "export PYTHONPATH=/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages && cd backend && /home/runner/workspace/.pythonlibs/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 5000"]
+run = ["bash", "-c", "cd backend && python3 -m uvicorn main:app --host 0.0.0.0 --port 5000"]
+build = ["bash", "-c", "pip install -r backend/requirements.txt"]
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 120000

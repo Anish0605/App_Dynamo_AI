@@ -6,7 +6,7 @@
 (function () {
   "use strict";
 
-  const FORMATS = ["APA 7th", "IEEE", "MLA 9th", "Harvard", "Vancouver", "Chicago"];
+  const FORMATS = ["APA 7th", "IEEE", "MLA 9th", "Harvard", "Vancouver", "Chicago", "ACS", "ASA", "Springer"];
 
   // ── Plan gate ──────────────────────────────────────────────────────────────
 
@@ -14,7 +14,7 @@
     const supa = window.appState?.supabaseUser;
     if (!supa) { window.openAuthModal?.("login"); return false; }
     const plan = (supa.plan || "free").toLowerCase();
-    if (plan === "free") { _showUpgradeGate(); return false; }
+    if (plan === "free" && !supa.access_allowed) { _showUpgradeGate(); return false; }
     return true;
   }
 
@@ -60,7 +60,7 @@
     <img src="/assets/dynamo-logo-new.png?v=20260527a" alt="Dynamo AI" style="width:42px;height:42px;border-radius:10px;object-fit:cover;flex-shrink:0;">
     <div style="flex:1;min-width:0;">
       <div style="font-weight:800;font-size:14px;color:#111;">Dynamo AI — Citation Checker</div>
-      <div style="font-size:11px;color:#9ca3af;margin-top:1px;">Verify APA, IEEE, MLA, Harvard &amp; more · Powered by Dynamo AI</div>
+      <div style="font-size:11px;color:#9ca3af;margin-top:1px;">Verify APA, IEEE, MLA, Harvard, ACS, ASA &amp; more · Powered by Dynamo AI</div>
     </div>
     <span style="font-size:11px;background:#fef9c3;color:#854d0e;font-weight:700;padding:4px 10px;border-radius:99px;border:1px solid #fde68a;">PLUS</span>
     <button id="_cc-close" style="margin-left:8px;width:28px;height:28px;border:none;background:#f3f4f6;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">✕</button>
@@ -134,7 +134,7 @@
       <div id="_cc-empty" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;gap:12px;">
         <div style="font-size:48px;">📋</div>
         <div style="font-weight:700;font-size:14px;color:#6b7280;">Paste your text and references,<br/>then click Check Citations</div>
-        <div style="font-size:12px;color:#d1d5db;">Supports APA, IEEE, MLA, Harvard, Vancouver, Chicago</div>
+        <div style="font-size:12px;color:#d1d5db;">Supports APA, IEEE, MLA, Harvard, Vancouver, Chicago, ACS, ASA</div>
       </div>
 
       <!-- Loading state -->
@@ -171,6 +171,7 @@
         <div style="display:flex;background:#fff;border-bottom:1px solid #f0f0f0;padding:0 18px;flex-shrink:0;">
           <button id="_cc-tab-issues" onclick="window._ccSetTab('issues')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid #facc15;color:#111;margin-bottom:-1px;">Issues</button>
           <button id="_cc-tab-corrected" onclick="window._ccSetTab('corrected')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:#9ca3af;margin-bottom:-1px;">📋 Fixed Reference List</button>
+          <button id="_cc-tab-recheck" onclick="window._ccSetTab('recheck')" style="padding:10px 14px;font-size:11px;font-weight:800;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:#9ca3af;margin-bottom:-1px;">⚡ Recheck</button>
         </div>
 
         <!-- Issues panel (two groups: in-text + reference list) -->
@@ -178,6 +179,9 @@
 
         <!-- Fixed Refs panel -->
         <div id="_cc-corrected-panel" style="flex:1;min-height:0;overflow-y:auto;padding:12px;display:none;flex-direction:column;gap:10px;"></div>
+
+        <!-- Recheck panel -->
+        <div id="_cc-recheck-panel" style="flex:1;min-height:0;overflow-y:auto;padding:14px;display:none;flex-direction:column;gap:12px;"></div>
       </div>
     </div>
   </div>
@@ -222,8 +226,9 @@
       // Use existing /extract-text for PDF/DOCX
       const fd = new FormData();
       fd.append("file", file);
+      fd.append("user_id", window.appState?.supabaseUserId || "");
       try {
-        const r = await fetch(`${window.BACKEND_URL || ""}/extract-text`, { method: "POST", body: fd });
+        const r = await window.backendFetch(`${window.BACKEND_URL || ""}/extract-text`, { method: "POST", body: fd });
         const data = await r.json();
         if (data.text) document.getElementById("_cc-text").value = data.text;
         else alert("Could not extract text from this file.");
@@ -240,9 +245,9 @@
       _runCheck(text, bib, _format);
     });
 
-    // Tab state — only 2 tabs: issues + corrected
+    // Tab state — 3 tabs: issues + corrected + recheck
     window._ccSetTab = (tab) => {
-      ["issues", "corrected"].forEach(t => {
+      ["issues", "corrected", "recheck"].forEach(t => {
         const panel = document.getElementById(`_cc-${t}-panel`);
         const btn = document.getElementById(`_cc-tab-${t}`);
         if (!panel || !btn) return;
@@ -250,10 +255,13 @@
         panel.style.display = active ? "flex" : "none";
         btn.style.borderBottomColor = active ? "#facc15" : "transparent";
         btn.style.color = active ? "#111" : "#9ca3af";
+        // Recheck tab gets a yellow tint when active
+        if (t === "recheck") {
+          btn.style.background = active ? "#fefce8" : "transparent";
+        }
       });
     };
 
-    console.log("citation_checker.js modal opened ✅");
   };
 
   function _applyFmtStyle(btn, active) {
@@ -287,7 +295,7 @@
 
     let data;
     try {
-      const r = await fetch(`${window.BACKEND_URL || ""}/check-citations`, {
+      const r = await window.backendFetch(`${window.BACKEND_URL || ""}/check-citations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, bibliography: bib, format, user_id: userId })
@@ -300,11 +308,17 @@
       return;
     }
 
+    _lastText = text;
+    _lastBib = bib;
+    _lastFormat = format;
     loadEl.style.display = "none";
     _renderResults(data, format);
   }
 
   let _fixedIds = new Set();
+  let _lastText = "";
+  let _lastBib = "";
+  let _lastFormat = "";
 
   function _renderResults(data, format) {
     _fixedIds = new Set();
@@ -477,30 +491,218 @@
       });
     }
 
-    // Sources list
+    // Sources list (panel may not exist — skip silently)
     const srcPanel = document.getElementById("_cc-sources-panel");
-    // Keep the header line, rebuild the rest
-    srcPanel.innerHTML = `<div style="font-size:11px;color:#9ca3af;margin-bottom:4px;">Dynamo AI verifies that each cited source is real and accessible via Crossref.</div>`;
-    if (sources.length === 0) {
-      srcPanel.innerHTML += `<div style="font-size:12px;color:#d1d5db;text-align:center;padding:20px;">No sources to verify.</div>`;
-    } else {
-      sources.forEach(src => {
-        const statusEmoji = src.status === "verified" ? "✅" : src.status === "warning" ? "⚠️" : "❌";
-        const statusBg = src.status === "verified" ? "#f0fdf4" : src.status === "warning" ? "#fefce8" : "#fef2f2";
-        const statusBorder = src.status === "verified" ? "#bbf7d0" : src.status === "warning" ? "#fde68a" : "#fecaca";
-        const badgeBg = src.status === "verified" ? "#dcfce7" : src.status === "warning" ? "#fef9c3" : "#fee2e2";
-        const badgeColor = src.status === "verified" ? "#166534" : src.status === "warning" ? "#854d0e" : "#991b1b";
-        const d = document.createElement("div");
-        d.style.cssText = `display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid ${statusBorder};background:${statusBg};font-size:11px;`;
-        d.innerHTML = `<span style="font-size:16px;flex-shrink:0;">${statusEmoji}</span>
-          <div style="flex:1;min-width:0;">
-            <div style="font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_esc(src.ref)}</div>
-            <div style="color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_esc(src.journal || "")}</div>
-            ${src.doi ? `<div style="color:#3b82f6;margin-top:1px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_esc(src.doi)}</div>` : ""}
+    if (srcPanel) {
+      srcPanel.innerHTML = `<div style="font-size:11px;color:#9ca3af;margin-bottom:4px;">Dynamo AI verifies that each cited source is real and accessible via Crossref.</div>`;
+      if (sources.length === 0) {
+        srcPanel.innerHTML += `<div style="font-size:12px;color:#d1d5db;text-align:center;padding:20px;">No sources to verify.</div>`;
+      } else {
+        sources.forEach(src => {
+          const statusEmoji = src.status === "verified" ? "✅" : src.status === "warning" ? "⚠️" : "❌";
+          const statusBg = src.status === "verified" ? "#f0fdf4" : src.status === "warning" ? "#fefce8" : "#fef2f2";
+          const statusBorder = src.status === "verified" ? "#bbf7d0" : src.status === "warning" ? "#fde68a" : "#fecaca";
+          const badgeBg = src.status === "verified" ? "#dcfce7" : src.status === "warning" ? "#fef9c3" : "#fee2e2";
+          const badgeColor = src.status === "verified" ? "#166534" : src.status === "warning" ? "#854d0e" : "#991b1b";
+          const d = document.createElement("div");
+          d.style.cssText = `display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid ${statusBorder};background:${statusBg};font-size:11px;`;
+          d.innerHTML = `<span style="font-size:16px;flex-shrink:0;">${statusEmoji}</span>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_esc(src.ref)}</div>
+              <div style="color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_esc(src.journal || "")}</div>
+              ${src.doi ? `<div style="color:#3b82f6;margin-top:1px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_esc(src.doi)}</div>` : ""}
+            </div>
+            <span style="padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;background:${badgeBg};color:${badgeColor};white-space:nowrap;">${src.status}</span>`;
+          srcPanel.appendChild(d);
+        });
+      }
+    }
+
+    // Recheck panel
+    _renderRecheckPanel(data, format);
+  }
+
+  function _renderRecheckPanel(data, format) {
+    const panel = document.getElementById("_cc-recheck-panel");
+    if (!panel) return;
+    panel.innerHTML = "";
+
+    const issues = data.issues ?? [];
+    const correctedEntries = data.corrected_entries ?? [];
+    const currentScore = data.score ?? 0;
+
+    // ── Classify issues ──────────────────────────────────────────────────────
+    // Auto-fixable: bibliography entries that have actual formatting corrections
+    const autoFixableEntries = correctedEntries.filter(e => (e.changes || []).length > 0);
+
+    // Determine which issues are "covered" by the corrected entries
+    // (ref formatting warnings) vs need manual work
+    const _isManual = (issue) => {
+      const title = (issue.title || "").toLowerCase();
+      const cat = issue.category || "";
+      // In-text issues always need manual fix (user must edit their text)
+      if (cat === "in_text") return true;
+      // DOI not found — needs user to find correct DOI
+      if (title.includes("doi not found")) return true;
+      // Missing entry — can't auto-create a full bibliography entry
+      if (title.includes("missing") && title.includes("entr")) return true;
+      // Year mismatch — ambiguous which side (text or bib) needs changing
+      if (title.includes("year") || title.includes("mismatch")) return true;
+      // Unused entry — user decides whether to cite or remove
+      if (title.includes("unused") || title.includes("never cited")) return true;
+      return false;
+    };
+
+    const manualIssues = issues.filter(_isManual);
+    const autoIssues   = issues.filter(i => !_isManual(i));
+
+    // Score projection after applying auto-fixes
+    const remainingErrors   = manualIssues.filter(i => i.type === "error").length;
+    const remainingWarnings = manualIssues.filter(i => i.type === "warning").length;
+    const projectedScore = (remainingErrors === 0 && remainingWarnings === 0)
+      ? 100
+      : Math.max(5, Math.min(99, 100 - remainingErrors * 12 - remainingWarnings * 4));
+    const scoreImproves = projectedScore > currentScore;
+
+    // ── Score improvement banner ──────────────────────────────────────────────
+    if (autoFixableEntries.length > 0) {
+      const banner = document.createElement("div");
+      banner.style.cssText = "background:#fefce8;border:1px solid #fde68a;border-radius:12px;padding:12px 14px;flex-shrink:0;";
+      banner.innerHTML = `
+        <div style="font-size:11px;font-weight:800;color:#713f12;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">⚡ Instant Fix Available</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div style="font-size:12px;color:#374151;flex:1;line-height:1.5;">
+            Dynamo AI can auto-apply <strong>${autoFixableEntries.length} bibliography formatting fix${autoFixableEntries.length > 1 ? "es" : ""}</strong> and recheck instantly.
+            ${scoreImproves
+              ? `Your score will go from <strong style="color:#ef4444;">${currentScore}</strong> → <strong style="color:${projectedScore >= 80 ? "#16a34a" : projectedScore >= 50 ? "#d97706" : "#ef4444"};">${projectedScore}</strong>.`
+              : ""}
           </div>
-          <span style="padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;background:${badgeBg};color:${badgeColor};white-space:nowrap;">${src.status}</span>`;
-        srcPanel.appendChild(d);
+          <button id="_cc-apply-recheck" style="padding:10px 18px;border-radius:11px;background:#facc15;color:#111;font-weight:800;font-size:12px;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:opacity .15s;">
+            ⚡ Apply Fixes &amp; Recheck
+          </button>
+        </div>`;
+      panel.appendChild(banner);
+
+      document.getElementById("_cc-apply-recheck").addEventListener("click", () => {
+        const correctedBib = autoFixableEntries.length > 0
+          ? correctedEntries.map(e => e.corrected || e.original || "").join("\n")
+          : _lastBib;
+        const bibEl = document.getElementById("_cc-bib");
+        if (bibEl) bibEl.value = correctedBib;
+        _runCheck(_lastText, correctedBib, _lastFormat);
       });
+    } else if (issues.length === 0) {
+      panel.innerHTML = `<div style="text-align:center;padding:48px 20px;"><div style="font-size:40px;margin-bottom:12px;">🎉</div><div style="font-weight:800;font-size:14px;color:#16a34a;">Nothing to fix!</div><div style="font-size:12px;color:#9ca3af;margin-top:6px;">Score is ${currentScore}/100 — all citations look correct.</div></div>`;
+      return;
+    } else {
+      const noAutoPanel = document.createElement("div");
+      noAutoPanel.style.cssText = "background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;flex-shrink:0;";
+      noAutoPanel.innerHTML = `<div style="font-size:12px;color:#6b7280;line-height:1.6;"><strong style="color:#374151;">No auto-fixable formatting issues found.</strong> The remaining issues all need manual edits in your text or bibliography — see the list below.</div>`;
+      panel.appendChild(noAutoPanel);
+    }
+
+    // ── What's auto-fixed (preview of changes) ────────────────────────────────
+    if (autoFixableEntries.length > 0) {
+      const autoSection = document.createElement("div");
+      autoSection.style.cssText = "display:flex;flex-direction:column;gap:8px;flex-shrink:0;";
+
+      const autoHeader = document.createElement("div");
+      autoHeader.style.cssText = "display:flex;align-items:center;gap:8px;padding:4px 2px;";
+      autoHeader.innerHTML = `
+        <span style="font-size:15px;">✅</span>
+        <span style="font-size:11px;font-weight:900;color:#111;text-transform:uppercase;letter-spacing:.05em;">Auto-Fixable</span>
+        <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:#dcfce7;color:#166534;">${autoFixableEntries.length} fix${autoFixableEntries.length > 1 ? "es" : ""}</span>
+        <span style="font-size:10px;color:#9ca3af;">Applied when you click Apply Fixes &amp; Recheck</span>`;
+      autoSection.appendChild(autoHeader);
+
+      autoFixableEntries.forEach(entry => {
+        const card = document.createElement("div");
+        card.style.cssText = "border:1px solid #bbf7d0;border-radius:10px;background:#f0fdf4;padding:10px 12px;";
+        const changesList = (entry.changes || []).map(c => `<span style="display:inline-block;background:#fff;border:1px solid #bbf7d0;border-radius:6px;padding:1px 7px;font-size:10px;color:#166534;margin:2px 2px 0 0;">${_esc(c)}</span>`).join("");
+        card.innerHTML = `
+          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px;">
+            <span style="font-size:11px;font-weight:800;color:#6b7280;flex-shrink:0;">${_esc(entry.label || "")}</span>
+            <span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;background:#dcfce7;color:#166534;">formatting fix</span>
+          </div>
+          <div style="font-size:10.5px;color:#9ca3af;text-decoration:line-through;line-height:1.5;margin-bottom:5px;white-space:pre-wrap;word-break:break-word;">${_esc(entry.original || "")}</div>
+          <div style="font-size:10.5px;color:#111;font-weight:600;line-height:1.5;white-space:pre-wrap;word-break:break-word;">${_esc(entry.corrected || "")}</div>
+          ${changesList ? `<div style="margin-top:7px;">${changesList}</div>` : ""}`;
+        autoSection.appendChild(card);
+      });
+      panel.appendChild(autoSection);
+    }
+
+    // ── What needs manual fixing ──────────────────────────────────────────────
+    if (manualIssues.length > 0) {
+      const manualSection = document.createElement("div");
+      manualSection.style.cssText = "display:flex;flex-direction:column;gap:8px;flex-shrink:0;";
+
+      const manualHeader = document.createElement("div");
+      manualHeader.style.cssText = "display:flex;align-items:center;gap:8px;padding:4px 2px;margin-top:4px;";
+      manualHeader.innerHTML = `
+        <span style="font-size:15px;">✋</span>
+        <span style="font-size:11px;font-weight:900;color:#111;text-transform:uppercase;letter-spacing:.05em;">Needs Your Attention</span>
+        <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:#fee2e2;color:#991b1b;">${manualIssues.length} issue${manualIssues.length > 1 ? "s" : ""}</span>
+        <span style="font-size:10px;color:#9ca3af;">Cannot be auto-fixed</span>`;
+      manualSection.appendChild(manualHeader);
+
+      // Explanation of why each category can't be auto-fixed
+      const WHY_MANUAL = {
+        in_text: { icon: "📝", reason: "This is inside your essay/paper text — Dynamo AI won't rewrite your content for you." },
+        doi_missing: { icon: "🔍", reason: "The DOI was not found on Crossref — you need to find the correct DOI for this paper." },
+        missing_entry: { icon: "📚", reason: "There's no bibliography entry — you need to find and add the full reference yourself." },
+        year_mismatch: { icon: "📅", reason: "It's ambiguous whether the text or the bibliography year is correct — only you know which one to change." },
+        unused: { icon: "🗑️", reason: "You need to decide: remove from bibliography, or add a citation in your text." },
+        other: { icon: "⚠️", reason: "Requires your judgement to resolve correctly." },
+      };
+
+      const _getManualCategory = (issue) => {
+        const title = (issue.title || "").toLowerCase();
+        const cat   = issue.category || "";
+        if (cat === "in_text") return "in_text";
+        if (title.includes("doi not found")) return "doi_missing";
+        if (title.includes("missing") && title.includes("entr")) return "missing_entry";
+        if (title.includes("year") || title.includes("mismatch")) return "year_mismatch";
+        if (title.includes("unused") || title.includes("never cited")) return "unused";
+        return "other";
+      };
+
+      manualIssues.forEach(issue => {
+        const manCat = _getManualCategory(issue);
+        const meta = WHY_MANUAL[manCat] || WHY_MANUAL.other;
+        const isError = issue.type === "error";
+        const borderCol = isError ? "#fecaca" : "#fde68a";
+        const bgCol     = isError ? "#fef2f2" : "#fefce8";
+        const badgeCol  = isError ? "#991b1b" : "#854d0e";
+        const badgeBg   = isError ? "#fee2e2" : "#fef9c3";
+
+        const card = document.createElement("div");
+        card.style.cssText = `border:1px solid ${borderCol};border-radius:10px;background:${bgCol};padding:10px 12px;`;
+        card.innerHTML = `
+          <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;">
+            <span style="font-size:15px;flex-shrink:0;line-height:1.3;">${meta.icon}</span>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px;">
+                <span style="font-size:12px;font-weight:800;color:#111;">${_esc(issue.title)}</span>
+                <span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;background:${badgeBg};color:${badgeCol};">${issue.type}</span>
+              </div>
+              <div style="font-size:10.5px;color:#6b7280;">${_esc(issue.location || "")}</div>
+            </div>
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;">
+            <div style="font-size:11px;color:#374151;line-height:1.5;">${_esc(issue.fix || issue.detail || "")}</div>
+            <div style="font-size:10px;color:#9ca3af;font-style:italic;border-top:1px solid #f3f4f6;padding-top:5px;margin-top:2px;">
+              Why not auto-fixed: ${_esc(meta.reason)}
+            </div>
+          </div>`;
+        manualSection.appendChild(card);
+      });
+      panel.appendChild(manualSection);
+    } else if (autoFixableEntries.length > 0) {
+      const allGood = document.createElement("div");
+      allGood.style.cssText = "background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 14px;flex-shrink:0;";
+      allGood.innerHTML = `<div style="font-size:12px;color:#166534;font-weight:600;">✅ After applying fixes, no manual edits will be needed. Score should reach ${projectedScore}/100.</div>`;
+      panel.appendChild(allGood);
     }
   }
 
@@ -543,5 +745,4 @@
     return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
-  console.log("citation_checker.js loaded ✅");
 })();

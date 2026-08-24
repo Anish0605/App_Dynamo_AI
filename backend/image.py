@@ -40,12 +40,10 @@ async def generate_image_base64(prompt: str):
                 }
 
                 payload = {
-                    "model": "dall-e-3",
+                    "model": "gpt-image-1-mini",
                     "prompt": prompt,
                     "n": 1,
                     "size": "1024x1024",
-                    "quality": "standard",
-                    "response_format": "b64_json",
                 }
 
                 async with session.post(

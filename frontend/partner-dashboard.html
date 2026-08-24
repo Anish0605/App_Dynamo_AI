@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Partner Dashboard — Dynamo AI FAP</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script>
+    tailwind.config = { darkMode: "class" };
+    document.documentElement.classList.add("dark");
+  </script>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.35s ease forwards; }
+    th { white-space: nowrap; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-950 text-white">
+
+  <!-- Loading screen -->
+  <div id="loading-screen" class="min-h-screen flex items-center justify-center">
+    <div class="text-center">
+      <div class="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center mx-auto mb-4">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-black"><path d="M13 2L4.09 12.37A1 1 0 0 0 5 14h5.5l-1.5 8 8.91-10.37A1 1 0 0 0 17 10h-5.5L13 2z"/></svg>
+      </div>
+      <p class="text-gray-400 text-sm">Verifying access…</p>
+    </div>
+  </div>
+
+  <!-- Login gate (not signed in) -->
+  <div id="login-gate" class="hidden min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-sm bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-2xl fade-up text-center">
+      <div class="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center mx-auto mb-5">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-black"><path d="M13 2L4.09 12.37A1 1 0 0 0 5 14h5.5l-1.5 8 8.91-10.37A1 1 0 0 0 17 10h-5.5L13 2z"/></svg>
+      </div>
+      <h1 class="text-xl font-bold mb-2">Partner Dashboard</h1>
+      <p class="text-gray-400 text-sm mb-6">Sign in with the email you used to apply for the FAP.</p>
+      <button onclick="signInWithGoogle()"
+        class="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl text-sm transition">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" />
+        Continue with Google
+      </button>
+      <p class="text-gray-600 text-xs mt-4">Not a partner yet?
+        <a href="/partner-signup" class="text-yellow-400 hover:underline">Apply here →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Not-a-partner gate -->
+  <div id="not-partner-gate" class="hidden min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-sm bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-2xl fade-up text-center">
+      <div class="text-4xl mb-4">⏳</div>
+      <h2 class="text-lg font-bold mb-2">Application Pending</h2>
+      <p id="not-partner-msg" class="text-gray-400 text-sm mb-6">Your application is under review. We'll email you once approved.</p>
+      <a href="/" class="block w-full text-center bg-gray-800 hover:bg-gray-700 text-white py-2.5 rounded-xl text-sm transition">Back to Dynamo AI</a>
+    </div>
+  </div>
+
+  <!-- Main Dashboard -->
+  <div id="dashboard" class="hidden min-h-screen fade-up">
+
+    <!-- Nav -->
+    <div class="border-b border-gray-800 px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-2">
+          <div class="w-7 h-7 bg-yellow-400 rounded-lg flex items-center justify-center">
+            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 fill-black"><path d="M13 2L4.09 12.37A1 1 0 0 0 5 14h5.5l-1.5 8 8.91-10.37A1 1 0 0 0 17 10h-5.5L13 2z"/></svg>
+          </div>
+          <span class="text-white font-bold text-sm">Dynamo AI</span>
+        </a>
+        <span class="text-gray-600">|</span>
+        <span class="text-gray-300 text-sm font-medium">Faculty Ambassador Dashboard</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="bg-green-500/20 border border-green-500/40 rounded-full px-3 py-1 text-xs text-green-400 font-semibold">● Active Partner</div>
+        <button onclick="signOut()" class="text-xs text-gray-500 hover:text-gray-300 transition">Sign out</button>
+      </div>
+    </div>
+
+    <div class="p-6 max-w-7xl mx-auto space-y-5">
+
+      <!-- Welcome -->
+      <div>
+        <h1 class="text-xl font-bold text-white">Welcome back, <span id="partner-name">Partner</span>! 👋</h1>
+        <p class="text-gray-500 text-sm mt-0.5" id="partner-meta">Faculty Ambassador</p>
+      </div>
+
+      <!-- Referral link + share -->
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+        <div class="flex items-center justify-between gap-4 mb-3">
+          <div>
+            <p class="text-xs text-gray-500 mb-1 font-medium uppercase tracking-widest">Your Referral Link</p>
+            <p id="referral-link-text" class="text-yellow-300 font-mono text-sm break-all">Loading…</p>
+          </div>
+          <span id="referral-code-badge" class="bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 font-mono text-sm font-bold px-3 py-1.5 rounded-lg flex-shrink-0">—</span>
+        </div>
+        <div class="flex items-center gap-2 pt-3 border-t border-gray-800 flex-wrap">
+          <span class="text-xs text-gray-500 mr-1">Share via:</span>
+          <button onclick="shareWhatsApp()" class="flex items-center gap-1.5 bg-green-600/20 hover:bg-green-600/30 border border-green-600/30 text-green-400 text-xs px-3 py-1.5 rounded-lg transition font-medium">💬 WhatsApp</button>
+          <button onclick="shareLinkedIn()" class="flex items-center gap-1.5 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/30 text-blue-400 text-xs px-3 py-1.5 rounded-lg transition font-medium">🔗 LinkedIn</button>
+          <button onclick="shareEmail()" class="flex items-center gap-1.5 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-600/30 text-violet-400 text-xs px-3 py-1.5 rounded-lg transition font-medium">📧 Email</button>
+          <button id="copy-btn" onclick="copyLink()" class="ml-auto flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold text-xs px-3 py-1.5 rounded-lg transition">📋 Copy Link</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-5 gap-3">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div class="text-xl mb-1">👥</div>
+          <p id="stat-total" class="text-2xl font-bold text-white">—</p>
+          <p class="text-xs text-gray-500 mt-0.5">Total Referrals</p>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div class="text-xl mb-1">🔬</div>
+          <p id="stat-trial" class="text-2xl font-bold text-white">—</p>
+          <p class="text-xs text-gray-500 mt-0.5">Trial Users</p>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div class="text-xl mb-1">✅</div>
+          <p id="stat-paid" class="text-2xl font-bold text-white">—</p>
+          <p class="text-xs text-gray-500 mt-0.5">Paid Users</p>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div class="text-xl mb-1">⏳</div>
+          <p id="stat-pending" class="text-2xl font-bold text-yellow-400">—</p>
+          <p class="text-xs text-gray-500 mt-0.5">Pending Payout</p>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div class="text-xl mb-1">🏆</div>
+          <p id="stat-lifetime" class="text-2xl font-bold text-yellow-400">—</p>
+          <p class="text-xs text-gray-500 mt-0.5">Lifetime Earned</p>
+        </div>
+      </div>
+
+      <!-- Referral table -->
+      <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+          <h2 class="text-sm font-semibold text-white">Referral History</h2>
+          <div class="flex gap-1" id="filter-btns">
+            <button onclick="setFilter('All')" data-filter="All" class="filter-btn active px-3 py-1 rounded-lg text-xs font-medium bg-yellow-400 text-gray-950">All</button>
+            <button onclick="setFilter('Paid')" data-filter="Paid" class="filter-btn px-3 py-1 rounded-lg text-xs font-medium text-gray-400 hover:text-white bg-gray-800">Paid</button>
+            <button onclick="setFilter('Pending')" data-filter="Pending" class="filter-btn px-3 py-1 rounded-lg text-xs font-medium text-gray-400 hover:text-white bg-gray-800">Pending</button>
+            <button onclick="setFilter('Trial')" data-filter="Trial" class="filter-btn px-3 py-1 rounded-lg text-xs font-medium text-gray-400 hover:text-white bg-gray-800">Trial</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-800">
+                <th class="px-5 py-3 text-left text-xs text-gray-500 font-medium">Student</th>
+                <th class="px-5 py-3 text-left text-xs text-gray-500 font-medium">Plan</th>
+                <th class="px-5 py-3 text-left text-xs text-gray-500 font-medium">Status</th>
+                <th class="px-5 py-3 text-left text-xs text-gray-500 font-medium">Commission</th>
+                <th class="px-5 py-3 text-left text-xs text-gray-500 font-medium">Date</th>
+              </tr>
+            </thead>
+            <tbody id="referral-tbody">
+              <tr><td colspan="5" class="px-5 py-8 text-center text-gray-600 text-sm">Loading referrals…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Payout history -->
+      <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-800">
+          <h2 class="text-sm font-semibold text-white">Payout History</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-800">
+                <th class="px-5 py-3 text-left text-xs text-gray-500 font-medium">Month</th>
+                <th class="px-5 py-3 text-left text-xs text-gray-500 font-medium">Amount</th>
+                <th class="px-5 py-3 text-left text-xs text-gray-500 font-medium">Status</th>
+                <th class="px-5 py-3 text-left text-xs text-gray-500 font-medium">Reference</th>
+                <th class="px-5 py-3 text-left text-xs text-gray-500 font-medium">Paid On</th>
+              </tr>
+            </thead>
+            <tbody id="payout-tbody">
+              <tr><td colspan="5" class="px-5 py-6 text-center text-gray-600 text-sm">No payouts yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Resources -->
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+        <p class="text-sm font-semibold text-white mb-3">Partner Resources</p>
+        <div class="flex flex-wrap gap-2">
+          <button class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-300 px-3 py-1.5 rounded-lg transition">📊 Faculty PPT</button>
+          <button class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-300 px-3 py-1.5 rounded-lg transition">📄 Brochure PDF</button>
+          <button onclick="shareWhatsApp()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-300 px-3 py-1.5 rounded-lg transition">💬 WhatsApp Template</button>
+          <button onclick="shareLinkedIn()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-300 px-3 py-1.5 rounded-lg transition">🔗 LinkedIn Post</button>
+          <button onclick="shareEmail()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-300 px-3 py-1.5 rounded-lg transition">📧 Email Template</button>
+          <button class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-300 px-3 py-1.5 rounded-lg transition">🎨 Brand Logos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BACKEND = "";
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDcYXrbVi9mW54MMTofbxuyo4lALglkK2M",
+      authDomain: "dynamo-ai-01.firebaseapp.com",
+      projectId: "dynamo-ai-01",
+      storageBucket: "dynamo-ai-01.firebasestorage.app",
+      messagingSenderId: "1083537512306",
+      appId: "1:1083537512306:web:d0e68ddb69fb5f8199efeb"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    const auth = firebase.auth();
+
+    let _referralLink = "";
+    let _allReferrals = [];
+    let _currentFilter = "All";
+
+    // ── Auth ──────────────────────────────────────────────────────────────────
+
+    function signInWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch((error) => {
+        showAccessError(error?.message || "Google sign-in was not completed.");
+      });
+    }
+
+    function signOut() {
+      auth.signOut().then(() => { window.location.href = "/"; });
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+      document.getElementById("loading-screen").classList.add("hidden");
+
+      if (!user) {
+        document.getElementById("login-gate").classList.remove("hidden");
+        return;
+      }
+
+      // Fetch partner data
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000);
+        const email = (user.email || "").trim().toLowerCase();
+        const res = await fetch(BACKEND + "/fap/partner/me", {
+          headers: { "x-user-email": email },
+          signal: controller.signal
+        });
+        clearTimeout(timeout);
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || `Partner verification failed (${res.status}).`);
+        }
+
+        if (!data.is_partner) {
+          // Check if they have a pending application
+          const statusRes = await fetch(BACKEND + "/fap/apply/status?email=" + encodeURIComponent(email));
+          const statusData = await statusRes.json();
+          const gate = document.getElementById("not-partner-gate");
+          if (statusData.found && statusData.status === "Rejected") {
+            document.getElementById("not-partner-msg").textContent = "Your application was not approved. Contact support@dynamoai.in for more information.";
+          } else if (!statusData.found) {
+            document.getElementById("not-partner-msg").innerHTML = 'No application found for this email. <a href="/partner-signup" class="text-yellow-400 underline">Apply now →</a>';
+          }
+          gate.classList.remove("hidden");
+          return;
+        }
+
+        renderDashboard(data, user);
+      } catch (e) {
+        console.error(e);
+        showAccessError(
+          e.name === "AbortError"
+            ? "Partner verification timed out. Please refresh and try again."
+            : (e.message || "We could not verify your partner account.")
+        );
+      }
+    });
+
+    function showAccessError(message) {
+      document.getElementById("loading-screen").classList.add("hidden");
+      document.getElementById("login-gate").classList.remove("hidden");
+      const copy = document.querySelector("#login-gate p.text-gray-400");
+      if (copy) {
+        copy.textContent = message + " Sign in with the approved email: anishkrisnaonline@gmail.com.";
+      }
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────────
+
+    function fmtAmt(paise) {
+      if (!paise) return "—";
+      return "₹" + (paise / 100).toLocaleString("en-IN");
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return "—";
+      return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+    }
+
+    function renderDashboard(data, user) {
+      const p = data.partner;
+      const s = data.stats;
+
+      _allReferrals = data.referrals || [];
+      _referralLink = p.referral_link;
+
+      document.getElementById("partner-name").textContent = p.full_name.replace(/^(Dr\.|Prof\.|Mr\.|Ms\.|Mrs\.)\s*/i, "").split(" ")[0];
+      document.getElementById("partner-meta").textContent = `${p.designation || "Faculty Ambassador"} · ${p.institution || ""} · Joined ${fmtDate(p.joined)}`;
+      document.getElementById("referral-link-text").textContent = p.referral_link;
+      document.getElementById("referral-code-badge").textContent = p.referral_code;
+
+      document.getElementById("stat-total").textContent   = s.total_referrals;
+      document.getElementById("stat-trial").textContent   = s.trial_users;
+      document.getElementById("stat-paid").textContent    = s.paid_users;
+      document.getElementById("stat-pending").textContent = fmtAmt(s.pending_commission);
+      document.getElementById("stat-lifetime").textContent= fmtAmt(s.lifetime_earnings);
+
+      renderReferralTable(_allReferrals);
+      loadPayouts(user.email);
+
+      document.getElementById("dashboard").classList.remove("hidden");
+    }
+
+    function renderReferralTable(rows) {
+      const tbody = document.getElementById("referral-tbody");
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-8 text-center text-gray-600 text-sm">No referrals yet. Share your link to get started!</td></tr>`;
+        return;
+      }
+
+      const statusBorder = { Paid: "border-l-green-500/50", Pending: "border-l-yellow-400/50", Trial: "border-l-blue-500/50" };
+      const statusBadge  = {
+        Paid:    "bg-green-500/15 text-green-400 border border-green-500/30",
+        Pending: "bg-yellow-400/15 text-yellow-400 border border-yellow-400/30",
+        Trial:   "bg-blue-500/15 text-blue-400 border border-blue-500/30",
+      };
+      const planBadge = {
+        pro:  "bg-violet-500/15 text-violet-400 border border-violet-500/30",
+        plus: "bg-blue-500/15 text-blue-400 border border-blue-500/30",
+      };
+
+      tbody.innerHTML = rows.map(r => {
+        const commission = r.status === "Paid" ? fmtAmt(r.commission_amount) : "—";
+        const plan = r.plan || "—";
+        const border = statusBorder[r.status] || "";
+        return `
+          <tr class="border-b border-gray-800/50 hover:bg-gray-800/30 transition border-l-2 ${border}">
+            <td class="px-5 py-3">
+              <p class="text-sm text-white font-medium">${r.users?.email || "Student"}</p>
+            </td>
+            <td class="px-5 py-3">
+              ${plan !== "—" ? `<span class="text-xs px-2 py-0.5 rounded-md font-medium ${planBadge[plan] || ""}">${plan.charAt(0).toUpperCase() + plan.slice(1)}</span>` : `<span class="text-gray-600 text-xs">—</span>`}
+            </td>
+            <td class="px-5 py-3">
+              <span class="text-xs px-2 py-0.5 rounded-md font-medium ${statusBadge[r.status] || ''}">${r.status}</span>
+            </td>
+            <td class="px-5 py-3 text-sm text-white font-medium">${commission}</td>
+            <td class="px-5 py-3 text-xs text-gray-500">${fmtDate(r.created_at)}</td>
+          </tr>`;
+      }).join("");
+    }
+
+    async function loadPayouts(email) {
+      try {
+        const res = await fetch(BACKEND + "/fap/partner/payouts", {
+          headers: { "x-user-email": email }
+        });
+        const data = await res.json();
+        const payouts = data.payouts || [];
+        const tbody = document.getElementById("payout-tbody");
+        if (!payouts.length) return;
+
+        const statusBadge = {
+          Paid:    "bg-green-500/15 text-green-400 border border-green-500/30",
+          Pending: "bg-yellow-400/15 text-yellow-400 border border-yellow-400/30",
+        };
+        tbody.innerHTML = payouts.map(p => `
+          <tr class="border-b border-gray-800/50 hover:bg-gray-800/30 transition">
+            <td class="px-5 py-3 text-sm text-white">${p.payout_month || "—"}</td>
+            <td class="px-5 py-3 text-sm font-semibold text-yellow-400">${fmtAmt(p.amount)}</td>
+            <td class="px-5 py-3"><span class="text-xs px-2 py-0.5 rounded-md font-medium ${statusBadge[p.status] || ''}">${p.status}</span></td>
+            <td class="px-5 py-3 text-xs text-gray-400">${p.transaction_ref || "—"}</td>
+            <td class="px-5 py-3 text-xs text-gray-500">${fmtDate(p.paid_at)}</td>
+          </tr>`).join("");
+      } catch(e) { /* silent */ }
+    }
+
+    // ── Filters ───────────────────────────────────────────────────────────────
+
+    function setFilter(f) {
+      _currentFilter = f;
+      document.querySelectorAll(".filter-btn").forEach(btn => {
+        const active = btn.dataset.filter === f;
+        btn.className = `filter-btn px-3 py-1 rounded-lg text-xs font-medium transition ${active ? "bg-yellow-400 text-gray-950" : "text-gray-400 hover:text-white bg-gray-800"}`;
+      });
+      const rows = f === "All" ? _allReferrals : _allReferrals.filter(r => r.status === f);
+      renderReferralTable(rows);
+    }
+
+    // ── Share ─────────────────────────────────────────────────────────────────
+
+    function copyLink() {
+      navigator.clipboard.writeText(_referralLink).then(() => {
+        const btn = document.getElementById("copy-btn");
+        btn.textContent = "✓ Copied!";
+        setTimeout(() => { btn.textContent = "📋 Copy Link"; }, 2000);
+      });
+    }
+
+    function shareWhatsApp() {
+      const msg = encodeURIComponent(`🚀 Try Dynamo AI — the AI Research OS for students!\n\nUse my referral link to sign up:\n${_referralLink}`);
+      window.open(`https://wa.me/?text=${msg}`, "_blank");
+    }
+
+    function shareLinkedIn() {
+      const url = encodeURIComponent(_referralLink);
+      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, "_blank");
+    }
+
+    function shareEmail() {
+      const subject = encodeURIComponent("Try Dynamo AI — AI Research Assistant for Students");
+      const body    = encodeURIComponent(`Hi,\n\nI wanted to share Dynamo AI with you — it's an excellent AI-powered research tool for students.\n\nSign up using my referral link:\n${_referralLink}\n\nBest regards`);
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    }
+  </script>
+
+</body>
+</html>

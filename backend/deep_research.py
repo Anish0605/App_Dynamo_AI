@@ -17,8 +17,18 @@ _jobs: dict[str, dict] = {}
 DEEP_MODEL = "deep-research-preview-04-2026"
 MAX_MODEL  = "deep-research-max-preview-04-2026"
 
+# ── Academic-source cache ────────────────────────────────────────────────────
+# Short-TTL cache so re-running Deep Research on the same/similar topic within
+# a window doesn't re-spend calls against Semantic Scholar's rate-limited API.
+_ACADEMIC_CACHE_TTL = 6 * 3600  # 6 hours
+_academic_cache: dict[str, tuple[float, list[dict]]] = {}
 
-async def start_research(query: str, user_id: str, use_max: bool = False) -> str:
+
+def _normalize_query(q: str) -> str:
+    return " ".join(q.strip().lower().split())
+
+
+async def start_research(query: str, user_id: str, use_max: bool = False, user_plan: str = "pro") -> str:
     job_id = str(uuid.uuid4())[:8]
     model  = MAX_MODEL if use_max else DEEP_MODEL
 
@@ -26,6 +36,7 @@ async def start_research(query: str, user_id: str, use_max: bool = False) -> str
         "status":       "starting",
         "query":        query,
         "user_id":      user_id,
+        "user_plan":    user_plan,
         "model":        model,
         "report":       None,
         "error":        None,
@@ -91,6 +102,26 @@ async def _run_research(job_id: str, query: str, model: str):
             await asyncio.sleep(6)
 
         report_text = _extract_text(interaction)
+
+        # ── Academic verification pass — applied here too, not just in the
+        # fallback pipeline, so every successful Deep Research run (whichever
+        # path produced it) gets the same academic-source grounding and
+        # fact-check treatment before being shown to the user.
+        primary_papers = []
+        primary_source_material = ""
+        try:
+            primary_papers = await _fetch_semantic_scholar_cached(query, limit=8)
+            if primary_papers:
+                primary_source_material = _papers_to_context(primary_papers, "Academic sources")
+        except _RateLimited:
+            _log(job_id, "⚠️ Academic source API is rate-limited — skipping academic verification for this report")
+        except Exception as ae:
+            _log(job_id, f"⚠️ Academic search unavailable: {str(ae)[:60]}")
+
+        report_text = await _finalize_report(
+            job_id, query, loop, report_text, primary_papers, primary_source_material
+        )
+
         job.update({"status": "complete", "report": report_text,
                     "elapsed": _elapsed(), "progress_msg": "Research complete"})
         _log(job_id, "✅ Research complete")
@@ -125,7 +156,7 @@ async def _run_research(job_id: str, query: str, model: str):
         plan_resp = await loop.run_in_executor(
             None,
             lambda: _client.models.generate_content(
-                model="gemini-3.5-flash",
+                model="gemini-3.6-flash",
                 contents=plan_prompt,
             )
         )
@@ -150,32 +181,75 @@ async def _run_research(job_id: str, query: str, model: str):
                 f"{query} expert analysis research",
             ]
 
+        # Trial users (pro_validation) are capped at 3 searches to reduce API cost
+        is_trial = job.get("user_plan") in ("pro_trial", "pro_validation")
+        max_searches = 3 if is_trial else 6
+        queries = queries[:max_searches]
+
         _log(job_id, f"📋 Research plan ready — {len(queries)} search angles identified")
 
-        # ── Step 2: Execute all searches ─────────────────────────────────────
+        # ── Step 2: Execute all searches — academic sources first ────────────
+        # For each angle, try Semantic Scholar (real scholarly papers) first.
+        # Only fall back to general web search when scholarly results are too
+        # thin for that angle, so the report leans on papers, not blog posts,
+        # wherever possible — the thing this audience judges us on hardest.
         job["status"] = "researching"
-        all_contexts = []
+        academic_ctxs: list[str] = []
+        web_ctxs: list[str] = []
+        all_papers: list[dict] = []
+        academic_disabled = False  # set True after a 429 so we stop retrying a rate-limited API
         angle_labels = ["Overview", "Current data", "Key players",
                         "Challenges", "Recent developments", "Future outlook"]
 
-        for i, q in enumerate(queries[:6]):
+        for i, q in enumerate(queries[:max_searches]):
             label = angle_labels[i] if i < len(angle_labels) else f"Angle {i+1}"
             _log(job_id, f"🔍 Searching: {label} — \"{q[:60]}...\"")
-            try:
-                ctx = await loop.run_in_executor(
-                    None, lambda q=q: search_mod.get_web_context(q, deep_dive=True)
-                )
-                if ctx and len(ctx.strip()) > 100:
-                    all_contexts.append(f"=== {label} ===\n{ctx}")
-            except Exception as se:
-                _log(job_id, f"⚠️ Search failed for angle {i+1}: {str(se)[:60]}")
+
+            angle_papers = []
+            if not academic_disabled:
+                try:
+                    angle_papers = await _fetch_semantic_scholar_cached(q, limit=6)
+                except _RateLimited:
+                    academic_disabled = True
+                    _log(job_id, "⚠️ Academic source API is rate-limited — using web search for the rest of this report")
+                except Exception as ae:
+                    _log(job_id, f"⚠️ Academic search unavailable for angle {i+1}: {str(ae)[:60]}")
+
+            academic_ctx = _papers_to_context(angle_papers, label) if angle_papers else ""
+            has_enough_academic = academic_ctx and academic_ctx.count("\n- ") >= 2
+
+            if angle_papers:
+                academic_ctxs.append(academic_ctx)
+                all_papers.extend(angle_papers)
+
+            if has_enough_academic:
+                _log(job_id, f"📚 {label}: found {len(angle_papers)} academic papers")
+            else:
+                # Fall back to general web search for this angle — either no
+                # academic API results, or too few to stand on their own.
+                try:
+                    ctx = await loop.run_in_executor(
+                        None, lambda q=q: search_mod.get_web_context(q, deep_dive=True)
+                    )
+                    if ctx and len(ctx.strip()) > 100:
+                        web_ctxs.append(f"=== {label} ===\n{ctx}")
+                except Exception as se:
+                    _log(job_id, f"⚠️ Search failed for angle {i+1}: {str(se)[:60]}")
             await asyncio.sleep(0.5)
 
-        _log(job_id, f"📄 Collected {len(all_contexts)} research sources")
+        all_papers = _dedupe_papers(all_papers)
+        _log(job_id, f"📄 Collected {len(academic_ctxs) + len(web_ctxs)} research sources ({len(all_papers)} academic papers)")
 
         # ── Step 3: Extract key insights per source ───────────────────────────
+        # Academic material is placed first and given a guaranteed budget so
+        # it isn't pushed out by web material when later steps truncate — the
+        # whole point of this upgrade is that scholarly content survives into
+        # what the model actually reads, not just what gets collected.
         _log(job_id, "🧬 Extracting key insights and evidence from each source…")
-        combined_context = "\n\n".join(all_contexts)
+        ACADEMIC_BUDGET = 7000
+        academic_material = "\n\n".join(academic_ctxs)[:ACADEMIC_BUDGET]
+        web_material = "\n\n".join(web_ctxs)
+        combined_context = academic_material + (("\n\n" + web_material) if web_material else "")
 
         extract_prompt = (
             "You are a research analyst. Read the following multi-source research context and extract "
@@ -189,7 +263,7 @@ async def _run_research(job_id: str, query: str, model: str):
         insights_resp = await loop.run_in_executor(
             None,
             lambda: _client.models.generate_content(
-                model="gemini-3.5-flash",
+                model="gemini-3.6-flash",
                 contents=extract_prompt,
             )
         )
@@ -212,7 +286,7 @@ async def _run_research(job_id: str, query: str, model: str):
         gaps_resp = await loop.run_in_executor(
             None,
             lambda: _client.models.generate_content(
-                model="gemini-3.5-flash",
+                model="gemini-3.6-flash",
                 contents=gaps_prompt,
             )
         )
@@ -222,6 +296,14 @@ async def _run_research(job_id: str, query: str, model: str):
 
         # ── Step 5: Synthesise full report ─────────────────────────────────────
         _log(job_id, "⚗️ Synthesising all findings into comprehensive report…")
+
+        # academic_material is already fully included (guaranteed, see Step 3);
+        # top up with as much web material as fits so the writer sees a rich
+        # context, while the fact-check/matrix step later only trusts papers
+        # inside academic_material — the part we know the writer actually saw.
+        SYNTHESIS_BUDGET = 9000
+        remaining_budget = max(1500, SYNTHESIS_BUDGET - len(academic_material))
+        synthesis_context = academic_material + (("\n\n" + web_material[:remaining_budget]) if web_material else "")
 
         synthesis_prompt = (
             "You are a world-class academic research writer. Write a comprehensive, well-structured "
@@ -241,7 +323,7 @@ async def _run_research(job_id: str, query: str, model: str):
             f"TOPIC: {query}\n\n"
             f"KEY INSIGHTS WITH CITATIONS:\n{insights}\n\n"
             f"RESEARCH GAPS:\n{gaps}\n\n"
-            f"FULL RESEARCH CONTEXT:\n{combined_context[:6000]}\n\n"
+            f"FULL RESEARCH CONTEXT:\n{synthesis_context}\n\n"
             "Write the complete, detailed, professional report now. Be thorough, use citations "
             "in [n] format throughout, and ensure every claim is supported. Minimum 1500 words."
         )
@@ -251,7 +333,7 @@ async def _run_research(job_id: str, query: str, model: str):
         report_resp = await loop.run_in_executor(
             None,
             lambda: _client.models.generate_content(
-                model="gemini-3.5-flash",
+                model="gemini-3.6-flash",
                 contents=synthesis_prompt,
             )
         )
@@ -259,17 +341,16 @@ async def _run_research(job_id: str, query: str, model: str):
         final_report = report_resp.text
         elapsed = _elapsed()
 
-        _log(job_id, f"✅ Report written — {len(final_report.split())} words · fetching academic sources…")
+        _log(job_id, f"✅ Report written — {len(final_report.split())} words")
 
-        # ── Sources Matrix — fetch real papers from Semantic Scholar ──────────
-        try:
-            papers = await _fetch_semantic_scholar(query)
-            if papers:
-                matrix = _format_sources_matrix(papers)
-                final_report = final_report + matrix
-                _log(job_id, f"📚 Sources Matrix added — {len(papers)} papers from Semantic Scholar")
-        except Exception as sem_err:
-            _log(job_id, f"⚠️ Semantic Scholar unavailable: {str(sem_err)[:60]}")
+        # ── Step 6: Fact-check pass + Sources Matrix ─────────────────────────
+        # Shared with the Interactions-API success path (see above) so both
+        # execution paths get the same verification and sourcing treatment.
+        # Uses synthesis_context (not the wider combined_context) so the
+        # matrix only ever lists papers whose content the writer actually saw.
+        final_report = await _finalize_report(
+            job_id, query, loop, final_report, all_papers, synthesis_context
+        )
 
         elapsed = _elapsed()
         _log(job_id, f"✅ Research complete in {elapsed}s")
@@ -292,14 +373,21 @@ async def _run_research(job_id: str, query: str, model: str):
         _log(job_id, f"❌ Error: {str(e2)[:80]}")
 
 
-async def _fetch_semantic_scholar(query: str) -> list[dict]:
+class _RateLimited(Exception):
+    """Raised when Semantic Scholar's free tier returns 429 — signals the
+    caller to stop hammering it for the rest of this job rather than retry
+    on every remaining angle (wastes time and looks unreliable to the user)."""
+    pass
+
+
+async def _fetch_semantic_scholar(query: str, limit: int = 8) -> list[dict]:
     """Fetch top academic papers from Semantic Scholar (free, no key needed)."""
     import aiohttp
     url = "https://api.semanticscholar.org/graph/v1/paper/search"
     params = {
         "query":  query,
-        "fields": "title,year,citationCount,abstract,authors,externalIds",
-        "limit":  8,
+        "fields": "paperId,title,year,citationCount,abstract,authors,externalIds",
+        "limit":  limit,
     }
     headers = {"User-Agent": "DynamoAI/1.0 (academic research tool)"}
     async with aiohttp.ClientSession() as session:
@@ -307,10 +395,125 @@ async def _fetch_semantic_scholar(query: str) -> list[dict]:
             url, params=params, headers=headers,
             timeout=aiohttp.ClientTimeout(total=15)
         ) as resp:
+            if resp.status == 429:
+                raise _RateLimited("Semantic Scholar rate limit hit (429)")
             if resp.status == 200:
                 data = await resp.json()
                 return data.get("data", [])
     return []
+
+
+async def _fetch_semantic_scholar_cached(query: str, limit: int = 6) -> list[dict]:
+    """Cached wrapper around _fetch_semantic_scholar — avoids re-querying the
+    same/similar topic within _ACADEMIC_CACHE_TTL, since Semantic Scholar's
+    free tier is rate-limited and repeat topics are common. Re-raises
+    _RateLimited so callers can stop attempting further academic calls for
+    the rest of the job instead of retrying a 429 on every remaining angle."""
+    key = _normalize_query(query)
+    cached = _academic_cache.get(key)
+    now = time.time()
+    if cached and (now - cached[0]) < _ACADEMIC_CACHE_TTL:
+        return cached[1]
+    papers = await _fetch_semantic_scholar(query, limit=limit)  # may raise _RateLimited
+    if papers:
+        _academic_cache[key] = (now, papers)
+    return papers
+
+
+def _papers_to_context(papers: list[dict], label: str) -> str:
+    """Format a list of Semantic Scholar papers into the same kind of context
+    block the synthesis prompt already expects from web search, so scholarly
+    results can be swapped in for a research angle transparently."""
+    lines = [f"=== {label} (academic sources) ==="]
+    for p in papers:
+        title = (p.get("title") or "").strip()
+        if not title:
+            continue
+        year = p.get("year") or "n/a"
+        citations = p.get("citationCount") or 0
+        authors = p.get("authors") or []
+        author_str = authors[0].get("name", "Unknown") if authors else "Unknown"
+        if len(authors) > 1:
+            author_str += " et al."
+        abstract = (p.get("abstract") or "").strip()[:500]
+        doi = (p.get("externalIds") or {}).get("DOI", "")
+        url = f"https://doi.org/{doi}" if doi else f"https://www.semanticscholar.org/paper/{p.get('paperId', '')}"
+        if abstract:
+            lines.append(f"- {title} ({author_str}, {year}, {citations} citations): {abstract} (Source: {url})")
+    return "\n".join(lines) if len(lines) > 1 else ""
+
+
+async def _finalize_report(job_id: str, query: str, loop, report_text: str,
+                            papers: list[dict], source_material: str) -> str:
+    """Shared verification step used by BOTH the Gemini Interactions API
+    success path and the fallback agentic pipeline, so every Deep Research
+    report gets the same treatment regardless of which path produced it:
+    1. Fact-check the draft against `source_material` (one cheap LLM pass).
+    2. Append a Sources Matrix — but only for papers whose text actually
+       appears in `source_material`, so the matrix never lists a paper as
+       "used" when its content wasn't part of what was fact-checked/written.
+    """
+    if source_material.strip():
+        _log(job_id, "🔎 Fact-checking claims and citations against sources…")
+        try:
+            factcheck_prompt = (
+                "You are a rigorous fact-checking editor for an academic research report. "
+                "Below is a DRAFT REPORT and the SOURCE MATERIAL it was written from. "
+                "Your job: verify that every factual claim and every [n] citation in the draft "
+                "is actually supported by something in the source material.\n\n"
+                "Rules:\n"
+                "- If a claim or citation IS supported, keep it exactly as written.\n"
+                "- If a claim or citation is NOT supported by the source material (fabricated, "
+                "misattributed, or unverifiable), either remove it or rewrite it as a clearly "
+                "hedged statement (e.g. 'reports suggest' instead of a specific unsupported stat).\n"
+                "- Do not invent new content. Do not shorten unrelated sections.\n"
+                "- Output the full corrected report text only — no commentary, no explanation of changes.\n\n"
+                f"SOURCE MATERIAL:\n{source_material[:9000]}\n\n"
+                f"DRAFT REPORT:\n{report_text[:9000]}"
+            )
+            factcheck_resp = await loop.run_in_executor(
+                None,
+                lambda: _client.models.generate_content(
+                    model="gemini-3.6-flash",
+                    contents=factcheck_prompt,
+                )
+            )
+            verified = (factcheck_resp.text or "").strip()
+            # Guard against a degenerate/empty response wiping out a good report
+            if verified and len(verified.split()) > 200:
+                report_text = verified
+                _log(job_id, "✅ Fact-check complete — unsupported claims flagged or removed")
+            else:
+                _log(job_id, "⚠️ Fact-check pass returned too little text — keeping original draft")
+        except Exception as fc_err:
+            _log(job_id, f"⚠️ Fact-check pass skipped: {str(fc_err)[:60]}")
+    else:
+        _log(job_id, "⚠️ No academic/source material collected — skipping fact-check pass")
+
+    if papers:
+        material_lower = source_material.lower()
+        matrix_papers = [
+            p for p in papers
+            if (p.get("title") or "").strip()[:40].lower() in material_lower
+        ]
+        if matrix_papers:
+            matrix_papers = matrix_papers[:10]
+            report_text = report_text + _format_sources_matrix(matrix_papers)
+            _log(job_id, f"📚 Sources Matrix added — {len(matrix_papers)} academic papers")
+
+    return report_text
+
+
+def _dedupe_papers(papers: list[dict]) -> list[dict]:
+    seen = set()
+    out = []
+    for p in papers:
+        pid = p.get("paperId") or p.get("title")
+        if not pid or pid in seen:
+            continue
+        seen.add(pid)
+        out.append(p)
+    return out
 
 
 def _sanitize_cell(text: str, max_len: int = 130) -> str:

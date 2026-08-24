@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dynamo AI — Pro Validation Programme</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script>
+    tailwind.config = { darkMode: "class" };
+    if (
+      localStorage.theme === "dark" ||
+      (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      document.documentElement.classList.add("dark");
+    }
+  </script>
+
+  <script>
+    window.BACKEND_URL = "";
+  </script>
+
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    .bolt-glow {
+      box-shadow: 0 0 40px rgba(250, 204, 21, 0.35), 0 0 80px rgba(250, 204, 21, 0.15);
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.4s ease forwards; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 20px; height: 20px;
+      border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 py-12">
+
+  <!-- Logo + Wordmark -->
+  <div class="flex items-center gap-3 mb-10 fade-up">
+    <div class="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center shadow-lg bolt-glow">
+      <svg viewBox="0 0 24 24" class="w-6 h-6 fill-black" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 2L4.09 12.37A1 1 0 0 0 5 14h5.5l-1.5 8 8.91-10.37A1 1 0 0 0 17 10h-5.5L13 2z"/>
+      </svg>
+    </div>
+    <span class="text-xl font-bold tracking-tight text-white">Dynamo AI</span>
+  </div>
+
+  <!-- Card -->
+  <div id="main-card" class="w-full max-w-md bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-2xl fade-up">
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center gap-2 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest">
+        Invite Only
+      </div>
+      <h1 class="text-2xl font-extrabold text-white leading-tight">Dynamo AI Pro Validation Programme</h1>
+      <p class="mt-2 text-sm text-gray-400 leading-relaxed">
+        Selected researchers and professors get 14 days of full Pro access — free. Billing begins automatically only after the trial ends.
+      </p>
+    </div>
+
+    <!-- Auth Gate (shown when not signed in) -->
+    <div id="auth-gate" class="hidden text-center py-6">
+      <div class="text-4xl mb-4">🔒</div>
+      <p class="text-gray-300 font-semibold mb-2">Sign in required</p>
+      <p class="text-sm text-gray-500 mb-6">Please sign in to the Dynamo AI app first, then return to this page.</p>
+      <a href="/"
+        class="inline-block px-6 py-3 bg-yellow-400 text-black font-bold rounded-xl hover:bg-yellow-300 transition text-sm">
+        Go to Dynamo AI →
+      </a>
+    </div>
+
+    <!-- Form (shown when signed in) -->
+    <form id="invite-form" class="hidden space-y-5">
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Your Email</label>
+        <input
+          id="email-field"
+          type="email"
+          readonly
+          class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-sm text-gray-300 cursor-not-allowed focus:outline-none"
+          placeholder="Loading…"
+        />
+        <p class="text-xs text-gray-600 mt-1">Verified from your account — cannot be changed.</p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Invite Code</label>
+        <input
+          id="invite-code"
+          type="text"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="DYNAMO-XXXXXXXXXXXX"
+          class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400 transition uppercase tracking-widest"
+          style="font-family: monospace; font-size: 14px;"
+        />
+      </div>
+
+      <!-- Error -->
+      <div id="error-box" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl px-4 py-3 text-sm"></div>
+
+      <!-- Submit -->
+      <button
+        id="activate-btn"
+        type="submit"
+        class="w-full py-3.5 bg-yellow-400 text-black font-extrabold rounded-xl text-sm hover:bg-yellow-300 active:scale-95 transition-all flex items-center justify-center gap-2"
+      >
+        Activate 14-Day Pro Access
+      </button>
+
+      <p class="text-center text-xs text-gray-600">
+        By activating, you agree to billing starting automatically after the 14-day trial unless you cancel.
+      </p>
+    </form>
+
+    <!-- Loading state -->
+    <div id="loading-state" class="text-center py-8">
+      <div class="spinner mx-auto mb-3" style="border-color: rgba(250,204,21,0.2); border-top-color: #facc15;"></div>
+      <p class="text-sm text-gray-500">Checking your account…</p>
+    </div>
+
+    <!-- Feedback state (shown after activation, before redirect) -->
+    <div id="feedback-state" class="hidden py-4">
+      <div class="text-center mb-5">
+        <div class="text-4xl mb-3">🎉</div>
+        <h2 class="text-xl font-extrabold text-yellow-400 mb-1">Welcome to Pro!</h2>
+        <p class="text-sm text-gray-400">Your 14-day trial is now active. Before we send you in — share your first impressions (takes 20 seconds).</p>
+      </div>
+
+      <div class="space-y-5">
+        <!-- Star rating -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">How excited are you about trying Pro?</label>
+          <div id="star-row" class="flex gap-2 justify-center" role="radiogroup" aria-label="Rating">
+            <button type="button" data-star="1" class="star-btn text-3xl text-gray-600 hover:text-yellow-400 transition-colors focus:outline-none" aria-label="1 star">★</button>
+            <button type="button" data-star="2" class="star-btn text-3xl text-gray-600 hover:text-yellow-400 transition-colors focus:outline-none" aria-label="2 stars">★</button>
+            <button type="button" data-star="3" class="star-btn text-3xl text-gray-600 hover:text-yellow-400 transition-colors focus:outline-none" aria-label="3 stars">★</button>
+            <button type="button" data-star="4" class="star-btn text-3xl text-gray-600 hover:text-yellow-400 transition-colors focus:outline-none" aria-label="4 stars">★</button>
+            <button type="button" data-star="5" class="star-btn text-3xl text-gray-600 hover:text-yellow-400 transition-colors focus:outline-none" aria-label="5 stars">★</button>
+          </div>
+        </div>
+
+        <!-- Would upgrade -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Would you upgrade to Pro after the trial?</label>
+          <div class="flex gap-3">
+            <button type="button" id="upgrade-yes" class="upgrade-btn flex-1 py-2.5 rounded-xl border border-gray-700 text-sm text-gray-300 hover:border-yellow-400 hover:text-yellow-400 transition-colors focus:outline-none">
+              👍 Yes
+            </button>
+            <button type="button" id="upgrade-no" class="upgrade-btn flex-1 py-2.5 rounded-xl border border-gray-700 text-sm text-gray-300 hover:border-gray-500 hover:text-gray-200 transition-colors focus:outline-none">
+              👎 Not sure
+            </button>
+          </div>
+        </div>
+
+        <!-- Open text -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Anything you're hoping to do with Pro? (optional)</label>
+          <textarea
+            id="feedback-text"
+            rows="2"
+            placeholder="e.g. Deep research for my thesis, image generation…"
+            class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400 transition resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-3 pt-1">
+          <button type="button" id="feedback-skip-btn" class="flex-1 py-2.5 border border-gray-700 text-gray-500 text-sm rounded-xl hover:border-gray-600 hover:text-gray-400 transition-colors focus:outline-none">
+            Skip
+          </button>
+          <button type="button" id="feedback-submit-btn" class="flex-1 py-2.5 bg-yellow-400 text-black font-bold text-sm rounded-xl hover:bg-yellow-300 active:scale-95 transition-all focus:outline-none flex items-center justify-center gap-2">
+            Send feedback
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success state (shown after feedback or skip) -->
+    <div id="success-state" class="hidden text-center py-6">
+      <div class="text-5xl mb-4">🚀</div>
+      <h2 class="text-xl font-extrabold text-yellow-400 mb-2">You're all set!</h2>
+      <p class="text-sm text-gray-400 mb-1">Taking you to Dynamo AI now.</p>
+      <p class="text-sm text-gray-500">Redirecting in <span id="countdown">3</span>s…</p>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <p class="mt-8 text-xs text-gray-700">
+    This page is not publicly linked. Invite-only access for Dynamo AI Pro Validation Programme participants.
+  </p>
+
+<script>
+  // ── Firebase Init ──────────────────────────────────────────
+  const firebaseConfig = {
+    apiKey:            "AIzaSyDcYXrbVi9mW54MMTofbxuyo4lALglkK2M",
+    authDomain:        "dynamo-ai-01.firebaseapp.com",
+    projectId:         "dynamo-ai-01",
+    storageBucket:     "dynamo-ai-01.firebasestorage.app",
+    messagingSenderId: "1083537512306",
+    appId:             "1:1083537512306:web:d0e68ddb69fb5f8199efeb"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  // ── Elements ───────────────────────────────────────────────
+  const authGate      = document.getElementById("auth-gate");
+  const inviteForm    = document.getElementById("invite-form");
+  const loadingState  = document.getElementById("loading-state");
+  const feedbackState = document.getElementById("feedback-state");
+  const successState  = document.getElementById("success-state");
+  const emailField    = document.getElementById("email-field");
+  const inviteCodeEl  = document.getElementById("invite-code");
+  const errorBox      = document.getElementById("error-box");
+  const activateBtn   = document.getElementById("activate-btn");
+
+  let currentUser      = null;
+  let activatedSubId   = null;
+  let selectedRating   = null;
+  let selectedUpgrade  = null;
+
+  function showError(msg) {
+    errorBox.textContent = msg;
+    errorBox.classList.remove("hidden");
+  }
+
+  function clearError() {
+    errorBox.classList.add("hidden");
+    errorBox.textContent = "";
+  }
+
+  function setLoading(loading) {
+    if (loading) {
+      activateBtn.disabled = true;
+      activateBtn.innerHTML = '<span class="spinner"></span> Activating…';
+    } else {
+      activateBtn.disabled = false;
+      activateBtn.innerHTML = "Activate 14-Day Pro Access";
+    }
+  }
+
+  function startRedirect() {
+    feedbackState.classList.add("hidden");
+    successState.classList.remove("hidden");
+    let secs = 3;
+    document.getElementById("countdown").textContent = secs;
+    const iv = setInterval(() => {
+      secs--;
+      const el = document.getElementById("countdown");
+      if (el) el.textContent = secs;
+      if (secs <= 0) {
+        clearInterval(iv);
+        window.location.href = "/";
+      }
+    }, 1000);
+  }
+
+  function showSuccess() {
+    inviteForm.classList.add("hidden");
+    feedbackState.classList.remove("hidden");
+  }
+
+  // ── Star rating interaction ────────────────────────────────
+  document.querySelectorAll(".star-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      selectedRating = parseInt(btn.dataset.star, 10);
+      document.querySelectorAll(".star-btn").forEach((b) => {
+        const val = parseInt(b.dataset.star, 10);
+        b.classList.toggle("text-yellow-400", val <= selectedRating);
+        b.classList.toggle("text-gray-600", val > selectedRating);
+      });
+    });
+    btn.addEventListener("mouseenter", () => {
+      const hoverVal = parseInt(btn.dataset.star, 10);
+      document.querySelectorAll(".star-btn").forEach((b) => {
+        const val = parseInt(b.dataset.star, 10);
+        b.classList.toggle("text-yellow-400", val <= hoverVal);
+        b.classList.toggle("text-gray-600", val > hoverVal);
+      });
+    });
+    btn.addEventListener("mouseleave", () => {
+      document.querySelectorAll(".star-btn").forEach((b) => {
+        const val = parseInt(b.dataset.star, 10);
+        const filled = selectedRating !== null && val <= selectedRating;
+        b.classList.toggle("text-yellow-400", filled);
+        b.classList.toggle("text-gray-600", !filled);
+      });
+    });
+  });
+
+  // ── Upgrade yes/no ─────────────────────────────────────────
+  document.getElementById("upgrade-yes").addEventListener("click", () => {
+    selectedUpgrade = true;
+    document.getElementById("upgrade-yes").classList.add("border-yellow-400", "text-yellow-400");
+    document.getElementById("upgrade-no").classList.remove("border-yellow-400", "text-yellow-400");
+    document.getElementById("upgrade-no").classList.add("border-gray-700", "text-gray-300");
+  });
+  document.getElementById("upgrade-no").addEventListener("click", () => {
+    selectedUpgrade = false;
+    document.getElementById("upgrade-no").classList.add("border-gray-500", "text-gray-200");
+    document.getElementById("upgrade-yes").classList.remove("border-yellow-400", "text-yellow-400");
+    document.getElementById("upgrade-yes").classList.add("border-gray-700", "text-gray-300");
+  });
+
+  // ── Feedback submit ────────────────────────────────────────
+  async function submitFeedback() {
+    const submitBtn = document.getElementById("feedback-submit-btn");
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner" style="border-color:rgba(0,0,0,0.2);border-top-color:#000;"></span>';
+
+    try {
+      const token = await currentUser.getIdToken();
+      const backendUrl = window.BACKEND_URL || "";
+      await fetch(`${backendUrl}/trial/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firebase_token:  token,
+          subscription_id: activatedSubId || null,
+          rating:          selectedRating,
+          feedback_text:   document.getElementById("feedback-text").value.trim() || null,
+          would_upgrade:   selectedUpgrade,
+        }),
+      });
+    } catch (_) {
+      // Best-effort — don't block redirect on network error
+    }
+
+    startRedirect();
+  }
+
+  document.getElementById("feedback-submit-btn").addEventListener("click", submitFeedback);
+  document.getElementById("feedback-skip-btn").addEventListener("click", startRedirect);
+
+  function launchRazorpay({ subscriptionId, keyId, email }) {
+    const options = {
+      key:             keyId,
+      subscription_id: subscriptionId,
+      name:            "Dynamo AI",
+      description:     "Pro Validation Programme — 14-Day Free Trial",
+      image:           "/assets/dynamo-logo.png",
+      prefill: { email },
+      theme: { color: "#facc15" },
+      handler: function(_response) {
+        showSuccess();
+      },
+      modal: {
+        ondismiss: function() {
+          setLoading(false);
+          showError("Payment setup was cancelled. Your trial has been activated — you can set up billing later.");
+          setTimeout(() => { window.location.href = "/"; }, 4000);
+        }
+      }
+    };
+    const rzp = new Razorpay(options);
+    rzp.open();
+  }
+
+  // ── Auth state listener ────────────────────────────────────
+  auth.onAuthStateChanged(async (user) => {
+    loadingState.classList.add("hidden");
+
+    if (!user) {
+      authGate.classList.remove("hidden");
+      return;
+    }
+
+    currentUser = user;
+    emailField.value = user.email || "";
+    inviteForm.classList.remove("hidden");
+  });
+
+  // ── Form submit ────────────────────────────────────────────
+  inviteForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearError();
+
+    const code = inviteCodeEl.value.trim().toUpperCase();
+    if (!code) {
+      showError("Please enter your invite code.");
+      return;
+    }
+
+    if (!currentUser) {
+      showError("You are not signed in. Please refresh and try again.");
+      return;
+    }
+
+    setLoading(true);
+
+    let token;
+    try {
+      token = await currentUser.getIdToken(true);
+    } catch (err) {
+      setLoading(false);
+      showError("Could not get authentication token. Please refresh and try again.");
+      return;
+    }
+
+    const backendUrl = window.BACKEND_URL || "";
+
+    let data;
+    try {
+      const res = await fetch(`${backendUrl}/trial/activate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firebase_token: token,
+          invite_code:    code,
+        })
+      });
+
+      data = await res.json();
+
+      if (!res.ok) {
+        setLoading(false);
+        showError(data.detail || "Activation failed. Please try again.");
+        return;
+      }
+    } catch (err) {
+      setLoading(false);
+      showError("Could not connect to the server. Please check your connection and try again.");
+      return;
+    }
+
+    // Store subscription_id for feedback submission
+    activatedSubId = data.subscription_id || null;
+
+    // Launch Razorpay to collect billing details for post-trial
+    try {
+      launchRazorpay({
+        subscriptionId: data.subscription_id,
+        keyId:          data.key_id,
+        email:          data.email,
+      });
+    } catch (err) {
+      setLoading(false);
+      showError("Could not launch payment setup. Your trial is active — please contact support if billing is not set up.");
+    }
+  });
+
+  // Auto-uppercase invite code input
+  inviteCodeEl.addEventListener("input", () => {
+    const pos = inviteCodeEl.selectionStart;
+    inviteCodeEl.value = inviteCodeEl.value.toUpperCase();
+    inviteCodeEl.setSelectionRange(pos, pos);
+  });
+</script>
+
+</body>
+</html>

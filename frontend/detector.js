@@ -1,5 +1,5 @@
 // detector.js — Dynamo AI v3
-// AI Detector + Plagiarism Checker — two fully separate modals
+// AI Detector + Plagiarism Pre-Checker — two fully separate modals
 // File upload: TXT (frontend), PDF/DOCX (backend /extract-text)
 // Plan gate: Plus & Pro only. Free users see upgrade prompt; guests see login modal.
 
@@ -10,23 +10,24 @@
   // PLAN GATE — check login + plan before allowing access
   // ─────────────────────────────────────────────────────────────────────────
 
-  function _requirePlusOrPro(featureName) {
+  function _requirePro(featureName) {
     const supa = window.appState?.supabaseUser;
 
-    // Not logged in at all → open auth modal
+    // Not logged in → open auth modal
     if (!supa) {
       window.openAuthModal?.("login");
       return false;
     }
 
-    // Free plan → show upgrade gate
+    // Pro/pro_trial only — block free and Plus
     const plan = (supa.plan || "free").toLowerCase();
-    if (plan === "free") {
+    const allowed = ["pro", "pro_trial", "pro_validation"];
+    if (!allowed.includes(plan) && !supa.access_allowed) {
       _showUpgradeGate(featureName);
       return false;
     }
 
-    return true; // plus or pro — allow through
+    return true;
   }
 
   function _showUpgradeGate(featureName) {
@@ -46,17 +47,16 @@
                   padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);">
         <div style="font-size:38px;margin-bottom:12px;">🔒</div>
         <h3 style="font-size:17px;font-weight:900;color:#111;margin:0 0 8px 0;">
-          ${featureName} is a Plus &amp; Pro feature
+          ${featureName} is a Pro feature
         </h3>
         <p style="font-size:13px;color:#6b7280;line-height:1.65;margin:0 0 22px 0;">
-          Upgrade to unlock the <strong>AI Text Detector</strong>, <strong>Plagiarism Checker</strong>,
-          and all other research tools — starting at just <strong>₹199/mo</strong>.
+          Upgrade to <strong>Pro</strong> to unlock the <strong>AI Text Detector</strong> and <strong>Plagiarism Pre-Checker</strong> — built for researchers and academic self-assessment.
         </p>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <a href="/pricing.html"
-             style="display:block;padding:12px 16px;background:#facc15;color:#111;
+             style="display:block;padding:12px 16px;background:#9333ea;color:#fff;
                     font-weight:800;font-size:14px;border-radius:12px;text-decoration:none;">
-            ⚡ See Plans &amp; Upgrade
+            ⚡ Upgrade to Pro
           </a>
           <button onclick="document.getElementById('_dyn-upgrade-gate').remove()"
             style="padding:10px;background:transparent;border:1px solid #e5e7eb;
@@ -65,7 +65,7 @@
           </button>
         </div>
         <p style="font-size:10px;color:#d1d5db;margin:14px 0 0 0;">
-          Plus — ₹199/mo &nbsp;·&nbsp; Pro — ₹499/mo &nbsp;·&nbsp; Cancel anytime
+          Pro — ₹999/mo &nbsp;·&nbsp; 14-Day Free Trial &nbsp;·&nbsp; Cancel anytime
         </p>
       </div>
     `;
@@ -79,7 +79,7 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   window.openAiDetectorModal = function () {
-    if (!_requirePlusOrPro("AI Text Detector")) return;
+    if (!_requirePro("AI Text Detector")) return;
     _open("ai-detector-modal");
   };
 
@@ -88,7 +88,7 @@
   };
 
   window.openPlagiarismModal = function () {
-    if (!_requirePlusOrPro("Plagiarism Checker")) return;
+    if (!_requirePro("Plagiarism Pre-Checker")) return;
     _open("plagiarism-modal");
   };
 
@@ -154,8 +154,9 @@
         // Send to backend for extraction
         const formData = new FormData();
         formData.append("file", file);
+        formData.append("user_id", window.appState?.supabaseUserId || "");
         const base = window.BACKEND_URL || "";
-        const resp  = await fetch(`${base}/extract-text`, {
+        const resp  = await window.backendFetch(`${base}/extract-text`, {
           method: "POST",
           body:   formData,
         });
@@ -170,7 +171,10 @@
 
       const textarea = document.getElementById(textareaId);
       if (textarea) {
-        textarea.value = text.slice(0, 12000);
+        // Load the FULL extracted text — both the AI Detector and Plagiarism Pre-Checker
+        // backends already chunk arbitrarily long documents to cover every section,
+        // so truncating here was silently dropping the back half of longer uploads.
+        textarea.value = text;
         _updateCount(textareaId, counterId);
       }
       _setStatus(statusId, `✅ ${file.name} loaded (${_wc(text)} words)`, "ok");
@@ -206,7 +210,7 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   window.runAiDetect = async function () {
-    if (!_requirePlusOrPro("AI Text Detector")) return;
+    if (!_requirePro("AI Text Detector")) return;
     const text = (document.getElementById("ai-text-input")?.value || "").trim();
     if (text.length < 50) {
       _setStatus("ai-status", "⚠️ Please paste at least 50 characters of text.", "warn");
@@ -345,7 +349,7 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   window.runPlagCheck = async function () {
-    if (!_requirePlusOrPro("Plagiarism Checker")) return;
+    if (!_requirePro("Plagiarism Pre-Checker")) return;
     const text = (document.getElementById("plag-text-input")?.value || "").trim();
     if (text.length < 80) {
       _setStatus("plag-status", "⚠️ Please paste at least 80 characters of text.", "warn");
@@ -354,7 +358,7 @@
 
     const btn = document.getElementById("plag-check-btn");
     _setBtnLoading(btn, "Checking…");
-    _setStatus("plag-status", "🔍 Searching web & 200M+ academic papers…", "info");
+    _setStatus("plag-status", "🔍 Finding public pages and comparing the actual text…", "info");
     document.getElementById("plag-result").classList.add("hidden");
 
     try {
@@ -364,7 +368,7 @@
     } catch (err) {
       _setStatus("plag-status", "⚠️ Check failed: " + err.message, "error");
     } finally {
-      _setBtnDone(btn, "Check Originality");
+      _setBtnDone(btn, "Run Pre-Check");
     }
   };
 
@@ -375,17 +379,40 @@
     const methodology = r.methodology  || "";
     const queriesRun  = r.queries_run  || 1;
     const srcFound    = r.sources_found || sources.length;
+    const publicPagesCompared = Number(r.public_pages_compared || r.evidence_sources_count || 0);
+    const sectionsUnverified = Number(r.sections_unverified || 0);
+    const verified    = r.verified !== false; // absent (older responses) = treat as verified
+    const verificationState = r.verification_state || (verified ? "legacy_verified" : "insufficient_evidence");
+    const matchesFound = Number(r.matches_found || 0);
+    const referenceWordsExcluded = Number(r.reference_words_excluded || 0);
 
     const origPct = 100 - score; // originality %
 
-    const { color, bgCol, bdCol } = _scoreTheme(score, 65, 35);
+    const { color, bgCol, bdCol } = verified && verificationState !== "insufficient_evidence"
+      ? _scoreTheme(score, 65, 35)
+      : { color: "#64748b", bgCol: "#f1f5f9", bdCol: "#cbd5e1" };
 
     // Verdict wording
     let bannerEmoji, bannerText, bannerSub, guidance;
-    if (score <= 15) {
-      bannerEmoji = "✅"; bannerText = "Highly Original";
-      bannerSub   = "No significant matching content found online or in academic databases.";
-      guidance    = "This text appears to be original work and should be safe to submit. Standard citation practices still apply for referenced ideas.";
+    if (verificationState === "insufficient_evidence" || !verified) {
+      bannerEmoji = "❔"; bannerText = "Unable to Verify";
+       bannerSub   = "Not enough public page text was available to make a reliable comparison.";
+       guidance    = "This is not a confirmation of originality. The checker could not retrieve enough comparable public text. It cannot check subscription-gated journals, theses, private documents, or your institution's Turnitin database.";
+    } else if (verificationState === "no_overlap" || verificationState === "partial_no_overlap") {
+       bannerEmoji = verificationState === "partial_no_overlap" ? "⚠️" : "✅";
+       bannerText = verificationState === "partial_no_overlap" ? "No Overlap in Available Evidence" : "No Public Overlap Found";
+       bannerSub   = verificationState === "partial_no_overlap"
+         ? "No contiguous eight-word overlap was found where public page text was available; some sections could not be checked."
+         : "No contiguous eight-word overlap was found in the public pages we could retrieve.";
+       guidance    = "This means no strong match was found in the searchable public pages checked. It is not a guarantee of originality, especially for paywalled, private, unpublished, or unindexed sources.";
+    } else if (matchesFound > 0 && score <= 15) {
+      bannerEmoji = "🟡"; bannerText = "Small Public Match Found";
+      bannerSub   = "A public-text match was found, but it represents a small part of the submitted document.";
+      guidance    = "Review the matched passage below and make sure the source is properly quoted or cited. A low percentage does not mean the match is irrelevant.";
+    } else if (score <= 15) {
+      bannerEmoji = "✅"; bannerText = "No Significant Public Match";
+      bannerSub   = "No significant matching passage was found in the public pages checked.";
+      guidance    = "This is not a guarantee of originality. Review citations and remember that private, paywalled, and unindexed sources are not covered.";
     } else if (score <= 35) {
       bannerEmoji = "🟡"; bannerText = "Mostly Original";
       bannerSub   = "Minor matches found — likely common phrases or properly shared knowledge.";
@@ -400,25 +427,44 @@
       guidance    = "This text is likely to be flagged for plagiarism. Significant rewriting and/or proper citation of all matched sources is required before submission.";
     }
 
-    // Separate academic vs web sources — academic first for researchers
+    // Separate academic, publisher, and web sources — academic first for researchers
     const academic = sources.filter(s => s.type === "academic");
+    const crossref = sources.filter(s => s.type === "crossref");
     const web      = sources.filter(s => s.type === "web");
 
+    function _sourceLabel(type) {
+      if (type === "academic") return { text: "📚 Academic Paper", bg: "#eff6ff", color: "#1d4ed8" };
+      if (type === "crossref") return { text: "🏛️ Publisher Record", bg: "#fdf4ff", color: "#a21caf" };
+      return { text: "🌐 Web Source", bg: "#f0fdf4", color: "#16a34a" };
+    }
+
     function _sourceCard(s) {
+      const label = _sourceLabel(s.type);
+      const evidenceBadge = s.evidence_available
+        ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:#ecfdf5;color:#047857;">✓ Text compared</span>`
+        : `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:#f8fafc;color:#64748b;">Discovery only</span>`;
       return `
         <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;padding:11px 14px;">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap;">
             <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;
-              background:${s.type === "academic" ? "#eff6ff" : "#f0fdf4"};
-              color:${s.type === "academic" ? "#1d4ed8" : "#16a34a"};">
-              ${s.type === "academic" ? "📚 Academic Paper" : "🌐 Web Source"}
+               background:${label.bg};
+               color:${label.color};">
+               ${label.text}
             </span>
+            ${evidenceBadge}
             ${s.url ? `<a href="${_esc(s.url)}" target="_blank" rel="noopener"
               style="font-size:11px;color:#6b7280;text-decoration:underline;">↗ Open</a>` : ""}
           </div>
           <div style="font-size:12.5px;font-weight:600;color:#1f2937;margin-bottom:4px;">${_esc(s.source)}</div>
           <div style="font-size:11px;color:#6b7280;line-height:1.5;">${_esc(s.snippet)}</div>
-          ${s.type === "academic" && s.url ? `
+          ${s.matched_words ? `
+          <div style="margin-top:7px;padding:8px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:7px;">
+            <div style="font-size:10px;font-weight:800;color:#c2410c;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">
+              🔎 Matched passage · ${s.matched_words} words
+            </div>
+            <div style="font-size:11px;color:#7c2d12;line-height:1.5;">${_esc(s.match_excerpt || "")}</div>
+          </div>` : ""}
+           ${s.type !== "web" && s.url ? `
           <div style="margin-top:6px;padding-top:6px;border-top:1px solid #f1f5f9;">
             <span style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;">Quick APA-style ref: </span>
             <span style="font-size:11px;color:#475569;font-style:italic;">${_esc(s.source)}. ${s.url.includes("doi.org") ? s.url : ""}</span>
@@ -429,19 +475,33 @@
     const academicBlock = academic.length ? `
       <div style="margin-bottom:10px;">
         <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#1d4ed8;margin-bottom:7px;">
-          📚 Academic Matches (${academic.length}) — Semantic Scholar
+           📚 Academic Candidates (${academic.length}) — Semantic Scholar
         </div>
         <div style="display:flex;flex-direction:column;gap:7px;">${academic.map(_sourceCard).join("")}</div>
+      </div>` : "";
+
+    const crossrefBlock = crossref.length ? `
+      <div style="margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#a21caf;margin-bottom:7px;">
+           🏛️ Publisher Candidates (${crossref.length}) — Crossref
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;">${crossref.map(_sourceCard).join("")}</div>
       </div>` : "";
 
     const webBlock = web.length ? `
       <div>
         <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#16a34a;margin-bottom:7px;">
-          🌐 Web Matches (${web.length})
+           🌐 Web Candidates (${web.length})
         </div>
         <div style="display:flex;flex-direction:column;gap:7px;">${web.map(_sourceCard).join("")}</div>
       </div>` : "";
 
+    const scoreDisplay = matchesFound && score === 0 ? "&lt;1%" : `${score}%`;
+    const matchNotice = matchesFound ? `
+      <div style="margin-top:8px;padding:8px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:11px;color:#9a3412;">
+        🔎 <strong>${matchesFound} public-text match${matchesFound === 1 ? "" : "es"} found</strong>.
+        The percentage is based on words with deterministic contiguous overlap, not an LLM guess.
+      </div>` : "";
     const el = document.getElementById("plag-result");
     el.innerHTML = `
       <!-- ① VERDICT BANNER -->
@@ -455,19 +515,21 @@
             <p style="font-size:12px;color:#4b5563;margin:0;line-height:1.5;">${bannerSub}</p>
           </div>
           <div style="text-align:center;flex-shrink:0;">
-            <div style="font-size:32px;font-weight:900;color:${color};font-family:monospace;line-height:1;">${score}%</div>
-            <div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin-top:2px;">Similarity</div>
+             <div style="font-size:32px;font-weight:900;color:${color};font-family:monospace;line-height:1;">${verificationState === "insufficient_evidence" ? "—" : scoreDisplay}</div>
+             <div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin-top:2px;">${verified ? "Confirmed overlap" : "Unverified"}</div>
           </div>
         </div>
+        ${verificationState !== "insufficient_evidence" ? `
         <div style="margin-top:12px;">
           <div style="background:#e5e7eb;border-radius:999px;height:10px;overflow:hidden;position:relative;">
             <div style="position:absolute;left:0;top:0;width:${origPct}%;height:100%;background:#22c55e;border-radius:999px 0 0 999px;transition:width .7s ease;"></div>
             <div style="position:absolute;right:0;top:0;width:${score}%;height:100%;background:${color};border-radius:0 999px 999px 0;opacity:0.75;transition:width .7s ease;"></div>
           </div>
           <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:600;color:#9ca3af;margin-top:4px;">
-            <span>${origPct}% Original</span><span>${score}% Similar</span>
+             <span>${Math.max(0, 100 - score)}% No overlap</span><span>${scoreDisplay} Confirmed</span>
           </div>
-        </div>
+        </div>` : ""}
+        ${matchNotice}
       </div>
 
       <!-- ② WHAT THIS MEANS -->
@@ -476,7 +538,7 @@
         <p style="font-size:12.5px;color:#334155;line-height:1.6;margin:0;">${guidance}</p>
       </div>
 
-      <!-- ③ GEMINI ANALYSIS -->
+       <!-- ③ DETAILED ANALYSIS -->
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:13px 16px;margin-bottom:10px;">
         <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:6px;">Detailed analysis</div>
         <p style="font-size:12.5px;color:#334155;line-height:1.6;margin:0;">${_esc(summ)}</p>
@@ -491,38 +553,44 @@
         </summary>
         <div style="margin-top:10px;border-top:1px solid #bae6fd;padding-top:10px;">
           <p style="font-size:12px;color:#0c4a6e;line-height:1.7;margin:0 0 8px 0;">
-            <strong>Step 1 — Multi-section search:</strong> We extract phrases from
-            <strong>${queriesRun} section${queriesRun > 1 ? "s" : ""}</strong> of your document
-            (beginning${queriesRun > 1 ? ", middle" : ""}${queriesRun > 2 ? ", and end" : ""})
-            and search them independently. This ensures all parts of your paper are checked,
-            not just the opening paragraph.
+            <strong>Step 1 — Full-document coverage:</strong> Your document is split into
+             <strong>${queriesRun} body section${queriesRun > 1 ? "s" : ""}</strong> and every section is
+            searched independently — not just the opening paragraph. Long articles are checked in full.
           </p>
           <p style="font-size:12px;color:#0c4a6e;line-height:1.7;margin:0 0 8px 0;">
-            <strong>Step 2 — Database search:</strong> Each phrase is searched against the
-            <strong>live web</strong> (Tavily) and <strong>Semantic Scholar</strong> (200M+ academic papers).
-            Results are deduplicated. Found <strong>${srcFound} unique sources</strong> in total.
+             <strong>Step 2 — Evidence search:</strong> Distinctive phrases were searched on the
+            <strong>live web</strong> with public page text requested where available. Crossref
+             and Semantic Scholar records can help discover papers, but metadata/snippets are not
+             counted as proof. Found <strong>${srcFound} candidate sources</strong>; fetched and
+             compared text from <strong>${publicPagesCompared} public page${publicPagesCompared === 1 ? "" : "s"}</strong>.
           </p>
           <p style="font-size:12px;color:#0c4a6e;line-height:1.7;margin:0 0 8px 0;">
-            <strong>Step 3 — AI similarity assessment:</strong> Gemini reads your full text
-            alongside all found sources and judges whether overlaps represent actual plagiarism
-            (direct copying / uncited borrowing) vs. common knowledge or properly cited content.
+             <strong>Step 3 — Deterministic assessment:</strong> Dynamo counts contiguous matching
+             word runs of eight or more words in fetched public page text. An LLM does not invent
+             the percentage, and missing source text is marked <strong>unverified</strong>.
+             ${sectionsUnverified ? `<br><br><strong>Coverage warning:</strong> ${sectionsUnverified} section${sectionsUnverified === 1 ? "" : "s"} could not be checked because usable page text was unavailable.` : ""}
           </p>
           <p style="font-size:11px;color:#0369a1;line-height:1.6;margin:0;padding:8px 10px;background:#e0f2fe;border-radius:8px;">
             ⚠️ <strong>Limitation:</strong> This is a probabilistic estimate based on publicly
             available content. It does not check subscription-gated journals, university thesis
             databases (e.g. ProQuest), or your institution's internal Turnitin database.
-            Use this as a pre-submission self-check, not a replacement for institutional plagiarism tools.
+             ${referenceWordsExcluded ? `<br><br><strong>Reference list:</strong> ${referenceWordsExcluded} bibliography words were excluded from the similarity percentage because citations are not prose copying.` : ""}
+             Use this as a pre-submission self-check, not a replacement for institutional plagiarism tools.
           </p>
         </div>
       </details>
 
-      <!-- ⑤ SOURCES (Academic first, then web) -->
-      ${(academic.length || web.length) ? `
+       <!-- ⑤ DISCOVERY SOURCES (Academic first, then web) -->
+      ${(academic.length || crossref.length || web.length) ? `
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:13px 16px;">
         <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:10px;">
-          Matching Sources Found (${sources.length})
+            Candidate Sources Discovered (${sources.length})
+            <span style="font-weight:600;text-transform:none;letter-spacing:0;color:#64748b;">
+              · ${publicPagesCompared} public page${publicPagesCompared === 1 ? "" : "s"} actually compared
+            </span>
         </div>
         ${academicBlock}
+        ${crossrefBlock}
         ${webBlock}
       </div>` : ""}
     `;
@@ -584,7 +652,7 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   window.runHeatmapAnalysis = async function () {
-    if (!_requirePlusOrPro("AI Text Detector")) return;
+    if (!_requirePro("AI Text Detector")) return;
     const text = (document.getElementById("ai-text-input")?.value || "").trim();
     if (!text) return;
 
@@ -663,7 +731,8 @@
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const resp     = await fetch(`${window.BACKEND_URL || ""}/extract-text`, { method: "POST", body: formData });
+      formData.append("user_id", window.appState?.supabaseUserId || "");
+      const resp     = await window.backendFetch(`${window.BACKEND_URL || ""}/extract-text`, { method: "POST", body: formData });
       const json     = await resp.json();
       const extracted = json.text || json.content || "";
       document.getElementById(textAreaId).value = extracted;
@@ -680,7 +749,7 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   window.runSelfPlagCheck = async function () {
-    if (!_requirePlusOrPro("Plagiarism Checker")) return;
+    if (!_requirePro("Plagiarism Pre-Checker")) return;
     const textA = (document.getElementById("self-text-a")?.value || "").trim();
     const textB = (document.getElementById("self-text-b")?.value || "").trim();
 
@@ -701,6 +770,13 @@
 
     try {
       const res = await window.callBackend("/check-self-plagiarism", { text_a: textA, text_b: textB, user_id: window.appState?.supabaseUser?.id || "" });
+      if (res?.error) {
+        // Structured error (e.g. timeout on very large documents) — show the backend's
+        // actionable message instead of a generic failure.
+        _setStatus("selfplag-status", res.message || "Comparison failed. Please try again.", res.timed_out ? "warn" : "error");
+        document.getElementById("selfplag-result")?.classList.add("hidden");
+        return;
+      }
       _renderSelfPlagResult(res);
       document.getElementById("selfplag-post-actions")?.classList.remove("hidden");
       _setStatus("selfplag-status", "", "");
@@ -716,11 +792,12 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   function _renderSelfPlagResult(r) {
-    const score          = Math.max(0, Math.min(100, r.score || 0));
-    const overlaps       = r.overlaps       || [];
-    const summary        = r.summary        || "";
-    const recommendation = r.recommendation || "";
-    const origPct        = 100 - score;
+    const score            = Math.max(0, Math.min(100, r.score || 0));
+    const overlaps         = r.overlaps       || [];
+    const sectionOverlaps  = r.section_overlaps || [];
+    const summary          = r.summary        || "";
+    const recommendation   = r.recommendation || "";
+    const origPct          = 100 - score;
 
     const { color, bgCol, bdCol } = _scoreTheme(score, 60, 30);
 
@@ -743,6 +820,28 @@
       ? `<ul style="margin:0;padding:0 0 0 18px;">${overlaps.map(o =>
           `<li style="font-size:12px;color:#374151;line-height:1.7;margin-bottom:3px;">${_esc(o)}</li>`).join("")}</ul>`
       : `<p style="font-size:12px;color:#6b7280;margin:0;">No specific overlapping phrases identified.</p>`;
+
+    // Section-by-section breakdown — exactly which part of Document A overlaps
+    // with which part of Document B, so the user knows where to look.
+    const sectionTable = sectionOverlaps.length ? `
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:13px 16px;margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:8px;">Which Sections Overlap</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${sectionOverlaps.map(so => {
+            const { color: rowColor } = _scoreTheme(so.score, 60, 30);
+            const examples = (so.examples || []).slice(0, 2);
+            return `
+            <div style="border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
+                <span style="font-size:12px;font-weight:700;color:#374151;">Doc A §${so.section_a} &harr; Doc B §${so.section_b}</span>
+                <span style="font-size:11px;font-weight:800;color:${rowColor};font-family:monospace;">${so.score}%</span>
+              </div>
+              ${so.summary ? `<p style="font-size:11.5px;color:#4b5563;margin:0 0 ${examples.length ? '6px' : '0'} 0;line-height:1.5;">${_esc(so.summary)}</p>` : ""}
+              ${examples.length ? `<ul style="margin:0;padding:0 0 0 16px;">${examples.map(e => `<li style="font-size:11px;color:#6b7280;line-height:1.6;">${_esc(e)}</li>`).join("")}</ul>` : ""}
+            </div>`;
+          }).join("")}
+        </div>
+      </div>` : "";
 
     const el = document.getElementById("selfplag-result");
     el.innerHTML = `
@@ -771,6 +870,8 @@
           </div>
         </div>
       </div>
+
+      ${sectionTable}
 
       <!-- OVERLAPPING CONTENT -->
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:13px 16px;margin-bottom:10px;">
@@ -821,14 +922,14 @@
   <div class="dyn-header">
     <div>
       <div class="dyn-brand">${icon} Dynamo AI — ${title}</div>
-      <div class="dyn-sub">Research-grade Academic Tools · Powered by Google Gemini</div>
+       <div class="dyn-sub">Public-web evidence pre-check · Deterministic text comparison</div>
     </div>
     <div class="dyn-meta">Generated: ${now}<br>For academic self-assessment only</div>
   </div>
   ${bodyHTML}
   <div class="dyn-footer">
     This report is a probabilistic estimate for educational use only — not a legal or institutional determination of plagiarism or AI authorship.<br>
-    Dynamo AI · Powered by Google Gemini
+     Dynamo AI · Public-web evidence pre-check
   </div>
 </body></html>`);
     win.document.close();
@@ -856,14 +957,14 @@
   window.exportPlagReport = function () {
     const resultEl = document.getElementById("plag-result");
     if (!resultEl || resultEl.classList.contains("hidden")) {
-      alert("Run the Plagiarism Checker first to generate a report."); return;
+      alert("Run the Plagiarism Pre-Checker first to generate a report."); return;
     }
     const excerpt = (document.getElementById("plag-text-input")?.value || "").trim().substring(0, 150);
     const body = `
       ${excerpt ? `<p style="font-size:11.5px;color:#6b7280;font-style:italic;border-left:3px solid #e5e7eb;padding-left:12px;margin-bottom:18px;"><strong>Submitted text (excerpt):</strong> "${_esc(excerpt)}…"</p>` : ""}
       ${resultEl.innerHTML}
     `;
-    _buildPrintWindow("Plagiarism Check Report", "📄", "#2563eb", body);
+    _buildPrintWindow("Plagiarism Pre-Check Report", "📄", "#2563eb", body);
   };
 
   window.exportSelfPlagReport = function () {
@@ -879,7 +980,7 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   window.runHumanize = async function () {
-    if (!_requirePlusOrPro("AI Text Detector")) return;
+    if (!_requirePro("AI Text Detector")) return;
 
     const text = (document.getElementById("ai-text-input")?.value || "").trim();
     if (text.length < 50) {
@@ -908,7 +1009,22 @@
       }
 
       if (output) { output.textContent = res.humanized; }
-      _setStatus("ai-humanize-status", "✅ Content rewritten — review before submitting.", "ok");
+
+      if (res.verified_human === false) {
+        _setStatus(
+          "ai-humanize-status",
+          `⚠️ Rewritten, but still scored ${res.verification_score}% (${res.verification_label}) on our own AI detector after a revision pass — review closely before submitting.`,
+          "warn"
+        );
+      } else if (typeof res.verification_score === "number") {
+        _setStatus(
+          "ai-humanize-status",
+          `✅ Content rewritten and re-checked — now scores ${res.verification_score}% AI-likelihood (${res.verification_label}). Review before submitting.`,
+          "ok"
+        );
+      } else {
+        _setStatus("ai-humanize-status", "✅ Content rewritten — review before submitting.", "ok");
+      }
 
       // Store humanized text for re-check and export
       window._lastHumanized = res.humanized;
@@ -967,5 +1083,4 @@
     await window.runAiDetect();
   };
 
-  console.log("detector.js v3 loaded ✅");
 })();

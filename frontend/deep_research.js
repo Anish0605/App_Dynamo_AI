@@ -13,6 +13,11 @@
   let _cardId       = null;
   let _seenActivity = new Set();
 
+  // Safe query store — avoids injecting user text into onclick attributes
+  // (HTML parsers don't honour backslash-escaping so _escAttr is insufficient)
+  window._drQueries = window._drQueries || {};
+  window._drGetQ    = id => window._drQueries[id] || "";
+
   // ── Mode Activation ─────────────────────────────────────────────────────────
   // Called when user picks "Deep Research Agent" from the menu
 
@@ -67,7 +72,11 @@
 
   window.runDeepResearchInChat = async function (query) {
     const supa = window.appState?.supabaseUser;
-    if (!supa || supa.plan !== "pro") {
+    if (!supa || !window.hasPaidAccess?.(supa) ||
+        ((supa.plan || "").toLowerCase() !== "pro" &&
+         (supa.plan || "").toLowerCase() !== "pro_trial" &&
+         (supa.plan || "").toLowerCase() !== "pro_validation" &&
+         !supa.access_allowed)) {
       window.renderAssistantMessage?.(
         "⚠️ **Deep Research Agent** is a Pro feature. [Upgrade your plan →](/pricing.html)"
       );
@@ -83,7 +92,7 @@
     _startTimer(_cardId);
 
     try {
-      const res = await fetch(`${window.BACKEND_URL || ""}/deep-research/start`, {
+      const res = await window.backendFetch(`${window.BACKEND_URL || ""}/deep-research/start`, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ query, user_id: window.appState?.supabaseUserId || supa.id || "", use_max: false }),
@@ -159,7 +168,7 @@
     let lastMsg = "";
     _pollTimer = setInterval(async () => {
       try {
-        const r = await fetch(`${window.BACKEND_URL || ""}/deep-research/status/${_currentJob}`);
+        const r = await window.backendFetch(`${window.BACKEND_URL || ""}/deep-research/status/${_currentJob}`);
         const d = await r.json();
 
         if (d.progress_msg && d.progress_msg !== lastMsg) {
@@ -227,29 +236,29 @@
     if (stage) { stage.textContent = "Complete ✓"; stage.style.color = "#16a34a"; }
     if (timer && data.elapsed) timer.textContent = _fmt(data.elapsed);
 
-    // Action buttons
-    const q = _escAttr(query);
+    // Action buttons — store query safely in lookup map, never embed in onclick
+    window._drQueries[id] = query;
     const actions = document.getElementById(`${id}-actions`);
     if (actions) {
       actions.innerHTML = `
         <button id="${id}-edit-btn" onclick="window.drEdit('${id}')" style="${_btn()}">Edit</button>
-        <button onclick="window.drDownload('${id}','${q}')" style="${_btn()}">
+        <button onclick="window.drDownload('${id}',window._drGetQ('${id}'))" style="${_btn()}">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:3px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download .md
         </button>
         <button onclick="window.drCopy('${id}')" style="${_btn()}">Copy</button>
-        <button id="${id}-save-btn" onclick="window.drSave('${id}','${q}')" style="${_btn()}">Save to library</button>
-        <button onclick="window.drFollowUp('${id}','${q}')" style="${_btn()}">Ask a follow-up →</button>
-        <button id="${id}-paper-btn" onclick="window.drWritePaper('${id}','${q}')"
+        <button id="${id}-save-btn" onclick="window.drSave('${id}',window._drGetQ('${id}'))" style="${_btn()}">Save to library</button>
+        <button onclick="window.drFollowUp('${id}',window._drGetQ('${id}'))" style="${_btn()}">Ask a follow-up →</button>
+        <button id="${id}-paper-btn" onclick="window.drWritePaper('${id}',window._drGetQ('${id}'))"
           style="font-size:12px;font-weight:700;color:#000;background:#facc15;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           Draft Academic Paper
         </button>
-        <button id="${id}-verify-btn" onclick="window.drVerifyPapers('${id}','${q}')"
+        <button id="${id}-verify-btn" onclick="window.drVerifyPapers('${id}',window._drGetQ('${id}'))"
           style="font-size:12px;font-weight:700;color:#1d4ed8;background:#eff6ff;border:1.5px solid #bfdbfe;padding:7px 14px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           Verify with Papers
         </button>
-        <button id="${id}-notify-btn" onclick="window.drNotifyMe('${q}')"
+        <button id="${id}-notify-btn" onclick="window.drNotifyMe(window._drGetQ('${id}'))"
           style="font-size:12px;font-weight:700;color:#c2410c;background:#fff7ed;border:1.5px solid #fed7aa;padding:7px 14px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           Notify Me
@@ -323,7 +332,7 @@
     const btn  = document.getElementById(`${id}-save-btn`);
     if (btn) { btn.textContent = "Saving…"; btn.disabled = true; }
     try {
-      const r = await fetch(`${window.BACKEND_URL || ""}/save-document-text`, {
+      const r = await window.backendFetch(`${window.BACKEND_URL || ""}/save-document-text`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body:   JSON.stringify({ user_id: user.id, filename: `Deep Research — ${(query || "Report").slice(0, 60)}.txt`, text }),
       });
@@ -361,7 +370,7 @@
     const inner = cardWrap.querySelector("[style*='max-width:740px']") || cardWrap.firstElementChild;
     if (!inner) return;
 
-    const q = _escAttr(query);
+    // query already stored in window._drQueries[id] from action buttons render
     const pane = document.createElement("div");
     pane.id = `${id}-fu-pane`;
     pane.style.cssText = "padding:14px 20px 18px;border-top:1.5px solid #fef9c3;background:#fffef7;";
@@ -377,8 +386,8 @@
           placeholder="e.g. Add APA7 references · Expand the discussion · Translate to formal academic tone · Summarise in 200 words…"
           style="flex:1;border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;resize:none;outline:none;line-height:1.5;color:#1f2937;transition:border-color .2s;"
           onfocus="this.style.borderColor='#facc15'" onblur="this.style.borderColor='#e5e7eb'"
-          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();window.drSendFollowUp('${id}','${q}');}"></textarea>
-        <button onclick="window.drSendFollowUp('${id}','${q}')"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();window.drSendFollowUp('${id}',window._drGetQ('${id}'));}"></textarea>
+        <button onclick="window.drSendFollowUp('${id}',window._drGetQ('${id}'))"
           style="background:#facc15;color:#000;border:none;border-radius:10px;padding:0 18px;font-size:13px;font-weight:700;cursor:pointer;height:42px;flex-shrink:0;">Send</button>
       </div>
       <div id="${id}-fu-status" style="font-size:11px;color:#9ca3af;margin-top:6px;display:none;">Sending…</div>
@@ -477,8 +486,15 @@
 Using the research report below as your ONLY source material, write a complete, well-structured academic paper.
 
 ━━━ RESEARCH REPORT ━━━
-${report.slice(0, 7000)}
+${report.slice(0, 60000)}
 ━━━ END REPORT ━━━
+
+IMPORTANT: The research report above may contain many sections (Executive Summary, Introduction,
+Key Findings, Stakeholders, Challenges, Recent Developments, Research Gaps, Future Outlook,
+Conclusion, References, etc.). Use material from ALL of its sections — not just the beginning —
+so the paper you write below has real substance for every one of ITS OWN sections, all the way
+through Conclusion and References. Do not stop early or jump straight to References if you still
+have assigned sections left to write; draw on the corresponding parts of the report for each one.
 
 Write the academic paper now using this exact structure. Every section must be substantive — no placeholders.
 
@@ -520,7 +536,11 @@ Rules:
 - Use formal, academic English throughout
 - Every claim must trace back to the research report — no hallucination
 - Citations must appear inline as [Source, Year] where used
-- Minimum 1,200 words total`;
+- Minimum 1,200 words total
+- Follow ONLY the section structure given above (Abstract, 1–4, References) — do not invent
+  additional top-level sections or IMRaD-style subsection numbering (e.g. 4.1, 4.2…) not listed here
+- You MUST write all listed sections in full, including the Conclusion, before the References list.
+  Never jump straight to References while sections above it are still incomplete or missing.`;
 
     try {
       const res = await window.callBackend("/chat", {
@@ -532,6 +552,7 @@ Rules:
         mode:          "chat",
         smart_action:  true,        // Skip keyword routing
         user_id:       userId,
+        humanize_output: true,      // Auto-run the Humanizer on the drafted paper before returning it
       });
 
       window.hideThinking?.();
@@ -540,6 +561,15 @@ Rules:
       if (reply) {
         window.renderAssistantMessage?.(reply, reply, true, []);
         window.chatHistory?.push({ role: "assistant", content: reply });
+        if (res?.auto_humanized) {
+          const ah = res.auto_humanized;
+          const note = ah.verified_human === false
+            ? `Note: this draft was auto-rewritten for natural, human-sounding prose, but still scored ${ah.verification_score}% AI-likelihood on our own detector — review before submitting.`
+            : `This draft was auto-rewritten for natural, human-sounding prose (scored ${ah.verification_score}% AI-likelihood).`;
+          // save=true (default) so this note survives a page reload, matching
+          // Research Mode's "Write a Paper" note persistence.
+          window.renderAssistantMessage?.(`_ℹ️ ${note}_`, note, true, []);
+        }
       } else {
         window.renderAssistantMessage?.("⚠️ Could not generate the academic paper. Please try again.");
       }
@@ -660,5 +690,4 @@ Rules:
   window.drEditReport      = (btn) => window.drEdit(_cardId);
   window.drSendToChat      = ()    => window.drFollowUp(_cardId, "");
 
-  console.log("deep_research.js v4 (in-chat) loaded ✅");
 })();

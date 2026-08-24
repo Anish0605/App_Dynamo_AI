@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Faculty Ambassador Program — Dynamo AI</title>
+  <meta name="description" content="Join the Dynamo AI Faculty Ambassador Program and earn 15% commission on every student you refer." />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: "class" };
+    document.documentElement.classList.add("dark");
+  </script>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.4s ease forwards; }
+    input:focus, select:focus { outline: none; border-color: #facc15; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-950 text-white">
+
+  <!-- Nav -->
+  <nav class="border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2.5">
+      <div class="w-8 h-8 bg-yellow-400 rounded-xl flex items-center justify-center">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 fill-black"><path d="M13 2L4.09 12.37A1 1 0 0 0 5 14h5.5l-1.5 8 8.91-10.37A1 1 0 0 0 17 10h-5.5L13 2z"/></svg>
+      </div>
+      <span class="font-bold text-white">Dynamo AI</span>
+    </a>
+    <a href="/" class="text-sm text-gray-400 hover:text-white transition">← Back to app</a>
+  </nav>
+
+  <!-- Hero -->
+  <div class="max-w-2xl mx-auto px-4 pt-12 pb-4 text-center fade-up">
+    <div class="inline-flex items-center gap-2 bg-yellow-400/10 border border-yellow-400/30 rounded-full px-4 py-1.5 mb-5">
+      <span class="text-yellow-400 text-xs font-semibold tracking-widest uppercase">Faculty Ambassador Program</span>
+    </div>
+    <h1 class="text-3xl font-extrabold text-white mb-3">Become a Dynamo AI Partner</h1>
+    <p class="text-gray-400 text-sm leading-relaxed">Introduce Dynamo AI to your students during FDPs and workshops — earn a 15% one-time commission on every student who subscribes.</p>
+  </div>
+
+  <!-- Commission cards -->
+  <div class="max-w-2xl mx-auto px-4 pb-6 fade-up">
+    <div class="grid grid-cols-3 gap-3">
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
+        <p class="text-white font-semibold text-sm">Plus Plan</p>
+        <p class="text-gray-500 text-xs mt-0.5">₹799 / mo</p>
+        <p class="text-yellow-400 text-xs font-semibold mt-1.5">15% commission</p>
+      </div>
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
+        <p class="text-white font-semibold text-sm">Pro Plan</p>
+        <p class="text-gray-500 text-xs mt-0.5">₹1,799 / mo</p>
+        <p class="text-yellow-400 text-xs font-semibold mt-1.5">15% commission</p>
+      </div>
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
+        <p class="text-white font-semibold text-sm">Payout</p>
+        <p class="text-gray-500 text-xs mt-0.5">Monthly</p>
+        <p class="text-yellow-400 text-xs font-semibold mt-1.5">Bank transfer</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status banner (shown after submit) -->
+  <div id="success-banner" class="hidden max-w-2xl mx-auto px-4 mb-4">
+    <div class="bg-green-500/10 border border-green-500/30 rounded-xl p-5 text-center">
+      <p class="text-green-400 font-bold text-lg mb-1">✓ Application Submitted!</p>
+      <p class="text-gray-400 text-sm">We'll review your application within 2–3 business days and send you an email with your referral link once approved.</p>
+    </div>
+  </div>
+
+  <!-- Error banner -->
+  <div id="error-banner" class="hidden max-w-2xl mx-auto px-4 mb-4">
+    <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-center">
+      <p id="error-text" class="text-red-400 text-sm"></p>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div id="form-section" class="max-w-2xl mx-auto px-4 pb-12 fade-up">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-7 shadow-xl">
+      <h2 class="text-lg font-semibold text-white mb-6">Application Form</h2>
+
+      <div class="grid grid-cols-2 gap-4">
+
+        <div class="col-span-2 sm:col-span-1">
+          <label class="block text-xs text-gray-400 mb-1.5 font-medium">Full Name *</label>
+          <input id="full_name" type="text" placeholder="Dr. Anish Kumar"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-gray-600 transition" />
+        </div>
+
+        <div class="col-span-2 sm:col-span-1">
+          <label class="block text-xs text-gray-400 mb-1.5 font-medium">Email Address *</label>
+          <input id="email" type="email" placeholder="dr.anish@university.edu"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-gray-600 transition" />
+        </div>
+
+        <div class="col-span-2 sm:col-span-1">
+          <label class="block text-xs text-gray-400 mb-1.5 font-medium">Mobile Number *</label>
+          <input id="mobile" type="tel" placeholder="+91 9876543210"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-gray-600 transition" />
+        </div>
+
+        <div class="col-span-2 sm:col-span-1">
+          <label class="block text-xs text-gray-400 mb-1.5 font-medium">Institution Name *</label>
+          <input id="institution_name" type="text" placeholder="IIT Madras / Anna University…"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-gray-600 transition" />
+        </div>
+
+        <div class="col-span-2 sm:col-span-1">
+          <label class="block text-xs text-gray-400 mb-1.5 font-medium">Designation *</label>
+          <input id="designation" type="text" placeholder="Assistant Professor"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-gray-600 transition" />
+        </div>
+
+        <div class="col-span-2 sm:col-span-1">
+          <label class="block text-xs text-gray-400 mb-1.5 font-medium">Department *</label>
+          <input id="department" type="text" placeholder="Computer Science"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-gray-600 transition" />
+        </div>
+
+        <div class="col-span-2 sm:col-span-1">
+          <label class="block text-xs text-gray-400 mb-1.5 font-medium">City *</label>
+          <input id="city" type="text" placeholder="Chennai"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-gray-600 transition" />
+        </div>
+
+        <div class="col-span-2 sm:col-span-1">
+          <label class="block text-xs text-gray-400 mb-1.5 font-medium">State *</label>
+          <select id="state"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3.5 py-2.5 text-sm text-gray-300 transition">
+            <option value="">Select State</option>
+            <option>Andhra Pradesh</option><option>Arunachal Pradesh</option>
+            <option>Assam</option><option>Bihar</option><option>Chhattisgarh</option>
+            <option>Goa</option><option>Gujarat</option><option>Haryana</option>
+            <option>Himachal Pradesh</option><option>Jharkhand</option>
+            <option>Karnataka</option><option>Kerala</option>
+            <option>Madhya Pradesh</option><option>Maharashtra</option>
+            <option>Manipur</option><option>Meghalaya</option><option>Mizoram</option>
+            <option>Nagaland</option><option>Odisha</option><option>Punjab</option>
+            <option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option>
+            <option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option>
+            <option>Uttarakhand</option><option>West Bengal</option>
+            <option>Delhi</option><option>Jammu & Kashmir</option><option>Ladakh</option>
+            <option>Puducherry</option><option>Chandigarh</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Terms -->
+      <div class="flex items-start gap-3 mt-5 p-3.5 bg-gray-800/60 rounded-lg border border-gray-700/50">
+        <input id="terms" type="checkbox" class="mt-0.5 accent-yellow-400 w-4 h-4 cursor-pointer flex-shrink-0" />
+        <label for="terms" class="text-xs text-gray-400 leading-relaxed cursor-pointer">
+          I agree to the <span class="text-yellow-400 underline">Partner Terms &amp; Conditions</span> of the Dynamo AI Faculty Ambassador Program. I understand commissions are earned on first payments only (Plus &amp; Pro plans) and paid monthly.
+        </label>
+      </div>
+
+      <!-- Submit -->
+      <button id="submit-btn" onclick="submitApplication()"
+        class="w-full mt-5 bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-yellow-400/20">
+        Submit Application →
+      </button>
+
+      <p class="text-center text-gray-600 text-xs mt-4">Your application will be reviewed within 2–3 business days.</p>
+    </div>
+
+    <!-- Already applied? -->
+    <p class="text-center text-gray-600 text-xs mt-4">
+      Already a partner?
+      <a href="/partner-dashboard" class="text-yellow-400 hover:underline">Go to your dashboard →</a>
+    </p>
+  </div>
+
+  <script>
+    const BACKEND = "";
+
+    async function submitApplication() {
+      const btn = document.getElementById("submit-btn");
+      const errorBanner = document.getElementById("error-banner");
+      const errorText   = document.getElementById("error-text");
+
+      errorBanner.classList.add("hidden");
+
+      const fields = ["full_name","email","mobile","institution_name","designation","department","city","state"];
+      const data = {};
+      for (const f of fields) {
+        data[f] = document.getElementById(f).value.trim();
+        if (!data[f]) {
+          errorText.textContent = "Please fill in all required fields.";
+          errorBanner.classList.remove("hidden");
+          return;
+        }
+      }
+
+      if (!document.getElementById("terms").checked) {
+        errorText.textContent = "Please agree to the Partner Terms & Conditions.";
+        errorBanner.classList.remove("hidden");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Submitting…";
+
+      try {
+        const res = await fetch(BACKEND + "/fap/apply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const json = await res.json();
+
+        if (res.ok) {
+          document.getElementById("form-section").classList.add("hidden");
+          document.getElementById("success-banner").classList.remove("hidden");
+        } else {
+          errorText.textContent = json.detail || "Submission failed. Please try again.";
+          errorBanner.classList.remove("hidden");
+          btn.disabled = false;
+          btn.textContent = "Submit Application →";
+        }
+      } catch (err) {
+        errorText.textContent = "Network error. Please try again.";
+        errorBanner.classList.remove("hidden");
+        btn.disabled = false;
+        btn.textContent = "Submit Application →";
+      }
+    }
+  </script>
+
+</body>
+</html>

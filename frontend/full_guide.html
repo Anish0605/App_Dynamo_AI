@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to Use Dynamo AI — Complete User Guide</title>
+  <meta name="description" content="Step-by-step guide to Dynamo AI: sign up, login, chat modes, tools, folders, AI detector, research features and more." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <!-- PostHog Analytics -->
+  <script>!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||(window.posthog=[]));posthog.init('phc_tBkD3KDnUgpKGMjSxuzSFmtGFjCT6Hv9FScQ5diFLg83',{api_host:'https://us.i.posthog.com',person_profiles:'always'});</script>
+  <script>
+    tailwind.config = { darkMode: "class" };
+    if (localStorage.theme === "dark" || (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+      document.documentElement.classList.add("dark");
+    }
+  </script>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; scroll-behavior: smooth; }
+
+    /* UI Mockup shared styles */
+    .ui-mock { font-family: Inter, system-ui, sans-serif; border-radius: 1rem; overflow: hidden; border: 1.5px solid #e5e7eb; background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.10); }
+    .dark .ui-mock { border-color: #374151; background: #111827; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+
+    /* callout badge */
+    .callout { display: inline-flex; align-items: center; justify-content: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: #FBBF24; color: #000; font-weight: 800; font-size: 0.75rem; }
+
+    /* step pill */
+    .step-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: #FEF3C7; color: #92400E; border-radius: 999px; padding: 0.2rem 0.8rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .dark .step-badge { background: rgba(251,191,36,0.15); color: #FCD34D; }
+
+    /* tip box */
+    .tip { background: #F0FDF4; border-left: 4px solid #22C55E; border-radius: 0 0.75rem 0.75rem 0; padding: 0.85rem 1rem; }
+    .dark .tip { background: rgba(34,197,94,0.08); }
+
+    /* pro/plus badge */
+    .badge-plus { background: #DBEAFE; color: #1D4ED8; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.7rem; font-weight: 700; }
+    .badge-pro  { background: #F3E8FF; color: #7C3AED; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.7rem; font-weight: 700; }
+    .dark .badge-plus { background: rgba(29,78,216,0.2); color: #93C5FD; }
+    .dark .badge-pro  { background: rgba(124,58,237,0.2); color: #C084FC; }
+
+    /* Section anchor offset */
+    [id] { scroll-margin-top: 5rem; }
+
+    /* TOC active */
+    .toc-link.active { color: #FBBF24; font-weight: 700; }
+
+    /* Section divider */
+    .sec-divider { border: none; border-top: 1.5px dashed #e5e7eb; margin: 3rem 0; }
+    .dark .sec-divider { border-color: #374151; }
+
+    /* Feature tag */
+    .feat-tag { display: inline-block; background: #F3F4F6; color: #374151; border-radius: 0.4rem; padding: 0.1rem 0.5rem; font-size: 0.72rem; font-weight: 600; margin: 0.1rem; }
+    .dark .feat-tag { background: #1F2937; color: #9CA3AF; }
+
+    /* Mockup: sidebar */
+    .mock-sidebar { width: 220px; min-height: 340px; background: #F9FAFB; border-right: 1px solid #E5E7EB; display: flex; flex-direction: column; padding: 0.75rem; gap: 0.5rem; }
+    .dark .mock-sidebar { background: #111827; border-color: #1F2937; }
+
+    /* Mockup: chat area */
+    .mock-chat { flex: 1; background: #fff; display: flex; flex-direction: column; }
+    .dark .mock-chat { background: #0d1117; }
+
+    /* Smooth hide scrollbar */
+    .no-scroll { overflow: hidden; }
+  </style>
+</head>
+
+<body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════════════ -->
+<header class="sticky top-0 z-50 bg-white/95 dark:bg-gray-950/95 backdrop-blur border-b border-gray-100 dark:border-gray-800">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2 font-black text-lg">
+      <div class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
+        <i data-lucide="zap" class="w-4 h-4 text-black fill-black"></i>
+      </div>
+      <span class="text-black dark:text-white">Dynamo AI</span>
+    </a>
+    <div class="flex items-center gap-3">
+      <button id="theme-btn" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300">
+        <i data-lucide="moon" class="w-4 h-4"></i>
+      </button>
+      <a href="/" class="px-4 py-1.5 bg-yellow-400 text-black font-bold text-sm rounded-full hover:bg-yellow-500 transition">← Back to App</a>
+    </div>
+  </div>
+</header>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════════════════ -->
+<section class="bg-gradient-to-b from-yellow-50 dark:from-gray-900 to-white dark:to-gray-950 px-4 py-14 text-center">
+  <div class="inline-flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded-full px-4 py-1.5 text-sm font-semibold mb-5">
+    ⚡ Complete User Guide
+  </div>
+  <h1 class="text-4xl md:text-5xl font-black text-black dark:text-white mb-4">How to Use Dynamo AI</h1>
+  <p class="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-8">
+    Everything you need — from creating your account to mastering every research tool. Follow each section step by step.
+  </p>
+  <!-- Quick jump nav -->
+  <div class="flex flex-wrap justify-center gap-2 max-w-4xl mx-auto">
+    <a href="#signup"      class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold hover:border-yellow-400 transition">1 · Sign Up</a>
+    <a href="#interface"   class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold hover:border-yellow-400 transition">2 · Interface</a>
+    <a href="#modes"       class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold hover:border-yellow-400 transition">3 · Modes</a>
+    <a href="#tools"       class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold hover:border-yellow-400 transition">4 · Tools</a>
+    <a href="#sidebar"     class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold hover:border-yellow-400 transition">5 · Sidebar</a>
+    <a href="#chat"        class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold hover:border-yellow-400 transition">6 · Chatting</a>
+    <a href="#research"    class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold hover:border-yellow-400 transition">7 · Research</a>
+    <a href="#study"       class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold hover:border-yellow-400 transition">8 · Study</a>
+    <a href="#create"      class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold hover:border-yellow-400 transition">9 · Create</a>
+    <a href="#detector"    class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold hover:border-yellow-400 transition">10 · AI Detector</a>
+    <a href="#profile"     class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold hover:border-yellow-400 transition">11 · Profile</a>
+    <a href="#folders"     class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold hover:border-yellow-400 transition">12 · Folders</a>
+  </div>
+</section>
+
+<div class="max-w-5xl mx-auto px-4 py-12 space-y-20">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  SECTION 1 — SIGN UP
+══════════════════════════════════════════════════════════════════════════ -->
+<section id="signup">
+  <div class="step-badge mb-3"><span>Step 1</span></div>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-2">Creating Your Account</h2>
+  <p class="text-gray-500 dark:text-gray-400 mb-8">Two ways to sign up — Google (fastest, recommended) or email and password.</p>
+
+  <div class="grid md:grid-cols-2 gap-8 items-start">
+    <!-- Left: steps -->
+    <div class="space-y-4">
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0 mt-0.5">1</span>
+        <div>
+          <p class="font-semibold">Click <strong>"Sign up"</strong></p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Top-right corner of the Dynamo AI homepage.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0 mt-0.5">2</span>
+        <div>
+          <p class="font-semibold">Choose your method</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400"><strong>Google Sign Up</strong> — one tap, no password needed. Recommended for speed.<br><strong>Email</strong> — enter name, email and create a password.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0 mt-0.5">3</span>
+        <div>
+          <p class="font-semibold">You're in — Free plan activated</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Free accounts get 10 messages per day. Upgrade anytime from your profile.</p>
+        </div>
+      </div>
+      <div class="tip mt-4 text-sm text-gray-700 dark:text-gray-300">
+        💡 <strong>Tip:</strong> Google sign up is fastest — no email verification needed. Your Google name and photo are automatically imported.
+      </div>
+    </div>
+
+    <!-- Right: Auth modal mockup -->
+    <div class="ui-mock max-w-sm mx-auto w-full">
+      <!-- Modal header -->
+      <div class="bg-gray-50 dark:bg-gray-900 px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+        <div class="flex items-center gap-2 justify-center">
+          <div class="w-7 h-7 bg-yellow-400 rounded-lg flex items-center justify-center">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-black fill-black"></i>
+          </div>
+          <span class="font-black text-base text-black dark:text-white">Dynamo AI</span>
+        </div>
+      </div>
+      <!-- Tabs -->
+      <div class="flex border-b border-gray-100 dark:border-gray-800">
+        <div class="flex-1 text-center py-3 text-sm font-bold text-gray-500 dark:text-gray-400 border-b-2 border-transparent">Log in</div>
+        <div class="flex-1 text-center py-3 text-sm font-bold text-black dark:text-white border-b-2 border-yellow-400">Sign up</div>
+      </div>
+      <!-- Body -->
+      <div class="px-5 py-5 space-y-3">
+        <!-- Google button -->
+        <button class="w-full flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-yellow-400 rounded-xl font-semibold text-sm text-black dark:text-white bg-white dark:bg-gray-900 hover:bg-yellow-50 dark:hover:bg-gray-800 transition">
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+        <div class="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-600"><div class="flex-1 h-px bg-gray-100 dark:bg-gray-800"></div>or<div class="flex-1 h-px bg-gray-100 dark:bg-gray-800"></div></div>
+        <input class="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl px-3 py-2 text-sm" placeholder="Full name" />
+        <input class="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl px-3 py-2 text-sm" placeholder="Email address" />
+        <input class="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl px-3 py-2 text-sm" placeholder="Password" type="password" />
+        <button class="w-full py-2.5 bg-yellow-400 text-black font-bold rounded-xl text-sm hover:bg-yellow-500 transition">Create account →</button>
+        <p class="text-center text-xs text-gray-400">By signing up you agree to our Terms of Service</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  SECTION 2 — LOG IN
+══════════════════════════════════════════════════════════════════════════ -->
+<section id="login">
+  <div class="step-badge mb-3"><span>Step 2</span></div>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-2">Logging In</h2>
+  <p class="text-gray-500 dark:text-gray-400 mb-8">Return to Dynamo AI at any time and sign back in with the same method you used to sign up.</p>
+
+  <div class="grid md:grid-cols-2 gap-8 items-start">
+    <div class="space-y-4">
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0 mt-0.5">1</span>
+        <div>
+          <p class="font-semibold">Click <strong>"Log in"</strong></p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Top-right of the homepage.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0 mt-0.5">2</span>
+        <div>
+          <p class="font-semibold">Google login (recommended)</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Click <strong>"Continue with Google"</strong> — select your account and you're in within 2 seconds.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0 mt-0.5">3</span>
+        <div>
+          <p class="font-semibold">Email login</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Enter your email and password, then click <strong>"Log in"</strong>. Use <em>Forgot password</em> if needed.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0 mt-0.5">4</span>
+        <div>
+          <p class="font-semibold">Your chats reload automatically</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">All your previous chats, folders, memories and documents are restored instantly.</p>
+        </div>
+      </div>
+    </div>
+    <!-- Login modal mockup -->
+    <div class="ui-mock max-w-sm mx-auto w-full">
+      <div class="bg-gray-50 dark:bg-gray-900 px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+        <div class="flex items-center gap-2 justify-center">
+          <div class="w-7 h-7 bg-yellow-400 rounded-lg flex items-center justify-center">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-black fill-black"></i>
+          </div>
+          <span class="font-black text-base text-black dark:text-white">Dynamo AI</span>
+        </div>
+      </div>
+      <div class="flex border-b border-gray-100 dark:border-gray-800">
+        <div class="flex-1 text-center py-3 text-sm font-bold text-black dark:text-white border-b-2 border-yellow-400">Log in</div>
+        <div class="flex-1 text-center py-3 text-sm font-bold text-gray-500 dark:text-gray-400 border-b-2 border-transparent">Sign up</div>
+      </div>
+      <div class="px-5 py-5 space-y-3">
+        <button class="w-full flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-yellow-400 rounded-xl font-semibold text-sm text-black dark:text-white bg-white dark:bg-gray-900">
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+        <div class="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-600"><div class="flex-1 h-px bg-gray-100 dark:bg-gray-800"></div>or<div class="flex-1 h-px bg-gray-100 dark:bg-gray-800"></div></div>
+        <input class="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl px-3 py-2 text-sm" placeholder="Email address" />
+        <input class="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl px-3 py-2 text-sm" placeholder="Password" type="password" />
+        <button class="w-full py-2.5 bg-yellow-400 text-black font-bold rounded-xl text-sm">Log in →</button>
+        <p class="text-center text-xs text-blue-500 dark:text-blue-400 cursor-pointer hover:underline">Forgot password?</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  SECTION 3 — INTERFACE TOUR
+══════════════════════════════════════════════════════════════════════════ -->
+<section id="interface">
+  <div class="step-badge mb-3"><span>Step 3</span></div>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-2">The Main Interface</h2>
+  <p class="text-gray-500 dark:text-gray-400 mb-8">Dynamo AI has three zones — the sidebar on the left, the chat area in the middle, and the composer bar at the bottom.</p>
+
+  <!-- Full interface mockup -->
+  <div class="ui-mock overflow-hidden">
+    <!-- Top nav -->
+    <div class="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 bg-yellow-400 rounded-md flex items-center justify-center">
+          <i data-lucide="zap" class="w-3 h-3 text-black fill-black"></i>
+        </div>
+        <span class="font-black text-sm text-black dark:text-white">Dynamo AI</span>
+      </div>
+      <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+        <span>User Guide</span>
+        <span>Features</span>
+        <span>Pricing</span>
+        <span class="ml-2 px-3 py-1 bg-yellow-400 text-black font-bold rounded-full">Sign up</span>
+      </div>
+    </div>
+    <!-- Body: sidebar + chat -->
+    <div class="flex" style="min-height:320px;">
+      <!-- Sidebar -->
+      <div class="w-52 border-r border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-2.5 flex flex-col gap-2 text-xs">
+        <!-- search -->
+        <div class="flex items-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1.5 text-gray-400">
+          <i data-lucide="search" class="w-3 h-3"></i> Search chats...
+        </div>
+        <!-- new chat -->
+        <div class="flex items-center gap-1.5 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg px-2.5 py-1.5 text-gray-500 dark:text-gray-400 font-semibold">
+          <i data-lucide="plus" class="w-3 h-3"></i> New Chat
+        </div>
+        <!-- quick tools label -->
+        <div class="text-gray-400 dark:text-gray-500 font-bold uppercase text-[10px] mt-1 ml-1 tracking-wider">Quick Tools</div>
+        <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg px-2.5 py-1.5 flex justify-between items-center text-gray-600 dark:text-gray-300">Export / Save <i data-lucide="chevron-down" class="w-3 h-3"></i></div>
+        <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg px-2.5 py-1.5 flex justify-between items-center text-gray-600 dark:text-gray-300">Smart Actions <i data-lucide="chevron-down" class="w-3 h-3"></i></div>
+        <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg px-2.5 py-1.5 flex justify-between items-center text-gray-600 dark:text-gray-300">AI & Plagiarism <i data-lucide="chevron-down" class="w-3 h-3"></i></div>
+        <!-- tabs -->
+        <div class="flex gap-1 mt-1">
+          <div class="flex-1 bg-yellow-400 text-black text-center py-1 rounded-lg font-bold text-[10px]">Chats 0</div>
+          <div class="flex-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-center py-1 rounded-lg text-gray-500 dark:text-gray-400 text-[10px]">Folders 0</div>
+        </div>
+        <!-- user avatar -->
+        <div class="mt-auto flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg px-2 py-1.5">
+          <div class="w-5 h-5 rounded-full bg-yellow-400 text-black flex items-center justify-center font-black text-[10px]">A</div>
+          <div>
+            <div class="font-semibold text-gray-800 dark:text-white">Anish</div>
+            <div class="text-[9px] bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded px-1">FREE</div>
+          </div>
+        </div>
+      </div>
+      <!-- Main area -->
+      <div class="flex-1 flex flex-col bg-white dark:bg-gray-950">
+        <!-- Hero content -->
+        <div class="flex-1 flex flex-col items-center justify-center gap-3 py-6">
+          <div class="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center">
+            <i data-lucide="zap" class="w-6 h-6 text-black fill-black"></i>
+          </div>
+          <h2 class="text-xl font-black text-black dark:text-white">How can I help you today?</h2>
+          <!-- chips -->
+          <div class="flex flex-wrap justify-center gap-1.5 text-xs">
+            <span class="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-full text-gray-600 dark:text-gray-300">📚 Make a study guide</span>
+            <span class="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-full text-gray-600 dark:text-gray-300">🔬 Research a topic</span>
+            <span class="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-full text-gray-600 dark:text-gray-300">🧪 Quiz me</span>
+            <span class="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-full text-gray-600 dark:text-gray-300">⚡ Flashcards</span>
+          </div>
+        </div>
+        <!-- Composer bar -->
+        <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-800">
+          <div class="border-2 border-yellow-400 rounded-2xl px-3 py-2.5">
+            <div class="text-sm text-gray-400 dark:text-gray-500 mb-2 px-1">Ask Dynamo anything...</div>
+            <div class="flex items-center gap-2">
+              <button class="w-7 h-7 border border-yellow-400 rounded-full flex items-center justify-center text-yellow-500"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button>
+              <button class="w-7 h-7 flex items-center justify-center text-gray-400 relative"><i data-lucide="settings-2" class="w-3.5 h-3.5"></i><div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-yellow-400 rounded-full"></div></button>
+              <button class="w-7 h-7 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-400"><i data-lucide="mic" class="w-3.5 h-3.5"></i></button>
+              <div class="flex-1"></div>
+              <button class="w-7 h-7 bg-yellow-400 rounded-full flex items-center justify-center"><i data-lucide="arrow-up" class="w-3.5 h-3.5 text-black"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Callout legend -->
+  <div class="mt-6 grid sm:grid-cols-3 gap-4">
+    <div class="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-xl p-4">
+      <div class="text-blue-600 dark:text-blue-400 font-bold mb-1">◀ Left Sidebar</div>
+      <p class="text-sm text-gray-600 dark:text-gray-400">Search chats, create new chats, quick tools, chat history, and folder tabs.</p>
+    </div>
+    <div class="bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 rounded-xl p-4">
+      <div class="text-purple-600 dark:text-purple-400 font-bold mb-1">▲ Suggestion Chips</div>
+      <p class="text-sm text-gray-600 dark:text-gray-400">Tap any chip to instantly start with a study guide, quiz, research, or flashcards.</p>
+    </div>
+    <div class="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/30 rounded-xl p-4">
+      <div class="text-yellow-600 dark:text-yellow-400 font-bold mb-1">▼ Composer Bar</div>
+      <p class="text-sm text-gray-600 dark:text-gray-400">Type your message, attach files, choose mode, pick tools, and send.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  SECTION 4 — MODES (+ button)
+══════════════════════════════════════════════════════════════════════════ -->
+<section id="modes">
+  <div class="step-badge mb-3"><span>Step 4</span></div>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-2">Choosing a Mode</h2>
+  <p class="text-gray-500 dark:text-gray-400 mb-8">The <strong>+ button</strong> (golden border, bottom-left of composer) opens the Mode selector. Pick the right mode for what you're doing.</p>
+
+  <div class="grid md:grid-cols-2 gap-8 items-start">
+    <!-- Mode cards -->
+    <div class="space-y-4">
+      <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:border-yellow-400 transition">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xl">⚡</span>
+          <span class="font-bold text-black dark:text-white">Fast Mode</span>
+          <span class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full">Default</span>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Quick, accurate answers for everyday questions. <strong>Free users</strong> get our lite model. <strong>Plus/Pro</strong> get Gemini 3.5 Flash — frontier-level speed.</p>
+      </div>
+      <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:border-purple-400 transition">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xl">🧠</span>
+          <span class="font-bold text-black dark:text-white">DeepThink Mode</span>
+          <span class="badge-pro">PRO</span>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Forces the AI to reason step-by-step, consider multiple angles, and identify what it might be missing. Best for complex analysis and exam preparation.</p>
+      </div>
+      <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:border-blue-400 transition">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xl">🔬</span>
+          <span class="font-bold text-black dark:text-white">Research Mode</span>
+          <span class="badge-plus">PLUS</span>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-400">A three-stage pipeline: live web search → Claude Sonnet extracts → Gemini analyses → GPT-5 writes a fully cited research report. Best for academic writing.</p>
+      </div>
+      <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:border-green-400 transition">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xl">🤖</span>
+          <span class="font-bold text-black dark:text-white">Deep Research Agent</span>
+          <span class="badge-pro">PRO</span>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-400">An autonomous AI agent that browses the web, evaluates sources, and produces a full literature-review-style report. Takes 3–8 minutes. Watch its progress live.</p>
+      </div>
+    </div>
+    <!-- Plus menu mockup -->
+    <div>
+      <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-semibold">+ Menu (tap the golden + button)</div>
+      <div class="ui-mock max-w-xs">
+        <div class="px-3 pt-3 pb-1 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Attach</div>
+        <div class="px-2 py-1">
+          <div class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300">
+            <i data-lucide="file-up" class="w-4 h-4 text-blue-500"></i> Add photos &amp; files
+          </div>
+          <div class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300">
+            <i data-lucide="globe" class="w-4 h-4 text-green-500"></i> Web search
+          </div>
+        </div>
+        <div class="h-px bg-gray-100 dark:bg-gray-800 mx-3"></div>
+        <div class="px-3 pt-2 pb-1 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Mode</div>
+        <div class="px-2 py-1 space-y-0.5">
+          <div class="flex items-center justify-between px-2 py-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg text-sm font-semibold text-yellow-700 dark:text-yellow-400">
+            <div class="flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4"></i> Fast</div>
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          </div>
+          <div class="flex items-center justify-between px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300">
+            <div class="flex items-center gap-2"><i data-lucide="brain" class="w-4 h-4 text-purple-500"></i> DeepThink</div>
+            <span class="badge-pro">PRO</span>
+          </div>
+          <div class="flex items-center justify-between px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300">
+            <div class="flex items-center gap-2"><i data-lucide="flask-conical" class="w-4 h-4 text-blue-500"></i> Research</div>
+            <span class="badge-plus">PLUS</span>
+          </div>
+          <div class="flex items-center justify-between px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300">
+            <div class="flex items-center gap-2"><i data-lucide="bot" class="w-4 h-4 text-green-500"></i> Deep Research Agent</div>
+            <span class="badge-pro">PRO</span>
+          </div>
+        </div>
+        <div class="px-3 pb-3"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  SECTION 5 — TOOLS MENU (gear)
+══════════════════════════════════════════════════════════════════════════ -->
+<section id="tools">
+  <div class="step-badge mb-3"><span>Step 5</span></div>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-2">The Tools Menu ⚙️</h2>
+  <p class="text-gray-500 dark:text-gray-400 mb-8">The <strong>gear ⚙️ button</strong> (next to the + button) opens all of Dynamo's specialised tools — study, create, and search options.</p>
+
+  <div class="grid md:grid-cols-2 gap-8 items-start">
+    <!-- Tools mockup -->
+    <div class="ui-mock max-w-xs">
+      <!-- Study group -->
+      <div class="px-3 pt-3 pb-1 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Study</div>
+      <div class="px-2 py-1 space-y-0.5">
+        <div class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300"><i data-lucide="book-open" class="w-4 h-4 text-blue-500"></i> Quick study guide</div>
+        <div class="flex items-center justify-between px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300">
+          <div class="flex items-center gap-2"><i data-lucide="radio" class="w-4 h-4 text-red-500"></i> Radio mode</div>
+          <span class="text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded font-bold">NEW</span>
+        </div>
+        <div class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300"><i data-lucide="help-circle" class="w-4 h-4 text-orange-500"></i> Quiz me</div>
+        <div class="flex items-center justify-between px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300">
+          <div class="flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4 text-indigo-500"></i> Flashcards</div>
+          <span class="text-[10px] bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 px-1.5 py-0.5 rounded font-bold">SOON</span>
+        </div>
+      </div>
+      <div class="h-px bg-gray-100 dark:bg-gray-800 mx-3 my-1"></div>
+      <!-- Create group -->
+      <div class="px-3 pt-2 pb-1 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Create</div>
+      <div class="px-2 py-1 space-y-0.5">
+        <div class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300"><i data-lucide="image" class="w-4 h-4 text-pink-500"></i> Generate Image</div>
+        <div class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300"><i data-lucide="video" class="w-4 h-4 text-purple-500"></i> Generate Video</div>
+        <div class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300"><i data-lucide="git-branch" class="w-4 h-4 text-green-500"></i> Mindmap</div>
+        <div class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300"><i data-lucide="workflow" class="w-4 h-4 text-cyan-500"></i> Flowchart</div>
+        <div class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm text-gray-700 dark:text-gray-300"><i data-lucide="presentation" class="w-4 h-4 text-yellow-500"></i> Executive deck</div>
+      </div>
+      <div class="px-3 pb-3"></div>
+    </div>
+
+    <!-- Descriptions -->
+    <div class="space-y-4 text-sm">
+      <div><span class="font-bold">📚 Quick study guide</span> — Paste or type a topic and get a structured, exam-ready study guide in seconds.</div>
+      <div><span class="font-bold">🎧 Radio Mode</span> — Dynamo reads its answer aloud. Great for hands-free studying.</div>
+      <div><span class="font-bold">❓ Quiz me</span> — Get 5 multiple-choice questions on any topic to test yourself.</div>
+      <div><span class="font-bold">⚡ Flashcards</span> — Auto-generate spaced-repetition flashcards from any content.</div>
+      <div><span class="font-bold">🎨 Generate Image</span> — Describe any image and get it created instantly (Plus/Pro).</div>
+      <div><span class="font-bold">🎬 Generate Video</span> — Create short AI videos from a text description (Plus/Pro).</div>
+      <div><span class="font-bold">🧠 Mindmap</span> — Visualise any topic as an interactive mindmap.</div>
+      <div><span class="font-bold">📊 Flowchart</span> — Describe a process and get a clean flowchart diagram.</div>
+      <div><span class="font-bold">🪟 Executive deck</span> — Generate a polished presentation deck on any topic.</div>
+      <div class="tip">💡 Web Search (under +) can be combined with any mode or tool for live data.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  SECTION 6 — SIDEBAR
+══════════════════════════════════════════════════════════════════════════ -->
+<section id="sidebar">
+  <div class="step-badge mb-3"><span>Step 6</span></div>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-2">Left Sidebar</h2>
+  <p class="text-gray-500 dark:text-gray-400 mb-8">Everything you need to stay organised — chat history, folders, quick tools, and your account.</p>
+
+  <div class="grid md:grid-cols-2 gap-8 items-start">
+    <div class="space-y-5">
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0">🔍</span>
+        <div>
+          <p class="font-semibold">Search chats</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Type any keyword to instantly find a past conversation.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0">+</span>
+        <div>
+          <p class="font-semibold">New Chat</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Start a fresh conversation. Your current chat is auto-saved.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0">🛠</span>
+        <div>
+          <p class="font-semibold">Quick Tools accordions</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400"><strong>Export / Save</strong> — Download current chat as PDF or DOCX.<br><strong>Smart Actions</strong> — Summarise or explain the last AI answer.<br><strong>AI & Plagiarism</strong> — Open the AI detector and plagiarism checker.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0">💬</span>
+        <div>
+          <p class="font-semibold">Chats tab</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">All recent chats in chronological order. Click any to open it.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0">📁</span>
+        <div>
+          <p class="font-semibold">Folders tab</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Create folders (e.g. "Physics Notes", "Thesis Research") and drag chats into them.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0">👤</span>
+        <div>
+          <p class="font-semibold">Your account (bottom)</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Click your name at the bottom to open the Profile modal — manage plan, quota, memory, and documents.</p>
+        </div>
+      </div>
+    </div>
+    <!-- Sidebar mockup annotated -->
+    <div class="ui-mock max-w-xs">
+      <div class="flex flex-col p-2.5 gap-2 text-xs" style="min-height:480px;">
+        <div class="flex items-center gap-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg px-2.5 py-2 text-gray-400"><i data-lucide="search" class="w-3 h-3"></i> Search chats...</div>
+        <div class="flex items-center gap-1.5 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg px-2.5 py-2 text-gray-500 dark:text-gray-400 font-semibold"><i data-lucide="plus" class="w-3 h-3"></i> New Chat</div>
+
+        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 ml-1">Quick Tools</div>
+        <div class="space-y-1">
+          <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1.5 flex justify-between text-gray-600 dark:text-gray-300 font-medium"><span>📤 Export / Save</span><i data-lucide="chevron-down" class="w-3 h-3"></i></div>
+          <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1.5 flex justify-between text-gray-600 dark:text-gray-300 font-medium"><span>✨ Smart Actions</span><i data-lucide="chevron-down" class="w-3 h-3"></i></div>
+          <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1.5 flex justify-between text-gray-600 dark:text-gray-300 font-medium"><span>🛡 AI & Plagiarism</span><i data-lucide="chevron-down" class="w-3 h-3"></i></div>
+        </div>
+
+        <div class="flex gap-1 mt-1">
+          <div class="flex-1 bg-yellow-400 text-black text-center py-1.5 rounded-lg font-bold text-[10px]">💬 Chats 3</div>
+          <div class="flex-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-center py-1.5 rounded-lg text-gray-500 dark:text-gray-400 text-[10px]">📁 Folders 2</div>
+        </div>
+
+        <!-- Chat list -->
+        <div class="space-y-1">
+          <div class="text-[10px] text-gray-400 uppercase tracking-wider ml-1 font-bold">Today</div>
+          <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900/40 rounded-lg px-2.5 py-2 text-gray-800 dark:text-white font-medium">Quantum computing overview</div>
+          <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg px-2.5 py-2 text-gray-600 dark:text-gray-300">Organic chemistry SN2...</div>
+          <div class="text-[10px] text-gray-400 uppercase tracking-wider ml-1 font-bold mt-1">Yesterday</div>
+          <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg px-2.5 py-2 text-gray-600 dark:text-gray-300">Research gaps in AI safety</div>
+        </div>
+
+        <div class="mt-auto flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg px-2 py-2">
+          <div class="w-6 h-6 rounded-full bg-yellow-400 text-black flex items-center justify-center font-black text-[11px]">A</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-gray-800 dark:text-white text-xs">Anish K.</div>
+            <div class="text-[9px] bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded px-1 inline-block font-bold">PRO</div>
+          </div>
+          <i data-lucide="settings" class="w-3 h-3 text-gray-400"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  SECTION 7 — CHATTING
+══════════════════════════════════════════════════════════════════════════ -->
+<section id="chat">
+  <div class="step-badge mb-3"><span>Step 7</span></div>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-2">How to Chat</h2>
+  <p class="text-gray-500 dark:text-gray-400 mb-8">The main chat area handles everything — questions, file analysis, formatted answers, code, citations, and more.</p>
+
+  <div class="grid md:grid-cols-2 gap-8">
+    <div class="space-y-5">
+      <div>
+        <h3 class="font-bold text-black dark:text-white mb-2">Typing a message</h3>
+        <ol class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">1</span>Click the text box and type your question.</li>
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">2</span>Press <kbd class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-xs font-mono">Enter</kbd> or click the ↑ send button.</li>
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">3</span>Dynamo responds with formatted markdown — headings, bullet points, code, tables, and citations all rendered beautifully.</li>
+        </ol>
+      </div>
+      <div>
+        <h3 class="font-bold text-black dark:text-white mb-2">Uploading a file</h3>
+        <ol class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">1</span>Click the <strong>+ button</strong> → <em>Add photos &amp; files</em>.</li>
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">2</span>Choose a PDF, DOCX, TXT, or image from your device.</li>
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">3</span>Type your question about it, e.g. <em>"Summarise this paper"</em> or <em>"Find the key arguments"</em>.</li>
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">4</span>A <em>"Remember this"</em> chip appears — click it to save the file to your Document Library for future sessions.</li>
+        </ol>
+      </div>
+      <div>
+        <h3 class="font-bold text-black dark:text-white mb-2">Web Search</h3>
+        <ol class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">1</span>Click <strong>+</strong> → toggle <em>Web search</em> on.</li>
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">2</span>Ask anything about current events, latest research, prices, news.</li>
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">3</span>Dynamo searches Tavily, pulls live results, and answers with cited sources.</li>
+        </ol>
+      </div>
+    </div>
+    <!-- Chat area mockup -->
+    <div class="ui-mock">
+      <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 text-sm font-semibold text-gray-600 dark:text-gray-300">Quantum computing overview</div>
+      <div class="px-4 py-4 space-y-4" style="min-height:250px;">
+        <!-- User message -->
+        <div class="flex justify-end">
+          <div class="bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm text-gray-800 dark:text-white max-w-xs">Explain quantum entanglement for my exam tomorrow</div>
+        </div>
+        <!-- AI message -->
+        <div class="flex gap-3 items-start">
+          <div class="w-7 h-7 bg-yellow-400 rounded-full flex items-center justify-center shrink-0"><i data-lucide="zap" class="w-3.5 h-3.5 text-black fill-black"></i></div>
+          <div class="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl rounded-tl-sm px-4 py-3 text-xs text-gray-700 dark:text-gray-300 max-w-sm space-y-2">
+            <p class="font-bold text-sm text-black dark:text-white">Quantum Entanglement — Exam Guide</p>
+            <p><strong>Definition:</strong> Two particles are entangled when the quantum state of one cannot be described independently of the other, regardless of distance.</p>
+            <p><strong>Key Exam Points:</strong></p>
+            <ul class="list-disc list-inside space-y-1 ml-2">
+              <li>Measuring one instantly affects the other</li>
+              <li>No faster-than-light communication (Einstein's concern)</li>
+              <li>Used in quantum cryptography &amp; computing</li>
+            </ul>
+            <div class="flex gap-2 mt-2">
+              <button class="text-[10px] bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full text-gray-500">📋 Copy</button>
+              <button class="text-[10px] bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full text-gray-500">🔊 Listen</button>
+              <button class="text-[10px] bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full text-gray-500">✨ Summarise</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  SECTION 8 — RESEARCH MODE
+══════════════════════════════════════════════════════════════════════════ -->
+<section id="research">
+  <div class="step-badge mb-3"><span>Step 8</span></div>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-2">Research Features</h2>
+  <p class="text-gray-500 dark:text-gray-400 mb-8">Dynamo AI has a dedicated academic research pipeline — Research Mode, Deep Research Agent, Citation Checker, and Research Watcher.</p>
+
+  <div class="space-y-8">
+    <!-- Research mode -->
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="text-2xl">🔬</span>
+        <div>
+          <h3 class="font-bold text-lg text-black dark:text-white">Research Mode <span class="badge-plus ml-1">PLUS</span></h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">3-model pipeline — Claude → Gemini → GPT-5.4 with live web search</p>
+        </div>
+      </div>
+      <div class="grid sm:grid-cols-3 gap-3 mt-4">
+        <div class="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-3 text-sm">
+          <div class="font-bold text-blue-700 dark:text-blue-400 mb-1">Stage 1 — Extract</div>
+          <p class="text-gray-600 dark:text-gray-400">Claude Sonnet reads 10+ live web sources and extracts the key facts and arguments.</p>
+        </div>
+        <div class="bg-purple-50 dark:bg-purple-900/10 rounded-xl p-3 text-sm">
+          <div class="font-bold text-purple-700 dark:text-purple-400 mb-1">Stage 2 — Analyse</div>
+          <p class="text-gray-600 dark:text-gray-400">Gemini synthesises the findings, spots patterns, and identifies academic context.</p>
+        </div>
+        <div class="bg-green-50 dark:bg-green-900/10 rounded-xl p-3 text-sm">
+          <div class="font-bold text-green-700 dark:text-green-400 mb-1">Stage 3 — Write</div>
+          <p class="text-gray-600 dark:text-gray-400">GPT-5.4 writes the final report in your chosen citation format (APA, MLA, IEEE, etc.)</p>
+        </div>
+      </div>
+      <div class="tip mt-4 text-sm text-gray-700 dark:text-gray-300">
+        💡 <strong>How to use:</strong> Click + → select <em>Research Mode</em> → type your research topic → click send.
+      </div>
+    </div>
+
+    <!-- Deep Research Agent -->
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="text-2xl">🤖</span>
+        <div>
+          <h3 class="font-bold text-lg text-black dark:text-white">Deep Research Agent <span class="badge-pro ml-1">PRO</span></h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Autonomous agent — browses the web, evaluates sources, writes a literature review (3–8 min)</p>
+        </div>
+      </div>
+      <ol class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+        <li class="flex gap-2"><span class="callout shrink-0 text-xs">1</span>Click + → <em>Deep Research Agent</em></li>
+        <li class="flex gap-2"><span class="callout shrink-0 text-xs">2</span>Type your research topic</li>
+        <li class="flex gap-2"><span class="callout shrink-0 text-xs">3</span>Watch live progress updates appear in the chat as the agent browses and analyses</li>
+        <li class="flex gap-2"><span class="callout shrink-0 text-xs">4</span>A full, cited research report appears when complete — download as DOCX</li>
+      </ol>
+    </div>
+
+    <!-- Citation Checker -->
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="text-2xl">📎</span>
+        <div>
+          <h3 class="font-bold text-lg text-black dark:text-white">Citation Checker <span class="badge-plus ml-1">PLUS</span></h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Verify, fix and reformat citations in 8 academic formats</p>
+        </div>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-3 text-sm">
+        <div><strong>Supported formats:</strong><br>APA 7th · MLA 9th · Chicago 17th · Harvard · IEEE · Vancouver · ACS · ASA</div>
+        <div><strong>What it does:</strong><br>Checks DOI validity, fixes formatting errors, converts between styles, and flags broken references.</div>
+      </div>
+      <div class="tip mt-4 text-sm">💡 Find it in the sidebar under <strong>Quick Tools → Export / Save</strong> or type <em>"check my citations"</em> in chat.</div>
+    </div>
+
+    <!-- Research Watcher -->
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="text-2xl">👁️</span>
+        <div>
+          <h3 class="font-bold text-lg text-black dark:text-white">Research Watcher <span class="badge-pro ml-1">PRO</span></h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Get daily email digests when new research appears on your topics</p>
+        </div>
+      </div>
+      <ol class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+        <li class="flex gap-2"><span class="callout shrink-0 text-xs">1</span>In the sidebar, click <em>Quick Tools → Smart Actions → Watch a topic</em></li>
+        <li class="flex gap-2"><span class="callout shrink-0 text-xs">2</span>Type your research topic (e.g. "AI safety 2026")</li>
+        <li class="flex gap-2"><span class="callout shrink-0 text-xs">3</span>Every 24 hours, Dynamo searches the web and emails you if genuinely new content appears</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  SECTION 9 — STUDY TOOLS
+══════════════════════════════════════════════════════════════════════════ -->
+<section id="study">
+  <div class="step-badge mb-3"><span>Step 9</span></div>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-2">Study Tools</h2>
+  <p class="text-gray-500 dark:text-gray-400 mb-8">Everything a student needs — study guides, quizzes, flashcards, and Radio Mode.</p>
+
+  <div class="grid sm:grid-cols-2 gap-6">
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
+      <div class="text-2xl mb-2">📚</div>
+      <h3 class="font-bold text-black dark:text-white mb-1">Study Guide</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Generate a structured, exam-ready study guide for any topic or paste in text you want to condense.</p>
+      <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-xs text-gray-600 dark:text-gray-400 font-mono">⚙️ Tools → Quick study guide<br>or type: "Make a study guide on [topic]"</div>
+    </div>
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
+      <div class="text-2xl mb-2">❓</div>
+      <h3 class="font-bold text-black dark:text-white mb-1">Quiz Me</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Get 5 multiple-choice questions on any subject. Dynamo reveals answers after you've tried.</p>
+      <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-xs text-gray-600 dark:text-gray-400 font-mono">⚙️ Tools → Quiz me<br>or type: "Quiz me on [topic]"</div>
+    </div>
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
+      <div class="text-2xl mb-2">⚡</div>
+      <h3 class="font-bold text-black dark:text-white mb-1">Flashcards</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Auto-generate flip-card flashcards from a topic, a paste of notes, or an uploaded document.</p>
+      <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-xs text-gray-600 dark:text-gray-400 font-mono">Tap the "⚡ Flashcards" chip on the homepage<br>or type: "Make flashcards on [topic]"</div>
+    </div>
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
+      <div class="text-2xl mb-2">🎧</div>
+      <h3 class="font-bold text-black dark:text-white mb-1">Radio Mode</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">AI reads its answers aloud using natural text-to-speech. Toggle it on and study hands-free.</p>
+      <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-xs text-gray-600 dark:text-gray-400 font-mono">⚙️ Tools → Radio mode<br>Responses auto-play as audio</div>
+    </div>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  SECTION 10 — CREATE TOOLS
+══════════════════════════════════════════════════════════════════════════ -->
+<section id="create">
+  <div class="step-badge mb-3"><span>Step 10</span></div>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-2">Create Tools</h2>
+  <p class="text-gray-500 dark:text-gray-400 mb-8">Generate images, videos, mindmaps, flowcharts and presentation decks — all from a text description.</p>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
+      <div class="text-2xl mb-2">🎨</div>
+      <h3 class="font-bold text-black dark:text-white mb-1">Image Generation <span class="badge-plus ml-1">PLUS</span></h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Describe any image. Dynamo generates it via Pollinations AI instantly.</p>
+      <div class="mt-3 bg-gray-50 dark:bg-gray-800 rounded-xl p-2 text-xs text-gray-500 dark:text-gray-400 font-mono">Try: "Generate an image of a neural network diagram"</div>
+    </div>
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
+      <div class="text-2xl mb-2">🎬</div>
+      <h3 class="font-bold text-black dark:text-white mb-1">Video Generation <span class="badge-plus ml-1">PLUS</span></h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Create short AI-animated clips from text. Great for concept explainers.</p>
+      <div class="mt-3 bg-gray-50 dark:bg-gray-800 rounded-xl p-2 text-xs text-gray-500 dark:text-gray-400 font-mono">⚙️ Tools → Generate Video</div>
+    </div>
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
+      <div class="text-2xl mb-2">🧠</div>
+      <h3 class="font-bold text-black dark:text-white mb-1">Mindmap</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Any topic becomes an interactive, exportable mindmap within seconds.</p>
+      <div class="mt-3 bg-gray-50 dark:bg-gray-800 rounded-xl p-2 text-xs text-gray-500 dark:text-gray-400 font-mono">⚙️ Tools → Mindmap<br>or "Create a mindmap on [topic]"</div>
+    </div>
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
+      <div class="text-2xl mb-2">📊</div>
+      <h3 class="font-bold text-black dark:text-white mb-1">Flowchart</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Describe a process in plain English. Get a clean, downloadable flowchart.</p>
+      <div class="mt-3 bg-gray-50 dark:bg-gray-800 rounded-xl p-2 text-xs text-gray-500 dark:text-gray-400 font-mono">⚙️ Tools → Flowchart<br>or "Make a flowchart for [process]"</div>
+    </div>
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
+      <div class="text-2xl mb-2">🪟</div>
+      <h3 class="font-bold text-black dark:text-white mb-1">Executive Deck</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Generate a polished 8–12 slide presentation on any topic, downloadable as PPTX.</p>
+      <div class="mt-3 bg-gray-50 dark:bg-gray-800 rounded-xl p-2 text-xs text-gray-500 dark:text-gray-400 font-mono">⚙️ Tools → Executive deck<br>or tap "🎨 Create a deck" chip</div>
+    </div>
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
+      <div class="text-2xl mb-2">📄</div>
+      <h3 class="font-bold text-black dark:text-white mb-1">Summarise a PDF</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Upload any PDF and get a structured summary of its key points, methodology, and findings.</p>
+      <div class="mt-3 bg-gray-50 dark:bg-gray-800 rounded-xl p-2 text-xs text-gray-500 dark:text-gray-400 font-mono">Tap "📄 Summarise a PDF" chip<br>Then upload your file</div>
+    </div>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  SECTION 11 — AI DETECTOR
+══════════════════════════════════════════════════════════════════════════ -->
+<section id="detector">
+  <div class="step-badge mb-3"><span>Step 11</span></div>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-2">AI Detector &amp; Plagiarism Checker <span class="badge-plus ml-2">PLUS</span></h2>
+  <p class="text-gray-500 dark:text-gray-400 mb-8">In-house detection tools using Gemini 3.5-flash — no third-party API, no extra cost. Access via <strong>Sidebar → AI &amp; Plagiarism</strong>.</p>
+
+  <div class="grid sm:grid-cols-2 gap-6">
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5 space-y-3">
+      <div class="flex items-center gap-2"><span class="text-xl">🤖</span><h3 class="font-bold text-black dark:text-white">AI Text Detector</h3></div>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Paste any text and get a 0–100 AI score with a colour-coded label (Human / Uncertain / AI-Generated) and specific signals explaining the decision.</p>
+      <div class="flex gap-2 flex-wrap"><span class="feat-tag">Score meter</span><span class="feat-tag">Signal list</span><span class="feat-tag">Sentence heatmap</span></div>
+    </div>
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5 space-y-3">
+      <div class="flex items-center gap-2"><span class="text-xl">✍️</span><h3 class="font-bold text-black dark:text-white">Humanizer</h3></div>
+      <p class="text-sm text-gray-500 dark:text-gray-400">AI-written text rewritten to preserve meaning and academic register while adding natural hedging, varied sentences, and personal voice — so it passes detection.</p>
+      <div class="flex gap-2 flex-wrap"><span class="feat-tag">Preserves citations</span><span class="feat-tag">Academic tone</span></div>
+    </div>
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5 space-y-3">
+      <div class="flex items-center gap-2"><span class="text-xl">📄</span><h3 class="font-bold text-black dark:text-white">Plagiarism Checker</h3></div>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Searches the web and 200M+ academic papers (Semantic Scholar). Scores true similarity 0–100%, separating common terminology from actual plagiarism.</p>
+      <div class="flex gap-2 flex-wrap"><span class="feat-tag">Web sources</span><span class="feat-tag">Academic papers</span><span class="feat-tag">Similarity %</span></div>
+    </div>
+    <div class="border border-gray-200 dark:border-gray-700 rounded-2xl p-5 space-y-3">
+      <div class="flex items-center gap-2"><span class="text-xl">🔄</span><h3 class="font-bold text-black dark:text-white">Self-Plagiarism Check</h3></div>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Submit two documents (current paper + prior work) to identify overlapping passages and get a practical recommendation on what to rephrase.</p>
+      <div class="flex gap-2 flex-wrap"><span class="feat-tag">Two-doc compare</span><span class="feat-tag">Passage-level</span></div>
+    </div>
+  </div>
+  <div class="tip mt-6 text-sm text-gray-700 dark:text-gray-300">
+    💡 <strong>How to access:</strong> Left sidebar → <em>AI &amp; Plagiarism</em> accordion → choose a tool. All five tools open as modals on the main page.
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  SECTION 12 — PROFILE
+══════════════════════════════════════════════════════════════════════════ -->
+<section id="profile">
+  <div class="step-badge mb-3"><span>Step 12</span></div>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-2">Your Profile</h2>
+  <p class="text-gray-500 dark:text-gray-400 mb-8">Click your name/avatar at the bottom of the left sidebar to open your profile — manage your plan, quota, memory and documents.</p>
+
+  <div class="grid md:grid-cols-2 gap-8 items-start">
+    <div class="space-y-4">
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0">📊</span>
+        <div>
+          <p class="font-semibold">Usage & Plan</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">See your daily messages used vs limit, image count, and video count. Shows your current plan (Free / Plus / Pro) and an upgrade button.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0">✏️</span>
+        <div>
+          <p class="font-semibold">Edit name &amp; password</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Update your display name or change your password at any time.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0">🧠</span>
+        <div>
+          <p class="font-semibold">AI Memory <span class="badge-plus ml-1">PLUS</span></p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">View and delete the personal facts Dynamo has learned about you from past conversations. Memories are injected into every new session automatically.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0">📚</span>
+        <div>
+          <p class="font-semibold">Document Library <span class="badge-plus ml-1">PLUS</span></p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Upload PDFs, DOCX or TXT files to a permanent library. Dynamo summarises them and references them in every future chat automatically — no re-uploading needed.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="callout shrink-0">💳</span>
+        <div>
+          <p class="font-semibold">Upgrade Plan</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Click <em>Upgrade</em> to go to Pricing and choose Plus (₹399/mo) or Pro (₹999/mo). Pay via Razorpay — all major Indian cards/UPI/wallets accepted.</p>
+        </div>
+      </div>
+    </div>
+    <!-- Profile mockup -->
+    <div class="ui-mock max-w-sm mx-auto">
+      <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-yellow-400 text-black flex items-center justify-center font-black">A</div>
+        <div>
+          <div class="font-bold text-black dark:text-white">Anish Krishna</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">anish@example.com</div>
+        </div>
+        <span class="ml-auto badge-pro">PRO</span>
+      </div>
+      <div class="px-5 py-4 space-y-4">
+        <!-- Usage pills -->
+        <div>
+          <div class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">Today's Usage</div>
+          <div class="flex gap-2 flex-wrap">
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-xl px-3 py-2 text-center">
+              <div class="text-lg font-black text-black dark:text-white">47</div>
+              <div class="text-[10px] text-gray-500 dark:text-gray-400">of 300 msgs</div>
+            </div>
+            <div class="bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800/30 rounded-xl px-3 py-2 text-center">
+              <div class="text-lg font-black text-black dark:text-white">8</div>
+              <div class="text-[10px] text-gray-500 dark:text-gray-400">of 100 images</div>
+            </div>
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-xl px-3 py-2 text-center">
+              <div class="text-lg font-black text-black dark:text-white">2</div>
+              <div class="text-[10px] text-gray-500 dark:text-gray-400">of 25 videos</div>
+            </div>
+          </div>
+        </div>
+        <!-- Menu items -->
+        <div class="space-y-1 text-sm">
+          <div class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"><i data-lucide="brain" class="w-4 h-4 text-purple-500"></i> AI Memory</div>
+          <div class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"><i data-lucide="library" class="w-4 h-4 text-blue-500"></i> Document Library</div>
+          <div class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"><i data-lucide="user" class="w-4 h-4 text-gray-500"></i> Edit name / password</div>
+          <div class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-red-500"><i data-lucide="log-out" class="w-4 h-4"></i> Log out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  SECTION 13 — FOLDERS
+══════════════════════════════════════════════════════════════════════════ -->
+<section id="folders">
+  <div class="step-badge mb-3"><span>Step 13</span></div>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-2">Organising Chats &amp; Folders</h2>
+  <p class="text-gray-500 dark:text-gray-400 mb-8">Keep your research organised by grouping chats into named folders — perfect for different subjects or projects.</p>
+
+  <div class="grid md:grid-cols-2 gap-8 items-start">
+    <div class="space-y-5">
+      <div>
+        <h3 class="font-bold text-black dark:text-white mb-3">Creating a folder</h3>
+        <ol class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">1</span>Click the <strong>Folders</strong> tab in the sidebar.</li>
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">2</span>Click the <strong>+ New Folder</strong> button.</li>
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">3</span>Type a name (e.g. "Thesis 2026", "Physics Notes").</li>
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">4</span>Press Enter to save.</li>
+        </ol>
+      </div>
+      <div>
+        <h3 class="font-bold text-black dark:text-white mb-3">Moving a chat to a folder</h3>
+        <ol class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">1</span>In the <strong>Chats</strong> tab, hover over a chat.</li>
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">2</span>Click the <strong>⋯ menu</strong> that appears.</li>
+          <li class="flex gap-2"><span class="callout shrink-0 text-xs">3</span>Select <em>Move to folder</em> and choose your folder.</li>
+        </ol>
+      </div>
+      <div class="tip text-sm text-gray-700 dark:text-gray-300">
+        💡 <strong>Tip:</strong> The Chats tab always shows ALL your chats (including those in folders) as a flat list — great for finding recent conversations quickly.
+      </div>
+    </div>
+    <!-- Folder mockup -->
+    <div class="ui-mock max-w-xs">
+      <div class="flex gap-1 p-2 border-b border-gray-100 dark:border-gray-800">
+        <div class="flex-1 text-center py-1.5 text-xs text-gray-500 dark:text-gray-400">💬 Chats 5</div>
+        <div class="flex-1 text-center py-1.5 text-xs font-bold text-black dark:text-white bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">📁 Folders 3</div>
+      </div>
+      <div class="p-2.5 space-y-2 text-xs">
+        <!-- folder 1 -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+          <div class="flex items-center justify-between px-3 py-2.5 bg-gray-50 dark:bg-gray-800 font-semibold text-gray-700 dark:text-gray-300">
+            <div class="flex items-center gap-2"><i data-lucide="folder" class="w-3.5 h-3.5 text-yellow-500"></i> Thesis 2026</div>
+            <span class="text-gray-400">3 chats</span>
+          </div>
+          <div class="px-3 py-2 bg-white dark:bg-gray-900 space-y-1.5">
+            <div class="flex items-center gap-1.5 text-gray-600 dark:text-gray-400"><i data-lucide="message-circle" class="w-3 h-3"></i> Literature review draft</div>
+            <div class="flex items-center gap-1.5 text-gray-600 dark:text-gray-400"><i data-lucide="message-circle" class="w-3 h-3"></i> Methodology section</div>
+            <div class="flex items-center gap-1.5 text-gray-600 dark:text-gray-400"><i data-lucide="message-circle" class="w-3 h-3"></i> Citation formatting</div>
+          </div>
+        </div>
+        <!-- folder 2 -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+          <div class="flex items-center justify-between px-3 py-2.5 bg-gray-50 dark:bg-gray-800 font-semibold text-gray-700 dark:text-gray-300">
+            <div class="flex items-center gap-2"><i data-lucide="folder" class="w-3.5 h-3.5 text-blue-500"></i> Physics Exam</div>
+            <span class="text-gray-400">2 chats</span>
+          </div>
+        </div>
+        <!-- new folder button -->
+        <button class="w-full flex items-center justify-center gap-1.5 border border-dashed border-gray-300 dark:border-gray-600 rounded-xl py-2 text-gray-400 hover:border-yellow-400 hover:text-yellow-500 transition">
+          <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i> New Folder
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+  TIPS & PLAN COMPARISON
+══════════════════════════════════════════════════════════════════════════ -->
+<section>
+  <h2 class="text-3xl font-black text-black dark:text-white mb-6">Plan Comparison</h2>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm border-collapse">
+      <thead>
+        <tr class="bg-gray-50 dark:bg-gray-800">
+          <th class="text-left px-4 py-3 rounded-tl-xl font-bold text-gray-600 dark:text-gray-300">Feature</th>
+          <th class="px-4 py-3 text-center font-bold text-gray-600 dark:text-gray-300">Free</th>
+          <th class="px-4 py-3 text-center font-bold text-blue-600 dark:text-blue-400">Plus ₹399/mo</th>
+          <th class="px-4 py-3 text-center font-bold text-purple-600 dark:text-purple-400 rounded-tr-xl">Pro ₹999/mo</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+        <tr><td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">Daily chat messages</td><td class="px-4 py-3 text-center text-gray-500">10</td><td class="px-4 py-3 text-center text-blue-600 dark:text-blue-400 font-bold">100</td><td class="px-4 py-3 text-center text-purple-600 dark:text-purple-400 font-bold">300</td></tr>
+        <tr><td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">Fast Mode AI quality</td><td class="px-4 py-3 text-center text-gray-500">Lite model</td><td class="px-4 py-3 text-center text-blue-600 dark:text-blue-400 font-bold">Gemini 3.5-Flash</td><td class="px-4 py-3 text-center text-purple-600 dark:text-purple-400 font-bold">Gemini 3.5-Flash</td></tr>
+        <tr><td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">AI Memory</td><td class="px-4 py-3 text-center text-gray-400">—</td><td class="px-4 py-3 text-center">✅</td><td class="px-4 py-3 text-center">✅</td></tr>
+        <tr><td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">Document Library</td><td class="px-4 py-3 text-center text-gray-400">—</td><td class="px-4 py-3 text-center">✅</td><td class="px-4 py-3 text-center">✅</td></tr>
+        <tr><td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">Research Mode</td><td class="px-4 py-3 text-center text-gray-400">—</td><td class="px-4 py-3 text-center">✅</td><td class="px-4 py-3 text-center">✅</td></tr>
+        <tr><td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">AI Detector &amp; Plagiarism</td><td class="px-4 py-3 text-center text-gray-400">—</td><td class="px-4 py-3 text-center">✅</td><td class="px-4 py-3 text-center">✅</td></tr>
+        <tr><td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">Image generation</td><td class="px-4 py-3 text-center text-gray-400">—</td><td class="px-4 py-3 text-center text-blue-600 dark:text-blue-400">25 / mo</td><td class="px-4 py-3 text-center text-purple-600 dark:text-purple-400">100 / mo</td></tr>
+        <tr><td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">DeepThink Mode</td><td class="px-4 py-3 text-center text-gray-400">—</td><td class="px-4 py-3 text-center text-gray-400">—</td><td class="px-4 py-3 text-center">✅</td></tr>
+        <tr><td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">Deep Research Agent</td><td class="px-4 py-3 text-center text-gray-400">—</td><td class="px-4 py-3 text-center text-gray-400">—</td><td class="px-4 py-3 text-center">✅</td></tr>
+        <tr><td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">Research Watcher</td><td class="px-4 py-3 text-center text-gray-400">—</td><td class="px-4 py-3 text-center text-gray-400">—</td><td class="px-4 py-3 text-center">✅</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="bg-gradient-to-r from-yellow-400 to-yellow-300 dark:from-yellow-500 dark:to-yellow-400 rounded-3xl p-10 text-center">
+  <h2 class="text-3xl font-black text-black mb-3">Ready to start?</h2>
+  <p class="text-black/70 mb-6">Join thousands of students and researchers already using Dynamo AI.</p>
+  <div class="flex flex-wrap justify-center gap-3">
+    <a href="/" class="px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-900 transition">Open Dynamo AI →</a>
+    <a href="pricing.html" class="px-8 py-3 bg-white/80 text-black font-bold rounded-full hover:bg-white transition">View Pricing</a>
+  </div>
+</section>
+
+</div><!-- end max-w-5xl -->
+
+<!-- ══ FOOTER ═════════════════════════════════════════════════════════════ -->
+<footer class="border-t border-gray-100 dark:border-gray-800 mt-16 py-8 text-center text-sm text-gray-400 dark:text-gray-600">
+  <p>© 2026 Dynamo AI · <a href="/" class="hover:text-yellow-500 transition">Back to App</a> · <a href="pricing.html" class="hover:text-yellow-500 transition">Pricing</a> · <a href="features.html" class="hover:text-yellow-500 transition">Features</a></p>
+</footer>
+
+<script>
+  lucide.createIcons();
+  document.getElementById("theme-btn").addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark");
+    localStorage.theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+  });
+</script>
+</body>
+</html>

@@ -1,955 +1,1801 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>How to Use Dynamo AI - Complete User Guide</title>
-  <meta name="description" content="Learn how to use Dynamo AI. Step-by-step guide for all features: Radio Mode, Web Search, Deep Dive, Image Analysis, PDF Chat, Voice Input, and more." />
-  <meta name="keywords" content="Dynamo AI guide, user tutorial, how to use AI, Radio Mode, Web Search, AI research guide" />
-  <meta name="author" content="Dynamo AI" />
-  <meta name="robots" content="index, follow" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How to Use Dynamo AI - Complete User Guide</title>
+    <meta
+      name="description"
+      content="Learn how to use Dynamo AI. Step-by-step guide for all features: Radio Mode, Web Search, Deep Dive, Image Analysis, PDF Chat, Voice Input, and more."
+    />
+    <meta
+      name="keywords"
+      content="Dynamo AI guide, user tutorial, how to use AI, Radio Mode, Web Search, AI research guide"
+    />
+    <meta name="author" content="Dynamo AI" />
+    <meta name="robots" content="index, follow" />
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <link rel="icon" type="image/png" href="favicon.png" />
-  <!-- PostHog Analytics -->
-  <script>
-    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||(window.posthog=[]));
-    posthog.init('phc_tBkD3KDnUgpKGMjSxuzSFmtGFjCT6Hv9FScQ5diFLg83', {
-        api_host: 'https://us.i.posthog.com',
-        person_profiles: 'always'
-    });
-  </script>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GHG5R9T5FN"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-GHG5R9T5FN');
-  </script>
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: { gray: { 850: "#1f2937" } },
-        },
-      },
-    };
-    if (
-      localStorage.theme === "dark" ||
-      (!("theme" in localStorage) &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      document.documentElement.classList.add("dark");
-    }
-  </script>
-
-  <style>
-    body { font-family: Inter, system-ui, sans-serif; }
-    .guide-section {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 3rem;
-      align-items: center;
-      margin-bottom: 5rem;
-      padding: 3rem;
-    }
-    .guide-section.reverse { direction: rtl; }
-    .guide-section.reverse > * { direction: ltr; }
-    .guide-section.alt { grid-template-columns: 1fr 1fr; }
-    
-    @media (max-width: 768px) {
-      .guide-section {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-        padding: 1.5rem;
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <!-- PostHog Analytics -->
+    <script>
+      !(function (t, e) {
+        var o, n, p, r;
+        e.__SV ||
+          ((window.posthog = e),
+          (e._i = []),
+          (e.init = function (i, s, a) {
+            function g(t, e) {
+              var o = e.split(".");
+              (2 == o.length && ((t = t[o[0]]), (e = o[1])),
+                (t[e] = function () {
+                  t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
+                }));
+            }
+            (((p = t.createElement("script")).type = "text/javascript"),
+              (p.crossOrigin = "anonymous"),
+              (p.async = !0),
+              (p.src = s.api_host + "/static/array.js"),
+              (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(
+                p,
+                r,
+              ));
+            var u = e;
+            for (
+              void 0 !== a ? (u = e[a] = []) : (a = "posthog"),
+                u.people = u.people || [],
+                u.toString = function (t) {
+                  var e = "posthog";
+                  return (
+                    "posthog" !== a && (e += "." + a),
+                    t || (e += " (stub)"),
+                    e
+                  );
+                },
+                u.people.toString = function () {
+                  return u.toString(1) + " (stub)";
+                },
+                o =
+                  "capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(
+                    " ",
+                  ),
+                n = 0;
+              n < o.length;
+              n++
+            )
+              g(u, o[n]);
+            e._i.push([i, s, a]);
+          }),
+          (e.__SV = 1));
+      })(document, window.posthog || (window.posthog = []));
+      posthog.init("phc_tBkD3KDnUgpKGMjSxuzSFmtGFjCT6Hv9FScQ5diFLg83", {
+        api_host: "https://us.i.posthog.com",
+        person_profiles: "always",
+      });
+    </script>
+    <!-- Google Tag Manager -->
+    <script>
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+        var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s),
+          dl = l != "dataLayer" ? "&l=" + l : "";
+        j.async = true;
+        j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+        f.parentNode.insertBefore(j, f);
+      })(window, document, "script", "dataLayer", "GTM-T3GV9FG2");
+    </script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-GHG5R9T5FN"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
       }
-    }
+      gtag("js", new Date());
+      gtag("config", "G-GHG5R9T5FN");
+    </script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: { gray: { 850: "#1f2937" } },
+          },
+        },
+      };
+      if (
+        localStorage.theme === "dark" ||
+        (!("theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
 
-    .feature-card {
-      background: linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 193, 7, 0.02) 100%);
-      border: 1px solid rgba(255, 193, 7, 0.1);
-      border-radius: 1.5rem;
-      padding: 2rem;
-    }
-    .dark .feature-card {
-      background: linear-gradient(135deg, rgba(255, 193, 7, 0.08) 0%, rgba(255, 193, 7, 0.03) 100%);
-      border-color: rgba(255, 193, 7, 0.15);
-    }
+    <style>
+      body {
+        font-family: Inter, system-ui, sans-serif;
+      }
+      .guide-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+        margin-bottom: 5rem;
+        padding: 3rem;
+      }
+      .guide-section.reverse {
+        direction: rtl;
+      }
+      .guide-section.reverse > * {
+        direction: ltr;
+      }
+      .guide-section.alt {
+        grid-template-columns: 1fr 1fr;
+      }
 
-    .video-container {
-      background: linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 193, 7, 0.02) 100%);
-      border: 1px solid rgba(255, 193, 7, 0.1);
-      border-radius: 1.5rem;
-      padding: 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .dark .video-container {
-      background: linear-gradient(135deg, rgba(255, 193, 7, 0.08) 0%, rgba(255, 193, 7, 0.03) 100%);
-      border-color: rgba(255, 193, 7, 0.15);
-    }
+      @media (max-width: 768px) {
+        .guide-section {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+          padding: 1.5rem;
+        }
+      }
 
-    .screenshot-placeholder {
-      width: 100%;
-      height: 400px;
-      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-      border-radius: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #9ca3af;
-      font-weight: 600;
-      border: 2px dashed #d1d5db;
-    }
-    .dark .screenshot-placeholder {
-      background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
-      border-color: #4b5563;
-      color: #6b7280;
-    }
+      .feature-card {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 193, 7, 0.05) 0%,
+          rgba(255, 193, 7, 0.02) 100%
+        );
+        border: 1px solid rgba(255, 193, 7, 0.1);
+        border-radius: 1.5rem;
+        padding: 2rem;
+      }
+      .dark .feature-card {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 193, 7, 0.08) 0%,
+          rgba(255, 193, 7, 0.03) 100%
+        );
+        border-color: rgba(255, 193, 7, 0.15);
+      }
 
-    .step-number {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.5rem;
-      height: 2.5rem;
-      background: #FFC107;
-      color: black;
-      border-radius: 0.75rem;
-      font-weight: 800;
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
-    }
+      .video-container {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 193, 7, 0.05) 0%,
+          rgba(255, 193, 7, 0.02) 100%
+        );
+        border: 1px solid rgba(255, 193, 7, 0.1);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .dark .video-container {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 193, 7, 0.08) 0%,
+          rgba(255, 193, 7, 0.03) 100%
+        );
+        border-color: rgba(255, 193, 7, 0.15);
+      }
 
-    .feature-list {
-      list-style: none;
-      padding: 0;
-    }
-    .feature-list li {
-      padding: 0.75rem 0;
-      padding-left: 2rem;
-      position: relative;
-      color: #374151;
-    }
-    .dark .feature-list li { color: #d1d5db; }
-    .feature-list li:before {
-      content: "✓";
-      position: absolute;
-      left: 0;
-      font-weight: 800;
-      color: #FFC107;
-      font-size: 1.25rem;
-    }
-  </style>
-</head>
+      .screenshot-placeholder {
+        width: 100%;
+        height: 400px;
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        border-radius: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        font-weight: 600;
+        border: 2px dashed #d1d5db;
+      }
+      .dark .screenshot-placeholder {
+        background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+        border-color: #4b5563;
+        color: #6b7280;
+      }
 
-<body class="bg-white dark:bg-gray-900">
-  <!-- Navigation -->
-  <header class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur border-b border-gray-100 dark:border-gray-800">
-    <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-2 text-xl font-black text-black dark:text-white">
-        <div class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
-          <i data-lucide="zap" class="w-5 h-5 text-black fill-current"></i>
-        </div>
-        Dynamo AI
-      </a>
-      <div class="flex items-center gap-4">
-        <button id="theme-toggle" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-black dark:text-white">
-          <i data-lucide="moon" class="w-5 h-5"></i>
-        </button>
-        <a href="/" class="px-4 py-2 rounded-full bg-yellow-400 text-black font-bold text-sm hover:bg-yellow-500 transition">
-          Back to App
+      .step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        background: #ffc107;
+        color: black;
+        border-radius: 0.75rem;
+        font-weight: 800;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+      }
+
+      .feature-list {
+        list-style: none;
+        padding: 0;
+      }
+      .feature-list li {
+        padding: 0.75rem 0;
+        padding-left: 2rem;
+        position: relative;
+        color: #374151;
+      }
+      .dark .feature-list li {
+        color: #d1d5db;
+      }
+      .feature-list li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        font-weight: 800;
+        color: #ffc107;
+        font-size: 1.25rem;
+      }
+    </style>
+  </head>
+
+  <body class="bg-white dark:bg-gray-900">
+    <!-- Navigation -->
+    <header
+      class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur border-b border-gray-100 dark:border-gray-800"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between"
+      >
+        <a
+          href="/"
+          class="flex items-center gap-2 text-xl font-black text-black dark:text-white"
+        >
+          <div
+            class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center"
+          >
+            <i data-lucide="zap" class="w-5 h-5 text-black fill-current"></i>
+          </div>
+          Dynamo AI
         </a>
+        <div class="flex items-center gap-4">
+          <button
+            id="theme-toggle"
+            class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-black dark:text-white"
+          >
+            <i data-lucide="moon" class="w-5 h-5"></i>
+          </button>
+          <a
+            href="/"
+            class="px-4 py-2 rounded-full bg-yellow-400 text-black font-bold text-sm hover:bg-yellow-500 transition"
+          >
+            Back to App
+          </a>
+        </div>
       </div>
+    </header>
+
+    <!-- Hero -->
+    <section
+      class="bg-gradient-to-b from-yellow-50 to-white dark:from-gray-800 dark:to-gray-900 px-4 md:px-6 py-12 md:py-20"
+    >
+      <div class="max-w-4xl mx-auto text-center">
+        <h1
+          class="text-4xl md:text-5xl font-black text-black dark:text-white mb-4"
+        >
+          How to Use Dynamo AI
+        </h1>
+        <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">
+          Master every feature with our step-by-step guide. Learn how to unlock
+          the full power of AI research.
+        </p>
+
+        <!-- Quick Navigation -->
+        <div class="flex flex-wrap justify-center gap-3 mb-8">
+          <a
+            href="#radio-mode"
+            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            >🎧 Radio Mode</a
+          >
+          <a
+            href="#web-search"
+            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            >🔍 Web Search</a
+          >
+          <a
+            href="#deep-dive"
+            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            >🧠 Deep Dive</a
+          >
+          <a
+            href="#pdf-chat"
+            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            >📄 PDF Chat</a
+          >
+          <a
+            href="#image-creation"
+            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            >🎨 Images</a
+          >
+          <a
+            href="#video-generation"
+            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            >🎬 Videos</a
+          >
+          <a
+            href="#mindmaps"
+            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            >🧠 Mindmaps</a
+          >
+          <a
+            href="#flowcharts"
+            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            >📊 Flowcharts</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-4 md:px-6 py-12">
+      <!-- 1. RADIO MODE -->
+      <section
+        id="radio-mode"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">1</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            🎧 Radio Mode - Listen to Responses
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Transform your research into an immersive audio experience. Perfect
+            for commutes, workouts, or when you prefer to listen instead of
+            read.
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How to Use:
+          </h3>
+          <ol class="space-y-3">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Click the <strong>Tools button</strong> in the
+              input bar
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> Toggle <strong>"🎧 Radio Mode"</strong> on
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> Type your question and send
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> AI response plays automatically as audio
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>5.</strong> Control playback with play/pause buttons
+            </li>
+          </ol>
+        </div>
+
+        <!-- Right Column: Video and Benefits -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Radio Mode Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/radio-mode-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/radio-mode.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Benefits -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Benefits:
+            </h3>
+            <ul class="feature-list">
+              <li>Hands-free learning while on-the-go</li>
+              <li>Natural speech synthesis for better understanding</li>
+              <li>Adjustable playback speed</li>
+              <li>Works in dark mode for late-night study</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. WEB SEARCH -->
+      <section
+        id="web-search"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">2</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            🔍 Web Search - Real-Time Information
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Get the latest information from the internet. Perfect for current
+            events, latest trends, breaking news, and up-to-date data.
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How to Use:
+          </h3>
+          <ol class="space-y-3">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Click <strong>Tools</strong> button
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> Under "Research Tools", enable
+              <strong>Web Search</strong>
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> Ask any question about recent events
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> Dynamo searches the web and provides fresh
+              answers
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>5.</strong> Sources are cited in the response
+            </li>
+          </ol>
+        </div>
+
+        <!-- Right Column: Video and Example Queries -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Web Search Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/web-search-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/web-search.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Example Queries -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Example Queries:
+            </h3>
+            <ul class="feature-list">
+              <li>"Latest AI news March 2024"</li>
+              <li>"Bitcoin price today"</li>
+              <li>"Current weather trends"</li>
+              <li>"Breaking news today"</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. DEEP DIVE (DeepThink) -->
+      <section
+        id="deep-dive"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">3</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            🧠 Deep Think - Advanced Analysis
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Enable advanced thinking mode for complex problems. The AI takes
+            more time to analyze and provide comprehensive, detailed answers.
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How to Use:
+          </h3>
+          <ol class="space-y-3">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Open the <strong>Tools menu</strong>
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> Click <strong>"DeepThink"</strong> button
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> Ask a complex question
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> Wait for detailed analysis (takes slightly
+              longer)
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>5.</strong> Get comprehensive, well-reasoned responses
+            </li>
+          </ol>
+        </div>
+
+        <!-- Right Column: Video and Best For -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Deep Dive Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/deep-think-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/deep-think.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Best For -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Best For:
+            </h3>
+            <ul class="feature-list">
+              <li>Complex problem solving</li>
+              <li>Research and analysis</li>
+              <li>Strategy and planning</li>
+              <li>Critical thinking tasks</li>
+              <li>Academic essays and reports</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. DOCUMENT ANALYSIS -->
+      <section
+        id="pdf-chat"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">4</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            📄 Any File Analysis - Chat with Documents
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Upload any file type (PDFs, Word, Excel, CSV, TXT, Images) and ask
+            questions about their content. Get instant answers backed by your
+            documents.
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How to Use:
+          </h3>
+          <ol class="space-y-3">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Click the
+              <strong>📎 paperclip icon</strong> in input bar
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> Select document from your device
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> Upload will process automatically
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> Ask questions about the content
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>5.</strong> Get answers with exact locations in document
+            </li>
+          </ol>
+        </div>
+
+        <!-- Right Column: Video and Supported Formats -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- PDF Chat Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/any-file-analysis-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/any-file-analysis.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Supported Formats -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Supported Formats:
+            </h3>
+            <ul class="feature-list">
+              <li>PDF documents</li>
+              <li>Microsoft Word (.docx)</li>
+              <li>Excel spreadsheets (.xlsx, .xls)</li>
+              <li>CSV data files (.csv)</li>
+              <li>Text files (.txt)</li>
+              <li>Images with text (OCR)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. IMAGE ANALYSIS -->
+      <section
+        id="image-analysis"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">5</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            🖼️ Image Analysis - Visual Understanding
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Upload images and ask questions about them. Perfect for research,
+            data extraction, and visual analysis.
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How to Use:
+          </h3>
+          <ol class="space-y-3">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Click the <strong>📎 attach button</strong>
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> Choose an image file
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> Upload image automatically
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> Ask what you want to know about the image
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>5.</strong> Get detailed visual analysis
+            </li>
+          </ol>
+        </div>
+
+        <!-- Right Column: Video and Use Cases -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Image Analysis Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/image-analysis-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/image-analysis.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Use Cases -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Use Cases:
+            </h3>
+            <ul class="feature-list">
+              <li>Extract text from images (OCR)</li>
+              <li>Analyze charts and graphs</li>
+              <li>Describe photos in detail</li>
+              <li>Identify objects and items</li>
+              <li>Analyze screenshots</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. VOICE INPUT -->
+      <section
+        id="voice-input"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">6</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            🎤 Voice Input - Speak Your Query
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Use voice to ask questions instead of typing. Great for quick
+            queries and hands-free interaction.
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How to Use:
+          </h3>
+          <ol class="space-y-3">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Click the <strong>🎤 mic button</strong> (red
+              icon)
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> Speak your question clearly
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> Voice is transcribed to text
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> Click send or wait for auto-send
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>5.</strong> Get instant response
+            </li>
+          </ol>
+        </div>
+
+        <!-- Right Column: Video and Tips -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Voice Input Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/voice-input-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/voice-input.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Tips -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Tips:
+            </h3>
+            <ul class="feature-list">
+              <li>Speak slowly and clearly</li>
+              <li>Ensure microphone permissions are granted</li>
+              <li>Works best in quiet environments</li>
+              <li>Edit transcription before sending if needed</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. MODEL SELECTION -->
+      <section
+        id="models"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">7</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            ⚡ Model Selection - Choose Your Speed
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Switch between different AI models. Fast Mode for quick answers,
+            Research Mode for comprehensive analysis.
+          </p>
+
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Switch models in the <strong>Tools</strong> menu under "🧠 Model
+            Selection"
+          </p>
+        </div>
+
+        <!-- Right Column: Video and Available Models -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Model Selection Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/model-selection-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/model-selection.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Available Models -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Available Models:
+            </h3>
+
+            <div class="bg-yellow-50 dark:bg-gray-800 p-3 rounded-lg mb-2">
+              <h4 class="font-bold text-black dark:text-white mb-1">
+                ⚡ Fast Mode
+              </h4>
+              <p class="text-sm text-gray-700 dark:text-gray-300">
+                Super quick responses, instant results.
+              </p>
+            </div>
+
+            <div class="bg-purple-50 dark:bg-gray-800 p-3 rounded-lg">
+              <h4 class="font-bold text-black dark:text-white mb-1">
+                🔬 Research Mode
+              </h4>
+              <p class="text-sm text-gray-700 dark:text-gray-300">
+                Advanced model for deep analysis.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. EXPORT & SAVE -->
+      <section
+        id="export"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">8</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            💾 Export & Save - Create Reports
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Convert your chat conversations into professional documents. Perfect
+            for presentations and sharing.
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How to Export:
+          </h3>
+          <ol class="space-y-2">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Look for
+              <strong>"Quick Tools"</strong> section in sidebar
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> Click <strong>"Export / Save"</strong>
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> Choose your format
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> Document downloads automatically
+            </li>
+          </ol>
+        </div>
+
+        <!-- Right Column: Video and Export Formats -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Export Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/export-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/export.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Export Formats -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Export Formats:
+            </h3>
+            <ul class="feature-list">
+              <li><strong>📊 PowerPoint:</strong> Professional presentation</li>
+              <li><strong>📄 Word Doc:</strong> Editable document</li>
+              <li><strong>📋 PDF File:</strong> Print-ready document</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9. INTERACTIVE QUIZZES -->
+      <section
+        id="quizzes"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">9</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            📝 Interactive Quizzes - Test Your Knowledge
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Generate custom quizzes on any topic to test your knowledge. Perfect
+            for learning, preparation, and reinforcing concepts.
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How to Use:
+          </h3>
+          <ol class="space-y-3">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Ask to "create a quiz" or "make a quiz"
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> Specify the topic or subject
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> Choose difficulty level (beginner,
+              intermediate, advanced)
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> AI generates multiple choice questions
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>5.</strong> Answer questions and get instant feedback
+            </li>
+          </ol>
+        </div>
+
+        <!-- Right Column: Video and Best For -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Quizzes Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/quizzes-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/quizzes.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Best For -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Perfect For:
+            </h3>
+            <ul class="feature-list">
+              <li>Test preparation & exams</li>
+              <li>Learning new subjects</li>
+              <li>Knowledge reinforcement</li>
+              <li>Self-assessment</li>
+              <li>Interactive practice</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10. SMART ACTIONS -->
+      <section
+        id="smart-actions"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">10</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            ✨ Smart Actions - One-Click Operations
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Perform common tasks with a single click. Found in the sidebar under
+            "Smart Actions".
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How to Use:
+          </h3>
+          <ol class="space-y-3">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Look for <strong>"Smart Actions"</strong> in
+              the sidebar
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> Select the action you want to perform
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> The action runs on your current chat or
+              response
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> Get instant results without typing commands
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>5.</strong> Use multiple actions for complex workflows
+            </li>
+          </ol>
+        </div>
+
+        <!-- Right Column: Video and Available Actions -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Smart Actions Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/smart-action-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/smart-actions.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Available Actions -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Available Actions:
+            </h3>
+
+            <div class="space-y-2">
+              <div class="bg-blue-50 dark:bg-gray-800 p-2 rounded">
+                <h4 class="font-bold text-black dark:text-white text-sm">
+                  📝 Summarise
+                </h4>
+              </div>
+
+              <div class="bg-green-50 dark:bg-gray-800 p-2 rounded">
+                <h4 class="font-bold text-black dark:text-white text-sm">
+                  💡 Explain Simply
+                </h4>
+              </div>
+
+              <div class="bg-orange-50 dark:bg-gray-800 p-2 rounded">
+                <h4 class="font-bold text-black dark:text-white text-sm">
+                  📊 Create Exec Deck
+                </h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11. IMAGE CREATION -->
+      <section
+        id="image-creation"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">11</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            🎨 Image Generation - Create Visual Content
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Generate stunning AI images from text descriptions. Perfect for
+            presentations, blogs, social media, and more.
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How to Use:
+          </h3>
+          <ol class="space-y-3">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Type a detailed description of the image you
+              want
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> Use words like "create", "generate", "draw",
+              "illustration", etc.
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> Specify style: photorealistic, cartoon,
+              watercolor, digital art, etc.
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> Add details about composition, lighting, and
+              mood
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>5.</strong> Download or share your generated images
+            </li>
+          </ol>
+        </div>
+
+        <!-- Right Column: Video and Example Prompts -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Image Creation Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/image-creation-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/image-creation.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Example Prompts -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Example Prompts:
+            </h3>
+            <ul class="feature-list">
+              <li>"Create futuristic city at sunset"</li>
+              <li>"Watercolor mountain landscape"</li>
+              <li>"Professional business person"</li>
+              <li>"AI robot cyberpunk style"</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 12. VIDEO GENERATION -->
+      <section
+        id="video-generation"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">12</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            🎬 Video Generation - Create Videos from Descriptions
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Generate short, cinematic videos from text prompts. Perfect for
+            marketing, social media, presentations, and storytelling.
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How to Use:
+          </h3>
+          <ol class="space-y-3">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Type "generate video" or "create video"
+              followed by your description
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> Describe the scene, action, and mood you want
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> Specify duration (short clips: 5-15 seconds
+              recommended)
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> Add details about music, transitions, and
+              style
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>5.</strong> Wait for video to render and download
+            </li>
+          </ol>
+        </div>
+
+        <!-- Right Column: Video and Best For -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Video Generation Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/video-generation-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/video-generation.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Best For -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Best For:
+            </h3>
+            <ul class="feature-list">
+              <li>Social media content</li>
+              <li>Product demonstrations</li>
+              <li>Explainer videos</li>
+              <li>Marketing content</li>
+              <li>Cinematic stories</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13. MINDMAPS -->
+      <section
+        id="mindmaps"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">13</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            🧠 Mindmaps - Organize Your Ideas Visually
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Create beautiful mindmaps to brainstorm, plan projects, and organize
+            complex information in a visual hierarchy.
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How to Use:
+          </h3>
+          <ol class="space-y-3">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Ask Dynamo to "create a mindmap" or "make a
+              mindmap"
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> Specify the central topic or idea
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> List key branches and sub-topics you want
+              included
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> AI generates a structured mindmap
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>5.</strong> Edit, export, or share your mindmap
+            </li>
+          </ol>
+        </div>
+
+        <!-- Right Column: Video and Perfect For -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Mindmaps Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/mindmaps-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/mindmaps.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Perfect For -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Perfect For:
+            </h3>
+            <ul class="feature-list">
+              <li>Brainstorming and ideation</li>
+              <li>Project planning</li>
+              <li>Learning and studying</li>
+              <li>Strategic planning</li>
+              <li>Content organization</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 14. FLOWCHARTS -->
+      <section
+        id="flowcharts"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">14</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            📊 Flowcharts - Create Process Diagrams
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Generate flowcharts to visualize processes, workflows, decision
+            trees, and system architectures instantly.
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How to Use:
+          </h3>
+          <ol class="space-y-3">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Ask to "create a flowchart" or "make a
+              flowchart"
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> Describe the process or workflow step-by-step
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> Include decision points, actions, and outcomes
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> AI creates a visual flowchart diagram
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>5.</strong> Download as image or PDF for presentations
+            </li>
+          </ol>
+        </div>
+
+        <!-- Right Column: Video and Use Cases -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Flowcharts Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/flowcharts-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/flowcharts.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- Use Cases -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              Use Cases:
+            </h3>
+            <ul class="feature-list">
+              <li>Business processes</li>
+              <li>Software workflows</li>
+              <li>Decision-making</li>
+              <li>Customer journey</li>
+              <li>System architecture</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 15. MEMORY BANK -->
+      <section
+        id="memory-bank"
+        class="guide-section"
+        style="align-items: flex-start"
+      >
+        <div class="feature-card">
+          <div class="step-number">15</div>
+          <h2 class="text-3xl font-black text-black dark:text-white mb-4">
+            🧠 AI Memory - AI Remembers You
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Dynamo AI automatically learns and remembers personal facts about
+            you across all conversations. Your AI becomes more personalized and
+            contextual with every chat.
+          </p>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+            How It Works:
+          </h3>
+          <ol class="space-y-3">
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>1.</strong> Share personal facts in conversations ("I'm a
+              software engineer", "I live in NYC")
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>2.</strong> AI automatically extracts and saves these
+              facts
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>3.</strong> Facts are organized by category (personal,
+              preference, goal)
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>4.</strong> AI uses your memory to personalize future
+              responses
+            </li>
+            <li class="text-gray-700 dark:text-gray-400">
+              <strong>5.</strong> View and manage memories anytime from the
+              sidebar
+            </li>
+          </ol>
+
+          <h3 class="text-xl font-bold text-black dark:text-white mb-3 mt-6">
+            Key Features:
+          </h3>
+          <ul class="feature-list">
+            <li>Automatic fact extraction from conversations</li>
+            <li>Organized memory categories (personal, goals, preferences)</li>
+            <li>Delete or forget specific memories anytime</li>
+            <li>Improves AI personalization over time</li>
+            <li>Works across all chats and sessions</li>
+          </ul>
+        </div>
+
+        <!-- Right Column: Video and What Gets Remembered -->
+        <div style="display: flex; flex-direction: column; gap: 2rem">
+          <!-- Memory Bank Demo Video -->
+          <div class="video-container">
+            <video
+              loop
+              muted
+              playsinline
+              controls
+              poster="pictures/ai-memory-thumb.png"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 1rem;
+                max-height: 400px;
+              "
+            >
+              <source src="video/ai-memory.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <!-- What Gets Remembered -->
+          <div class="feature-card">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-3">
+              What Gets Remembered:
+            </h3>
+            <ul class="feature-list">
+              <li>Your name & location</li>
+              <li>Job & career goals</li>
+              <li>Hobbies & interests</li>
+              <li>Preferences & favorites</li>
+              <li>Personal goals & milestones</li>
+              <li>Important life events</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 16. TIPS & TRICKS -->
+      <section id="tips" class="py-12">
+        <div
+          class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-800 dark:to-gray-750 rounded-3xl p-8 md:p-12"
+        >
+          <h2
+            class="text-3xl md:text-4xl font-black text-black dark:text-white mb-8 text-center"
+          >
+            💡 Pro Tips & Tricks
+          </h2>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
+              <h3 class="font-bold text-lg text-black dark:text-white mb-2">
+                Combine Tools
+              </h3>
+              <p class="text-gray-600 dark:text-gray-300">
+                Use Web Search + DeepThink together for the best research
+                results with real-time data and deep analysis.
+              </p>
+            </div>
+
+            <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
+              <h3 class="font-bold text-lg text-black dark:text-white mb-2">
+                Use History
+              </h3>
+              <p class="text-gray-600 dark:text-gray-300">
+                Access past conversations from the sidebar history. Search for
+                specific chats using the search box.
+              </p>
+            </div>
+
+            <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
+              <h3 class="font-bold text-lg text-black dark:text-white mb-2">
+                Model + Mode
+              </h3>
+              <p class="text-gray-600 dark:text-gray-300">
+                Use Research Mode with Deep Dive for the most comprehensive
+                answers. Fast Mode for quick brainstorms.
+              </p>
+            </div>
+
+            <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
+              <h3 class="font-bold text-lg text-black dark:text-white mb-2">
+                Voice + Radio
+              </h3>
+              <p class="text-gray-600 dark:text-gray-300">
+                Enable Radio Mode, then use voice input for a completely
+                hands-free, audio-first experience.
+              </p>
+            </div>
+
+            <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
+              <h3 class="font-bold text-lg text-black dark:text-white mb-2">
+                Export Early
+              </h3>
+              <p class="text-gray-600 dark:text-gray-300">
+                Export important conversations to PowerPoint or PDF right away
+                to preserve your work.
+              </p>
+            </div>
+
+            <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
+              <h3 class="font-bold text-lg text-black dark:text-white mb-2">
+                Multiple Uploads
+              </h3>
+              <p class="text-gray-600 dark:text-gray-300">
+                Upload images, PDFs, and documents in one conversation for
+                comprehensive analysis.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ Section -->
+      <section id="faq" class="py-12">
+        <h2
+          class="text-3xl md:text-4xl font-black text-black dark:text-white mb-8 text-center"
+        >
+          ❓ Frequently Asked Questions
+        </h2>
+
+        <div class="space-y-6">
+          <details
+            class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer"
+          >
+            <summary
+              class="flex items-center justify-between font-bold text-lg text-black dark:text-white"
+            >
+              Can I use Dynamo AI offline?
+              <i
+                data-lucide="chevron-down"
+                class="w-5 h-5 group-open:rotate-180 transition"
+              ></i>
+            </summary>
+            <p class="text-gray-600 dark:text-gray-300 mt-4">
+              Dynamo AI requires an internet connection to function as it
+              connects to AI servers. However, your history is saved locally.
+            </p>
+          </details>
+
+          <details
+            class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer"
+          >
+            <summary
+              class="flex items-center justify-between font-bold text-lg text-black dark:text-white"
+            >
+              How much data can I upload at once?
+              <i
+                data-lucide="chevron-down"
+                class="w-5 h-5 group-open:rotate-180 transition"
+              ></i>
+            </summary>
+            <p class="text-gray-600 dark:text-gray-300 mt-4">
+              You can upload documents up to 25MB per file. For best results,
+              keep files under 10MB for faster processing.
+            </p>
+          </details>
+
+          <details
+            class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer"
+          >
+            <summary
+              class="flex items-center justify-between font-bold text-lg text-black dark:text-white"
+            >
+              Is my data private and secure?
+              <i
+                data-lucide="chevron-down"
+                class="w-5 h-5 group-open:rotate-180 transition"
+              ></i>
+            </summary>
+            <p class="text-gray-600 dark:text-gray-300 mt-4">
+              Yes! Your data is encrypted and stored securely. We don't share
+              your information with third parties. Conversations are tied to
+              your account only.
+            </p>
+          </details>
+
+          <details
+            class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer"
+          >
+            <summary
+              class="flex items-center justify-between font-bold text-lg text-black dark:text-white"
+            >
+              What's the difference between Fast and Research modes?
+              <i
+                data-lucide="chevron-down"
+                class="w-5 h-5 group-open:rotate-180 transition"
+              ></i>
+            </summary>
+            <p class="text-gray-600 dark:text-gray-300 mt-4">
+              <strong>Fast Mode:</strong> Instant responses, great for
+              brainstorming. <strong>Research Mode:</strong> More detailed
+              analysis, perfect with Web Search and DeepThink for comprehensive
+              research.
+            </p>
+          </details>
+
+          <details
+            class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer"
+          >
+            <summary
+              class="flex items-center justify-between font-bold text-lg text-black dark:text-white"
+            >
+              How do I contact support?
+              <i
+                data-lucide="chevron-down"
+                class="w-5 h-5 group-open:rotate-180 transition"
+              ></i>
+            </summary>
+            <p class="text-gray-600 dark:text-gray-300 mt-4">
+              Click on your profile (bottom of sidebar) and select "Support".
+              You can also email us directly or reach out through social media
+              @dynamoai_in
+            </p>
+          </details>
+        </div>
+      </section>
     </div>
-  </header>
 
-  <!-- Hero -->
-  <section class="bg-gradient-to-b from-yellow-50 to-white dark:from-gray-800 dark:to-gray-900 px-4 md:px-6 py-12 md:py-20">
-    <div class="max-w-4xl mx-auto text-center">
-      <h1 class="text-4xl md:text-5xl font-black text-black dark:text-white mb-4">How to Use Dynamo AI</h1>
-      <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">Master every feature with our step-by-step guide. Learn how to unlock the full power of AI research.</p>
-      
-      <!-- Quick Navigation -->
-      <div class="flex flex-wrap justify-center gap-3 mb-8">
-        <a href="#radio-mode" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">🎧 Radio Mode</a>
-        <a href="#web-search" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">🔍 Web Search</a>
-        <a href="#deep-dive" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">🧠 Deep Dive</a>
-        <a href="#pdf-chat" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">📄 PDF Chat</a>
-        <a href="#image-creation" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">🎨 Images</a>
-        <a href="#video-generation" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">🎬 Videos</a>
-        <a href="#mindmaps" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">🧠 Mindmaps</a>
-        <a href="#flowcharts" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">📊 Flowcharts</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main Content -->
-  <div class="max-w-6xl mx-auto px-4 md:px-6 py-12">
-
-    <!-- 1. RADIO MODE -->
-    <section id="radio-mode" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">1</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">🎧 Radio Mode - Listen to Responses</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Transform your research into an immersive audio experience. Perfect for commutes, workouts, or when you prefer to listen instead of read.</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
-        <ol class="space-y-3">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Click the <strong>Tools button</strong> in the input bar</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Toggle <strong>"🎧 Radio Mode"</strong> on</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Type your question and send</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> AI response plays automatically as audio</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Control playback with play/pause buttons</li>
-        </ol>
-      </div>
-
-      <!-- Right Column: Video and Benefits -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Radio Mode Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/radio-mode-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/radio-mode.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Benefits -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Benefits:</h3>
-          <ul class="feature-list">
-            <li>Hands-free learning while on-the-go</li>
-            <li>Natural speech synthesis for better understanding</li>
-            <li>Adjustable playback speed</li>
-            <li>Works in dark mode for late-night study</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. WEB SEARCH -->
-    <section id="web-search" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">2</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">🔍 Web Search - Real-Time Information</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Get the latest information from the internet. Perfect for current events, latest trends, breaking news, and up-to-date data.</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
-        <ol class="space-y-3">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Click <strong>Tools</strong> button</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Under "Research Tools", enable <strong>Web Search</strong></li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Ask any question about recent events</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Dynamo searches the web and provides fresh answers</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Sources are cited in the response</li>
-        </ol>
-      </div>
-
-      <!-- Right Column: Video and Example Queries -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Web Search Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/web-search-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/web-search.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Example Queries -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Example Queries:</h3>
-          <ul class="feature-list">
-            <li>"Latest AI news March 2024"</li>
-            <li>"Bitcoin price today"</li>
-            <li>"Current weather trends"</li>
-            <li>"Breaking news today"</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. DEEP DIVE (DeepThink) -->
-    <section id="deep-dive" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">3</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">🧠 Deep Think - Advanced Analysis</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Enable advanced thinking mode for complex problems. The AI takes more time to analyze and provide comprehensive, detailed answers.</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
-        <ol class="space-y-3">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Open the <strong>Tools menu</strong></li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Click <strong>"DeepThink"</strong> button</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Ask a complex question</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Wait for detailed analysis (takes slightly longer)</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Get comprehensive, well-reasoned responses</li>
-        </ol>
-      </div>
-
-      <!-- Right Column: Video and Best For -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Deep Dive Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/deep-think-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/deep-think.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Best For -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Best For:</h3>
-          <ul class="feature-list">
-            <li>Complex problem solving</li>
-            <li>Research and analysis</li>
-            <li>Strategy and planning</li>
-            <li>Critical thinking tasks</li>
-            <li>Academic essays and reports</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. DOCUMENT ANALYSIS -->
-    <section id="pdf-chat" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">4</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">📄 Any File Analysis - Chat with Documents</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Upload any file type (PDFs, Word, Excel, CSV, TXT, Images) and ask questions about their content. Get instant answers backed by your documents.</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
-        <ol class="space-y-3">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Click the <strong>📎 paperclip icon</strong> in input bar</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Select document from your device</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Upload will process automatically</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Ask questions about the content</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Get answers with exact locations in document</li>
-        </ol>
-      </div>
-
-      <!-- Right Column: Video and Supported Formats -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- PDF Chat Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/any-file-analysis-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/any-file-analysis.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Supported Formats -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Supported Formats:</h3>
-          <ul class="feature-list">
-            <li>PDF documents</li>
-            <li>Microsoft Word (.docx)</li>
-            <li>Excel spreadsheets (.xlsx, .xls)</li>
-            <li>CSV data files (.csv)</li>
-            <li>Text files (.txt)</li>
-            <li>Images with text (OCR)</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. IMAGE ANALYSIS -->
-    <section id="image-analysis" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">5</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">🖼️ Image Analysis - Visual Understanding</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Upload images and ask questions about them. Perfect for research, data extraction, and visual analysis.</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
-        <ol class="space-y-3">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Click the <strong>📎 attach button</strong></li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Choose an image file</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Upload image automatically</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Ask what you want to know about the image</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Get detailed visual analysis</li>
-        </ol>
-      </div>
-
-      <!-- Right Column: Video and Use Cases -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Image Analysis Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/image-analysis-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/image-analysis.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Use Cases -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Use Cases:</h3>
-          <ul class="feature-list">
-            <li>Extract text from images (OCR)</li>
-            <li>Analyze charts and graphs</li>
-            <li>Describe photos in detail</li>
-            <li>Identify objects and items</li>
-            <li>Analyze screenshots</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6. VOICE INPUT -->
-    <section id="voice-input" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">6</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">🎤 Voice Input - Speak Your Query</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Use voice to ask questions instead of typing. Great for quick queries and hands-free interaction.</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
-        <ol class="space-y-3">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Click the <strong>🎤 mic button</strong> (red icon)</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Speak your question clearly</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Voice is transcribed to text</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Click send or wait for auto-send</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Get instant response</li>
-        </ol>
-      </div>
-
-      <!-- Right Column: Video and Tips -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Voice Input Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/voice-input-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/voice-input.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Tips -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Tips:</h3>
-          <ul class="feature-list">
-            <li>Speak slowly and clearly</li>
-            <li>Ensure microphone permissions are granted</li>
-            <li>Works best in quiet environments</li>
-            <li>Edit transcription before sending if needed</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 7. MODEL SELECTION -->
-    <section id="models" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">7</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">⚡ Model Selection - Choose Your Speed</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Switch between different AI models. Fast Mode for quick answers, Research Mode for comprehensive analysis.</p>
-        
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Switch models in the <strong>Tools</strong> menu under "🧠 Model Selection"</p>
-      </div>
-
-      <!-- Right Column: Video and Available Models -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Model Selection Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/model-selection-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/model-selection.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Available Models -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Available Models:</h3>
-          
-          <div class="bg-yellow-50 dark:bg-gray-800 p-3 rounded-lg mb-2">
-            <h4 class="font-bold text-black dark:text-white mb-1">⚡ Fast Mode</h4>
-            <p class="text-sm text-gray-700 dark:text-gray-300">Super quick responses, instant results.</p>
-          </div>
-
-          <div class="bg-purple-50 dark:bg-gray-800 p-3 rounded-lg">
-            <h4 class="font-bold text-black dark:text-white mb-1">🔬 Research Mode</h4>
-            <p class="text-sm text-gray-700 dark:text-gray-300">Advanced model for deep analysis.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 8. EXPORT & SAVE -->
-    <section id="export" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">8</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">💾 Export & Save - Create Reports</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Convert your chat conversations into professional documents. Perfect for presentations and sharing.</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Export:</h3>
-        <ol class="space-y-2">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Look for <strong>"Quick Tools"</strong> section in sidebar</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Click <strong>"Export / Save"</strong></li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Choose your format</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Document downloads automatically</li>
-        </ol>
-      </div>
-
-      <!-- Right Column: Video and Export Formats -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Export Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/export-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/export.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Export Formats -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Export Formats:</h3>
-          <ul class="feature-list">
-            <li><strong>📊 PowerPoint:</strong> Professional presentation</li>
-            <li><strong>📄 Word Doc:</strong> Editable document</li>
-            <li><strong>📋 PDF File:</strong> Print-ready document</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 9. INTERACTIVE QUIZZES -->
-    <section id="quizzes" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">9</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">📝 Interactive Quizzes - Test Your Knowledge</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Generate custom quizzes on any topic to test your knowledge. Perfect for learning, preparation, and reinforcing concepts.</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
-        <ol class="space-y-3">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Ask to "create a quiz" or "make a quiz"</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Specify the topic or subject</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Choose difficulty level (beginner, intermediate, advanced)</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> AI generates multiple choice questions</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Answer questions and get instant feedback</li>
-        </ol>
-      </div>
-
-      <!-- Right Column: Video and Best For -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Quizzes Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/quizzes-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/quizzes.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Best For -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Perfect For:</h3>
-          <ul class="feature-list">
-            <li>Test preparation & exams</li>
-            <li>Learning new subjects</li>
-            <li>Knowledge reinforcement</li>
-            <li>Self-assessment</li>
-            <li>Interactive practice</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 10. SMART ACTIONS -->
-    <section id="smart-actions" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">10</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">✨ Smart Actions - One-Click Operations</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Perform common tasks with a single click. Found in the sidebar under "Smart Actions".</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
-        <ol class="space-y-3">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Look for <strong>"Smart Actions"</strong> in the sidebar</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Select the action you want to perform</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> The action runs on your current chat or response</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Get instant results without typing commands</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Use multiple actions for complex workflows</li>
-        </ol>
-      </div>
-
-      <!-- Right Column: Video and Available Actions -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Smart Actions Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/smart-action-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/smart-actions.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Available Actions -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Available Actions:</h3>
-          
-          <div class="space-y-2">
-            <div class="bg-blue-50 dark:bg-gray-800 p-2 rounded">
-              <h4 class="font-bold text-black dark:text-white text-sm">📝 Summarise</h4>
-            </div>
-
-            <div class="bg-green-50 dark:bg-gray-800 p-2 rounded">
-              <h4 class="font-bold text-black dark:text-white text-sm">💡 Explain Simply</h4>
-            </div>
-
-            <div class="bg-orange-50 dark:bg-gray-800 p-2 rounded">
-              <h4 class="font-bold text-black dark:text-white text-sm">📊 Create Exec Deck</h4>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 11. IMAGE CREATION -->
-    <section id="image-creation" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">11</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">🎨 Image Generation - Create Visual Content</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Generate stunning AI images from text descriptions. Perfect for presentations, blogs, social media, and more.</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
-        <ol class="space-y-3">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Type a detailed description of the image you want</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Use words like "create", "generate", "draw", "illustration", etc.</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Specify style: photorealistic, cartoon, watercolor, digital art, etc.</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Add details about composition, lighting, and mood</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Download or share your generated images</li>
-        </ol>
-
-      </div>
-
-      <!-- Right Column: Video and Example Prompts -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Image Creation Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/image-creation-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/image-creation.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Example Prompts -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Example Prompts:</h3>
-          <ul class="feature-list">
-            <li>"Create futuristic city at sunset"</li>
-            <li>"Watercolor mountain landscape"</li>
-            <li>"Professional business person"</li>
-            <li>"AI robot cyberpunk style"</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 12. VIDEO GENERATION -->
-    <section id="video-generation" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">12</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">🎬 Video Generation - Create Videos from Descriptions</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Generate short, cinematic videos from text prompts. Perfect for marketing, social media, presentations, and storytelling.</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
-        <ol class="space-y-3">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Type "generate video" or "create video" followed by your description</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Describe the scene, action, and mood you want</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Specify duration (short clips: 5-15 seconds recommended)</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> Add details about music, transitions, and style</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Wait for video to render and download</li>
-        </ol>
-
-      </div>
-
-      <!-- Right Column: Video and Best For -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Video Generation Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/video-generation-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/video-generation.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Best For -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Best For:</h3>
-          <ul class="feature-list">
-            <li>Social media content</li>
-            <li>Product demonstrations</li>
-            <li>Explainer videos</li>
-            <li>Marketing content</li>
-            <li>Cinematic stories</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 13. MINDMAPS -->
-    <section id="mindmaps" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">13</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">🧠 Mindmaps - Organize Your Ideas Visually</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Create beautiful mindmaps to brainstorm, plan projects, and organize complex information in a visual hierarchy.</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
-        <ol class="space-y-3">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Ask Dynamo to "create a mindmap" or "make a mindmap"</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Specify the central topic or idea</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> List key branches and sub-topics you want included</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> AI generates a structured mindmap</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Edit, export, or share your mindmap</li>
-        </ol>
-
-      </div>
-
-      <!-- Right Column: Video and Perfect For -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Mindmaps Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/mindmaps-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/mindmaps.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Perfect For -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Perfect For:</h3>
-          <ul class="feature-list">
-            <li>Brainstorming and ideation</li>
-            <li>Project planning</li>
-            <li>Learning and studying</li>
-            <li>Strategic planning</li>
-            <li>Content organization</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 14. FLOWCHARTS -->
-    <section id="flowcharts" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">14</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">📊 Flowcharts - Create Process Diagrams</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Generate flowcharts to visualize processes, workflows, decision trees, and system architectures instantly.</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How to Use:</h3>
-        <ol class="space-y-3">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Ask to "create a flowchart" or "make a flowchart"</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> Describe the process or workflow step-by-step</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Include decision points, actions, and outcomes</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> AI creates a visual flowchart diagram</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> Download as image or PDF for presentations</li>
-        </ol>
-
-      </div>
-
-      <!-- Right Column: Video and Use Cases -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Flowcharts Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/flowcharts-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/flowcharts.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Use Cases -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">Use Cases:</h3>
-          <ul class="feature-list">
-            <li>Business processes</li>
-            <li>Software workflows</li>
-            <li>Decision-making</li>
-            <li>Customer journey</li>
-            <li>System architecture</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 15. MEMORY BANK -->
-    <section id="memory-bank" class="guide-section" style="align-items: flex-start;">
-      <div class="feature-card">
-        <div class="step-number">15</div>
-        <h2 class="text-3xl font-black text-black dark:text-white mb-4">🧠 AI Memory - AI Remembers You</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Dynamo AI automatically learns and remembers personal facts about you across all conversations. Your AI becomes more personalized and contextual with every chat.</p>
-        
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3">How It Works:</h3>
-        <ol class="space-y-3">
-          <li class="text-gray-700 dark:text-gray-400"><strong>1.</strong> Share personal facts in conversations ("I'm a software engineer", "I live in NYC")</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>2.</strong> AI automatically extracts and saves these facts</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>3.</strong> Facts are organized by category (personal, preference, goal)</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>4.</strong> AI uses your memory to personalize future responses</li>
-          <li class="text-gray-700 dark:text-gray-400"><strong>5.</strong> View and manage memories anytime from the sidebar</li>
-        </ol>
-
-        <h3 class="text-xl font-bold text-black dark:text-white mb-3 mt-6">Key Features:</h3>
-        <ul class="feature-list">
-          <li>Automatic fact extraction from conversations</li>
-          <li>Organized memory categories (personal, goals, preferences)</li>
-          <li>Delete or forget specific memories anytime</li>
-          <li>Improves AI personalization over time</li>
-          <li>Works across all chats and sessions</li>
-        </ul>
-      </div>
-
-      <!-- Right Column: Video and What Gets Remembered -->
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
-        <!-- Memory Bank Demo Video -->
-        <div class="video-container">
-          <video loop muted playsinline controls poster="pictures/ai-memory-thumb.png" style="width: 100%; height: auto; border-radius: 1rem; max-height: 400px;">
-            <source src="video/ai-memory.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- What Gets Remembered -->
-        <div class="feature-card">
-          <h3 class="text-xl font-bold text-black dark:text-white mb-3">What Gets Remembered:</h3>
-          <ul class="feature-list">
-            <li>Your name & location</li>
-            <li>Job & career goals</li>
-            <li>Hobbies & interests</li>
-            <li>Preferences & favorites</li>
-            <li>Personal goals & milestones</li>
-            <li>Important life events</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 16. TIPS & TRICKS -->
-    <section id="tips" class="py-12">
-      <div class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-800 dark:to-gray-750 rounded-3xl p-8 md:p-12">
-        <h2 class="text-3xl md:text-4xl font-black text-black dark:text-white mb-8 text-center">💡 Pro Tips & Tricks</h2>
-        
-        <div class="grid md:grid-cols-2 gap-6">
-          <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
-            <h3 class="font-bold text-lg text-black dark:text-white mb-2">Combine Tools</h3>
-            <p class="text-gray-600 dark:text-gray-300">Use Web Search + DeepThink together for the best research results with real-time data and deep analysis.</p>
-          </div>
-
-          <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
-            <h3 class="font-bold text-lg text-black dark:text-white mb-2">Use History</h3>
-            <p class="text-gray-600 dark:text-gray-300">Access past conversations from the sidebar history. Search for specific chats using the search box.</p>
-          </div>
-
-          <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
-            <h3 class="font-bold text-lg text-black dark:text-white mb-2">Model + Mode</h3>
-            <p class="text-gray-600 dark:text-gray-300">Use Research Mode with Deep Dive for the most comprehensive answers. Fast Mode for quick brainstorms.</p>
-          </div>
-
-          <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
-            <h3 class="font-bold text-lg text-black dark:text-white mb-2">Voice + Radio</h3>
-            <p class="text-gray-600 dark:text-gray-300">Enable Radio Mode, then use voice input for a completely hands-free, audio-first experience.</p>
-          </div>
-
-          <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
-            <h3 class="font-bold text-lg text-black dark:text-white mb-2">Export Early</h3>
-            <p class="text-gray-600 dark:text-gray-300">Export important conversations to PowerPoint or PDF right away to preserve your work.</p>
-          </div>
-
-          <div class="bg-white dark:bg-gray-900 rounded-xl p-6">
-            <h3 class="font-bold text-lg text-black dark:text-white mb-2">Multiple Uploads</h3>
-            <p class="text-gray-600 dark:text-gray-300">Upload images, PDFs, and documents in one conversation for comprehensive analysis.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section id="faq" class="py-12">
-      <h2 class="text-3xl md:text-4xl font-black text-black dark:text-white mb-8 text-center">❓ Frequently Asked Questions</h2>
-      
-      <div class="space-y-6">
-        <details class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer">
-          <summary class="flex items-center justify-between font-bold text-lg text-black dark:text-white">
-            Can I use Dynamo AI offline?
-            <i data-lucide="chevron-down" class="w-5 h-5 group-open:rotate-180 transition"></i>
-          </summary>
-          <p class="text-gray-600 dark:text-gray-300 mt-4">Dynamo AI requires an internet connection to function as it connects to AI servers. However, your history is saved locally.</p>
-        </details>
-
-        <details class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer">
-          <summary class="flex items-center justify-between font-bold text-lg text-black dark:text-white">
-            How much data can I upload at once?
-            <i data-lucide="chevron-down" class="w-5 h-5 group-open:rotate-180 transition"></i>
-          </summary>
-          <p class="text-gray-600 dark:text-gray-300 mt-4">You can upload documents up to 25MB per file. For best results, keep files under 10MB for faster processing.</p>
-        </details>
-
-        <details class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer">
-          <summary class="flex items-center justify-between font-bold text-lg text-black dark:text-white">
-            Is my data private and secure?
-            <i data-lucide="chevron-down" class="w-5 h-5 group-open:rotate-180 transition"></i>
-          </summary>
-          <p class="text-gray-600 dark:text-gray-300 mt-4">Yes! Your data is encrypted and stored securely. We don't share your information with third parties. Conversations are tied to your account only.</p>
-        </details>
-
-        <details class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer">
-          <summary class="flex items-center justify-between font-bold text-lg text-black dark:text-white">
-            What's the difference between Fast and Research modes?
-            <i data-lucide="chevron-down" class="w-5 h-5 group-open:rotate-180 transition"></i>
-          </summary>
-          <p class="text-gray-600 dark:text-gray-300 mt-4"><strong>Fast Mode:</strong> Instant responses, great for brainstorming. <strong>Research Mode:</strong> More detailed analysis, perfect with Web Search and DeepThink for comprehensive research.</p>
-        </details>
-
-        <details class="group bg-white dark:bg-gray-800 rounded-xl p-6 cursor-pointer">
-          <summary class="flex items-center justify-between font-bold text-lg text-black dark:text-white">
-            How do I contact support?
-            <i data-lucide="chevron-down" class="w-5 h-5 group-open:rotate-180 transition"></i>
-          </summary>
-          <p class="text-gray-600 dark:text-gray-300 mt-4">Click on your profile (bottom of sidebar) and select "Support". You can also email us directly or reach out through social media @dynamoai_in</p>
-        </details>
-      </div>
-    </section>
-
-  </div>
-
-  <!-- Footer -->
-  <!-- Footer -->
-  <footer class="py-12 border-t border-slate-200 dark:border-white/10 transition-colors duration-300">
+    <!-- Footer -->
+    <!-- Footer -->
+    <footer
+      class="py-12 border-t border-slate-200 dark:border-white/10 transition-colors duration-300"
+    >
       <div class="max-w-7xl mx-auto px-6 flex flex-col gap-8">
-          <!-- Top Row: Brand & Main Links -->
-          <div class="flex flex-col sm:flex-row justify-between items-center gap-6 text-center sm:text-left">
-              <a href="https://dynamoai.in/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                 <div class="w-9 h-9 bg-yellow-400 rounded-lg flex items-center justify-center shadow-lg">
-                     <i data-lucide="zap" class="text-black fill-current"></i>
-                 </div>
-                  <span class="text-lg font-semibold text-gray-900 dark:text-white">Dynamo AI</span>
-              </a>
+        <!-- Top Row: Brand & Main Links -->
+        <div
+          class="flex flex-col sm:flex-row justify-between items-center gap-6 text-center sm:text-left"
+        >
+          <a
+            href="https://dynamoai.in/"
+            class="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
+            <div
+              class="w-9 h-9 bg-yellow-400 rounded-lg flex items-center justify-center shadow-lg"
+            >
+              <i data-lucide="zap" class="text-black fill-current"></i>
+            </div>
+            <span class="text-lg font-semibold text-gray-900 dark:text-white"
+              >Dynamo AI</span
+            >
+          </a>
 
-              <div class="flex flex-wrap justify-center sm:justify-end gap-x-6 gap-y-2 text-sm font-medium">
-                  <a href="https://app.dynamoai.in/features.html" class="text-slate-500 hover:text-brand transition-colors">Features</a>
-                  <a href="https://app.dynamoai.in/pricing.html" class="text-slate-500 hover:text-brand transition-colors">Pricing</a>
-                  <a href="https://dynamoai.in/terms.html" class="text-slate-500 hover:text-brand transition-colors">Terms</a>
-                  <a href="https://dynamoai.in/privacy.html" class="text-slate-500 hover:text-brand transition-colors">Privacy</a>
-                  <a href="https://dynamoai.in/refund.html" class="text-slate-500 hover:text-brand transition-colors">Refund</a>
-                  <a href="https://app.dynamoai.in" class="text-slate-500 hover:text-brand transition-colors">Sign In</a>
-              </div>
+          <div
+            class="flex flex-wrap justify-center sm:justify-end gap-x-6 gap-y-2 text-sm font-medium"
+          >
+            <a
+              href="https://app.dynamoai.in/features.html"
+              class="text-slate-500 hover:text-brand transition-colors"
+              >Features</a
+            >
+            <a
+              href="https://app.dynamoai.in/pricing.html"
+              class="text-slate-500 hover:text-brand transition-colors"
+              >Pricing</a
+            >
+            <a
+              href="https://dynamoai.in/terms.html"
+              class="text-slate-500 hover:text-brand transition-colors"
+              >Terms</a
+            >
+            <a
+              href="https://dynamoai.in/privacy.html"
+              class="text-slate-500 hover:text-brand transition-colors"
+              >Privacy</a
+            >
+            <a
+              href="https://dynamoai.in/refund.html"
+              class="text-slate-500 hover:text-brand transition-colors"
+              >Refund</a
+            >
+            <a
+              href="https://app.dynamoai.in"
+              class="text-slate-500 hover:text-brand transition-colors"
+              >Sign In</a
+            >
           </div>
+        </div>
 
-          <!-- Bottom Row: Copyright & Support -->
-          <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-slate-200 dark:border-white/10 text-sm font-medium text-slate-500">
-              <div>&copy; 2026 Dynamo AI. All rights reserved.</div>
+        <!-- Bottom Row: Copyright & Support -->
+        <div
+          class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-slate-200 dark:border-white/10 text-sm font-medium text-slate-500"
+        >
+          <div>&copy; 2026 Dynamo AI. All rights reserved.</div>
 
-              <div class="flex items-center gap-3">
-                  <a href="mailto:support@dynamoai.in" class="hover:text-brand transition-colors">support@dynamoai.in</a>
-                  <span class="w-px h-4 bg-slate-300 dark:bg-slate-700"></span>
-                  <span>Made in India 🇮🇳</span>
-              </div>
+          <div class="flex items-center gap-3">
+            <a
+              href="mailto:support@dynamoai.in"
+              class="hover:text-brand transition-colors"
+              >support@dynamoai.in</a
+            >
+            <span class="w-px h-4 bg-slate-300 dark:bg-slate-700"></span>
+            <span>Made in India 🇮🇳</span>
           </div>
+        </div>
       </div>
-  </footer>
+    </footer>
 
-  <script>
-    document.getElementById('theme-toggle').addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark');
-      localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-    });
-    
-    lucide.createIcons();
-  </script>
-</body>
+    <script>
+      document.getElementById("theme-toggle").addEventListener("click", () => {
+        document.documentElement.classList.toggle("dark");
+        localStorage.theme = document.documentElement.classList.contains("dark")
+          ? "dark"
+          : "light";
+      });
+
+      lucide.createIcons();
+    </script>
+  </body>
 </html>

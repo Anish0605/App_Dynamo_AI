@@ -1,5 +1,4 @@
 // memory.js — Dynamo AI (AI Memory UI)
-console.log("memory.js loaded");
 
 /* =====================================================
    OPEN MEMORY MODAL

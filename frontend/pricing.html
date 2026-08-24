@@ -6,7 +6,7 @@
     <title>Dynamo AI — Pricing</title>
     <meta
       name="description"
-      content="Plans built for students, researchers & professionals. Start free, upgrade to Plus (₹399/mo) or Pro (₹999/mo). DeepThink, Research Mode, AI Detector and more."
+      content="Plans built for students, researchers & professionals. Basic ₹99/mo, Plus ₹799/mo (7-day trial), Pro ₹1799/mo (14-day trial). DeepThink, Research Mode, AI Detector and more."
     />
     <meta
       name="keywords"
@@ -24,7 +24,7 @@
     />
     <meta
       property="og:description"
-      content="Start free. Upgrade to Plus (₹399/mo) or Pro (₹999/mo) for Research Mode, DeepThink, AI Detector & more."
+      content="Basic ₹99/mo · Plus ₹799/mo (7-day trial) · Pro ₹1799/mo (14-day trial). Research Mode, DeepThink, AI Detector & more."
     />
     <meta
       property="og:image"
@@ -39,7 +39,7 @@
     />
     <meta
       property="twitter:description"
-      content="Start free. Upgrade to Plus (₹399/mo) or Pro (₹999/mo)."
+      content="Basic ₹99/mo · Plus ₹799/mo (7-day trial) · Pro ₹1799/mo (14-day trial)."
     />
     <meta
       property="twitter:image"
@@ -110,6 +110,13 @@
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T3GV9FG2');</script>
+    <!-- End Google Tag Manager -->
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-GHG5R9T5FN"
@@ -321,7 +328,7 @@
           & professionals
         </h1>
         <p class="mt-3 text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
-          Start free. Upgrade when you're ready for more power.
+          Choose your plan. Plus &amp; Pro include a free trial — no charge until the trial ends.
         </p>
 
         <!-- Annual toggle -->
@@ -357,25 +364,26 @@
       <section
         class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch mb-10"
       >
-        <!-- Free -->
+        <!-- Basic -->
         <div
           class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col"
         >
           <div class="mb-5">
             <div
-              class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2"
+              class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2"
             >
-              Free
+              Basic
             </div>
             <div class="flex items-end gap-1">
               <span
+                id="basic-price"
                 class="text-4xl font-extrabold text-gray-900 dark:text-white"
-                >₹0</span
+                >₹99</span
               >
-              <span class="text-sm text-gray-400 mb-1">/forever</span>
+              <span id="basic-period" class="text-sm text-gray-400 mb-1">/mo</span>
             </div>
             <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              No credit card required
+              Simple access · No trial period
             </div>
           </div>
           <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 mb-5">
@@ -385,8 +393,7 @@
               Who it's for
             </div>
             <div class="text-sm text-gray-700 dark:text-gray-300">
-              Curious users exploring AI for the first time — try it, no
-              commitment.
+              Casual users — get daily AI access for quick answers, fast chat, and voice input at an accessible price.
             </div>
           </div>
           <ul
@@ -403,7 +410,7 @@
             </li>
             <li class="flex items-center gap-2.5">
               <i data-lucide="check" class="w-4 h-4 check-g shrink-0"></i>Fast
-              Mode (Gemini Flash)
+              Mode
             </li>
             <li class="flex items-center gap-2.5">
               <i data-lucide="check" class="w-4 h-4 check-g shrink-0"></i>Basic
@@ -431,12 +438,22 @@
               <i data-lucide="x" class="w-4 h-4 x-icon shrink-0"></i>AI Detector
               / Plagiarism
             </li>
+            <li class="flex items-center gap-2.5 text-gray-400">
+              <i data-lucide="x" class="w-4 h-4 x-icon shrink-0"></i>Data Analysis
+            </li>
           </ul>
           <div class="mt-6">
-            <div
-              class="w-full text-center py-2.5 text-sm font-medium text-gray-400 border border-gray-200 dark:border-gray-600 rounded-xl"
+            <button
+              id="btn-upgrade-basic"
+              class="w-full py-3 bg-gray-900 hover:bg-gray-700 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-bold rounded-xl transition active:scale-95 text-sm"
             >
-              Current Plan
+              Get Basic — ₹99/mo
+            </button>
+            <p class="text-center text-xs text-gray-500 mt-2">
+              Billed monthly · Cancel anytime
+            </p>
+            <div class="mt-3 rounded-xl border border-orange-200 dark:border-orange-400/40 bg-orange-50 dark:bg-orange-400/10 p-3 text-xs text-orange-700 dark:text-orange-300 leading-relaxed">
+              <strong class="text-orange-800 dark:text-orange-200">⚠️ No refunds</strong> once charged. Cancel autopay anytime from your UPI app, GPay, PhonePe, or bank's autopay settings.
             </div>
           </div>
         </div>
@@ -457,10 +474,15 @@
               Plus
             </div>
             <div class="flex items-end gap-1">
-              <span id="plus-price" class="text-4xl font-extrabold">₹399</span>
+              <span id="plus-price" class="text-4xl font-extrabold">₹799</span>
               <span id="plus-period" class="text-sm text-gray-400 mb-1"
                 >/mo</span
               >
+            </div>
+            <div class="flex items-center gap-2 mt-2 flex-wrap">
+              <span class="inline-flex items-center gap-1 bg-green-400/20 text-green-300 text-xs font-bold px-2.5 py-1 rounded-full border border-green-400/30">
+                ✦ 7-Day Free Trial
+              </span>
             </div>
             <div class="text-sm text-gray-400 mt-1">
               Full AI suite — no DeepThink
@@ -473,8 +495,7 @@
               Who it's for
             </div>
             <div class="text-sm text-gray-200">
-              Students, researchers & lifelong learners who need Research Mode,
-              citations, study tools, and PDF analysis.
+              UG, PG, MBA & MCA students — get full Research Mode, citations, study guides, quiz tools, and PDF analysis to ace your academics.
             </div>
           </div>
           <ul class="space-y-2.5 text-sm text-gray-200 flex-1">
@@ -529,17 +550,37 @@
               <i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>Write a
               Paper <span class="text-gray-400 text-xs ml-1">(3 topics/mo)</span>
             </li>
-            <li class="flex items-center gap-2.5">
-              <i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>AI
-              Detector / Plagiarism Checker
+            <li class="flex items-center gap-2.5 text-gray-500">
+              <i
+                data-lucide="x"
+                class="w-4 h-4 shrink-0"
+                style="color: #4b5563"
+              ></i
+              >AI Detector / Plagiarism
             </li>
-            <li class="flex items-center gap-2.5">
-              <i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>Image
-              Generation <span class="text-gray-400 text-xs ml-1">(25/mo)</span>
+            <li class="flex items-center gap-2.5 text-gray-500">
+              <i
+                data-lucide="x"
+                class="w-4 h-4 shrink-0"
+                style="color: #4b5563"
+              ></i
+              >Data Analysis
             </li>
-            <li class="flex items-center gap-2.5">
-              <i data-lucide="check" class="w-4 h-4 check-y shrink-0"></i>Video
-              Generation <span class="text-gray-400 text-xs ml-1">(15/mo)</span>
+            <li class="flex items-center gap-2.5 text-gray-500">
+              <i
+                data-lucide="x"
+                class="w-4 h-4 shrink-0"
+                style="color: #4b5563"
+              ></i
+              >Image Generation
+            </li>
+            <li class="flex items-center gap-2.5 text-gray-500">
+              <i
+                data-lucide="x"
+                class="w-4 h-4 shrink-0"
+                style="color: #4b5563"
+              ></i
+              >Video Generation
             </li>
             <li class="flex items-center gap-2.5 text-gray-500">
               <i
@@ -571,11 +612,14 @@
               id="btn-upgrade-plus"
               class="w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-black font-bold rounded-xl transition active:scale-95 text-sm"
             >
-              Upgrade to Plus
+              Start 7-Day Free Trial
             </button>
             <p class="text-center text-xs text-gray-500 mt-2">
-              Cancel anytime · Instant access
+              Then ₹799/mo · Cancel anytime
             </p>
+            <div class="mt-3 rounded-xl border border-orange-400/40 bg-orange-400/10 p-3 text-xs text-orange-300 leading-relaxed">
+              <strong class="text-orange-200">⚠️ Important:</strong> No refunds after the trial ends. If you do not wish to be charged, cancel autopay <strong>before Day 7</strong> from your UPI app, GPay, PhonePe, or bank's autopay settings.
+            </div>
           </div>
         </div>
 
@@ -602,11 +646,16 @@
               <span
                 id="pro-price"
                 class="text-4xl font-extrabold text-gray-900 dark:text-white"
-                >₹999</span
+                >₹1799</span
               >
               <span id="pro-period" class="text-sm text-gray-400 mb-1"
                 >/mo</span
               >
+            </div>
+            <div class="flex items-center gap-2 mt-2 flex-wrap">
+              <span class="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-bold px-2.5 py-1 rounded-full border border-green-200 dark:border-green-700/50">
+                ✦ 14-Day Free Trial
+              </span>
             </div>
             <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Everything — including DeepThink
@@ -621,8 +670,7 @@
               Who it's for
             </div>
             <div class="text-sm text-gray-700 dark:text-gray-300">
-              Professionals, power researchers & founders who need DeepThink,
-              advanced study modes, bulk media generation & priority speed.
+              Faculties, professors, HODs, PhD students, research assistants &amp; institutions — the complete academic and research powerhouse with DeepThink, deep research, and priority speed.
             </div>
           </div>
           <ul
@@ -677,7 +725,12 @@
             </li>
             <li class="flex items-center gap-2.5">
               <i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>AI
-              Detector / Plagiarism Checker
+              Detector / Plagiarism Checker <span class="pro-badge">PRO ONLY</span>
+            </li>
+            <li class="flex items-center gap-2.5 font-semibold text-gray-800 dark:text-white">
+              <i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Data Analysis
+              <span class="text-gray-400 text-xs ml-1">(CSV / Excel)</span>
+              <span class="pro-badge">PRO ONLY</span>
             </li>
             <li class="flex items-center gap-2.5">
               <i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Find
@@ -694,11 +747,11 @@
             <li class="flex items-center gap-2.5">
               <i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Image
               Generation
-              <span class="text-gray-400 text-xs ml-1">(100/mo)</span>
+              <span class="text-gray-400 text-xs ml-1">(25/mo)</span>
             </li>
             <li class="flex items-center gap-2.5">
               <i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i>Video
-              Generation <span class="text-gray-400 text-xs ml-1">(25/mo)</span>
+              Generation <span class="text-gray-400 text-xs ml-1">(15/mo)</span>
             </li>
             <li class="flex items-center gap-2.5">
               <i data-lucide="check" class="w-4 h-4 check-p shrink-0"></i
@@ -714,11 +767,14 @@
               id="btn-upgrade-pro"
               class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition active:scale-95 text-sm"
             >
-              Upgrade to Pro
+              Start 14-Day Free Trial
             </button>
             <p class="text-center text-xs text-gray-400 mt-2">
-              Cancel anytime · Priority support
+              Then ₹1799/mo · Cancel anytime
             </p>
+            <div class="mt-3 rounded-xl border border-orange-200 dark:border-orange-400/40 bg-orange-50 dark:bg-orange-400/10 p-3 text-xs text-orange-700 dark:text-orange-300 leading-relaxed">
+              <strong class="text-orange-800 dark:text-orange-200">⚠️ Important:</strong> No refunds after the trial ends. If you do not wish to be charged, cancel autopay <strong>before Day 14</strong> from your UPI app, GPay, PhonePe, or bank's autopay settings.
+            </div>
           </div>
         </div>
       </section>
@@ -746,17 +802,17 @@
               <th
                 class="pb-3 text-center text-gray-500 dark:text-gray-400 font-semibold"
               >
-                Free
+                Basic ₹99
               </th>
               <th
                 class="pb-3 text-center text-yellow-600 dark:text-yellow-400 font-bold"
               >
-                Plus ₹399
+                Plus ₹799
               </th>
               <th
                 class="pb-3 text-center text-purple-600 dark:text-purple-400 font-bold"
               >
-                Pro ₹999
+                Pro ₹1799
               </th>
             </tr>
           </thead>
@@ -789,7 +845,7 @@
               class="feat-row border-t border-gray-50 dark:border-gray-700/60"
             >
               <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">
-                Fast Mode (Gemini Flash)
+                Fast Mode
               </td>
               <td class="py-3 text-center">
                 <i data-lucide="check" class="w-4 h-4 check-g inline"></i>
@@ -1068,10 +1124,29 @@
                 <i data-lucide="x" class="w-4 h-4 x-icon inline"></i>
               </td>
               <td class="py-3 text-center">
-                <i data-lucide="check" class="w-4 h-4 check-y inline"></i>
+                <i data-lucide="x" class="w-4 h-4 x-icon inline"></i>
               </td>
               <td class="py-3 text-center">
                 <i data-lucide="check" class="w-4 h-4 check-p inline"></i>
+                <span class="pro-badge ml-1">PRO</span>
+              </td>
+            </tr>
+            <tr
+              class="feat-row border-t border-gray-50 dark:border-gray-700/60"
+            >
+              <td class="py-3 text-gray-700 dark:text-gray-300 font-medium">
+                Data Analysis
+                <span class="text-xs text-gray-400 ml-1">(CSV / Excel + AI insights)</span>
+              </td>
+              <td class="py-3 text-center">
+                <i data-lucide="x" class="w-4 h-4 x-icon inline"></i>
+              </td>
+              <td class="py-3 text-center">
+                <i data-lucide="x" class="w-4 h-4 x-icon inline"></i>
+              </td>
+              <td class="py-3 text-center">
+                <i data-lucide="check" class="w-4 h-4 check-p inline"></i>
+                <span class="pro-badge ml-1">PRO</span>
               </td>
             </tr>
             <tr
@@ -1134,11 +1209,13 @@
               <td class="py-3 text-center">
                 <i data-lucide="x" class="w-4 h-4 x-icon inline"></i>
               </td>
-              <td class="py-3 text-center text-xs font-semibold">25 / month</td>
+              <td class="py-3 text-center">
+                <i data-lucide="x" class="w-4 h-4 x-icon inline"></i>
+              </td>
               <td
                 class="py-3 text-center text-xs font-semibold text-purple-600 dark:text-purple-400"
               >
-                100 / month
+                25 / month
               </td>
             </tr>
             <tr
@@ -1150,11 +1227,13 @@
               <td class="py-3 text-center">
                 <i data-lucide="x" class="w-4 h-4 x-icon inline"></i>
               </td>
-              <td class="py-3 text-center text-xs font-semibold">15 / month</td>
+              <td class="py-3 text-center">
+                <i data-lucide="x" class="w-4 h-4 x-icon inline"></i>
+              </td>
               <td
                 class="py-3 text-center text-xs font-semibold text-purple-600 dark:text-purple-400"
               >
-                25 / month
+                15 / month
               </td>
             </tr>
             <tr
@@ -1214,9 +1293,9 @@
               ChatGPT Plus
             </div>
             <div class="font-extrabold text-gray-400 line-through text-base">
-              ₹1,650/mo
+              ₹1,999/mo
             </div>
-            <div class="mt-2 text-xs text-red-400 font-medium">1.7× more</div>
+            <div class="mt-2 text-xs text-red-400 font-medium">2× more</div>
           </div>
           <div
             class="rounded-xl p-4 text-center border-2 border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30"
@@ -1228,9 +1307,9 @@
               Claude Pro
             </div>
             <div class="font-extrabold text-gray-400 line-through text-base">
-              ₹1,700/mo
+              ₹2,000/mo
             </div>
-            <div class="mt-2 text-xs text-red-400 font-medium">1.7× more</div>
+            <div class="mt-2 text-xs text-red-400 font-medium">2× more</div>
           </div>
           <div
             class="rounded-xl p-4 text-center border-2 border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30"
@@ -1256,12 +1335,12 @@
             <div
               class="font-extrabold text-yellow-600 dark:text-yellow-400 text-lg"
             >
-              ₹999/mo
+              ₹1799/mo
             </div>
             <div
               class="mt-2 text-xs text-green-600 dark:text-green-400 font-bold"
             >
-              Save up to 66%
+              Save up to 10%
             </div>
           </div>
         </div>
@@ -1284,31 +1363,33 @@
           <i data-lucide="zap" class="w-6 h-6 text-black fill-current"></i>
         </div>
         <h2 class="text-2xl font-extrabold text-white mb-2">
-          Start free. Upgrade anytime.
+          No upfront charge on Plus &amp; Pro.
         </h2>
-        <p class="text-gray-400 text-sm mb-6 max-w-md mx-auto">
-          No commitment. No credit card for Free plan. Cancel Plus or Pro
-          anytime — your data stays safe.
+        <p class="text-gray-400 text-sm mb-4 max-w-md mx-auto">
+          Plus gets 7 days free (then ₹799/mo) · Pro gets 14 days free (then ₹1799/mo). Basic is ₹99/mo with no trial.
         </p>
-        <div class="flex items-center justify-center gap-3 flex-wrap">
+        <div class="flex items-center justify-center gap-3 flex-wrap mb-4">
+          <button
+            onclick="handleUpgrade('basic')"
+            class="px-6 py-3 bg-white hover:bg-gray-100 text-black font-bold rounded-xl transition text-sm active:scale-95"
+          >
+            Get Basic — ₹99/mo
+          </button>
           <button
             onclick="handleUpgrade('plus')"
             class="px-6 py-3 bg-yellow-400 hover:bg-yellow-300 text-black font-bold rounded-xl transition text-sm active:scale-95"
           >
-            Get Plus — ₹399/mo
+            Try Plus Free — 7 Days
           </button>
           <button
             onclick="handleUpgrade('pro')"
             class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition text-sm active:scale-95"
           >
-            Get Pro — ₹999/mo
+            Try Pro Free — 14 Days
           </button>
-          <a
-            href="https://app.dynamoai.in/"
-            class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition text-sm"
-          >
-            Try Free First
-          </a>
+        </div>
+        <div class="max-w-lg mx-auto rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-3 text-xs text-orange-300 leading-relaxed">
+          <strong class="text-orange-200">⚠️ No Refunds Policy:</strong> No refunds will be provided once you are charged (whether after a trial ends or immediately for Basic). To avoid charges, cancel your autopay mandate from your UPI app (GPay, PhonePe, Paytm) or bank's NACH/autopay settings before the billing date.
         </div>
       </section>
     </main>
@@ -1517,17 +1598,23 @@
           "text-sm font-medium " +
           (isAnnual ? "text-gray-900 dark:text-white" : "text-gray-400");
 
+        document.getElementById("basic-price").textContent = isAnnual
+          ? "₹79"
+          : "₹99";
+        document.getElementById("basic-period").textContent = isAnnual
+          ? "/mo · billed ₹950/yr"
+          : "/mo";
         document.getElementById("plus-price").textContent = isAnnual
-          ? "₹319"
-          : "₹399";
+          ? "₹639"
+          : "₹799";
         document.getElementById("plus-period").textContent = isAnnual
-          ? "/mo · billed ₹3,829/yr"
+          ? "/mo · billed ₹7,670/yr"
           : "/mo";
         document.getElementById("pro-price").textContent = isAnnual
-          ? "₹799"
-          : "₹999";
+          ? "₹1439"
+          : "₹1799";
         document.getElementById("pro-period").textContent = isAnnual
-          ? "/mo · billed ₹9,589/yr"
+          ? "/mo · billed ₹17,270/yr"
           : "/mo";
       }
 
@@ -1604,13 +1691,108 @@
           return;
         }
 
-        showToast("Creating order…", "info");
+        // Annual billing uses one-time order; monthly uses subscription with trial
+        if (isAnnual) {
+          await _handleAnnualOrder(plan, userId, userEmail);
+        } else {
+          await _handleTrialSubscription(plan, userId, userEmail);
+        }
+      }
+
+      /* ── Monthly: subscription with trial period ── */
+      async function _handleTrialSubscription(plan, userId, userEmail) {
+        const trialDays = plan === "pro" ? 14 : plan === "plus" ? 7 : 0;
+        const planLabel = plan === "plus"
+          ? `Plus — 7-Day Free Trial, then ₹799/mo`
+          : plan === "pro"
+          ? `Pro — 14-Day Free Trial, then ₹1799/mo`
+          : `Basic — ₹99/mo`;
+
+        showToast(trialDays > 0 ? "Setting up your free trial…" : "Setting up your subscription…", "info");
+        let sub;
+        try {
+          const res = await fetch(`${BACKEND_URL}/create-subscription`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan, user_id: userId, email: userEmail }),
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || "Failed to create subscription");
+          }
+          sub = await res.json();
+        } catch (err) {
+          console.error("create-subscription:", err);
+          showToast("Could not start trial: " + err.message, "error");
+          return;
+        }
+
+        const options = {
+          key: sub.key_id,
+          subscription_id: sub.subscription_id,
+          name: "Dynamo AI",
+          description: planLabel,
+          prefill: { email: userEmail },
+          theme: { color: plan === "plus" ? "#FACC15" : "#9333EA" },
+          modal: {
+            ondismiss: () =>
+              showToast("Setup cancelled. You have not been charged.", "info"),
+          },
+          notes: {
+            trial_info: `${trialDays}-day free trial. First charge after trial ends.`,
+            no_refund_notice: "No refunds after trial ends.",
+          },
+          handler: async function (response) {
+            showToast("Activating your trial…", "info");
+            try {
+              const vRes = await fetch(`${BACKEND_URL}/verify-subscription`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_subscription_id: response.razorpay_subscription_id,
+                  razorpay_signature: response.razorpay_signature,
+                  plan,
+                  user_id: userId,
+                }),
+              });
+              if (!vRes.ok) {
+                const e = await vRes.json().catch(() => ({}));
+                throw new Error(e.detail || "Verification failed");
+              }
+              const result = await vRes.json();
+              if (result.success) {
+                const planName = plan.charAt(0).toUpperCase() + plan.slice(1);
+                const successMsg = trialDays > 0
+                  ? `🎉 Your ${trialDays}-day free trial has started! Enjoy ${planName}.`
+                  : `🎉 You're now on ${planName}! Welcome aboard.`;
+                showToast(successMsg, "success");
+                setTimeout(() => window.location.href = "https://app.dynamoai.in/", 3000);
+              } else {
+                showToast("Could not activate trial. Contact support.", "error");
+              }
+            } catch (err) {
+              console.error("verify-subscription:", err);
+              showToast("Activation error: " + err.message, "error");
+            }
+          },
+        };
+        const rzp = new Razorpay(options);
+        rzp.on("payment.failed", () =>
+          showToast("Setup failed. No charge was made.", "error"),
+        );
+        rzp.open();
+      }
+
+      /* ── Annual: one-time order (no trial) ── */
+      async function _handleAnnualOrder(plan, userId, userEmail) {
+        showToast("Creating annual order…", "info");
         let order;
         try {
           const res = await fetch(`${BACKEND_URL}/create-order`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ plan, user_id: userId, email: userEmail, billing: isAnnual ? "annual" : "monthly" }),
+            body: JSON.stringify({ plan, user_id: userId, email: userEmail, billing: "annual" }),
           });
           if (!res.ok) {
             const err = await res.json().catch(() => ({}));
@@ -1623,9 +1805,7 @@
           return;
         }
 
-        const planLabel = isAnnual
-          ? (plan === "plus" ? "Plus — ₹3,829/yr" : "Pro — ₹9,589/yr")
-          : (plan === "plus" ? "Plus — ₹399/mo" : "Pro — ₹999/mo");
+        const planLabel = plan === "plus" ? "Plus — ₹7,670/yr" : "Pro — ₹17,270/yr";
         const options = {
           key: order.key_id,
           amount: order.amount,
@@ -1651,7 +1831,7 @@
                   razorpay_signature: response.razorpay_signature,
                   plan,
                   user_id: userId,
-                  billing: isAnnual ? "annual" : "monthly",
+                  billing: "annual",
                 }),
               });
               if (!vRes.ok) {
@@ -1661,16 +1841,11 @@
               const result = await vRes.json();
               if (result.success) {
                 localStorage.setItem("dynamo_plan", result.plan);
-                showToast(
-                  `You are now on the ${result.plan.charAt(0).toUpperCase() + result.plan.slice(1)} plan!`,
-                  "success",
-                );
+                const planName = result.plan.charAt(0).toUpperCase() + result.plan.slice(1);
+                showToast(`You are now on the ${planName} annual plan!`, "success");
                 setTimeout(() => window.location.reload(), 2500);
               } else {
-                showToast(
-                  "Payment verification failed. Contact support.",
-                  "error",
-                );
+                showToast("Payment verification failed. Contact support.", "error");
               }
             } catch (err) {
               console.error("verify-payment:", err);
@@ -1696,6 +1871,9 @@
       /* ── Init ── */
       document.addEventListener("DOMContentLoaded", function () {
         lucide.createIcons();
+        document
+          .getElementById("btn-upgrade-basic")
+          .addEventListener("click", () => handleUpgrade("basic"));
         document
           .getElementById("btn-upgrade-plus")
           .addEventListener("click", () => handleUpgrade("plus"));

@@ -1,5 +1,4 @@
 // audio_engine.js — Dynamo AI (FINAL, STABLE AUDIO)
-console.log("audio_engine.js loaded");
 
 /* ==================================================
    GLOBAL AUDIO SESSION (ONLY ONE ALLOWED)
@@ -127,12 +126,14 @@ window.downloadAudio = async (text) => {
     const backendUrl = window.BACKEND_URL || '';
     const url = `${backendUrl}/export-audio`;
     
-    console.log("📥 Downloading audio from:", url);
     
-    const res = await fetch(url, {
+    const res = await window.backendFetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text })
+      body: JSON.stringify({
+        message: text,
+        user_id: window.appState?.supabaseUserId || ""
+      })
     });
 
     if (!res.ok) {
@@ -151,7 +152,6 @@ window.downloadAudio = async (text) => {
     document.body.removeChild(a);
 
     setTimeout(() => URL.revokeObjectURL(objUrl), 100);
-    console.log("✅ Audio downloaded successfully");
   } catch (err) {
     console.error("❌ Audio download error:", err);
     alert("Failed to download audio. Check console for details.");
@@ -204,7 +204,6 @@ window.startVoice = async () => {
     };
 
     mediaRecorder.start();
-    console.log("🎤 Recording started...");
   } catch (err) {
     console.error("❌ Mic error:", err);
     alert("Microphone access denied. Please allow microphone permissions.");
@@ -230,7 +229,6 @@ async function stopVoiceRecording() {
       lucide.createIcons();
     }
 
-    console.log("🎤 Recording stopped");
   }
 }
 
@@ -240,9 +238,12 @@ async function processVoiceInput(audioBlob) {
     fd.append("audio", audioBlob, "voice.wav");
 
     const backendUrl = window.BACKEND_URL || '';
-    const res = await fetch(`${backendUrl}/transcribe-audio`, {
+    const res = await window.backendFetch(`${backendUrl}/transcribe-audio`, {
       method: "POST",
-      body: fd
+      body: (() => {
+        fd.append("user_id", window.appState?.supabaseUserId || "");
+        return fd;
+      })()
     });
 
     if (!res.ok) throw new Error("Transcription failed");
@@ -257,7 +258,6 @@ async function processVoiceInput(audioBlob) {
         chatInput.style.height = "";
         chatInput.style.height = chatInput.scrollHeight + "px";
         chatInput.focus();
-        console.log("✅ Voice transcribed:", transcript);
         
         // Auto-send after short delay
         setTimeout(() => {

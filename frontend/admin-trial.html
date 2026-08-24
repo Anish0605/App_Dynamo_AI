@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dynamo AI — Trial Admin Dashboard</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: "class" };
+    document.documentElement.classList.add("dark");
+  </script>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fadeUp 0.35s ease forwards; }
+    th { white-space: nowrap; }
+    td { vertical-align: middle; }
+  </style>
+</head>
+<body class="min-h-screen bg-[#0B0F19] text-white">
+
+  <!-- Auth gate -->
+  <div id="auth-gate" class="min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-sm bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-2xl fade-up">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-9 h-9 bg-yellow-400 rounded-xl flex items-center justify-center shadow-lg">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-black"><path d="M13 2L4.09 12.37A1 1 0 0 0 5 14h5.5l-1.5 8 8.91-10.37A1 1 0 0 0 17 10h-5.5L13 2z"/></svg>
+        </div>
+        <span class="text-lg font-bold tracking-tight">Dynamo AI</span>
+        <span class="ml-auto text-xs font-bold bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 px-2 py-0.5 rounded-full uppercase tracking-widest">Admin</span>
+      </div>
+      <h1 class="text-xl font-extrabold mb-1">Trial Admin</h1>
+      <p class="text-sm text-gray-400 mb-6">Enter your admin secret to manage trials.</p>
+      <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Admin Secret</label>
+      <input id="secret-input" type="password" placeholder="Enter admin secret…"
+        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400 transition mb-3" />
+      <div id="auth-error" class="hidden text-red-400 text-sm mb-3"></div>
+      <button id="auth-btn" class="w-full py-3 bg-yellow-400 text-black font-bold rounded-xl hover:bg-yellow-300 transition text-sm">Access Dashboard →</button>
+    </div>
+  </div>
+
+  <!-- Main dashboard -->
+  <div id="dashboard" class="hidden min-h-screen">
+    <header class="border-b border-gray-800/60 px-6 py-4 flex items-center gap-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
+          <svg viewBox="0 0 24 24" class="w-4 h-4 fill-black"><path d="M13 2L4.09 12.37A1 1 0 0 0 5 14h5.5l-1.5 8 8.91-10.37A1 1 0 0 0 17 10h-5.5L13 2z"/></svg>
+        </div>
+        <span class="font-bold tracking-tight text-white">Dynamo AI</span>
+        <span class="text-gray-600 text-sm">/</span>
+        <span class="text-gray-300 text-sm font-medium">Trial Management</span>
+      </div>
+      <div class="ml-auto flex items-center gap-3">
+        <button id="refresh-btn" class="text-sm text-gray-400 hover:text-white transition flex items-center gap-1.5">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+          Refresh
+        </button>
+        <span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-yellow-400/10 text-yellow-400 border border-yellow-400/20 rounded-full px-2.5 py-1">
+          <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Admin
+        </span>
+        <button id="logout-btn" class="text-xs text-gray-500 hover:text-gray-300 transition">Sign out</button>
+      </div>
+    </header>
+
+    <main class="px-6 py-6 max-w-7xl mx-auto space-y-6">
+      <div id="summary-cards" class="grid grid-cols-2 md:grid-cols-5 gap-4"></div>
+      <div class="flex items-center gap-1 border-b border-gray-800/60" id="tab-bar"></div>
+
+      <div id="loading" class="text-center py-20 text-gray-500">
+        <svg class="w-8 h-8 mx-auto mb-3 animate-spin text-yellow-400" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
+        Loading trials…
+      </div>
+      <div id="error-state" class="hidden text-center py-20 text-red-400"></div>
+      <div id="content" class="hidden fade-up space-y-6"></div>
+    </main>
+  </div>
+
+  <script>
+    const BACKEND_URL = "";
+    const STORAGE_KEY = "dynamo_admin_secret";
+    let currentTab = "trials";
+    let allTrials = [];
+
+    const secretInput = document.getElementById("secret-input");
+    const authBtn     = document.getElementById("auth-btn");
+    const authError   = document.getElementById("auth-error");
+    const authGate    = document.getElementById("auth-gate");
+    const dashboard   = document.getElementById("dashboard");
+
+    async function apiGet(path, secret) {
+      const res = await fetch(`${BACKEND_URL}${path}`, { headers: { "X-Admin-Secret": secret } });
+      if (res.status === 401 || res.status === 503) { const j = await res.json().catch(()=>({})); throw new Error(j.detail || "Invalid admin secret"); }
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      return res.json();
+    }
+
+    authBtn.addEventListener("click", async () => {
+      const secret = secretInput.value.trim();
+      if (!secret) { authError.textContent = "Please enter the admin secret."; authError.classList.remove("hidden"); return; }
+      authBtn.textContent = "Verifying…"; authBtn.disabled = true;
+      try {
+        await apiGet("/admin/trials", secret);
+        sessionStorage.setItem(STORAGE_KEY, secret);
+        authGate.classList.add("hidden");
+        dashboard.classList.remove("hidden");
+        loadData(secret);
+      } catch (e) { authError.textContent = e.message; authError.classList.remove("hidden"); authBtn.textContent = "Access Dashboard →"; authBtn.disabled = false; }
+    });
+    secretInput.addEventListener("keydown", e => { if (e.key === "Enter") authBtn.click(); });
+
+    const stored = sessionStorage.getItem(STORAGE_KEY);
+    if (stored) { authGate.classList.add("hidden"); dashboard.classList.remove("hidden"); loadData(stored); }
+
+    document.getElementById("refresh-btn").addEventListener("click", () => { const s = sessionStorage.getItem(STORAGE_KEY); if (s) loadData(s); });
+    document.getElementById("logout-btn").addEventListener("click", () => { sessionStorage.removeItem(STORAGE_KEY); location.reload(); });
+
+    async function loadData(secret) {
+      document.getElementById("loading").classList.remove("hidden");
+      document.getElementById("error-state").classList.add("hidden");
+      document.getElementById("content").classList.add("hidden");
+      try {
+        const data = await apiGet("/admin/trials", secret);
+        allTrials = data.trials || [];
+        renderSummary(data.stats);
+        renderTabs();
+        switchTab("trials");
+      } catch (e) {
+        document.getElementById("loading").classList.add("hidden");
+        document.getElementById("error-state").textContent = e.message;
+        document.getElementById("error-state").classList.remove("hidden");
+      }
+    }
+
+    function renderSummary(stats) {
+      const cards = [
+        { label: "Total Trials", value: stats.total, color: "text-white", stroke: "text-gray-500", icon: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z M22 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75" },
+        { label: "Active", value: stats.active, color: "text-emerald-400", stroke: "text-emerald-500", icon: "M22 11.08V12a10 10 0 1 1-5.93-9.14 M22 4 12 14.01 9 11.01" },
+        { label: "Expiring Today", value: stats.expiringToday, color: "text-red-400", stroke: "text-red-500", icon: "M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" },
+        { label: "1 Day Left", value: stats.expiringSoon, color: "text-amber-400", stroke: "text-amber-500", icon: "M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z M12 9v4 M12 17h.01" },
+        { label: "Expired", value: stats.expired, color: "text-gray-400", stroke: "text-gray-500", icon: "M18 6 6 18 M6 6l12 12" },
+      ];
+      document.getElementById("summary-cards").innerHTML = cards.map(c => `
+        <div class="bg-gray-900/60 border border-gray-800/60 rounded-2xl px-5 py-4 flex items-center gap-4">
+          <div class="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 ${c.stroke}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${c.icon}"/></svg>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-0.5">${c.label}</div>
+            <div class="text-2xl font-extrabold ${c.color}">${c.value}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderTabs() {
+      const tabs = [
+        { id: "trials", label: "Active Trials" },
+        { id: "alerts", label: "Alert Center" },
+        { id: "logs",   label: "Alert History" },
+        { id: "invoices", label: `<span class="inline-flex items-center gap-1.5"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg> Invoices</span>` },
+      ];
+      document.getElementById("tab-bar").innerHTML = tabs.map(t => `
+        <button onclick="window.switchTab('${t.id}')" id="tab-${t.id}"
+          class="px-4 py-2.5 text-sm font-medium transition border-b-2 ${currentTab === t.id ? 'text-white border-yellow-400' : 'text-gray-500 border-transparent hover:text-gray-300'}">
+          ${t.label}
+        </button>
+      `).join("");
+    }
+
+    window.switchTab = function(tab) {
+      currentTab = tab;
+      renderTabs();
+      const content = document.getElementById("content");
+      content.innerHTML = "";
+      document.getElementById("loading").classList.add("hidden");
+      content.classList.remove("hidden");
+      if (tab === "trials")   renderTrialsTab();
+      else if (tab === "alerts")   renderAlertsTab();
+      else if (tab === "logs")     renderLogsTab();
+      else if (tab === "invoices") renderInvoicesTab();
+    };
+
+    /* ── TRIALS TAB ── */
+    let activeFilter = "all";
+    function renderTrialsTab() {
+      document.getElementById("content").innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-center gap-3">
+          <div class="relative flex-1 max-w-sm">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="trial-search" oninput="filterTrials()" placeholder="Search by name, email or plan…"
+              class="w-full pl-9 pr-4 py-2 bg-gray-900 border border-gray-800 rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400/50 transition" />
+          </div>
+          <div class="flex items-center gap-2" id="filter-pills"></div>
+        </div>
+        <div class="bg-gray-900/60 border border-gray-800/60 rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead><tr class="border-b border-gray-800/60 text-xs text-gray-500 uppercase tracking-widest">
+                <th class="text-left px-5 py-3 font-semibold">Name</th>
+                <th class="text-left px-5 py-3 font-semibold">Email</th>
+                <th class="text-left px-5 py-3 font-semibold">Plan</th>
+                <th class="text-left px-5 py-3 font-semibold">Trial</th>
+                <th class="text-left px-5 py-3 font-semibold">Start → End</th>
+                <th class="text-left px-5 py-3 font-semibold">Time Left</th>
+                <th class="text-left px-5 py-3 font-semibold">Status</th>
+                <th class="text-right px-5 py-3 font-semibold">Actions</th>
+              </tr></thead>
+              <tbody id="trials-tbody" class="divide-y divide-gray-800/40"></tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      setFilter("all");
+    }
+
+    window.setFilter = function(f) {
+      activeFilter = f;
+      const pills = ["all", "active", "expiring", "expired"];
+      document.getElementById("filter-pills").innerHTML = pills.map(p => `
+        <button onclick="window.setFilter('${p}')"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold transition border ${activeFilter === p ? 'bg-yellow-400/10 text-yellow-400 border-yellow-400/30' : 'bg-gray-900 text-gray-400 border-gray-800 hover:text-gray-300'}">
+          ${p === "all" ? "All" : p === "expiring" ? "Expiring Soon" : p.charAt(0).toUpperCase() + p.slice(1)}
+        </button>
+      `).join("");
+      filterTrials();
+    };
+
+    window.filterTrials = function() {
+      const search = (document.getElementById("trial-search")?.value || "").toLowerCase();
+      let rows = allTrials.filter(t => {
+        if (activeFilter === "active")   return t.status === "active" || t.status === "paid";
+        if (activeFilter === "expiring") return t.daysLeft <= 1 && t.daysLeft >= 0;
+        if (activeFilter === "expired")  return t.status === "expired";
+        return true;
+      }).filter(t =>
+        (t.name  || "").toLowerCase().includes(search) ||
+        (t.email || "").toLowerCase().includes(search) ||
+        (t.plan  || "").toLowerCase().includes(search)
+      );
+
+      const tbody = document.getElementById("trials-tbody");
+      if (!tbody) return;
+
+      tbody.innerHTML = rows.map(t => {
+        const isPro   = ["pro","pro_trial","pro_validation"].includes(t.plan);
+        const planColor = isPro ? "bg-purple-500/10 text-purple-300" : "bg-yellow-400/10 text-yellow-400";
+        const planLabel = t.plan ? t.plan.replace("_trial","").replace("_validation","").toUpperCase() : "FREE";
+
+        const statusMap = {
+          active:         { cls: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", label: "ACTIVE",       icon: "M22 11.08V12a10 10 0 1 1-5.93-9.14 M22 4 12 14.01 9 11.01" },
+          paid:           { cls: "bg-blue-500/10 text-blue-400 border-blue-500/20",           label: "PAID",         icon: "M22 11.08V12a10 10 0 1 1-5.93-9.14 M22 4 12 14.01 9 11.01" },
+          expired:        { cls: "bg-red-500/10 text-red-400 border-red-500/20",               label: "EXPIRED",      icon: "M18 6 6 18 M6 6l12 12" },
+          "expiring-soon":{ cls: "bg-amber-500/10 text-amber-400 border-amber-500/20",         label: "EXPIRING SOON",icon: "M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z M12 9v4 M12 17h.01" },
+        };
+        const s = statusMap[t.status] || statusMap.expired;
+
+        let timeLeft = "";
+        if (t.daysLeft === 999) timeLeft = `<span class="text-xs font-medium text-blue-400">Paid subscriber</span>`;
+        else if (t.daysLeft < 0) timeLeft = `<span class="text-xs font-semibold text-red-400">Expired ${Math.abs(t.daysLeft)}d ago</span>`;
+        else if (t.daysLeft === 0) timeLeft = `<span class="text-xs font-semibold text-red-400">Ends today</span>`;
+        else if (t.daysLeft === 1) timeLeft = `<span class="text-xs font-semibold text-amber-400">1 day left</span>`;
+        else timeLeft = `<span class="text-xs font-medium text-gray-400">${t.daysLeft} days left</span>`;
+
+        const alertBtn = (t.daysLeft === 1 || t.daysLeft === 0)
+          ? `<button onclick="sendAlert('${t.id}')" class="inline-flex items-center gap-1 text-xs font-semibold bg-yellow-400 text-black px-3 py-1.5 rounded-lg hover:bg-yellow-300 transition"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Send Alert</button>`
+          : t.alerted
+          ? `<span class="inline-flex items-center gap-1 text-xs text-emerald-400 font-semibold"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14 M22 4 12 14.01 9 11.01"/></svg> Alerted</span>`
+          : "";
+
+        return `
+          <tr class="hover:bg-gray-800/30 transition ${t.status === 'expiring-soon' ? 'bg-amber-500/5' : ''}">
+            <td class="px-5 py-3 text-gray-200 font-medium text-xs">${esc(t.name)}</td>
+            <td class="px-5 py-3 text-gray-300 font-mono text-xs">${esc(t.email)}</td>
+            <td class="px-5 py-3"><span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full ${planColor}">${planLabel}</span></td>
+            <td class="px-5 py-3 text-gray-400 text-xs">${t.trialType || "—"}</td>
+            <td class="px-5 py-3 text-gray-400 text-xs font-mono">${t.startDate ? t.startDate.slice(5) : "—"} → ${t.endDate ? t.endDate.slice(5) : "—"}</td>
+            <td class="px-5 py-3">${timeLeft}</td>
+            <td class="px-5 py-3">
+              <span class="inline-flex items-center gap-1.5 text-xs font-semibold border rounded-full px-2.5 py-1 ${s.cls}">
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="${s.icon}"/></svg>
+                ${s.label}
+              </span>
+            </td>
+            <td class="px-5 py-3 text-right">
+              <div class="inline-flex items-center gap-2">
+                ${alertBtn}
+                <button class="text-gray-500 hover:text-white transition">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>`;
+      }).join("") || `<tr><td colspan="8" class="text-center py-12 text-gray-500 text-sm">No trials match your filters.</td></tr>`;
+    };
+
+    window.sendAlert = async function(userId) {
+      const secret = sessionStorage.getItem(STORAGE_KEY); if (!secret) return;
+      try {
+        const res = await fetch(`${BACKEND_URL}/admin/alert-trials`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Admin-Secret": secret },
+          body: JSON.stringify({ user_ids: [userId], channels: ["email"] })
+        });
+        const data = await res.json();
+        alert(data.sentCount > 0 ? "Alert sent successfully!" : "Failed to send alert.");
+      } catch (e) { alert("Error: " + e.message); }
+    };
+
+    /* ── ALERT CENTER TAB ── */
+    function renderAlertsTab() {
+      document.getElementById("content").innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- Pro template -->
+          <div class="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-6 space-y-4">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+              <h3 class="text-sm font-semibold text-white">Pro Template — 1 Day Before Expiry (14-Day Trial)</h3>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Subject Line</label>
+                <input id="pro-subject" value="Your Dynamo AI Pro trial ends tomorrow — upgrade now?"
+                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-yellow-400/50" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Message Body</label>
+                <textarea id="pro-body" rows="7" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-yellow-400/50 resize-none">Hi there,
+
+Your Dynamo AI Pro trial ends tomorrow.
+
+Don't lose access to:
+• DeepThink reasoning mode
+• AI Detector &amp; Plagiarism Checker
+• 25 images/month &amp; 15 videos/month
+• Research Watcher alerts
+
+Upgrade to Pro for just ₹999/month and keep the full power.
+
+[Upgrade Now →]
+
+Questions? Reply to this email.</textarea>
+              </div>
+              <div class="flex items-center gap-3 pt-1">
+                <label class="inline-flex items-center gap-2 text-xs text-gray-400 cursor-pointer"><input type="checkbox" checked class="accent-yellow-400 w-4 h-4" /> In-app banner</label>
+                <label class="inline-flex items-center gap-2 text-xs text-gray-400 cursor-pointer"><input type="checkbox" checked class="accent-yellow-400 w-4 h-4" /> Email</label>
+                <label class="inline-flex items-center gap-2 text-xs text-gray-400 cursor-pointer"><input type="checkbox" class="accent-yellow-400 w-4 h-4" /> WhatsApp</label>
+              </div>
+              <button onclick="saveTemplate('pro')" class="w-full py-2.5 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-300 transition text-sm flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Save Template
+              </button>
+            </div>
+          </div>
+
+          <!-- Plus template -->
+          <div class="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-6 space-y-4">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-yellow-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+              <h3 class="text-sm font-semibold text-white">Plus Template — 1 Day Before Expiry (7-Day Trial)</h3>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Subject Line</label>
+                <input id="plus-subject" value="Your Dynamo AI Plus trial ends tomorrow — keep the momentum?"
+                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-yellow-400/50" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Message Body</label>
+                <textarea id="plus-body" rows="7" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-yellow-400/50 resize-none">Hi there,
+
+Your Dynamo AI Plus trial ends tomorrow.
+
+Don't lose access to:
+• 100 messages / day
+• Research Mode + citations
+• Study guides &amp; quiz tools
+• AI memory for your documents
+
+Upgrade to Plus for just ₹399/month and keep acing your academics.
+
+[Upgrade Now →]
+
+Questions? Reply to this email.</textarea>
+              </div>
+              <div class="flex items-center gap-3 pt-1">
+                <label class="inline-flex items-center gap-2 text-xs text-gray-400 cursor-pointer"><input type="checkbox" checked class="accent-yellow-400 w-4 h-4" /> In-app banner</label>
+                <label class="inline-flex items-center gap-2 text-xs text-gray-400 cursor-pointer"><input type="checkbox" checked class="accent-yellow-400 w-4 h-4" /> Email</label>
+                <label class="inline-flex items-center gap-2 text-xs text-gray-400 cursor-pointer"><input type="checkbox" class="accent-yellow-400 w-4 h-4" /> WhatsApp</label>
+              </div>
+              <button onclick="saveTemplate('plus')" class="w-full py-2.5 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-300 transition text-sm flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Save Template
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bulk send -->
+        <div class="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-6 space-y-4">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <h3 class="text-sm font-semibold text-white">Bulk Send — Expiring Tomorrow</h3>
+          </div>
+          <p class="text-xs text-gray-400">These users have exactly 1 day left on their trial and have not yet been alerted.</p>
+          <div id="bulk-list" class="space-y-2 max-h-64 overflow-y-auto"></div>
+          <button onclick="sendBulkAlerts()" class="w-full py-2.5 bg-amber-500 text-black font-bold rounded-lg hover:bg-amber-400 transition text-sm flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            Send Alerts to All Selected
+          </button>
+        </div>
+      `;
+
+      const expiring = allTrials.filter(t => t.daysLeft === 1 && !t.alerted);
+      document.getElementById("bulk-list").innerHTML = expiring.map(t => `
+        <div class="flex items-center gap-3 bg-gray-800/40 rounded-lg px-3 py-2">
+          <input type="checkbox" data-uid="${t.id}" checked class="bulk-check accent-yellow-400 w-4 h-4" />
+          <div class="flex-1 min-w-0">
+            <div class="text-xs text-gray-200 font-medium truncate">${esc(t.name)} — ${esc(t.email)}</div>
+            <div class="text-[10px] text-gray-500">${t.plan} · ${t.trialType} · ends ${t.endDate}</div>
+          </div>
+          <span class="text-xs text-amber-400 font-semibold">1d left</span>
+        </div>
+      `).join("") || `<div class="text-center py-6 text-gray-500 text-xs">No users expiring tomorrow.</div>`;
+    }
+
+    window.saveTemplate = function(plan) { alert(`${plan.toUpperCase()} template saved! (Brevo hook ready)`); };
+
+    window.sendBulkAlerts = async function() {
+      const checks = document.querySelectorAll(".bulk-check:checked");
+      const uids = Array.from(checks).map(c => c.dataset.uid);
+      if (!uids.length) { alert("No users selected."); return; }
+      const secret = sessionStorage.getItem(STORAGE_KEY);
+      try {
+        const res = await fetch(`${BACKEND_URL}/admin/alert-trials`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Admin-Secret": secret },
+          body: JSON.stringify({ user_ids: uids, channels: ["email"] })
+        });
+        const data = await res.json();
+        alert(`Sent ${data.sentCount} alert(s). Failed: ${data.failedCount}`);
+      } catch (e) { alert("Error: " + e.message); }
+    };
+
+    /* ── ALERT HISTORY TAB ── */
+    function renderLogsTab() {
+      document.getElementById("content").innerHTML = `
+        <div class="bg-gray-900/60 border border-gray-800/60 rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead><tr class="border-b border-gray-800/60 text-xs text-gray-500 uppercase tracking-widest">
+                <th class="text-left px-5 py-3 font-semibold">Name</th>
+                <th class="text-left px-5 py-3 font-semibold">Email</th>
+                <th class="text-left px-5 py-3 font-semibold">Alert Type</th>
+                <th class="text-left px-5 py-3 font-semibold">Channel</th>
+                <th class="text-left px-5 py-3 font-semibold">Sent At</th>
+                <th class="text-left px-5 py-3 font-semibold">Status</th>
+              </tr></thead>
+              <tbody class="divide-y divide-gray-800/40">
+                <tr><td colspan="6" class="text-center py-12 text-gray-500 text-sm">Alert history appears here once alerts are sent.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ── INVOICES TAB ── */
+    function renderInvoicesTab() {
+      const paid = allTrials.filter(t => t.amount > 0 && t.subscriptionId);
+      document.getElementById("content").innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-center gap-3">
+          <h2 class="text-sm font-semibold text-gray-300">Paid Subscriptions — Accounting Records</h2>
+          <div class="ml-auto flex items-center gap-2">
+            <button onclick="exportInvoiceCSV()" class="text-sm bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-200 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export All CSV
+            </button>
+          </div>
+        </div>
+        <div class="bg-gray-900/60 border border-gray-800/60 rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead><tr class="border-b border-gray-800/60 text-xs text-gray-500 uppercase tracking-widest">
+                <th class="text-left px-5 py-3 font-semibold">Invoice #</th>
+                <th class="text-left px-5 py-3 font-semibold">Name</th>
+                <th class="text-left px-5 py-3 font-semibold">Email</th>
+                <th class="text-left px-5 py-3 font-semibold">Plan</th>
+                <th class="text-left px-5 py-3 font-semibold">Amount</th>
+                <th class="text-left px-5 py-3 font-semibold">Period</th>
+                <th class="text-left px-5 py-3 font-semibold">Paid At</th>
+                <th class="text-left px-5 py-3 font-semibold">Order ID</th>
+                <th class="text-right px-5 py-3 font-semibold">Download</th>
+              </tr></thead>
+              <tbody class="divide-y divide-gray-800/40">
+                ${paid.map(t => {
+                  const planColor = ["pro","pro_trial","pro_validation"].includes(t.plan) ? "bg-purple-500/10 text-purple-300" : "bg-yellow-400/10 text-yellow-400";
+                  return `
+                  <tr class="hover:bg-gray-800/30 transition">
+                    <td class="px-5 py-3 text-gray-200 font-mono text-xs">${esc(t.subscriptionId)}</td>
+                    <td class="px-5 py-3 text-gray-200 font-medium text-xs">${esc(t.name)}</td>
+                    <td class="px-5 py-3 text-gray-300 font-mono text-xs">${esc(t.email)}</td>
+                    <td class="px-5 py-3"><span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full ${planColor}">${t.plan.replace("_trial","").replace("_validation","").toUpperCase()}</span></td>
+                    <td class="px-5 py-3 text-gray-200 font-semibold text-xs">₹${(t.amount/100).toLocaleString("en-IN")}</td>
+                    <td class="px-5 py-3 text-gray-400 text-xs font-mono">${t.startDate || "—"} → ${t.endDate || "—"}</td>
+                    <td class="px-5 py-3 text-gray-500 text-xs">${t.startDate || "—"}</td>
+                    <td class="px-5 py-3 text-gray-500 text-xs font-mono">${esc(t.subscriptionId)}</td>
+                    <td class="px-5 py-3 text-right">
+                      <button class="inline-flex items-center gap-1 text-xs font-semibold bg-yellow-400/10 text-yellow-400 border border-yellow-400/20 px-3 py-1.5 rounded-lg hover:bg-yellow-400/20 transition">
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg> Invoice
+                      </button>
+                    </td>
+                  </tr>`;
+                }).join("") || `<tr><td colspan="9" class="text-center py-12 text-gray-500 text-sm">No paid subscriptions yet.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    window.exportInvoiceCSV = function() {
+      const paid = allTrials.filter(t => t.amount > 0 && t.subscriptionId);
+      if (!paid.length) return;
+      const headers = ["Invoice #","Name","Email","Plan","Amount (₹)","Start","End","Order ID"];
+      const rows = [headers, ...paid.map(t => [
+        t.subscriptionId, t.name, t.email,
+        t.plan, String(t.amount/100),
+        t.startDate, t.endDate, t.subscriptionId
+      ].map(v => `"${String(v||"").replace(/"/g,'""')}"`))];
+      const csv = rows.map(r=>r.join(",")).join("\n");
+      const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([csv],{type:"text/csv"})), download: `invoices-${new Date().toISOString().slice(0,10)}.csv` });
+      a.click();
+    };
+
+    function esc(str) { return String(str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  </script>
+</body>
+</html>

@@ -184,6 +184,14 @@ PAID_ACCESS_MESSAGE = (
     "Please choose a plan at /pricing.html."
 )
 
+PLUS_PRO_PLANS = frozenset({
+    "plus",
+    "plus_trial",
+    "pro",
+    "pro_trial",
+    "pro_validation",
+})
+
 
 def require_paid_user(user_id: str, feature: str = "Dynamo AI"):
     """Fail closed for anonymous, missing, and Free accounts.
@@ -207,6 +215,23 @@ def require_paid_user(user_id: str, feature: str = "Dynamo AI"):
     if supabase_client.is_demo_account(user) and (user.get("plan") or "").lower() == "free":
         user = {**user, "plan": "pro"}
     return user
+
+
+def require_plus_or_pro_user(user_id: str, feature: str = "This feature"):
+    """Allow only Plus/Pro plans and their trials for premium features."""
+    user = require_paid_user(user_id, feature)
+    plan = (user.get("plan") or "free").lower()
+    if plan not in PLUS_PRO_PLANS:
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                f"{feature} is available on Plus and Pro plans, including active "
+                "trials. Visit /pricing.html to upgrade."
+            ),
+        )
+    return user
+
+
 # --------------------------------------------------
 # HEALTH
 # --------------------------------------------------
@@ -1127,7 +1152,7 @@ async def chat_with_files(req: BatchFileUploadReq):
     """Analyze a small batch while preserving the established single-file route."""
     import traceback as _tb
 
-    user = require_paid_user(req.user_id, "File analysis")
+    user = require_plus_or_pro_user(req.user_id, "Multiple-file analysis")
     if not supabase_client.check_user_quota(user):
         return {
             "type": "error",

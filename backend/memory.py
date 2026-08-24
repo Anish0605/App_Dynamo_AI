@@ -74,7 +74,7 @@ def extract_memories(user_message: str, ai_response: str) -> list:
 
     try:
         r = _client.models.generate_content(
-            model="gemini-3.1-flash-lite-preview",
+            model="gemini-3.5-flash-lite",
             contents=prompt
         )
         text = r.text.strip()

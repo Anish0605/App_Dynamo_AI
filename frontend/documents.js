@@ -1,5 +1,4 @@
 // documents.js — Dynamo AI Persistent Document Library
-console.log("documents.js loaded");
 
 /* =====================================================
    OPEN / CLOSE
@@ -40,7 +39,7 @@ async function loadDocuments() {
   if (emptyState) emptyState.classList.add("hidden");
 
   try {
-    const res = await fetch(`/documents?user_id=${userId}`);
+    const res = await window.backendFetch(`/documents?user_id=${userId}`);
     const data = await res.json();
     const docs = data.documents || [];
 
@@ -109,7 +108,7 @@ window.deleteDocument = async (docId) => {
   if (!confirm("Remove this document from your library? The AI will no longer remember it.")) return;
 
   try {
-    const res = await fetch(`/documents/${docId}?user_id=${userId}`, { method: "DELETE" });
+    const res = await window.backendFetch(`/documents/${docId}?user_id=${userId}`, { method: "DELETE" });
     if (res.ok) {
       document.getElementById(`doc-${docId}`)?.remove();
       const remaining = document.querySelectorAll("[id^='doc-']").length;
@@ -148,7 +147,7 @@ window.saveCurrentDocument = async (file) => {
     formData.append("file", file);
     formData.append("user_id", userId);
 
-    const res = await fetch("/save-document", { method: "POST", body: formData });
+    const res = await window.backendFetch("/save-document", { method: "POST", body: formData });
     const data = await res.json();
 
     if (data.success) {
@@ -187,7 +186,7 @@ window.refreshDocCount = async () => {
   const userId = window.appState?.supabaseUserId;
   if (!userId) return;
   try {
-    const res = await fetch(`/documents?user_id=${userId}`);
+    const res = await window.backendFetch(`/documents?user_id=${userId}`);
     const data = await res.json();
     updateDocCount((data.documents || []).length);
   } catch (_) {}
@@ -219,7 +218,7 @@ window._handleLibraryUpload = async (input) => {
     formData.append("file", file);
     formData.append("user_id", userId);
 
-    const res = await fetch("/save-document", { method: "POST", body: formData });
+    const res = await window.backendFetch("/save-document", { method: "POST", body: formData });
     const data = await res.json();
 
     if (data.success) {

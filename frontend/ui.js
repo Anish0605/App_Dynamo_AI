@@ -1,5 +1,4 @@
 // ui.js — Dynamo AI (FINAL, CLEAN, STABLE + EXECUTIVE DECK)
-console.log("ui.js loaded");
 
 /* --------------------------------------------------
    GLOBAL UI STATE
@@ -106,7 +105,6 @@ window.selectModel = (modelId, btn) => {
       searchBtn?.classList.add('active');
     }
   }
-  console.log("✅ Model selected:", modelId);
 };
 
 /* --------------------------------------------------
@@ -201,8 +199,8 @@ window.setMode = (mode, btn) => {
     const supa = window.appState?.supabaseUser;
     if (!supa) { window.openAuthModal?.('login'); return; }
     const plan = (supa.plan || 'free').toLowerCase();
-    if (mode === 'research' && plan === 'free') { _showPlusGate('Research mode'); return; }
-    if (mode === 'deep' && plan !== 'pro')      { _showProGate('DeepThink mode'); return; }
+    if (mode === 'research' && plan === 'free' && !supa.access_allowed) { _showPlusGate('Research mode'); return; }
+    if (mode === 'deep' && plan !== 'pro' && plan !== 'pro_trial' && plan !== 'pro_validation' && !supa.access_allowed) { _showProGate('DeepThink mode'); return; }
   }
 
   // Reset thinking state
@@ -236,7 +234,6 @@ window.setMode = (mode, btn) => {
   // Refresh dependent UI (gap-finder badge etc.)
   window.updateGapFinderBtn?.();
 
-  console.log("🎯 Mode set:", mode, "| tools:", [...window.dynamoUI.tools], "| model:", window.dynamoUI.model);
 };
 
 /* --------------------------------------------------
@@ -379,7 +376,6 @@ window.runCreate = (kind) => {
   qs("tools-dropdown")?.classList.add("hidden");
   window._closeAllFlyouts?.();
 
-  console.log("🎨 Create:", kind);
 };
 
 /* --------------------------------------------------
@@ -394,7 +390,6 @@ window.toggleTool = (tool, btn) => {
     btn?.classList.add("active");
   }
 
-  console.log("🧰 Active tools:", [...window.dynamoUI.tools]);
   window.updateGapFinderBtn?.();
 };
 
@@ -430,6 +425,73 @@ document.addEventListener("DOMContentLoaded", () => {
         : "dark"
     );
   });
+});
+
+/* --------------------------------------------------
+   🔤 TEXT SIZE SWITCHER
+-------------------------------------------------- */
+const TEXT_SIZES = [
+  { id: "sm",  label: "Small",   desc: "Compact reading",    aSize: "11px" },
+  { id: "md",  label: "Default", desc: "Standard reading",   aSize: "14px" },
+  { id: "lg",  label: "Comfort", desc: "Easy on the eyes",   aSize: "19px" },
+];
+
+function applyTextSize(id) {
+  document.documentElement.classList.remove("text-sm", "text-lg");
+  if (id === "sm") document.documentElement.classList.add("text-sm");
+  if (id === "lg") document.documentElement.classList.add("text-lg");
+  localStorage.textSize = id;
+  _renderTextSizeOptions(id);
+}
+
+function _renderTextSizeOptions(activeId) {
+  const container = document.getElementById("text-size-options");
+  if (!container) return;
+  container.innerHTML = TEXT_SIZES.map(s => `
+    <button class="ts-option${s.id === activeId ? " ts-active" : ""}"
+      onclick="applyTextSize('${s.id}'); window.closeTextSizePanel();">
+      <div class="ts-icon" style="font-size:${s.aSize}">A</div>
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <span style="font-size:13.5px;font-weight:700;color:${s.id === activeId ? "var(--ts-label-active,#92400e)" : "inherit"}"
+          class="${s.id === activeId ? "dark:!text-yellow-300" : "text-gray-700 dark:text-white"}">${s.label}</span>
+        <span style="font-size:11.5px" class="text-gray-400 dark:text-gray-500">${s.desc}</span>
+      </div>
+      ${s.id === activeId ? `<div class="ts-check"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5.5L4 7.5L8 3" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>` : ""}
+    </button>`).join("");
+}
+
+window.toggleTextSizePanel = function(e) {
+  e && e.stopPropagation();
+  const panel = document.getElementById("text-size-panel");
+  const btn   = document.getElementById("text-size-btn");
+  if (!panel) return;
+  const isOpen = !panel.classList.contains("hidden");
+  if (isOpen) {
+    window.closeTextSizePanel();
+  } else {
+    _renderTextSizeOptions(localStorage.textSize || "md");
+    panel.classList.remove("hidden");
+    btn && btn.classList.add("ts-open");
+    // close on outside click
+    setTimeout(() => document.addEventListener("click", _tsOutside, { once: true }), 0);
+  }
+};
+
+function _tsOutside(e) {
+  const wrapper = document.getElementById("text-size-wrapper");
+  if (wrapper && !wrapper.contains(e.target)) window.closeTextSizePanel();
+}
+
+window.closeTextSizePanel = function() {
+  const panel = document.getElementById("text-size-panel");
+  const btn   = document.getElementById("text-size-btn");
+  panel && panel.classList.add("hidden");
+  btn   && btn.classList.remove("ts-open");
+  document.removeEventListener("click", _tsOutside);
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  applyTextSize(localStorage.textSize || "md");
 });
 
 /* --------------------------------------------------
@@ -753,12 +815,12 @@ window.createExecutiveDeck = async () => {
       title: "Executive Briefing",
       theme: "executive", // light | dark | executive
       messages: window.chatHistory,
-      deep_think: window.dynamoUI.tools.has("deep")
+      deep_think: window.dynamoUI.tools.has("deep"),
+      user_id: window.appState?.supabaseUserId || ""
     };
 
-    console.log("📊 Creating Executive Deck:", payload);
 
-    const res = await fetch(
+    const res = await window.backendFetch(
       `${window.BACKEND_URL}/generate-ppt-smart`,
       {
         method: "POST",
@@ -837,6 +899,7 @@ window.toggleFlashcardHints = () => {
 };
 
 window.submitFlashcard = async () => {
+  if (!window.requirePaidAccess?.()) return;
   const topicEl = qs("fc-topic");
   const diffEl  = qs("fc-difficulty");
   const cntEl   = qs("fc-count");
@@ -854,7 +917,7 @@ window.submitFlashcard = async () => {
   window.showThinking?.();
 
   try {
-    const res = await fetch("/flashcard", {
+    const res = await window.backendFetch("/flashcard", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

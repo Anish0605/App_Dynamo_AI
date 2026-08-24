@@ -79,7 +79,7 @@ Respond in this exact JSON format (no markdown fences):
 
 Be selective — only mark as noteworthy if there is a genuinely new paper, breakthrough, policy change, or major event in the last few weeks. Routine news or rephrasing of old content = not noteworthy."""
 
-        model = "gemini-3.1-flash-lite-preview"
+        model = "gemini-3.5-flash-lite"
         resp = client.models.generate_content(model=model, contents=prompt)
         text = resp.text.strip()
 

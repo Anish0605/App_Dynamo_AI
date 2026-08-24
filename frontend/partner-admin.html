@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAP Admin — Dynamo AI</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script>
+    tailwind.config = { darkMode: "class" };
+    document.documentElement.classList.add("dark");
+  </script>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.35s ease forwards; }
+    th { white-space: nowrap; }
+    .drawer { transition: transform 0.25s ease; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-950 text-white">
+
+  <!-- Loading -->
+  <div id="loading-screen" class="min-h-screen flex items-center justify-center">
+    <div class="text-center">
+      <div class="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-black"><path d="M13 2L4.09 12.37A1 1 0 0 0 5 14h5.5l-1.5 8 8.91-10.37A1 1 0 0 0 17 10h-5.5L13 2z"/></svg>
+      </div>
+      <p class="text-gray-400 text-sm">Verifying admin access…</p>
+    </div>
+  </div>
+
+  <!-- Access denied -->
+  <div id="denied-screen" class="hidden min-h-screen flex items-center justify-center px-4">
+    <div class="text-center max-w-sm">
+      <div class="text-5xl mb-4">🔒</div>
+      <h2 class="text-xl font-bold mb-2">Access Denied</h2>
+      <p class="text-gray-400 text-sm mb-6">This page is restricted to Dynamo AI administrators.</p>
+      <a href="/" class="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2.5 rounded-xl text-sm transition inline-block">Go back home</a>
+    </div>
+  </div>
+
+  <!-- Main Dashboard -->
+  <div id="dashboard" class="hidden min-h-screen fade-up">
+
+    <!-- Nav -->
+    <div class="border-b border-gray-800 px-6 py-3 flex items-center justify-between sticky top-0 bg-gray-950 z-30">
+      <div class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-2">
+          <div class="w-7 h-7 bg-yellow-400 rounded-lg flex items-center justify-center">
+            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 fill-black"><path d="M13 2L4.09 12.37A1 1 0 0 0 5 14h5.5l-1.5 8 8.91-10.37A1 1 0 0 0 17 10h-5.5L13 2z"/></svg>
+          </div>
+          <span class="text-white font-bold text-sm">Dynamo AI</span>
+        </a>
+        <span class="text-gray-600">|</span>
+        <span class="text-gray-300 text-sm font-medium">FAP Admin Panel</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="exportCSV()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-300 px-3 py-1.5 rounded-lg transition">⬇ Export CSV</button>
+        <button onclick="signOut()" class="text-xs text-gray-500 hover:text-gray-300 transition">Sign out</button>
+      </div>
+    </div>
+
+    <div class="p-6 max-w-7xl mx-auto">
+
+      <div class="mb-5">
+        <h1 class="text-xl font-bold text-white">Faculty Ambassador Program</h1>
+        <p class="text-gray-500 text-sm mt-0.5" id="admin-date">Admin overview</p>
+      </div>
+
+      <!-- Summary cards -->
+      <div id="stats-grid" class="grid grid-cols-7 gap-3 mb-6">
+        <!-- Populated by JS -->
+        <div class="col-span-7 text-center py-6 text-gray-600 text-sm">Loading stats…</div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex gap-1 bg-gray-900 border border-gray-800 rounded-xl p-1 mb-5 w-fit">
+        <button onclick="setTab('applications')" id="tab-applications" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-yellow-400 text-gray-950">Applications</button>
+        <button onclick="setTab('partners')"     id="tab-partners"     class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white">Partners</button>
+        <button onclick="setTab('payouts')"      id="tab-payouts"      class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white">Payouts</button>
+      </div>
+
+      <!-- ── Applications Tab ── -->
+      <div id="panel-applications" class="tab-panel">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+          <div class="flex items-center gap-3 px-5 py-3 border-b border-gray-800 flex-wrap">
+            <input id="app-search" oninput="filterApps()" type="text" placeholder="Search name or institution…"
+              class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-yellow-500 w-52" />
+            <select id="app-state-filter" onchange="filterApps()"
+              class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-yellow-500">
+              <option value="">All States</option>
+              <option>TN</option><option>KA</option><option>MH</option><option>TS</option>
+              <option>KL</option><option>DL</option><option>RJ</option><option>GJ</option>
+              <option>AP</option><option>WB</option>
+            </select>
+            <select id="app-dept-filter" onchange="filterApps()"
+              class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-yellow-500">
+              <option value="">All Depts</option>
+              <option>CSE</option><option>ECE</option><option>IT</option>
+              <option>MBA</option><option>MCA</option><option>ME</option>
+            </select>
+            <button id="bulk-approve-btn" onclick="bulkApprove()" class="hidden ml-auto bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 text-xs px-4 py-1.5 rounded-lg transition font-medium">
+              ✓ Approve Selected (<span id="selected-count">0</span>)
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-gray-800">
+                  <th class="px-4 py-3 w-10">
+                    <input type="checkbox" id="select-all-chk" onchange="toggleSelectAll()" class="accent-yellow-400 cursor-pointer" />
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Applicant</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Institution</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Dept</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Location</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Applied</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Status</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="apps-tbody">
+                <tr><td colspan="8" class="px-5 py-8 text-center text-gray-600 text-sm">Loading applications…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Partners Tab ── -->
+      <div id="panel-partners" class="tab-panel hidden">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+          <div class="flex items-center justify-between px-5 py-3 border-b border-gray-800 flex-wrap gap-3">
+            <input id="partner-search" oninput="filterPartners()" type="text" placeholder="Search partner or institution…"
+              class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-yellow-500 w-52" />
+            <select id="partner-sort" onchange="sortPartners()"
+              class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-yellow-500">
+              <option value="referrals">Most Referrals</option>
+              <option value="earned">Highest Earned</option>
+              <option value="newest">Newest First</option>
+            </select>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-gray-800">
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Partner</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Code</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Institution</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Referrals</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Paid Users</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Lifetime Earned</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Joined</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody id="partners-tbody">
+                <tr><td colspan="8" class="px-5 py-8 text-center text-gray-600 text-sm">Loading partners…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Payouts Tab ── -->
+      <div id="panel-payouts" class="tab-panel hidden">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+          <div class="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+            <h2 class="text-sm font-semibold text-white">Monthly Payout Management</h2>
+            <span class="text-xs text-gray-500" id="payout-cycle-label">—</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-gray-800">
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Partner</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Code</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Month</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Amount</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Status</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Reference</th>
+                  <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Action</th>
+                </tr>
+              </thead>
+              <tbody id="payouts-tbody">
+                <tr><td colspan="7" class="px-5 py-8 text-center text-gray-600 text-sm">Loading payouts…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="payout-footer" class="hidden px-5 py-3 border-t border-gray-800 flex items-center justify-between">
+            <p class="text-xs text-gray-500">Total pending: <span id="total-pending-label" class="text-yellow-400 font-semibold">—</span></p>
+            <button onclick="showPayoutConfirm()" class="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold text-xs px-4 py-2 rounded-lg transition">Process All Payouts</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Application Detail Drawer ── -->
+  <div id="drawer" class="hidden fixed right-0 top-0 h-full w-80 bg-gray-900 border-l border-gray-800 shadow-2xl z-50 flex flex-col drawer overflow-y-auto">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+      <p class="text-sm font-semibold text-white">Application Detail</p>
+      <button onclick="closeDrawer()" class="text-gray-500 hover:text-white text-xl leading-none">✕</button>
+    </div>
+    <div id="drawer-body" class="p-5 space-y-4 flex-1"></div>
+    <div id="drawer-actions" class="p-5 border-t border-gray-800 space-y-2"></div>
+  </div>
+  <div id="drawer-overlay" onclick="closeDrawer()" class="hidden fixed inset-0 bg-black/40 z-40"></div>
+
+  <!-- ── Payout Confirm Modal ── -->
+  <div id="payout-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center px-6">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+      <div class="text-3xl mb-3 text-center">💸</div>
+      <h3 class="text-white font-bold text-center mb-1">Confirm Payout</h3>
+      <p id="payout-modal-text" class="text-gray-400 text-sm text-center mb-5"></p>
+      <input id="payout-ref-input" type="text" placeholder="Transaction / UTR reference"
+        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-yellow-500 mb-4" />
+      <div class="space-y-2">
+        <button onclick="processAllPayouts()" class="w-full bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold py-2.5 rounded-xl text-sm transition">Confirm & Process</button>
+        <button onclick="document.getElementById('payout-modal').classList.add('hidden')" class="w-full bg-gray-800 hover:bg-gray-700 text-gray-300 py-2.5 rounded-xl text-sm transition">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BACKEND      = "";
+    const ADMIN_EMAILS = new Set(["anishkrisna6@gmail.com", "anishkrisnareview@gmail.com"]);
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDcYXrbVi9mW54MMTofbxuyo4lALglkK2M",
+      authDomain: "dynamo-ai-01.firebaseapp.com",
+      projectId: "dynamo-ai-01",
+      storageBucket: "dynamo-ai-01.firebasestorage.app",
+      messagingSenderId: "1083537512306",
+      appId: "1:1083537512306:web:d0e68ddb69fb5f8199efeb"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    const auth = firebase.auth();
+
+    let _adminEmail = "";
+    let _allApps = [], _allPartners = [], _allPayouts = [];
+    let _selectedIds = new Set();
+    let _currentTab = "applications";
+
+    // ── Auth guard ──────────────────────────────────────────────────────────
+
+    auth.onAuthStateChanged(async (user) => {
+      document.getElementById("loading-screen").classList.add("hidden");
+
+      if (!user || !ADMIN_EMAILS.has(user.email)) {
+        document.getElementById("denied-screen").classList.remove("hidden");
+        return;
+      }
+
+      _adminEmail = user.email;
+      document.getElementById("dashboard").classList.remove("hidden");
+
+      const now = new Date();
+      document.getElementById("admin-date").textContent =
+        `Admin overview · ${now.toLocaleString("en-IN", { month: "long", year: "numeric" })}`;
+      document.getElementById("payout-cycle-label").textContent =
+        `${now.toLocaleString("en-IN", { month: "long", year: "numeric" })} cycle`;
+
+      await Promise.all([loadStats(), loadApplications(), loadPartners(), loadPayouts()]);
+    });
+
+    function signOut() { auth.signOut().then(() => { window.location.href = "/"; }); }
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+
+    function apiHeaders() {
+      return { "Content-Type": "application/json", "x-user-email": _adminEmail };
+    }
+
+    function fmtAmt(paise) {
+      if (!paise) return "—";
+      return "₹" + (paise / 100).toLocaleString("en-IN");
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return "—";
+      return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+    }
+
+    function statusBadge(s) {
+      const m = {
+        Pending:  "bg-yellow-400/15 text-yellow-400 border border-yellow-400/30",
+        Approved: "bg-green-500/15 text-green-400 border border-green-500/30",
+        Rejected: "bg-red-500/15 text-red-400 border border-red-500/30",
+        Paid:     "bg-green-500/15 text-green-400 border border-green-500/30",
+        Active:   "bg-green-500/15 text-green-400 border border-green-500/30",
+        Inactive: "bg-gray-700/50 text-gray-500 border border-gray-700",
+      };
+      return m[s] || "";
+    }
+
+    // ── Stats ────────────────────────────────────────────────────────────────
+
+    async function loadStats() {
+      try {
+        const res  = await fetch(BACKEND + "/fap/admin/stats", { headers: apiHeaders() });
+        const data = await res.json();
+        const cards = [
+          { label: "Total Partners",       value: data.total_partners,       icon: "👥", color: "text-blue-400" },
+          { label: "Pending Applications", value: data.pending_applications,  icon: "⏳", color: "text-yellow-400" },
+          { label: "Approved Partners",    value: data.approved_partners,     icon: "✅", color: "text-green-400" },
+          { label: "Total Referrals",      value: data.total_referrals,       icon: "🔗", color: "text-violet-400" },
+          { label: "Paid Users",           value: data.paid_users,            icon: "💳", color: "text-green-400" },
+          { label: "Pending Payout",       value: fmtAmt(data.pending_payout),icon: "⏳", color: "text-yellow-400" },
+          { label: "Total Paid Out",       value: fmtAmt(data.total_commission_paid), icon: "🏆", color: "text-yellow-400" },
+        ];
+        document.getElementById("stats-grid").innerHTML = cards.map(c => `
+          <div class="bg-gray-900 border border-gray-800 rounded-xl p-3 text-center">
+            <div class="text-xl mb-1">${c.icon}</div>
+            <p class="text-xl font-bold ${c.color}">${c.value}</p>
+            <p class="text-gray-500 text-xs mt-0.5 leading-tight">${c.label}</p>
+          </div>`).join("");
+      } catch(e) { console.error(e); }
+    }
+
+    // ── Applications ─────────────────────────────────────────────────────────
+
+    async function loadApplications() {
+      try {
+        const res  = await fetch(BACKEND + "/fap/admin/applications", { headers: apiHeaders() });
+        const data = await res.json();
+        _allApps = data.applications || [];
+        renderApps(_allApps);
+      } catch(e) { console.error(e); }
+    }
+
+    function renderApps(apps) {
+      const tbody = document.getElementById("apps-tbody");
+      if (!apps.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="px-5 py-8 text-center text-gray-600 text-sm">No applications found.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = apps.map(a => `
+        <tr class="border-b border-gray-800/50 hover:bg-gray-800/30 transition cursor-pointer" onclick="openDrawer('${a.id}')">
+          <td class="px-4 py-3" onclick="event.stopPropagation()">
+            ${a.status === "Pending" ? `<input type="checkbox" class="app-chk accent-yellow-400 cursor-pointer" data-id="${a.id}" onchange="updateBulkBtn()" />` : ""}
+          </td>
+          <td class="px-4 py-3">
+            <p class="text-sm text-white font-medium">${a.full_name}</p>
+            <p class="text-xs text-gray-500">${a.email}</p>
+          </td>
+          <td class="px-4 py-3 text-xs text-gray-400">${a.institution_name}</td>
+          <td class="px-4 py-3 text-xs text-gray-400">${a.department}</td>
+          <td class="px-4 py-3 text-xs text-gray-400">${a.city}, ${a.state}</td>
+          <td class="px-4 py-3 text-xs text-gray-500">${fmtDate(a.created_at)}</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded-md font-medium ${statusBadge(a.status)}">${a.status}</span></td>
+          <td class="px-4 py-3" onclick="event.stopPropagation()">
+            ${a.status === "Pending" ? `
+              <div class="flex gap-1.5">
+                <button onclick="approveApp('${a.id}')" class="bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 text-xs px-2.5 py-1 rounded-lg transition font-medium">Approve</button>
+                <button onclick="rejectApp('${a.id}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 text-xs px-2.5 py-1 rounded-lg transition font-medium">Reject</button>
+              </div>` : `<span class="text-gray-600 text-xs">—</span>`}
+          </td>
+        </tr>`).join("");
+    }
+
+    function filterApps() {
+      const q    = document.getElementById("app-search").value.toLowerCase();
+      const st   = document.getElementById("app-state-filter").value;
+      const dept = document.getElementById("app-dept-filter").value;
+      const filtered = _allApps.filter(a =>
+        (!q || a.full_name.toLowerCase().includes(q) || a.institution_name.toLowerCase().includes(q)) &&
+        (!st   || a.state === st) &&
+        (!dept || a.department === dept)
+      );
+      renderApps(filtered);
+    }
+
+    function updateBulkBtn() {
+      const checked = document.querySelectorAll(".app-chk:checked");
+      const btn = document.getElementById("bulk-approve-btn");
+      document.getElementById("selected-count").textContent = checked.size;
+      btn.classList.toggle("hidden", checked.size === 0);
+    }
+
+    function toggleSelectAll() {
+      const all   = document.getElementById("select-all-chk").checked;
+      document.querySelectorAll(".app-chk").forEach(c => { c.checked = all; });
+      updateBulkBtn();
+    }
+
+    async function approveApp(id) {
+      const res = await fetch(BACKEND + `/fap/admin/applications/${id}/approve`, { method: "POST", headers: apiHeaders() });
+      if (res.ok) { await loadApplications(); await loadStats(); }
+      else { alert("Failed to approve. Please try again."); }
+    }
+
+    async function rejectApp(id) {
+      if (!confirm("Reject this application?")) return;
+      const res = await fetch(BACKEND + `/fap/admin/applications/${id}/reject`, { method: "POST", headers: apiHeaders() });
+      if (res.ok) { await loadApplications(); await loadStats(); }
+    }
+
+    async function bulkApprove() {
+      const ids = [...document.querySelectorAll(".app-chk:checked")].map(c => c.dataset.id);
+      for (const id of ids) await approveApp(id);
+      document.getElementById("bulk-approve-btn").classList.add("hidden");
+    }
+
+    // ── Application Drawer ───────────────────────────────────────────────────
+
+    function openDrawer(appId) {
+      const a = _allApps.find(x => x.id === appId);
+      if (!a) return;
+
+      document.getElementById("drawer-body").innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-yellow-400/20 rounded-full flex items-center justify-center text-yellow-400 text-lg font-bold flex-shrink-0">${a.full_name.charAt(0)}</div>
+          <div>
+            <p class="text-white font-semibold">${a.full_name}</p>
+            <p class="text-gray-500 text-xs">${a.designation}</p>
+          </div>
+        </div>
+        <span class="inline-block text-xs px-2.5 py-1 rounded-md font-medium ${statusBadge(a.status)}">${a.status}</span>
+        ${[
+          ["Email",       a.email],
+          ["Mobile",      a.mobile],
+          ["Institution", a.institution_name],
+          ["Department",  a.department],
+          ["Location",    `${a.city}, ${a.state}`],
+          ["Applied",     fmtDate(a.created_at)],
+        ].map(([label, val]) => `
+          <div class="border-b border-gray-800 pb-3">
+            <p class="text-xs text-gray-500 mb-1">${label}</p>
+            <p class="text-sm text-white">${val}</p>
+          </div>`).join("")}`;
+
+      document.getElementById("drawer-actions").innerHTML = a.status === "Pending" ? `
+        <button onclick="approveApp('${a.id}'); closeDrawer();" class="w-full bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 py-2.5 rounded-xl text-sm font-semibold transition">✓ Approve & Generate Code</button>
+        <button onclick="rejectApp('${a.id}'); closeDrawer();" class="w-full bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 py-2.5 rounded-xl text-sm font-semibold transition">✕ Reject Application</button>` : "";
+
+      document.getElementById("drawer").classList.remove("hidden");
+      document.getElementById("drawer-overlay").classList.remove("hidden");
+    }
+
+    function closeDrawer() {
+      document.getElementById("drawer").classList.add("hidden");
+      document.getElementById("drawer-overlay").classList.add("hidden");
+    }
+
+    // ── Partners ─────────────────────────────────────────────────────────────
+
+    async function loadPartners() {
+      try {
+        const res  = await fetch(BACKEND + "/fap/admin/partners", { headers: apiHeaders() });
+        const data = await res.json();
+        _allPartners = data.partners || [];
+        renderPartners(_allPartners);
+      } catch(e) { console.error(e); }
+    }
+
+    function renderPartners(partners) {
+      const tbody = document.getElementById("partners-tbody");
+      if (!partners.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="px-5 py-8 text-center text-gray-600 text-sm">No approved partners yet.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = partners.map(p => {
+        const app  = p.partner_applications || {};
+        const conv = p.total_referrals > 0 ? Math.round((p.paid_users / p.total_referrals) * 100) : 0;
+        return `
+          <tr class="border-b border-gray-800/50 hover:bg-gray-800/30 transition">
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-full bg-yellow-400/20 flex items-center justify-center text-yellow-400 text-xs font-bold flex-shrink-0">${(app.full_name||"?").charAt(0)}</div>
+                <div>
+                  <p class="text-sm text-white font-medium">${app.full_name || "—"}</p>
+                  <p class="text-xs text-gray-500">${app.email || ""}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-3"><span class="text-xs text-yellow-400 font-mono bg-yellow-400/10 px-2 py-0.5 rounded">${p.referral_code}</span></td>
+            <td class="px-4 py-3 text-xs text-gray-400">${app.institution_name || "—"}</td>
+            <td class="px-4 py-3 text-sm text-white font-semibold">${p.total_referrals}</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-1.5">
+                <span class="text-sm text-white font-semibold">${p.paid_users}</span>
+                <div class="flex-1 bg-gray-800 rounded-full h-1.5 w-12">
+                  <div class="bg-green-500 h-1.5 rounded-full" style="width:${conv}%"></div>
+                </div>
+                <span class="text-xs text-gray-500">${conv}%</span>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-sm font-semibold text-yellow-400">${fmtAmt(p.lifetime_earned)}</td>
+            <td class="px-4 py-3 text-xs text-gray-500">${fmtDate(p.created_at)}</td>
+            <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded-md font-medium ${statusBadge(p.status)}">${p.status}</span></td>
+          </tr>`;
+      }).join("");
+    }
+
+    function filterPartners() {
+      const q = document.getElementById("partner-search").value.toLowerCase();
+      const filtered = _allPartners.filter(p => {
+        const app = p.partner_applications || {};
+        return !q || (app.full_name||"").toLowerCase().includes(q) || (app.institution_name||"").toLowerCase().includes(q) || p.referral_code.toLowerCase().includes(q);
+      });
+      renderPartners(filtered);
+    }
+
+    function sortPartners() {
+      const by = document.getElementById("partner-sort").value;
+      const sorted = [..._allPartners].sort((a, b) => {
+        if (by === "referrals") return b.total_referrals - a.total_referrals;
+        if (by === "earned")    return b.lifetime_earned - a.lifetime_earned;
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+      renderPartners(sorted);
+    }
+
+    // ── Payouts ───────────────────────────────────────────────────────────────
+
+    async function loadPayouts() {
+      try {
+        const res  = await fetch(BACKEND + "/fap/admin/payouts", { headers: apiHeaders() });
+        const data = await res.json();
+        _allPayouts = data.payouts || [];
+        renderPayouts(_allPayouts);
+      } catch(e) { console.error(e); }
+    }
+
+    function renderPayouts(payouts) {
+      const tbody = document.getElementById("payouts-tbody");
+      if (!payouts.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-8 text-center text-gray-600 text-sm">No payouts recorded yet.</td></tr>`;
+        document.getElementById("payout-footer").classList.add("hidden");
+        return;
+      }
+
+      const totalPending = payouts.filter(p => p.status === "Pending").reduce((s, p) => s + p.amount, 0);
+      document.getElementById("total-pending-label").textContent = fmtAmt(totalPending);
+      if (totalPending > 0) document.getElementById("payout-footer").classList.remove("hidden");
+
+      tbody.innerHTML = payouts.map(p => {
+        const partner = p.partners || {};
+        const app     = partner.partner_applications || {};
+        return `
+          <tr class="border-b border-gray-800/50 hover:bg-gray-800/30 transition">
+            <td class="px-4 py-3 text-sm text-white font-medium">${app.full_name || "—"}</td>
+            <td class="px-4 py-3"><span class="text-xs text-yellow-400 font-mono">${partner.referral_code || "—"}</span></td>
+            <td class="px-4 py-3 text-xs text-gray-400">${p.payout_month || "—"}</td>
+            <td class="px-4 py-3 text-sm font-semibold text-yellow-300">${fmtAmt(p.amount)}</td>
+            <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded-md font-medium ${statusBadge(p.status)}">${p.status}</span></td>
+            <td class="px-4 py-3 text-xs text-gray-400">${p.transaction_ref || "—"}</td>
+            <td class="px-4 py-3">
+              ${p.status === "Pending" ? `
+                <button onclick="markPayoutPaid('${p.id}')"
+                  class="bg-yellow-400/20 hover:bg-yellow-400/30 text-yellow-400 border border-yellow-400/30 text-xs px-3 py-1 rounded-lg transition font-medium">
+                  Mark Paid
+                </button>` : `<span class="text-gray-600 text-xs">Done</span>`}
+            </td>
+          </tr>`;
+      }).join("");
+    }
+
+    function showPayoutConfirm() {
+      const total = _allPayouts.filter(p => p.status === "Pending").reduce((s, p) => s + p.amount, 0);
+      const count = _allPayouts.filter(p => p.status === "Pending").length;
+      document.getElementById("payout-modal-text").textContent =
+        `You are about to pay ${fmtAmt(total)} to ${count} partner${count !== 1 ? "s" : ""}. This action cannot be undone.`;
+      document.getElementById("payout-modal").classList.remove("hidden");
+    }
+
+    async function markPayoutPaid(payoutId) {
+      const ref = prompt("Enter transaction / UTR reference:");
+      if (!ref) return;
+      const res = await fetch(BACKEND + `/fap/admin/payouts/${payoutId}/mark-paid`, {
+        method: "POST",
+        headers: apiHeaders(),
+        body: JSON.stringify({ payout_id: payoutId, transaction_ref: ref })
+      });
+      if (res.ok) { await loadPayouts(); await loadStats(); }
+      else { alert("Failed to mark payout as paid."); }
+    }
+
+    async function processAllPayouts() {
+      const ref = document.getElementById("payout-ref-input").value.trim();
+      if (!ref) { alert("Please enter a transaction reference."); return; }
+      const pending = _allPayouts.filter(p => p.status === "Pending");
+      for (const p of pending) {
+        await fetch(BACKEND + `/fap/admin/payouts/${p.id}/mark-paid`, {
+          method: "POST", headers: apiHeaders(),
+          body: JSON.stringify({ payout_id: p.id, transaction_ref: ref })
+        });
+      }
+      document.getElementById("payout-modal").classList.add("hidden");
+      await loadPayouts(); await loadStats();
+    }
+
+    // ── Tabs ─────────────────────────────────────────────────────────────────
+
+    function setTab(tab) {
+      _currentTab = tab;
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
+      document.getElementById(`panel-${tab}`).classList.remove("hidden");
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        const active = btn.id === `tab-${tab}`;
+        btn.className = `tab-btn px-4 py-2 rounded-lg text-sm font-medium transition ${active ? "bg-yellow-400 text-gray-950" : "text-gray-400 hover:text-white"}`;
+      });
+    }
+
+    // ── Export CSV ────────────────────────────────────────────────────────────
+
+    function exportCSV() {
+      if (_currentTab === "applications") {
+        const rows = [["Name","Email","Mobile","Institution","Dept","City","State","Status","Applied"]];
+        _allApps.forEach(a => rows.push([a.full_name, a.email, a.mobile, a.institution_name, a.department, a.city, a.state, a.status, fmtDate(a.created_at)]));
+        downloadCSV(rows, "fap-applications.csv");
+      } else if (_currentTab === "partners") {
+        const rows = [["Name","Code","Institution","Referrals","Paid Users","Lifetime Earned","Joined","Status"]];
+        _allPartners.forEach(p => {
+          const app = p.partner_applications || {};
+          rows.push([app.full_name||"", p.referral_code, app.institution_name||"", p.total_referrals, p.paid_users, fmtAmt(p.lifetime_earned), fmtDate(p.created_at), p.status]);
+        });
+        downloadCSV(rows, "fap-partners.csv");
+      }
+    }
+
+    function downloadCSV(rows, filename) {
+      const csv     = rows.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
+      const blob    = new Blob([csv], { type: "text/csv" });
+      const url     = URL.createObjectURL(blob);
+      const a       = document.createElement("a");
+      a.href = url; a.download = filename; a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

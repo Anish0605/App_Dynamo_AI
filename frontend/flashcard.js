@@ -1,5 +1,4 @@
 // flashcard.js — Dynamo AI Flashcard Engine (Variant C + B pip row)
-console.log("flashcard.js loaded");
 
 window.renderFlashcard = (cards) => {
   const chat = document.getElementById("chat-messages");

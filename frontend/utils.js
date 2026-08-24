@@ -1,5 +1,4 @@
 // utils.js — Dynamo AI (FINAL + CHAT HISTORY READY)
-console.log("✅ utils.js loaded");
 
 /* -----------------------------
    PASSWORD VISIBILITY TOGGLE
@@ -37,6 +36,50 @@ window.appState = {
   supabaseUserId: null,
   chatId: null,
 };
+
+/* -----------------------------
+   PAID-ACCESS POLICY
+   Authentication remains available to everyone, but AI access requires an
+   active paid/demo plan. The backend is the final authority; this gate keeps
+   unpaid users from interacting with AI controls unnecessarily.
+----------------------------- */
+window.PAID_ACCESS_PLANS = new Set([
+  "basic", "plus", "plus_trial", "pro", "pro_trial", "pro_validation"
+]);
+
+window.hasPaidAccess = (user = window.appState?.supabaseUser) => {
+  if (user?.access_allowed === true) return true;
+  const plan = String(user?.plan || "free").toLowerCase();
+  return window.PAID_ACCESS_PLANS.has(plan);
+};
+
+window.showPaidAccessGate = () => {
+  const gate = document.getElementById("paid-access-gate");
+  if (gate) gate.classList.remove("hidden");
+};
+
+window.hidePaidAccessGate = () => {
+  document.getElementById("paid-access-gate")?.classList.add("hidden");
+};
+
+window.updatePaidAccessGate = (user) => {
+  if (user && !window.hasPaidAccess(user)) window.showPaidAccessGate();
+  else window.hidePaidAccessGate();
+};
+
+window.requirePaidAccess = () => {
+  const firebaseUser = window.appState?.user;
+  const user = window.appState?.supabaseUser;
+  if (!firebaseUser || !user) {
+    window.openAuthModal?.("login");
+    return false;
+  }
+  if (!window.hasPaidAccess(user)) {
+    window.showPaidAccessGate();
+    return false;
+  }
+  return true;
+};
 /* -----------------------------
    🔥 LOAD FULL USER (PLAN FIX)
 ----------------------------- */
@@ -56,7 +99,6 @@ async function loadUserData(user) {
       return null;
     }
 
-    console.log("✅ Full user loaded:", data);
     return data;
 
   } catch (err) {
@@ -77,7 +119,6 @@ if (
       window.SUPABASE_URL_PUBLIC,
       window.SUPABASE_ANON_KEY
     );
-    console.log("✅ Supabase client ready");
   } catch (err) {
     console.error("❌ Supabase init failed:", err);
   }
@@ -88,8 +129,20 @@ if (
 /* -----------------------------
    BACKEND CALL
 ----------------------------- */
+window.backendAuthHeaders = async (headers = {}) => {
+  const token = window.getFirebaseIdToken
+    ? await window.getFirebaseIdToken().catch(() => "")
+    : "";
+  return token ? { ...headers, Authorization: `Bearer ${token}` } : { ...headers };
+};
+
+window.backendFetch = async (url, options = {}) => {
+  const headers = await window.backendAuthHeaders(options.headers || {});
+  return fetch(url, { ...options, headers });
+};
+
 window.callBackend = async (endpoint, payload = {}) => {
-  const res = await fetch(`${window.BACKEND_URL}${endpoint}`, {
+  const res = await window.backendFetch(`${window.BACKEND_URL}${endpoint}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -107,7 +160,6 @@ window.callBackend = async (endpoint, payload = {}) => {
    STATE HELPERS
 ----------------------------- */
 window.setAppUser = (user) => {
-  console.log("🧠 setAppUser called:", user);
   window.appState.user = user || null;
 };
 
@@ -115,6 +167,7 @@ window.setSupabaseUser = async (user) => {
   if (!user) {
     window.appState.supabaseUser = null;
     window.appState.supabaseUserId = null;
+    window.hidePaidAccessGate();
     return;
   }
 
@@ -123,8 +176,8 @@ window.setSupabaseUser = async (user) => {
 
   window.appState.supabaseUser = fullUser || user;
   window.appState.supabaseUserId = fullUser?.id || null;
+  window.updatePaidAccessGate(window.appState.supabaseUser);
 
-  console.log("🧠 Supabase User Set (FULL):", fullUser);
 
   // ✅ Update credits dashboard
   setTimeout(() => {
@@ -134,7 +187,6 @@ window.setSupabaseUser = async (user) => {
 
 window.setChatId = (chatId) => {
   window.appState.chatId = chatId || null;
-  console.log("💬 Active Chat ID:", chatId);
 };
 
 /* -----------------------------
@@ -170,7 +222,6 @@ window.ensureChat = async () => {
     }
 
     window.setChatId(data.id);
-    console.log("✅ Chat created:", data.id);
 
     return data.id;
 
@@ -260,5 +311,4 @@ window.updateCreditsDisplay = () => {
     msgBar.style.background = msgPercent >= 90 ? "#ef4444" : "#22c55e";
   }
 
-  console.log("✅ Credits dashboard updated");
 };

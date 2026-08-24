@@ -1,5 +1,13 @@
 // auth.js — Dynamo AI (FINAL PRO + SUPABASE SYNC)
-console.log("✅ auth.js loaded");
+
+/* --------------------------------------------------
+   REFERRAL CODE — capture ?ref= from URL early
+   Stored in sessionStorage so it survives auth redirects
+-------------------------------------------------- */
+(function () {
+  const urlRef = new URLSearchParams(window.location.search).get("ref");
+  if (urlRef) sessionStorage.setItem("fap_ref", urlRef.toUpperCase());
+})();
 
 /* --------------------------------------------------
    GLOBAL DEFAULT
@@ -23,6 +31,10 @@ if (typeof firebase !== "undefined" && firebase.apps) {
 
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   firebaseAuth = firebase.auth();
+  window.getFirebaseIdToken = async () => {
+    const currentUser = firebaseAuth?.currentUser;
+    return currentUser ? currentUser.getIdToken() : "";
+  };
 
 } else {
   console.error("❌ Firebase not loaded");
@@ -67,6 +79,17 @@ async function syncUserWithSupabase(firebaseUser) {
       }
 
       userData = newUser;
+
+      // 🎯 FAP: if they signed up via a referral link, track it now
+      const fapRef = sessionStorage.getItem("fap_ref");
+      if (fapRef && userData?.id) {
+        try {
+          await fetch("/fap/track-referral?referral_code=" + encodeURIComponent(fapRef) + "&user_id=" + encodeURIComponent(userData.id), {
+            method: "POST"
+          });
+          sessionStorage.removeItem("fap_ref");
+        } catch (_) { /* non-blocking */ }
+      }
     }
 
     // 2b. Daily quota reset (frontend mirrors backend logic)
@@ -78,7 +101,6 @@ async function syncUserWithSupabase(firebaseUser) {
           .eq("id", userData.id);
         userData.daily_quota_used = 0;
         userData.quota_date = today;
-        console.log("✅ Daily quota reset for", userData.email, "→ new date:", today);
       } catch (resetErr) {
         console.warn("⚠️ Quota reset failed:", resetErr);
       }
@@ -100,10 +122,31 @@ async function syncUserWithSupabase(firebaseUser) {
     window.setAppUser(firebaseUser);
     await window.setSupabaseUser(userData);
 
+    // Ask the backend for the authoritative plan. This also applies any
+    // dated demo expiry before the paid-only screen is shown.
+    try {
+      const freshResponse = await window.backendFetch("/get-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userData.id })
+      });
+      const freshUser = await freshResponse.json();
+      if (freshUser?.plan && window.appState?.supabaseUser) {
+        window.appState.supabaseUser.plan = freshUser.plan;
+        userData.plan = freshUser.plan;
+        if (typeof freshUser.access_allowed === "boolean") {
+          window.appState.supabaseUser.access_allowed = freshUser.access_allowed;
+          userData.access_allowed = freshUser.access_allowed;
+        }
+        window.updatePaidAccessGate?.(window.appState.supabaseUser);
+      }
+    } catch (freshErr) {
+      console.warn("⚠️ Fresh plan lookup failed:", freshErr);
+    }
+
     // 4. UPDATE SIDEBAR WITH REAL NAME + PLAN
     updateSidebarPlan(userData);
 
-    console.log("✅ Supabase user synced:", userData.id);
 
   } catch (err) {
     console.error("❌ syncUserWithSupabase error:", err);
@@ -115,7 +158,6 @@ async function syncUserWithSupabase(firebaseUser) {
 -------------------------------------------------- */
 firebaseAuth?.onAuthStateChanged(async (user) => {
   if (user) {
-    console.log("🔥 Firebase user detected");
 
     updateAuthUI(user);
     window.setAppUser(user);
@@ -133,7 +175,6 @@ firebaseAuth?.onAuthStateChanged(async (user) => {
 
     // ✅ FORCE REFRESH APP STATE AFTER LOGIN
     setTimeout(() => {
-      console.log("🚀 Forcing app refresh after login");
 
       window.loadChatSidebar?.();
       window.dumpState?.();
@@ -161,7 +202,6 @@ firebaseAuth?.onAuthStateChanged(async (user) => {
 -------------------------------------------------- */
 firebaseAuth?.getRedirectResult().then(result => {
   if (result && result.user) {
-    console.log("✅ Google redirect auth complete");
     window.closeAuthModal?.();
   }
 }).catch(err => {
@@ -174,7 +214,7 @@ firebaseAuth?.getRedirectResult().then(result => {
 });
 
 /* --------------------------------------------------
-   GOOGLE LOGIN  (popup on desktop, redirect on mobile)
+   GOOGLE LOGIN  (always redirect — popup blocked by COOP on production)
 -------------------------------------------------- */
 window.signInWithGoogle = async () => {
   const errorBox = document.getElementById("auth-error");
@@ -183,25 +223,14 @@ window.signInWithGoogle = async () => {
     provider.addScope("email");
     provider.addScope("profile");
 
-    // Mobile browsers block popups — use redirect flow instead
-    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-      || window.innerWidth < 768;
-
-    if (isMobile) {
-      // Shows a loading state — page will redirect to Google then come back
-      const googleBtn = document.querySelector("[onclick='window.signInWithGoogle()']");
-      if (googleBtn) {
-        googleBtn.disabled = true;
-        googleBtn.innerHTML = `<svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Redirecting to Google…`;
-      }
-      await firebaseAuth.signInWithRedirect(provider);
-      // Page navigates away here — getRedirectResult() handles completion on return
-
-    } else {
-      await firebaseAuth.signInWithPopup(provider);
-      console.log("✅ Google popup login success");
-      window.closeAuthModal();
+    // Always use redirect — signInWithPopup is blocked by Cross-Origin-Opener-Policy
+    // headers on production deployments. getRedirectResult() handles completion on return.
+    const googleBtn = document.querySelector("[onclick='window.signInWithGoogle()']");
+    if (googleBtn) {
+      googleBtn.disabled = true;
+      googleBtn.innerHTML = `<svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Redirecting to Google…`;
     }
+    await firebaseAuth.signInWithRedirect(provider);
 
   } catch (err) {
     console.error("❌ Google login error:", err);
@@ -292,14 +321,22 @@ function showAuthError(box, msg) {
 
 function friendlyAuthError(code) {
   const map = {
-    "auth/user-not-found":       "No account found with this email. Try signing up.",
-    "auth/wrong-password":       "Incorrect password. Please try again.",
-    "auth/invalid-email":        "Please enter a valid email address.",
-    "auth/too-many-requests":    "Too many attempts. Please wait a moment and try again.",
-    "auth/network-request-failed": "Network error. Please check your connection.",
-    "auth/invalid-credential":   "Email or password is incorrect.",
-    "auth/email-already-in-use": "An account with this email already exists. Try logging in.",
-    "auth/weak-password":        "Password must be at least 6 characters.",
+    "auth/user-not-found":              "No account found with this email. Try signing up.",
+    "auth/wrong-password":              "Incorrect password. Please try again.",
+    "auth/invalid-email":               "Please enter a valid email address.",
+    "auth/too-many-requests":           "Too many attempts. Please wait a moment and try again.",
+    "auth/network-request-failed":      "Network error. Please check your connection.",
+    "auth/invalid-credential":          "Email or password is incorrect.",
+    "auth/invalid-login-credentials":   "Email or password is incorrect.",
+    "auth/user-disabled":               "This account has been disabled. Please contact support.",
+    "auth/operation-not-allowed":       "This sign-in method is currently unavailable. Please try Google sign-in or contact support.",
+    "auth/unauthorized-domain":         "This website is not authorized for sign-in. Please contact support.",
+    "auth/invalid-api-key":             "Authentication is temporarily misconfigured. Please try again later.",
+    "auth/internal-error":              "Authentication service error. Please refresh and try again.",
+    "auth/email-already-in-use":        "An account with this email already exists. Try logging in.",
+    "auth/weak-password":               "Password must be at least 6 characters.",
+    "auth/popup-closed-by-user":        "Sign-in was cancelled. Please try again.",
+    "auth/popup-blocked":               "Pop-up was blocked. Please allow pop-ups or try again.",
   };
   return map[code] || "Something went wrong. Please try again.";
 }

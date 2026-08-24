@@ -31,12 +31,19 @@ APIMART_API_KEY = os.getenv("APIMART_API_KEY")
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
 RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET")
+RAZORPAY_PRO_PLAN_ID = os.getenv("RAZORPAY_PRO_PLAN_ID")
+
+# Firebase Config
+FIREBASE_PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID", "dynamo-ai-01")
 
 # APIMart Config
 APIMART_API_KEY = os.getenv("APIMART_API_KEY")
 
 # PostHog Analytics
 POSTHOG_API_KEY = os.getenv("POSTHOG_API_KEY")
+
+# Admin Dashboard
+ADMIN_SECRET = os.getenv("ADMIN_SECRET", "")
 
 # Brevo Email Config
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")

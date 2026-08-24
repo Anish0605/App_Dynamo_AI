@@ -5,29 +5,72 @@ import httpx
 from typing import Optional
 
 
+def _safe_truncate(text: str, max_chars: int) -> str:
+    """Truncate at a newline boundary so we don't cut a reference entry in half."""
+    if len(text) <= max_chars:
+        return text
+    cut = text.rfind("\n", 0, max_chars)
+    return text[:cut] if cut > max_chars // 2 else text[:max_chars]
+
+
+# Styles that use numbered references (not author-date)
+_NUMBERED_STYLES = {"ieee", "vancouver", "acs", "springer"}
+
+
 async def _run_gemini(text: str, bibliography: str, fmt: str, gemini_client) -> dict:
+    is_numbered = fmt.lower().replace(" ", "").replace(".", "") in _NUMBERED_STYLES
+    intext_style_note = (
+        "This is a NUMBERED citation style. In-text citations must be numbers in the correct bracket/superscript format "
+        f"for {fmt} — do NOT flag missing author-date pairs as errors."
+        if is_numbered else
+        "This is an AUTHOR-DATE citation style. In-text citations must follow (Author, Year) or (Author Year) "
+        f"conventions specific to {fmt}."
+    )
+
+    # ASA-specific note: no comma between author and year
+    asa_note = (
+        "\nASA SPECIFIC: In-text format is (Author Year) — NO comma between author and year. "
+        "Flag any citation using (Author, Year) with a comma as an error."
+        if fmt.upper() == "ASA" else ""
+    )
+
+    safe_text = _safe_truncate(text, 8000)
+    safe_bib = _safe_truncate(bibliography, 5000)
+
     prompt = f"""You are a professional academic citation checker. Analyse the text and bibliography below for citation errors according to {fmt} style.
 
 TEXT WITH IN-TEXT CITATIONS:
-{text[:8000]}
+{safe_text}
 
 BIBLIOGRAPHY / REFERENCES:
-{bibliography[:4000]}
+{safe_bib}
+
+STYLE CONTEXT: {intext_style_note}{asa_note}
 
 Check for ALL of the following:
+
 IN-TEXT CITATION ISSUES (category: "in_text"):
-1. Missing bibliography entries (in-text citation has no matching entry in bibliography)
-2. Year mismatches between in-text citation and bibliography
-3. {fmt}-specific in-text format violations (wrong bracket style, et al. threshold, author ordering, missing year, punctuation)
-4. Unused bibliography entries (listed but never cited in text)
+1. Missing bibliography entries — in-text citation has no matching entry in bibliography [SEVERITY: error]
+2. Year mismatches between in-text citation and bibliography entry [SEVERITY: error]
+3. {fmt}-specific in-text format violations — wrong bracket/punctuation style, wrong et al. threshold, wrong author ordering [SEVERITY: error]
+4. Unused bibliography entries — listed in references but never cited in the text [SEVERITY: warning — not an error, just a flag]
 
 REFERENCE LIST ISSUES (category: "reference"):
-5. Missing DOIs or URLs for journal articles
-6. Author name formatting errors (wrong order, wrong abbreviation, truncation)
-7. {fmt}-specific reference format violations (wrong field order, missing volume/page/publisher, incorrect italics, capitalization)
-8. Year or title errors in bibliography entries
+5. Missing DOIs or URLs for journal articles where they are required by {fmt} [SEVERITY: warning]
+6. Author name formatting errors — wrong order, wrong abbreviation, incorrect truncation [SEVERITY: error]
+7. {fmt}-specific reference format violations — wrong field order, missing required fields (volume/page/publisher), incorrect capitalization, inconsistent spacing [SEVERITY: warning]
+8. Year or title errors in bibliography entries [SEVERITY: error]
 
-IMPORTANT: Each issue MUST have a "category" field: use "in_text" for issues found in the body text, and "reference" for issues in the bibliography/reference list.
+SEVERITY RULES (follow exactly):
+- "error" = factually wrong, breaks citation integrity (missing match, year mismatch, wrong author name, wrong in-text style)
+- "warning" = format/style deviation that should be fixed but does not break the citation (unused entries, missing DOI, spacing/capitalization issues)
+- "info" = optional improvement suggestion only
+- Do NOT flag "unused bibliography entries" as errors — they are always warnings.
+- Do NOT flag "missing DOI" as an error unless {fmt} strictly requires DOIs for all sources.
+
+PLAIN TEXT RULE: If the bibliography does NOT contain markdown markers (*Journal*, **text**) or HTML tags (<i>, <em>), do NOT flag missing italics — the user is working in plain text. Only flag italicization if wrong markers are already present.
+
+IMPORTANT: Each issue MUST have a "category" field: "in_text" for body text issues, "reference" for bibliography issues.
 
 Return ONLY a JSON object with this exact structure — no markdown fences, no explanation:
 {{
@@ -62,13 +105,14 @@ Return ONLY a JSON object with this exact structure — no markdown fences, no e
 }}
 
 Rules:
-- type: "error" for critical problems, "warning" for format issues, "info" for suggestions
+- type: strictly follow SEVERITY RULES above
 - category: REQUIRED on every issue — "in_text" or "reference"
 - sources status: start all as "verified" — the system will downgrade based on live DOI checks
-- corrected_entries: MUST include every bibliography entry, one object each. Apply ALL fixes from the issues list to produce the corrected field. If an entry needs no changes, set corrected equal to original and changes to [].
-- If bibliography is empty, return empty corrected_entries []"""
+- corrected_entries: MUST include every bibliography entry, one object each. Apply ALL fixes from the issues list. If an entry needs no changes, set corrected equal to original and changes to [].
+- If bibliography is empty, return empty corrected_entries []
+- summary: Be accurate — mention main problems if any exist. If none, say "All citations are correct." Do NOT claim perfection when errors are present."""
 
-    for model in ("gemini-3.5-flash", "gemini-3.1-flash-lite-preview"):
+    for model in ("gemini-3.6-flash", "gemini-3.5-flash-lite"):
         try:
             from google.genai import types as _gtypes
             resp = gemini_client.models.generate_content(
@@ -120,14 +164,24 @@ async def _get_corrected_entries(bibliography: str, issues: list, fmt: str, gemi
     """Dedicated second call — ask Gemini to produce corrected bibliography entries."""
     if not bibliography.strip():
         return []
+    # Filter out italic-only issues for plain text bibliography
+    _ITALIC_RE = re.compile(r'italic', re.IGNORECASE)
+    plain_text = not bool(re.search(r'(<[iI]>|<em>|</[iI]>|</em>|\*\*|\*)', bibliography))
+    relevant_issues = []
+    for x in issues:
+        title = x.get('title', '')
+        if plain_text and _ITALIC_RE.search(title):
+            continue
+        relevant_issues.append(x)
+
     issues_summary = "\n".join(
         f"- [{x.get('location','')}] {x.get('title','')}: {x.get('fix','')}"
-        for x in issues
-    )
+        for x in relevant_issues
+    ) if relevant_issues else "No issues to fix — entries are correct."
     prompt = f"""You are correcting a bibliography to {fmt} format.
 
 ORIGINAL BIBLIOGRAPHY:
-{bibliography[:4000]}
+{_safe_truncate(bibliography, 5000)}
 
 ISSUES TO FIX:
 {issues_summary}
@@ -144,7 +198,7 @@ Return ONLY a JSON array — no markdown, no explanation:
 
 Include every entry. If an entry needs no changes set corrected=original and changes=[]."""
 
-    for model in ("gemini-3.5-flash", "gemini-3.1-flash-lite-preview"):
+    for model in ("gemini-3.6-flash", "gemini-3.5-flash-lite"):
         try:
             from google.genai import types as _gtypes
             resp = gemini_client.models.generate_content(
@@ -219,10 +273,26 @@ async def check_citations(text: str, bibliography: str, fmt: str, gemini_client)
         raw = 100 - errors * 12 - warnings * 4
         score = max(5, min(99, raw))
 
+    # Generate accurate summary programmatically — don't trust Gemini's
+    in_text_errors = sum(1 for x in issues if x.get("type") == "error" and x.get("category") == "in_text")
+    ref_errors = sum(1 for x in issues if x.get("type") == "error" and x.get("category") == "reference")
+    in_text_warns = sum(1 for x in issues if x.get("type") == "warning" and x.get("category") == "in_text")
+    ref_warns = sum(1 for x in issues if x.get("type") == "warning" and x.get("category") == "reference")
+
+    if errors == 0 and warnings == 0:
+        summary = "All citations are correct. No issues found in in-text citations or bibliography."
+    else:
+        parts = []
+        if in_text_errors: parts.append(f"{in_text_errors} in-text citation error(s)")
+        if ref_errors: parts.append(f"{ref_errors} reference list error(s)")
+        if in_text_warns: parts.append(f"{in_text_warns} in-text citation warning(s)")
+        if ref_warns: parts.append(f"{ref_warns} reference list warning(s)")
+        summary = f"Found {' and '.join(parts)}. Total score: {score}/100."
+
     return {
         "score": score,
         "issues": issues,
         "sources": sources,
         "corrected_entries": corrected_entries,
-        "summary": result.get("summary", "")
+        "summary": summary
     }

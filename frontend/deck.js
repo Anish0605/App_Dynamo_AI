@@ -43,6 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // OPEN / CLOSE
 // ----------------------------------------------------------------
 window.openDeckModal = function () {
+  if (!window.requirePaidAccess?.()) return;
   const modal = document.getElementById("deck-modal");
   if (!modal) return;
   _deckShowStep(1);
@@ -121,8 +122,9 @@ window.deckFileSelected = async function (input) {
   try {
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("user_id", window.appState?.supabaseUserId || "");
 
-    const res = await fetch(`${window.BACKEND_URL}/deck/extract`, {
+    const res = await window.backendFetch(`${window.BACKEND_URL}/deck/extract`, {
       method: "POST",
       body: formData
     });
@@ -198,10 +200,17 @@ window.planDeck = async function () {
   </svg> Planning your deck…`;
 
   try {
-    const res = await fetch(`${window.BACKEND_URL}/deck/plan`, {
+    const res = await window.backendFetch(`${window.BACKEND_URL}/deck/plan`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic, style, length, audience, source_text })
+      body: JSON.stringify({
+        topic,
+        style,
+        length,
+        audience,
+        source_text,
+        user_id: window.appState?.supabaseUserId || ""
+      })
     });
 
     if (!res.ok) throw new Error("Plan failed");
@@ -355,10 +364,13 @@ window.generateDeck = async function () {
   </svg> Building your deck…`;
 
   try {
-    const res = await fetch(`${window.BACKEND_URL}/deck/generate`, {
+    const res = await window.backendFetch(`${window.BACKEND_URL}/deck/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(window._deckOutline)
+      body: JSON.stringify({
+        ...window._deckOutline,
+        user_id: window.appState?.supabaseUserId || ""
+      })
     });
 
     if (!res.ok) throw new Error("Generate failed");

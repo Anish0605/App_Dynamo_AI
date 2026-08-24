@@ -1,0 +1,2666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Dynamo AI - The #1 AI Research OS Made in India</title>
+  
+  <meta name="description" content="Dynamo AI is the #1 AI Research OS made in India. Analyze data, create images, explore trends, and automate research using AI." />
+    <meta name="keywords" content="AI Research OS, Dynamo AI, AI tools India, data analysis AI, generative AI platform" />
+    <meta name="author" content="Dynamo AI" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Dynamo AI - The #1 AI Research OS Made in India" />
+    <meta property="og:description" content="Analyze data, create images, explore AI trends, and automate research with Dynamo AI." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://dynamoai.in" />
+    <meta property="og:image" content="https://dynamoai.in/og-image.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dynamo AI - The #1 AI Research OS Made in India" />
+    <meta name="twitter:description" content="India’s most powerful AI Research OS for students, professionals, and businesses." />
+    <link rel="icon" type="image/png" href="favicon.png" />
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GHG5R9T5FN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-GHG5R9T5FN');
+  </script>
+  <!-- PostHog Analytics -->
+  <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||(window.posthog=[]));
+    posthog.init('phc_tBkD3KDnUgpKGMjSxuzSFmtGFjCT6Hv9FScQ5diFLg83', {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'always'
+    });
+  </script>
+  <!-- GLOBAL CONFIG -->
+  <script>
+    window.SUPABASE_URL_PUBLIC = "https://jbulnpcqxtbjobrclsqq.supabase.co";
+    window.SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidWxucGNxeHRiam9icmNsc3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyNTM2NDgsImV4cCI6MjA4MDgyOTY0OH0.waH5th8HYB08NWWtN99SYt9G5AViQbY1DWOU3Lb5YWw";
+    window.BACKEND_URL = "";
+  </script>
+
+  <!-- CDNs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: { gray: { 850: "#1f2937" } },
+        },
+      },
+    };
+    if (
+      localStorage.theme === "dark" ||
+      (!("theme" in localStorage) &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      document.documentElement.classList.add("dark");
+    }
+  </script>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    
+    /* Mobile Touch Optimization */
+    button { min-height: 44px; min-width: 44px; }
+    @media (max-width: 640px) {
+      button { min-height: 48px; min-width: 48px; }
+    }
+    
+    .tool-pill {
+      width: 100%; text-align: left; padding: 0.7rem 0.9rem; border-radius: 1rem;
+      background: #f3f4f6; font-size: 0.85rem; font-weight: 600; color: #111827;
+      margin-bottom: 0.4rem; transition: all 0.25s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .dark .tool-pill { background: #1f2937; color: #e5e7eb; }
+    .tool-pill:hover, .tool-pill:active { transform: translateY(-1px); background: #fde68a; color: #000; }
+    .tool-pill.active { background: #facc15; color: #000; box-shadow: 0 8px 24px rgba(250, 204, 21, 0.35); }
+    
+    /* Smooth transitions for mobile sidebar */
+    #main-sidebar {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    /* PROFILE MODAL (GOLD UI) */
+  .profile-modal {
+  position: absolute;
+  bottom: 85px;
+  left: 12px;
+  width: 280px;
+  z-index: 1000;
+  }
+
+  .profile-modal.hidden {
+  display: none;
+  }
+
+  .profile-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+  border: 1px solid #f1f1f1;
+  }
+  
+  .profile-card {
+  animation: fadeUp 0.2s ease;
+  }
+
+  @keyframes fadeUp {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  }
+  /* HEADER */
+  .profile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  }
+
+  .profile-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #F9CC33;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: black;
+  font-size: 14px;
+  }
+
+  .profile-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+  }
+
+  .profile-plan {
+  font-size: 11px;
+  background: #F9CC33;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 800;
+  margin-top: 4px;
+  display: inline-block;
+  color: #000;
+  box-shadow: 0 2px 8px rgba(249, 204, 51, 0.3);
+  }
+
+  /* EMAIL DISPLAY */
+  .profile-email-display {
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+  font-weight: 500;
+  }
+
+  /* DIVIDER */
+  .profile-divider {
+  height: 1px;
+  background: #eee;
+  margin: 12px 0;
+  }
+
+  /* COMPACT CREDITS */
+  .compact-credits {
+  padding: 4px 0 8px;
+  }
+  .compact-credits-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  }
+  .compact-credit-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 20px;
+  background: #f4f4f5;
+  color: #444;
+  }
+  .compact-credit-bar {
+  width: 100%;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 4px;
+  }
+  .compact-reset-text {
+  font-size: 10px;
+  color: #aaa;
+  text-align: right;
+  }
+
+  /* EDIT SECTION */
+  .profile-edit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  }
+  .profile-edit-item:hover {
+  background: #fff9db;
+  }
+  .profile-edit-form {
+  padding: 10px 8px 12px;
+  border-radius: 10px;
+  background: #fafafa;
+  margin-bottom: 4px;
+  }
+  .profile-edit-form input {
+  width: 100%;
+  font-size: 13px;
+  padding: 8px 12px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  outline: none;
+  margin-bottom: 8px;
+  color: #111;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  }
+  .profile-edit-form input:focus {
+  border-color: #F9CC33;
+  }
+  .profile-edit-save-btn {
+  width: 100%;
+  padding: 8px;
+  background: #F9CC33;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #000;
+  transition: background 0.15s;
+  }
+  .profile-edit-save-btn:hover {
+  background: #f0c020;
+  }
+  .profile-edit-msg {
+  font-size: 11px;
+  margin-top: 6px;
+  text-align: center;
+  font-weight: 600;
+  }
+
+  /* MENU ITEMS */
+  .profile-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  }
+
+  .profile-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  }
+
+  .profile-item i {
+  width: 16px;
+  height: 16px;
+  color: #facc15;
+  }
+
+  .profile-item span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111;
+  }
+
+  .profile-item:hover {
+  background: #fff9db;
+  }
+
+  /* RIGHT ARROW */
+  .profile-arrow {
+  font-size: 14px;
+  color: #bbb;
+  }
+
+  /* LOGOUT */
+  .profile-item.logout span {
+  color: #e74c3c;
+  }
+
+  /* ── DARK MODE OVERRIDES ── */
+  .dark .profile-card {
+  background: #1e2433;
+  border-color: #2d3748;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  }
+
+  .dark .profile-name {
+  color: #f1f5f9;
+  }
+
+  .dark .profile-divider {
+  background: #2d3748;
+  }
+
+  .dark .profile-item span {
+  color: #e2e8f0;
+  }
+
+  .dark .profile-item i {
+  color: #facc15;
+  }
+
+  .dark .profile-item:hover {
+  background: #2d3748;
+  }
+
+  .dark .profile-arrow {
+  color: #64748b;
+  }
+
+  .dark #profile-close {
+  color: #94a3b8;
+  }
+
+  .dark .profile-item.logout span {
+  color: #f87171;
+  }
+
+  .dark .profile-email-display {
+  color: #64748b;
+  }
+
+  .dark .compact-credit-pill {
+  background: #2d3748;
+  color: #cbd5e1;
+  }
+
+  .dark .compact-credit-bar {
+  background: #374151;
+  }
+
+  .dark .compact-reset-text {
+  color: #64748b;
+  }
+
+  .dark .profile-edit-item {
+  color: #e2e8f0;
+  }
+  .dark .profile-edit-item span {
+  color: #e2e8f0;
+  }
+  .dark .profile-edit-item:hover {
+  background: #2d3748;
+  }
+
+  .dark .profile-edit-form {
+  background: #2d3748;
+  }
+
+  .dark .profile-edit-form input {
+  background: #1e2433;
+  border-color: #4b5563;
+  color: #f1f5f9;
+  }
+
+  .dark .profile-edit-form input:focus {
+  border-color: #F9CC33;
+  }
+
+  /* SIDEBAR PLAN BADGE */
+  #sidebar-plan {
+    background: #F9CC33;
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    box-shadow: 0 2px 6px rgba(249, 204, 51, 0.25);
+  }
+
+  .dark #sidebar-plan {
+    background: #F9CC33;
+    color: #000;
+  }
+
+  /* Video generation spinner */
+  .dynamo-spinner {
+    border: 4px solid rgba(243, 243, 243, 0.3);
+    border-top: 4px solid #EAB308;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: dynamo-spin 1s linear infinite;
+    display: inline-block;
+    margin-top: 8px;
+  }
+
+  @keyframes dynamo-spin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .video-loading-bubble {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 1px solid #EAB308;
+    border-radius: 16px;
+    padding: 16px 20px;
+    color: #fff;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .video-loading-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #EAB308;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .video-loading-sub {
+    font-size: 12px;
+    color: #9ca3af;
+  }
+
+  /* Mobile-specific improvements */
+  @media (max-width: 768px) {
+    /* Prevent zoom on input focus - 16px font prevents auto-zoom */
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+
+    /* Better sidebar width on mobile */
+    #main-sidebar {
+      width: 85vw;
+      max-width: 90%;
+    }
+
+    /* Improve modal positioning on mobile */
+    .profile-modal {
+      bottom: auto;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90vw;
+      max-width: 320px;
+    }
+
+    /* Better touch targets on mobile */
+    .profile-item {
+      padding: 12px 10px;
+    }
+
+    /* Improved scroll behavior */
+    #chat-area {
+      padding-bottom: 80px;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Better bounce animation visibility */
+    .animate-bounce {
+      animation: bounce-mobile 2s infinite;
+    }
+
+    @keyframes bounce-mobile {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* Hero section spacing */
+    #hero-section {
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
+  }
+
+  /* Landscape orientation fixes */
+  @media (max-height: 500px) {
+    #hero-section {
+      padding: 0.75rem !important;
+    }
+
+    h1 {
+      font-size: 1.5rem !important;
+    }
+
+    .h-16 {
+      height: 40px !important;
+    }
+
+    .hidden.md\\:hidden {
+      display: none !important;
+    }
+  }
+
+  /* ================================================================
+     MARKDOWN CONTENT — LIGHT MODE
+     ================================================================ */
+  .assistant-msg-wrapper pre {
+    background: #f1f5f9;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    margin: 8px 0;
+    color: #1e293b;
+    font-size: 0.82em;
+    line-height: 1.6;
+  }
+  .assistant-msg-wrapper code {
+    background: #f1f5f9;
+    color: #be185d;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 0.85em;
+    font-family: 'Courier New', monospace;
+  }
+  .assistant-msg-wrapper pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+  }
+  .assistant-msg-wrapper table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 8px 0;
+    font-size: 0.88em;
+  }
+  .assistant-msg-wrapper th {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    padding: 7px 12px;
+    font-weight: 700;
+    color: #111827;
+    text-align: left;
+  }
+  .assistant-msg-wrapper td {
+    border: 1px solid #e5e7eb;
+    padding: 7px 12px;
+    color: #374151;
+  }
+  .assistant-msg-wrapper tr:nth-child(even) td {
+    background: #f9fafb;
+  }
+  .assistant-msg-wrapper blockquote {
+    border-left: 4px solid #F9CC33;
+    background: #fffbeb;
+    color: #6b7280;
+    margin: 8px 0;
+    padding: 8px 14px;
+    border-radius: 0 6px 6px 0;
+  }
+  .assistant-msg-wrapper a {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+  .assistant-msg-wrapper h1,
+  .assistant-msg-wrapper h2,
+  .assistant-msg-wrapper h3,
+  .assistant-msg-wrapper h4 {
+    font-weight: 700;
+    color: #111827;
+    margin: 10px 0 4px;
+    line-height: 1.3;
+  }
+  .assistant-msg-wrapper h1 { font-size: 1.2em; }
+  .assistant-msg-wrapper h2 { font-size: 1.1em; }
+  .assistant-msg-wrapper h3 { font-size: 1.0em; }
+  .assistant-msg-wrapper ul,
+  .assistant-msg-wrapper ol {
+    padding-left: 1.3rem;
+    margin: 4px 0;
+  }
+  .assistant-msg-wrapper li { margin: 2px 0; }
+  .assistant-msg-wrapper hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 10px 0;
+  }
+  .assistant-msg-wrapper p { margin: 4px 0; }
+
+  /* ================================================================
+     MARKDOWN CONTENT — DARK MODE
+     ================================================================ */
+  .dark .assistant-msg-wrapper pre {
+    background: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+  .dark .assistant-msg-wrapper code {
+    background: #1e293b;
+    color: #fbbf24;
+  }
+  .dark .assistant-msg-wrapper pre code {
+    background: transparent;
+    color: #e2e8f0;
+  }
+  .dark .assistant-msg-wrapper th {
+    background: #1e293b;
+    border-color: #475569;
+    color: #f1f5f9;
+  }
+  .dark .assistant-msg-wrapper td {
+    border-color: #334155;
+    color: #cbd5e1;
+  }
+  .dark .assistant-msg-wrapper tr:nth-child(even) td {
+    background: #0f172a;
+  }
+  .dark .assistant-msg-wrapper blockquote {
+    background: #1e2433;
+    color: #94a3b8;
+  }
+  .dark .assistant-msg-wrapper a { color: #60a5fa; }
+  .dark .assistant-msg-wrapper h1,
+  .dark .assistant-msg-wrapper h2,
+  .dark .assistant-msg-wrapper h3,
+  .dark .assistant-msg-wrapper h4 { color: #f1f5f9; }
+  .dark .assistant-msg-wrapper hr { border-color: #334155; }
+  .dark .assistant-msg-wrapper li { color: #cbd5e1; }
+  .dark .assistant-msg-wrapper p { color: #cbd5e1; }
+
+  /* ================================================================
+     RESEARCH OUTPUT — Structured academic paper rendering
+     ================================================================ */
+  .research-output {
+    background: #0d1526;
+    color: #cbd5e1;
+    padding: 24px 28px;
+    border-radius: 14px;
+    line-height: 1.8;
+    font-size: 14px;
+    margin: 8px 0 16px;
+    border: 1px solid #1e3150;
+    max-width: 92%;
+    font-family: 'Georgia', 'Times New Roman', serif;
+  }
+  .research-output h1 {
+    color: #f8fafc;
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 14px;
+    line-height: 1.4;
+    font-family: inherit;
+  }
+  .research-output h2 {
+    color: #facc15;
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 22px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #1e3a5f;
+    padding-bottom: 5px;
+    letter-spacing: 0.02em;
+    font-family: system-ui, sans-serif;
+  }
+  .research-output h2:first-child {
+    margin-top: 0;
+  }
+  .research-output h3 {
+    color: #93c5fd;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 14px;
+    margin-bottom: 4px;
+    font-family: system-ui, sans-serif;
+  }
+  .research-output p {
+    margin-bottom: 10px;
+    color: #cbd5e1;
+  }
+  .research-output ul, .research-output ol {
+    margin: 8px 0 12px 18px;
+    padding: 0;
+  }
+  .research-output li {
+    margin-bottom: 5px;
+    color: #94a3b8;
+    line-height: 1.6;
+  }
+  .research-output strong {
+    color: #e2e8f0;
+    font-weight: 600;
+  }
+  .research-output em {
+    color: #93c5fd;
+    font-style: italic;
+  }
+  .research-output br + br {
+    display: none;
+  }
+  /* Sources row at bottom of research output */
+  .research-sources-row {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #1e3150;
+  }
+  .research-sources-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(250, 204, 21, 0.1);
+    border: 1px solid rgba(250, 204, 21, 0.3);
+    border-radius: 999px;
+    color: #facc15;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    font-family: system-ui, sans-serif;
+  }
+  .research-sources-badge:hover {
+    background: rgba(250, 204, 21, 0.2);
+    border-color: rgba(250, 204, 21, 0.5);
+  }
+
+  /* ================================================================
+     DARK MODE — SCROLLBARS (webkit)
+     ================================================================ */
+  .dark ::-webkit-scrollbar { width: 5px; height: 5px; }
+  .dark ::-webkit-scrollbar-track { background: transparent; }
+  .dark ::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 99px;
+  }
+  .dark ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+  /* ================================================================
+     DARK MODE — INPUT PLACEHOLDERS
+     ================================================================ */
+  .dark #chat-search::placeholder { color: #4b5563; }
+  .dark #chat-input::placeholder  { color: #4b5563; }
+
+  /* ================================================================
+     DARK MODE — DROPDOWN MENUS (gray-850 CDN fallback)
+     ================================================================ */
+  .dark #plus-dropdown,
+  .dark #mode-popover { background: #1f2937; }
+
+  /* ================================================================
+     iOS SAFE AREA — input bar clears home indicator
+     ================================================================ */
+  @supports (padding: env(safe-area-inset-bottom)) {
+    #input-bar {
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+  }
+
+  /* ================================================================
+     MOBILE (< 640px) — bubbles, hero buttons, auth modal
+     ================================================================ */
+  @media (max-width: 640px) {
+    .assistant-msg-wrapper {
+      max-width: 88% !important;
+    }
+    #hero-section .flex.flex-wrap button {
+      flex: 0 0 auto;
+      font-size: 0.72rem;
+      padding: 0.4rem 0.65rem;
+      gap: 0.3rem;
+    }
+    .assistant-msg-wrapper pre {
+      max-width: calc(100vw - 5rem);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    #auth-modal .relative.w-full.max-w-md {
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
+
+    /* iOS: prevent auto-zoom on input focus (requires font-size >= 16px) */
+    #auth-modal input {
+      font-size: 16px !important;
+    }
+
+    /* iOS: modal scrolls up above keyboard instead of getting hidden behind it */
+    #auth-modal {
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  </style>
+</head>
+
+<body class="bg-white dark:bg-gray-900 h-screen w-full flex overflow-hidden">
+
+  <!-- Mobile Overlay -->
+  <div id="mobile-overlay" class="hidden fixed inset-0 bg-black/50 md:hidden z-40 backdrop-blur-sm" onclick="window.toggleMobileSidebar(false)"></div>
+
+  <!-- 1. SIDEBAR (Left Side) -->
+  <aside id="main-sidebar" class="fixed md:relative inset-y-0 left-0 z-50 w-72 bg-gray-50 dark:bg-gray-850 border-r border-gray-200 dark:border-gray-700 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+    <!-- BRAND -->
+    <div class="px-5 py-4 flex items-center justify-between md:justify-start gap-3">
+      <div class="flex items-center gap-3">
+        <img src="/assets/dynamo-logo.png?v=20260428a" alt="Dynamo AI" class="w-9 h-9 rounded-lg shadow-md" />
+        <span class="text-xl font-black text-black dark:text-white">Dynamo AI</span>
+      </div>
+      <button class="md:hidden text-gray-500" onclick="window.toggleMobileSidebar(false)">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="px-4 mt-2">
+      <div class="relative">
+        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+        <input id="chat-search" type="text" placeholder="Search chats..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-black dark:text-white outline-none" />
+      </div>
+    </div>
+
+    <!-- NEW CHAT -->
+    <div class="px-4 mt-4">
+        <button 
+            onclick="startNewChat()"
+            class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 font-bold text-sm text-black dark:text-white hover:bg-white dark:hover:bg-gray-800 transition">
+    
+            <i data-lucide="plus" class="text-yellow-500"></i> 
+            New Chat
+        </button>
+    </div>
+
+    <!-- QUICK TOOLS -->
+    <div class="px-4 mt-6">
+      <p class="text-xs font-bold uppercase text-gray-400 mb-3">Quick Tools</p>
+      
+      <button onclick="window.toggleSidebarMenu('export-menu')" class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition text-black dark:text-white">
+        <div class="flex items-center gap-3"><i data-lucide="download" class="w-4 h-4 text-blue-500"></i> Export / Save</div>
+        <i data-lucide="chevron-down" id="arrow-export-menu" class="w-3 h-3 text-gray-400 transition-transform duration-200"></i>
+      </button>
+      <div id="export-menu" class="hidden pl-6 mt-2 space-y-2 border-l border-gray-200 dark:border-gray-700">
+        <button onclick="window.downloadPptReport()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
+          <i data-lucide="presentation" class="w-4 h-4 text-orange-500"></i> PowerPoint
+        </button>
+        <button onclick="window.downloadWordReport()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
+          <i data-lucide="file-text" class="w-4 h-4 text-purple-500"></i> Word Doc
+        </button>
+        <button onclick="window.downloadPdfReport()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
+          <i data-lucide="file" class="w-4 h-4 text-red-500"></i> PDF File
+        </button>
+      </div>
+
+      <button onclick="window.toggleSidebarMenu('ai-tools-menu')" class="w-full mt-3 flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition text-black dark:text-white">
+        <div class="flex items-center gap-3">
+          <i data-lucide="sparkles" class="w-4 h-4 text-yellow-500"></i> Smart Actions
+        </div>
+        <i data-lucide="chevron-down" id="arrow-ai-tools-menu" class="w-3 h-3 text-gray-400 transition-transform duration-200"></i>
+      </button>
+      <div id="ai-tools-menu" class="hidden pl-6 mt-2 space-y-2 border-l border-gray-200 dark:border-gray-700">
+        <button onclick="smartSummarise()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
+          <i data-lucide="align-left" class="w-4 h-4 text-blue-500"></i> Summarise
+        </button>
+        <button onclick="smartExplain()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
+          <i data-lucide="help-circle" class="w-4 h-4 text-green-500"></i> Explain Simply
+        </button>
+      </div>
+
+      <!-- Find Research Gaps moved into Tools dropdown (under DeepThink) -->
+
+      <!-- AI DETECTOR + PLAGIARISM CHECKER -->
+      <button onclick="window.toggleSidebarMenu('detect-menu')" class="w-full mt-3 flex items-center justify-between px-3 py-2.5 text-sm font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition text-black dark:text-white">
+        <div class="flex items-center gap-3">
+          <i data-lucide="shield-check" class="w-4 h-4 text-purple-500"></i> AI & Plagiarism
+        </div>
+        <i data-lucide="chevron-down" id="arrow-detect-menu" class="w-3 h-3 text-gray-400 transition-transform duration-200"></i>
+      </button>
+      <div id="detect-menu" class="hidden pl-6 mt-2 space-y-2 border-l border-gray-200 dark:border-gray-700">
+        <button onclick="window.openDetectorModal('ai')" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
+          <i data-lucide="cpu" class="w-4 h-4 text-purple-500"></i> AI Detector
+        </button>
+        <button onclick="window.openDetectorModal('plag')" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:hover:text-white">
+          <i data-lucide="search" class="w-4 h-4 text-blue-500"></i> Plagiarism Checker
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB SWITCHER (Chats / Folders) — shows only one panel at a time so each gets full height -->
+    <div class="px-4 mt-6" id="sb-tab-switcher">
+      <div class="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 text-xs font-bold gap-0.5">
+        <button id="sb-tab-chats-btn" data-sb-tab="chats" onclick="window.setSidebarTab('chats')"
+                class="sb-tab-btn flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all">
+          <i data-lucide="message-square" class="w-3 h-3"></i>
+          <span>Chats</span>
+          <span id="sb-tab-chats-count" class="text-[10px] opacity-60 ml-0.5">0</span>
+        </button>
+        <button id="sb-tab-folders-btn" data-sb-tab="folders" onclick="window.setSidebarTab('folders')"
+                class="sb-tab-btn flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all">
+          <i data-lucide="folder-open" class="w-3 h-3"></i>
+          <span>Folders</span>
+          <span id="sb-tab-folders-count" class="text-[10px] opacity-60 ml-0.5">0</span>
+        </button>
+      </div>
+    </div>
+    <style>
+      .sb-tab-btn { color: #6b7280; }
+      .sb-tab-btn.sb-tab-active {
+        background: #ffffff; color: #0a0a09;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      }
+      .dark .sb-tab-btn { color: #9ca3af; }
+      .dark .sb-tab-btn.sb-tab-active { background: #111827; color: #ffffff; }
+    </style>
+
+    <!-- TABBED CONTENT (single scroll, panels swap) -->
+    <div class="flex-1 overflow-y-auto scrollbar-hide px-4 mt-3 min-h-0" id="sb-tab-content">
+
+      <!-- CHATS PANEL (default visible) -->
+      <div id="sb-panel-chats" class="sb-panel">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs font-bold uppercase text-gray-400" id="history-label">Recents</p>
+          <button id="sb-select-btn" onclick="window.toggleSelectMode()"
+            class="text-[10px] font-bold text-gray-400 hover:text-yellow-600 transition px-1.5 py-0.5 rounded hover:bg-yellow-50 dark:hover:bg-yellow-900/20">
+            Select
+          </button>
+        </div>
+        <!-- Multi-select action bar (hidden until Select mode is active) -->
+        <div id="sb-select-bar" class="hidden mb-2 flex gap-1.5">
+          <button onclick="window.selectAllChats()"
+            class="flex-1 text-[11px] font-bold py-1.5 rounded-lg bg-yellow-400 text-black hover:bg-yellow-500 transition">
+            All
+          </button>
+          <button onclick="window.deleteSelectedChats()"
+            class="flex-1 text-[11px] font-bold py-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition">
+            Delete (<span id="sb-select-count">0</span>)
+          </button>
+        </div>
+        <div id="history-list" class="space-y-1 text-sm text-gray-400 italic">
+          No recent chats...
+        </div>
+      </div>
+
+      <!-- FOLDERS PANEL -->
+      <div id="folders-section" class="sb-panel hidden">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs font-bold uppercase text-gray-400">Folders</p>
+          <button id="new-folder-btn" onclick="window.createFolderPrompt()" title="New folder"
+            class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition text-base font-bold leading-none">+</button>
+        </div>
+        <div id="folders-list" class="space-y-0.5"></div>
+        <div id="folders-empty" class="hidden text-xs text-gray-400 px-2 py-3">No folders yet. Click + to create one.</div>
+      </div>
+    </div>
+
+    <!-- USER -->
+    <div class="px-4 py-4 border-t border-gray-200 dark:border-gray-700 cursor-pointer" onclick="openProfile()">
+      <div class="flex items-center gap-3">
+        <div id="sidebar-avatar" class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-black" style="background: #F9CC33;">G</div>
+        <div class="overflow-hidden">
+          <div id="user-display-name" class="text-sm font-bold text-black dark:text-white truncate">Guest</div>
+          <div id="sidebar-plan" class="text-xs font-bold text-yellow-600">FREE PLAN</div>
+        </div>
+      </div>
+    </div>
+  <!-- PROFILE MODAL -->
+<div id="profile-modal" class="profile-modal hidden">
+  <div class="profile-card">
+
+    <!-- HEADER -->
+    <div class="profile-header">
+      <div class="profile-avatar" id="profile-avatar">U</div>
+      <div>
+        <div id="profile-name" class="profile-name">User</div>
+        <div id="profile-email-display" class="profile-email-display">—</div>
+        <div id="profile-plan" class="profile-plan">FREE</div>
+      </div>
+    </div>
+
+    <div class="profile-divider"></div>
+
+    <!-- COMPACT CREDITS -->
+    <div id="profile-credits" class="compact-credits px-2">
+      <div class="compact-credits-row">
+        <span id="compact-msg" class="compact-credit-pill">💬 0/10</span>
+        <span id="compact-img" class="compact-credit-pill">🖼️ 0/0</span>
+        <span id="compact-vid" class="compact-credit-pill">🎬 0/0</span>
+      </div>
+      <div class="compact-credit-bar">
+        <div id="profile-msg-bar" style="height:100%;width:0%;background:#22c55e;border-radius:99px;transition:width 0.3s ease;"></div>
+      </div>
+      <div class="compact-reset-text">Resets daily at 5:30 AM IST</div>
+    </div>
+
+    <div class="profile-divider"></div>
+
+    <!-- EDIT PROFILE SECTION -->
+    <div class="profile-menu">
+
+      <!-- Edit Full Name -->
+      <div class="profile-edit-item" onclick="window.toggleProfileEdit('name-edit')">
+        <div class="profile-item-left">
+          <i data-lucide="pencil" style="width:16px;height:16px;color:#f59e0b;"></i>
+          <span>Edit Full Name</span>
+        </div>
+        <span class="profile-arrow" id="arrow-name-edit">›</span>
+      </div>
+      <div id="name-edit" class="profile-edit-form hidden">
+        <input id="new-name-input" type="text" placeholder="Enter new full name" autocomplete="off" />
+        <button class="profile-edit-save-btn" onclick="window.saveProfileName()">Save Name</button>
+        <div id="name-edit-msg" class="profile-edit-msg"></div>
+      </div>
+
+      <!-- Change Email -->
+      <div class="profile-edit-item" onclick="window.toggleProfileEdit('email-edit')">
+        <div class="profile-item-left">
+          <i data-lucide="mail" style="width:16px;height:16px;color:#3b82f6;"></i>
+          <span>Change Email</span>
+        </div>
+        <span class="profile-arrow" id="arrow-email-edit">›</span>
+      </div>
+      <div id="email-edit" class="profile-edit-form hidden">
+        <input id="new-email-input" type="email" placeholder="Enter new email address" autocomplete="off" />
+        <button class="profile-edit-save-btn" onclick="window.saveProfileEmail()">Save Email</button>
+        <div id="email-edit-msg" class="profile-edit-msg"></div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="profile-edit-item" onclick="window.toggleProfileEdit('password-edit')">
+        <div class="profile-item-left">
+          <i data-lucide="key-round" style="width:16px;height:16px;color:#22c55e;"></i>
+          <span>Change Password</span>
+        </div>
+        <span class="profile-arrow" id="arrow-password-edit">›</span>
+      </div>
+      <div id="password-edit" class="profile-edit-form hidden">
+        <div class="relative w-full">
+          <input id="new-password-input" type="password" placeholder="New password (min 6 chars)" autocomplete="new-password" style="padding-right:2.5rem;width:100%;"/>
+          <button type="button" onclick="window.togglePwdVis('new-password-input', this)" tabindex="-1" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:0;display:flex;align-items:center;" aria-label="Toggle password visibility">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+          </button>
+        </div>
+        <button class="profile-edit-save-btn" onclick="window.saveProfilePassword()">Save Password</button>
+        <div id="password-edit-msg" class="profile-edit-msg"></div>
+      </div>
+
+    </div>
+
+    <div class="profile-divider"></div>
+
+    <!-- ACTION MENU -->
+    <div class="profile-menu">
+
+      <div class="profile-item" id="upgrade-btn">
+        <div class="profile-item-left">
+          <i data-lucide="zap" class="text-yellow-500"></i>
+          <span>Upgrade Plan</span>
+        </div>
+        <span class="profile-arrow">›</span>
+      </div>
+
+      <div class="profile-item" id="support-btn" onclick="event.stopPropagation(); document.getElementById('profile-modal').classList.add('hidden'); window.open('https://dynamoai.in/contact.html', '_blank');">
+        <div class="profile-item-left">
+          <i data-lucide="mail" class="text-blue-500"></i>
+          <span>Support</span>
+        </div>
+        <span class="profile-arrow">›</span>
+      </div>
+
+      <div class="profile-item" id="memory-btn" onclick="event.stopPropagation(); document.getElementById('profile-modal').classList.add('hidden'); window.openMemoryModal();">
+        <div class="profile-item-left">
+          <i data-lucide="brain" class="text-purple-500"></i>
+          <span>AI Memory</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span id="memory-count-badge" style="display:none;background:#ede9fe;color:#6d28d9;font-size:11px;font-weight:700;border-radius:20px;padding:2px 9px;line-height:1.4;"></span>
+          <span class="profile-arrow">›</span>
+        </div>
+      </div>
+
+      <div class="profile-item" id="documents-btn" onclick="event.stopPropagation(); document.getElementById('profile-modal').classList.add('hidden'); window.openDocumentsModal();">
+        <div class="profile-item-left">
+          <i data-lucide="library" class="text-yellow-500"></i>
+          <span>Document Library</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span id="doc-count-badge" style="display:none;background:#fef9c3;color:#a16207;font-size:11px;font-weight:700;border-radius:20px;padding:2px 9px;line-height:1.4;align-items:center;justify-content:center;"></span>
+          <span class="profile-arrow">›</span>
+        </div>
+      </div>
+
+      <div class="profile-item" id="watches-btn" onclick="event.stopPropagation(); document.getElementById('profile-modal').classList.add('hidden'); window.openWatchesModal();">
+        <div class="profile-item-left">
+          <i data-lucide="bell" class="text-orange-500"></i>
+          <span>Research Watcher</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span id="watches-count-badge" style="display:none;background:#fff7ed;color:#c2410c;font-size:11px;font-weight:700;border-radius:20px;padding:2px 9px;line-height:1.4;align-items:center;justify-content:center;"></span>
+          <span class="profile-arrow">›</span>
+        </div>
+      </div>
+
+      <div class="profile-item logout" id="logout-btn">
+        <div class="profile-item-left">
+          <i data-lucide="log-out" class="text-red-600"></i>
+          <span>Log out</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+  </aside>
+
+  <!-- 2. CONTENT AREA -->
+  <div class="flex-1 flex flex-col min-w-0 h-full relative">
+    
+    <!-- HEADER -->
+    <header class="sticky top-0 z-30 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 w-full">
+      <div class="flex items-center justify-between px-3 md:px-6 py-3 w-full">
+        <button class="md:hidden text-black dark:text-white p-2 -ml-2" onclick="window.toggleMobileSidebar(true)">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        
+        <div class="flex items-center gap-2 md:gap-6 ml-auto">
+          <a href="guide.html" class="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition"><i data-lucide="book-open" class="w-4 h-4 text-blue-500"></i>User Guide</a>
+          <a href="features.html" class="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition"><i data-lucide="layers" class="w-4 h-4 text-purple-500"></i>Features</a>
+          <a href="pricing.html" class="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition"><i data-lucide="credit-card" class="w-4 h-4 text-green-500"></i>Pricing</a>
+          
+          <!-- ── Font Size Switcher ── -->
+          <div id="text-size-wrapper" style="position:relative;">
+            <button id="text-size-btn" onclick="window.toggleTextSizePanel(event)"
+              title="Change reading size"
+              class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition text-xs font-bold tracking-tight border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+              style="font-family:inherit;">
+              <span style="font-size:15px;font-weight:800;letter-spacing:-1px;line-height:1">Aa</span>
+              <i data-lucide="chevron-down" id="text-size-chevron" class="w-3 h-3 transition-transform duration-200"></i>
+            </button>
+
+            <!-- Floating panel -->
+            <div id="text-size-panel"
+              class="hidden absolute right-0 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden z-50"
+              style="top:calc(100% + 10px);width:272px;box-shadow:0 20px 60px rgba(0,0,0,0.15),0 0 0 1px rgba(250,204,21,0.15);">
+              <!-- Header -->
+              <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700/60">
+                <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest m-0">Reading Size</p>
+              </div>
+              <!-- Options -->
+              <div id="text-size-options"></div>
+              <!-- Footer -->
+              <div class="px-4 py-2.5 border-t border-gray-100 dark:border-gray-700/60">
+                <p class="text-xs text-gray-400 dark:text-gray-600 text-center m-0">Saved automatically</p>
+              </div>
+            </div>
+          </div>
+
+          <button id="theme-toggle-btn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-white">
+            <i data-lucide="moon" class="w-4 h-4 md:w-5 md:h-5"></i>
+          </button>
+
+          <div id="logged-out-view" class="flex items-center gap-2 md:gap-4">
+            <span class="text-xs md:text-sm cursor-pointer text-gray-700 dark:text-gray-300 font-medium hover:text-black dark:hover:text-white" onclick="window.openAuthModal('login')">Log in</span>
+            <button class="px-3 md:px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-full text-xs md:text-sm font-semibold" onclick="window.openAuthModal('signup')">Sign up</button>
+          </div>
+
+          <button id="header-logout-btn" onclick="window.handleLogout()" class="hidden px-3 md:px-4 py-1.5 bg-gray-200 dark:bg-gray-850 text-black dark:text-white rounded-full text-xs md:text-sm font-semibold hover:bg-gray-300 dark:hover:bg-gray-700 transition">
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main id="chat-area" class="flex-1 overflow-y-auto relative flex flex-col md:scrollbar-hide scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600">
+
+      <!-- ── WRITER TOOLBAR (shown only in Write a Paper mode) ── -->
+      <div id="writer-toolbar" style="display:none;background:#111827;border-bottom:1px solid #1f2937;padding:10px 20px;position:sticky;top:0;z-index:20;flex-wrap:wrap;align-items:center;gap:10px;">
+        <!-- Mode badge -->
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:#facc1520;border:1px solid #facc1540;border-radius:10px;font-size:12px;font-weight:700;color:#facc15;">
+          ✍️ Write a Paper
+        </div>
+        <div style="width:1px;height:22px;background:#374151;"></div>
+        <!-- Format -->
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;color:#9ca3af;font-weight:500;">Format</span>
+          <select id="wp-format" onchange="window._wpSet('format',this.value)" style="background:#1f2937;border:1px solid #374151;border-radius:8px;color:#facc15;font-size:13px;font-weight:600;padding:5px 10px;cursor:pointer;outline:none;">
+            <option value="APA 7th">APA 7th</option>
+            <option value="IEEE">IEEE</option>
+            <option value="MLA 9th">MLA 9th</option>
+            <option value="Harvard">Harvard</option>
+            <option value="Vancouver">Vancouver</option>
+            <option value="Chicago">Chicago</option>
+          </select>
+        </div>
+        <!-- Type -->
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;color:#9ca3af;font-weight:500;">Type</span>
+          <select id="wp-type" onchange="window._wpSet('type',this.value)" style="background:#1f2937;border:1px solid #374151;border-radius:8px;color:#f9fafb;font-size:13px;font-weight:600;padding:5px 10px;cursor:pointer;outline:none;">
+            <option value="Research Paper">Research Paper</option>
+            <option value="Literature Review">Literature Review</option>
+            <option value="Essay">Essay</option>
+            <option value="Thesis Chapter">Thesis Chapter</option>
+            <option value="Case Study">Case Study</option>
+            <option value="Report">Report</option>
+          </select>
+        </div>
+        <!-- Length -->
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;color:#9ca3af;font-weight:500;">Length</span>
+          <select id="wp-length" onchange="window._wpSet('length',this.value)" style="background:#1f2937;border:1px solid #374151;border-radius:8px;color:#f9fafb;font-size:13px;font-weight:600;padding:5px 10px;cursor:pointer;outline:none;">
+            <option value="1000w">1000 words</option>
+            <option value="2000w">2000 words</option>
+            <option value="3000w" selected>3000 words</option>
+            <option value="5000w">5000 words</option>
+            <option value="8000w">8000 words</option>
+          </select>
+        </div>
+        <!-- Spacer -->
+        <div style="flex:1;"></div>
+        <!-- Quota badge -->
+        <div id="wp-quota-badge" style="font-size:11px;color:#9ca3af;font-weight:500;white-space:nowrap;"></div>
+        <!-- Exit -->
+        <button onclick="window.clearWritePaper()" style="padding:6px 12px;background:transparent;border:1px solid #374151;border-radius:8px;color:#9ca3af;font-size:12px;font-weight:600;cursor:pointer;">✕ Exit writer</button>
+      </div>
+
+     <div id="chat-messages" class="max-w-4xl mx-auto w-full px-4 py-6 space-y-6"></div>
+      <!-- HERO SECTION -->
+      <section id="hero-section" class="flex-1 flex flex-col items-center justify-center text-center px-4 py-6 md:px-6 md:py-12 min-h-0">
+        <img src="/assets/dynamo-logo.png?v=20260428a" alt="Dynamo AI" class="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl md:rounded-3xl mb-4 sm:mb-6 md:mb-8" />
+        <h1 class="text-2xl sm:text-3xl md:text-5xl font-black mb-6 sm:mb-8 md:mb-10 tracking-tight text-black dark:text-white max-w-lg">How can I help you today?</h1>
+
+      </section>
+
+      <div class="h-16 sm:h-20 md:h-40 flex-shrink-0"></div>
+    </main>
+
+    <!-- INPUT BOX AREA -->
+    <div id="input-bar" class="absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 border-t border-gray-100 dark:border-gray-800 px-3 md:px-4 py-4 md:py-5 z-30 transition-all duration-300">
+      <div class="max-w-3xl mx-auto relative">
+
+        <!-- ── EMPTY-STATE CENTERING ──
+             When the chat is empty (body lacks .chat-active), the input bar
+             floats up to the vertical centre, sitting just under "How can I
+             help you?" — like Gemini / Claude / ChatGPT empty state.
+             Once the user sends their first message, body.chat-active is added
+             and the bar slides back to the bottom dock.                          -->
+        <style>
+          /* Empty state — input bar floats in centre, no top border / shadow */
+          body:not(.chat-active) #input-bar {
+            position: absolute;
+            bottom: auto;
+            top: 50%;
+            transform: translateY(20%);
+            background: transparent !important;
+            border-top: none !important;
+            box-shadow: none !important;
+          }
+          body:not(.chat-active) #hero-section {
+            justify-content: flex-start;
+            padding-top: 8vh;
+            padding-bottom: 280px;   /* leaves room for the floating input */
+          }
+          @media (min-width: 768px) {
+            body:not(.chat-active) #hero-section { padding-top: 12vh; }
+          }
+        </style>
+
+        <!-- TOOLS DROPDOWN — matches mockup v2 design (Daily/Thinking/Study/Create) -->
+        <style>
+          /* Subtle section label */
+          .menu-section-label {
+            font-size: 10px; font-weight: 700; letter-spacing: 0.10em;
+            color: #b0b0ad; text-transform: uppercase;
+            padding: 8px 12px 4px;
+          }
+          /* Menu row */
+          .menu-row {
+            display: flex; align-items: center; gap: 12px; width: 100%;
+            padding: 9px 12px; border-radius: 10px;
+            font-size: 13.5px; font-weight: 500; color: #2c2c2a;
+            background: transparent; border: none; cursor: pointer;
+            transition: background .12s, color .12s;
+            text-align: left; position: relative;
+          }
+          .menu-row:hover { background: #f7f7f5; }
+          .menu-row .ico {
+            width: 18px; height: 18px; flex-shrink: 0;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #6b6b69; font-size: 15px;
+          }
+          /* ⭐ Active state — gold left-bar + gold check circle */
+          .menu-row.active {
+            background: #fffbe6; color: #0a0a09; font-weight: 600;
+          }
+          .menu-row.active .ico { color: #eab308; }
+          .menu-row.active::before {
+            content: ""; position: absolute;
+            left: 0; top: 8px; bottom: 8px; width: 3px;
+            background: #facc15; border-radius: 2px;
+          }
+          .menu-row.active::after {
+            content: "✓"; margin-left: auto;
+            width: 18px; height: 18px;
+            background: #facc15; color: #0a0a09;
+            border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 800;
+          }
+          /* Tags */
+          .menu-row .tag {
+            margin-left: auto; font-size: 9px; font-weight: 800;
+            border-radius: 4px; padding: 2.5px 7px; letter-spacing: 0.08em;
+          }
+          .menu-row .tag.pro  { background: #1a1a18; color: #facc15; }
+          .menu-row .tag.soon { background: #d1d5db; color: #6b7280; }
+          .menu-row .tag.new  { background: #facc15; color: #0a0a09; }
+          /* When row is BOTH active AND has a tag, check appears, tag stays beside it */
+          .menu-row.active .tag { margin-left: auto; }
+          .menu-row.active.has-tag::after { margin-left: 6px; }
+          /* Sub-rows (find research gaps under thinking) */
+          .menu-row.sub { padding-left: 36px; font-size: 12.5px; opacity: 0.85; }
+          .menu-row.disabled, .menu-row[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; }
+          .menu-row.disabled:hover { background: transparent; }
+          .dark .menu-row { color: #e5e7eb; }
+          .dark .menu-row .ico { color: #9ca3af; }
+          .dark .menu-row:hover { background: #1f2937; }
+          .dark .menu-row.active { background: #422006; color: #facc15; }
+          .dark .menu-row.active .ico { color: #facc15; }
+          .dark .menu-section-label { color: #6b7280; }
+        </style>
+        <!-- ─── PLUS DROPDOWN ─── Daily + Mode selector with right-side flyout -->
+        <div id="plus-dropdown" class="hidden absolute bottom-full mb-3 left-0 w-[260px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-1.5 z-50">
+
+          <!-- Daily -->
+          <div class="menu-section-label">Daily</div>
+          <button class="menu-row" onclick="window.openAnalyzeFile?.(); window.closePlus?.();">
+            <span class="ico">📎</span><span>Add photos &amp; files</span>
+          </button>
+          <button class="menu-row" data-tool-btn="search" onclick="window.toggleTool('search', this)">
+            <span class="ico">🌐</span><span>Web search</span>
+          </button>
+
+          <!-- Mode selector -->
+          <div class="menu-section-label">Mode selector</div>
+          <button class="menu-row active" data-mode-btn data-mode="fast" onclick="window.setMode('fast', this)">
+            <span class="ico">⚡</span><span>Fast</span>
+          </button>
+          <button class="menu-row has-tag" data-mode-btn data-mode="research" onclick="window.setMode('research', this)">
+            <span class="ico">🔬</span><span>Research</span><span class="tag pro">PLUS</span>
+          </button>
+          <button class="menu-row menu-more-row" aria-expanded="false"
+                  onclick="window.toggleSubMenu('research-more-flyout', this); event.stopPropagation();">
+            <span class="ico">···</span><span>More</span>
+            <span class="chev">›</span>
+          </button>
+          <button class="menu-row has-tag" data-mode-btn data-mode="deep" onclick="window.setMode('deep', this)">
+            <span class="ico">💡</span><span>DeepThink</span><span class="tag pro">PRO</span>
+          </button>
+          <button class="menu-row menu-more-row" aria-expanded="false"
+                  onclick="window.toggleSubMenu('deep-more-flyout', this); event.stopPropagation();">
+            <span class="ico">···</span><span>More</span>
+            <span class="chev">›</span>
+          </button>
+        </div>
+
+        <!-- ─── TOOLS DROPDOWN ─── Study + Create with right-side flyouts -->
+        <div id="tools-dropdown" class="hidden absolute bottom-full mb-3 left-10 w-[260px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-1.5 z-50">
+
+          <!-- Study -->
+          <div class="menu-section-label">Study</div>
+          <button class="menu-row has-tag" onclick="window.openStudyGuideModal(); window.closeTools?.();">
+            <span class="ico">📚</span><span>Quick study guide</span><span class="tag new">NEW</span>
+          </button>
+          <button class="menu-row" onclick="window.toggleTool('radio', this)">
+            <span class="ico">🎧</span><span>Radio mode</span>
+          </button>
+          <button class="menu-row menu-more-row" aria-expanded="false"
+                  onclick="window.toggleSubMenu('study-more-flyout', this); event.stopPropagation();">
+            <span class="ico">···</span><span>More</span>
+            <span class="chev">›</span>
+          </button>
+
+          <!-- Create Anything -->
+          <div class="menu-section-label">Create Anything</div>
+          <button class="menu-row has-tag" onclick="window.openDataAnalysis?.(); window.closeTools?.();">
+            <span class="ico">📈</span><span>Data Analysis</span><span class="tag pro">PRO</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('image'); window.closeTools?.();">
+            <span class="ico">🖼️</span><span>Generate Image</span>
+          </button>
+          <button class="menu-row has-tag" onclick="window.openDeckModal(); window.closeTools?.();">
+            <span class="ico">📊</span><span>Slides</span><span class="tag new">NEW</span>
+          </button>
+          <button class="menu-row menu-more-row" aria-expanded="false"
+                  onclick="window.toggleSubMenu('create-more-flyout', this); event.stopPropagation();">
+            <span class="ico">···</span><span>More</span>
+            <span class="chev">›</span>
+          </button>
+        </div>
+
+        <!-- ═══ RIGHT-SIDE FLYOUTS (position: fixed, ChatGPT style) ═══ -->
+
+        <!-- Research More flyout — Write a Paper + Citation Checker -->
+        <div id="research-more-flyout" class="menu-flyout hidden">
+          <button class="menu-row has-tag" onclick="window.openWritePaper(); window._closeAllFlyouts(); window.closePlus?.();">
+            <span class="ico">✍️</span><span>Write a Paper</span>
+            <span class="tag new">NEW</span>
+          </button>
+          <button class="menu-row has-tag" onclick="window.openCitationChecker(); window._closeAllFlyouts(); window.closePlus?.();">
+            <span class="ico">✅</span><span>Citation Checker</span>
+            <span class="tag new">NEW</span>
+          </button>
+        </div>
+
+        <!-- DeepThink More flyout — Research gaps + Deep research agent -->
+        <div id="deep-more-flyout" class="menu-flyout hidden">
+          <button id="gap-finder-btn" class="menu-row" onclick="window.findResearchGaps(); window._closeAllFlyouts(); window.closePlus?.();"
+                  title="Use after a DeepThink reply to find unexplored angles">
+            <span class="ico">🔍</span><span>Find research gaps</span>
+            <span id="gap-finder-badge" class="tag pro">PRO</span>
+          </button>
+          <button class="menu-row has-tag" onclick="window.openDeepResearch(); window._closeAllFlyouts(); window.closePlus?.();">
+            <span class="ico">🤖</span><span>Deep research agent</span>
+            <span class="tag new">NEW</span>
+          </button>
+        </div>
+
+        <!-- Study More flyout -->
+        <div id="study-more-flyout" class="menu-flyout hidden">
+          <button class="menu-row" onclick="window.openQuizModal(); window._closeAllFlyouts(); window.closeTools?.();">
+            <span class="ico">🧠</span><span>Quiz me</span>
+          </button>
+          <button class="menu-row has-tag" onclick="window.openFlashcardModal(); window._closeAllFlyouts(); window.closeTools?.();">
+            <span class="ico">⚡</span><span>Flashcards</span>
+            <span class="tag new">NEW</span>
+          </button>
+        </div>
+
+        <!-- Create More flyout -->
+        <div id="create-more-flyout" class="menu-flyout hidden">
+          <button class="menu-row" onclick="window.runCreate('video'); window._closeAllFlyouts(); window.closeTools?.();">
+            <span class="ico">🎬</span><span>Generate Video</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('mindmap'); window._closeAllFlyouts(); window.closeTools?.();">
+            <span class="ico">🧠</span><span>Mindmaps</span>
+          </button>
+          <button class="menu-row" onclick="window.runCreate('flowchart'); window._closeAllFlyouts(); window.closeTools?.();">
+            <span class="ico">📊</span><span>Flowcharts</span>
+          </button>
+        </div>
+
+        <!-- ═══ FLYOUT + MORE-ROW STYLES ═══ -->
+        <style>
+          /* "More" trigger rows */
+          .menu-more-row { color: #4b5563; }
+          .menu-more-row .ico { color: #9ca3af; font-style: normal; letter-spacing: -.5px; }
+          .menu-more-row .chev { margin-left: auto; font-size: 15px; color: #9ca3af; transition: color .12s; }
+          .menu-more-row.expanded { background: #fffbe6; color: #0a0a09; }
+          .menu-more-row.expanded .ico,
+          .menu-more-row.expanded .chev { color: #facc15; }
+          .dark .menu-more-row { color: #9ca3af; }
+          .dark .menu-more-row.expanded { background: #422006; color: #facc15; }
+
+          /* Right-side flyout panel */
+          .menu-flyout {
+            position: fixed; z-index: 9999; min-width: 210px;
+            background: #fff; border: 1.5px solid #e5e7eb;
+            border-radius: 16px; padding: 6px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.18), 0 4px 14px rgba(0,0,0,0.08);
+            opacity: 0; transform: translateX(-6px) scale(0.97);
+            transition: opacity .13s ease, transform .13s ease;
+            pointer-events: none;
+          }
+          .menu-flyout.open {
+            opacity: 1; transform: translateX(0) scale(1);
+            pointer-events: auto;
+          }
+          .dark .menu-flyout { background: #1f2937; border-color: #374151; }
+        </style>
+
+        <!-- MAIN INPUT WRAPPER (Gemini-style: textarea on top, action row below) -->
+        <div class="border-2 border-yellow-400 rounded-2xl md:rounded-3xl bg-white dark:bg-gray-900 px-3 md:px-4 py-2.5 md:py-3 shadow-xl">
+          <!-- Write a Paper active indicator chip -->
+          <div id="write-paper-chip" class="hidden items-center gap-1.5 mb-2 px-1">
+            <span class="flex items-center gap-1.5 text-xs font-semibold bg-yellow-50 border border-yellow-300 text-yellow-800 rounded-full px-2.5 py-1">
+              ✍️ <span id="write-paper-chip-label">Write a Paper · APA7</span>
+            </span>
+            <button onclick="window.clearWritePaper()" title="Cancel paper mode"
+              class="text-gray-400 hover:text-gray-600 text-xs leading-none ml-0.5">✕</button>
+          </div>
+          <!-- TEXTAREA -->
+          <textarea id="chat-input" rows="1" placeholder="Ask Dynamo anything..." class="block w-full resize-none bg-transparent outline-none py-1.5 px-1 text-sm sm:text-base text-gray-900 dark:text-white max-h-32 md:max-h-48 scrollbar-hide" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
+
+          <!-- ACTIONS ROW: [+ gold] [⚙️ Tools] [🎙️ Mic] ... [Send] -->
+          <div class="flex items-center gap-2 mt-1.5">
+            <!-- "+" — golden border, opens Daily + Mode selector menu -->
+            <button id="plus-btn" onclick="window.togglePlus(event)" title="Add files / change mode"
+                    class="w-9 h-9 flex items-center justify-center rounded-full border-2 border-yellow-400 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 hover:bg-yellow-50 dark:hover:bg-gray-800 transition shrink-0">
+              <i data-lucide="plus" class="w-4 h-4" stroke-width="2.5"></i>
+            </button>
+
+            <!-- ⚙️ TOOLS GEAR — opens Study + Create menu -->
+            <button id="tools-btn" onclick="window.toggleTools(event)" title="Tools"
+                    class="relative w-9 h-9 flex items-center justify-center rounded-full text-gray-600 dark:text-gray-300 hover:bg-yellow-50 dark:hover:bg-gray-800 hover:text-black dark:hover:text-yellow-400 transition shrink-0">
+              <i data-lucide="settings" class="w-4 h-4"></i>
+              <span class="absolute top-1 right-1 w-2 h-2 bg-yellow-400 rounded-full border border-white dark:border-gray-900"></span>
+            </button>
+
+            <!-- MIC — light red highlight -->
+            <button id="mic-btn" onclick="window.startVoice()" title="Voice input"
+                    class="w-9 h-9 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition shrink-0">
+              <i data-lucide="mic" class="w-4 h-4" stroke-width="2.4"></i>
+            </button>
+
+            <!-- spacer -->
+            <div class="flex-1"></div>
+
+            <!-- Hidden compat element — setMode writes to it -->
+            <span id="mode-pill-label" class="sr-only">Fast</span>
+
+            <!-- SEND -->
+            <button onclick="window.sendFromInput()" title="Send message" class="w-9 h-9 flex items-center justify-center rounded-xl bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 transition shadow-md shrink-0">
+              <i data-lucide="arrow-up" class="w-4 h-4 text-black" stroke-width="2.6"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- ─── ACTION SUGGESTION CHIPS (only show on empty state, below input) ─── -->
+        <style>
+          .hero-chip {
+            background: #ffffff; border: 1px solid #e8e8e6; border-radius: 100px;
+            padding: 8px 14px; font-size: 12.5px; font-weight: 500; color: #3a3a38;
+            cursor: pointer; transition: all 0.15s;
+            display: inline-flex; align-items: center; gap: 6px;
+          }
+          .hero-chip:hover { background: #fffbe6; border-color: #facc15; transform: translateY(-1px); }
+          .dark .hero-chip { background: #1f2937; border-color: #374151; color: #e5e7eb; }
+          .dark .hero-chip:hover { background: #422006; border-color: #facc15; color: #facc15; }
+          /* Hide chips once user starts chatting */
+          body.chat-active #hero-chips { display: none !important; }
+        </style>
+        <div id="hero-chips" class="flex flex-wrap gap-2 justify-center max-w-2xl mx-auto mt-4 px-2">
+          <button class="hero-chip" onclick="window.openStudyGuideModal()">📚 Make a study guide</button>
+          <button class="hero-chip" onclick="(function(){const m=document.querySelector('[data-mode=\'research\']');if(m)window.setMode('research',m);document.getElementById('chat-input')?.focus();})()">🔬 Research a topic</button>
+          <button class="hero-chip" onclick="window.openQuizModal()">🧩 Quiz me</button>
+          <button class="hero-chip" onclick="window.openFlashcardModal()">⚡ Flashcards</button>
+          <button class="hero-chip" onclick="window.openAnalyzeFile?.()">📄 Summarise a PDF</button>
+          <button class="hero-chip" onclick="window.openDeckModal()">🎨 Create a deck</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STUDY GUIDE MODAL -->
+  <div id="study-guide-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-yellow-400 flex items-center justify-center text-base">📚</div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Generate Study Guide</h3>
+            <p class="text-[11px] text-gray-400">Concepts → Definitions → Examples → Practice</p>
+          </div>
+        </div>
+        <button onclick="window.closeStudyGuideModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="px-5 py-4 space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">What do you want to study?</label>
+          <textarea id="study-guide-topic" rows="3" placeholder="e.g. Photosynthesis, Quantum entanglement, Machine learning basics..." class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400"></textarea>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block" id="study-depth-label">Choose depth</label>
+          <div class="grid grid-cols-2 gap-2.5" role="radiogroup" aria-labelledby="study-depth-label">
+            <!-- Card 1: BEGINNER (default) -->
+            <label class="depth-card depth-active block p-3 rounded-xl border-2 transition focus-within:ring-2 focus-within:ring-yellow-400" data-depth="beginner">
+              <input type="radio" name="study-depth" value="beginner" class="depth-radio" checked>
+              <div class="flex items-center gap-1.5 mb-1.5">
+                <span class="text-base" aria-hidden="true">📘</span>
+                <span class="text-sm font-bold text-gray-900 dark:text-white">Full Guide</span>
+              </div>
+              <p class="text-[11px] text-gray-500 dark:text-gray-400 leading-snug mb-2">Start from zero, build up step by step</p>
+              <div class="text-[10px] font-semibold text-gray-700 dark:text-gray-300 space-y-0.5 leading-tight">
+                <div>• Key concepts</div>
+                <div>• Definitions</div>
+                <div>• Examples</div>
+                <div>• Practice Qs</div>
+              </div>
+            </label>
+            <!-- Card 2: ADVANCED -->
+            <label class="depth-card block p-3 rounded-xl border-2 transition focus-within:ring-2 focus-within:ring-yellow-400" data-depth="advanced">
+              <input type="radio" name="study-depth" value="advanced" class="depth-radio">
+              <div class="flex items-center gap-1.5 mb-1.5">
+                <span class="text-base" aria-hidden="true">🚀</span>
+                <span class="text-sm font-bold text-gray-900 dark:text-white">Advanced Only</span>
+              </div>
+              <p class="text-[11px] text-gray-500 dark:text-gray-400 leading-snug mb-2">Skip basics — go deep, fast</p>
+              <div class="text-[10px] font-semibold text-gray-700 dark:text-gray-300 space-y-0.5 leading-tight">
+                <div>• Edge cases</div>
+                <div>• Common pitfalls</div>
+                <div>• Pro techniques</div>
+                <div>• Hard practice Qs</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      <style>
+        .depth-card { background: #fafafa; border-color: #e5e7eb; cursor: pointer; }
+        .depth-card:hover { border-color: #fcd34d; background: #fffbeb; }
+        .depth-card.depth-active { background: #fffbeb; border-color: #facc15; box-shadow: 0 0 0 3px rgba(250,204,21,0.15); }
+        .dark .depth-card { background: #1f2937; border-color: #374151; }
+        .dark .depth-card:hover { background: rgba(250,204,21,0.08); border-color: #facc15; }
+        .dark .depth-card.depth-active { background: rgba(250,204,21,0.12); border-color: #facc15; }
+        /* Visually-hidden but focusable & keyboard-operable radios */
+        .depth-radio {
+          position: absolute; width: 1px; height: 1px;
+          padding: 0; margin: -1px; overflow: hidden;
+          clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+        }
+      </style>
+      <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2 bg-gray-50 dark:bg-gray-800/50">
+        <button onclick="window.closeStudyGuideModal()" class="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Cancel</button>
+        <button onclick="window.submitStudyGuide()" class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-bold rounded-xl transition">Generate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ MODAL — replaces broken "prefill input" flow -->
+  <div id="quiz-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-yellow-400 flex items-center justify-center text-base">🧩</div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Quiz Me</h3>
+            <p class="text-[11px] text-gray-400">Interactive multiple-choice quiz with scoring</p>
+          </div>
+        </div>
+        <button onclick="window.closeQuizModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="px-5 py-4 space-y-3">
+        <div>
+          <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Topic</label>
+          <textarea id="quiz-topic" rows="2" placeholder="e.g. Photosynthesis, World War 2, Python basics..." class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Difficulty</label>
+            <select id="quiz-difficulty" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Questions</label>
+            <select id="quiz-count" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400">
+              <option value="5" selected>5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2 bg-gray-50 dark:bg-gray-800/50">
+        <button onclick="window.closeQuizModal()" class="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Cancel</button>
+        <button onclick="window.submitQuiz()" class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-bold rounded-xl transition">Start quiz</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       AI DETECTOR MODAL
+       ════════════════════════════════════════════════════════════ -->
+  <div id="ai-detector-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="relative w-full max-w-xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-lg">🤖</div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">AI Text Detector</h3>
+            <p class="text-[11px] text-gray-400">Gemini-powered writing analysis · Free</p>
+          </div>
+        </div>
+        <button onclick="window.closeAiDetectorModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Scrollable body -->
+      <div class="overflow-y-auto flex-1 px-5 py-4 space-y-4">
+
+        <!-- Upload area -->
+        <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center hover:border-purple-400 dark:hover:border-purple-500 transition cursor-pointer group"
+             onclick="document.getElementById('ai-file-input').click()">
+          <input id="ai-file-input" type="file" accept=".txt,.pdf,.docx,.doc,.md" class="hidden"
+                 onchange="window.handleDetectorFile(this,'ai-text-input','ai-status','ai-count')">
+          <i data-lucide="upload-cloud" class="w-6 h-6 text-gray-300 group-hover:text-purple-400 mx-auto mb-1.5 transition"></i>
+          <p class="text-xs font-semibold text-gray-400 group-hover:text-purple-500 transition">Upload file</p>
+          <p class="text-[10px] text-gray-300 mt-0.5">TXT · PDF · DOCX · MD</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="flex-1 h-px bg-gray-100 dark:bg-gray-700"></div>
+          <span class="text-[11px] text-gray-400 font-medium">or paste text</span>
+          <div class="flex-1 h-px bg-gray-100 dark:bg-gray-700"></div>
+        </div>
+
+        <!-- Text input -->
+        <div>
+          <textarea id="ai-text-input" rows="7"
+            placeholder="Paste any essay, report, email, article, or response here…"
+            oninput="window.updateDetCount('ai-text-input','ai-count')"
+            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white outline-none focus:border-purple-400 resize-none transition"></textarea>
+          <div class="flex items-center justify-between mt-1.5">
+            <span id="ai-count" class="text-[11px] text-gray-400">0 words · 0 chars</span>
+            <button onclick="document.getElementById('ai-text-input').value='';window.updateDetCount('ai-text-input','ai-count');document.getElementById('ai-result').classList.add('hidden');document.getElementById('ai-status').textContent='';"
+              class="text-[11px] text-gray-400 hover:text-red-500 transition font-medium">Clear</button>
+          </div>
+        </div>
+
+        <!-- Analyse button -->
+        <button id="ai-analyse-btn" onclick="window.runAiDetect()"
+          class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-xl transition shadow-sm">
+          Analyse Text
+        </button>
+
+        <!-- Status -->
+        <p id="ai-status" class="text-xs text-gray-400 text-center min-h-[16px]"></p>
+
+        <!-- Result -->
+        <div id="ai-result" class="hidden pb-2"></div>
+
+        <!-- Post-result actions: shown after analysis completes -->
+        <div id="ai-post-actions" class="hidden flex flex-col gap-2">
+          <!-- Humanize button — full width, prominent -->
+          <button onclick="window.runHumanize()" id="ai-humanize-btn"
+            class="w-full py-3 font-bold text-sm rounded-xl transition active:scale-95 flex items-center justify-center gap-2"
+            style="background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;box-shadow:0 4px 14px rgba(124,58,237,.35);">
+            ✨ Humanize Content
+          </button>
+          <!-- Secondary row -->
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="window.runHeatmapAnalysis()" id="ai-heatmap-btn"
+              class="py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-bold rounded-xl transition border border-purple-200 dark:border-purple-700">
+              🌡️ Sentence Heatmap
+            </button>
+            <button onclick="window.exportAiReport()"
+              class="py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-xl transition border border-gray-200 dark:border-gray-700">
+              📄 Export PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- Humanize result section -->
+        <div id="ai-humanize-section" class="hidden space-y-3">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;">✨ Humanized Version</div>
+            <div style="display:flex;gap:8px;">
+              <button onclick="window.copyHumanized()" id="ai-copy-humanized-btn"
+                style="font-size:11px;font-weight:600;color:#7c3aed;background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:6px;transition:background .15s;"
+                onmouseover="this.style.background='#f5f3ff'" onmouseout="this.style.background='none'">
+                📋 Copy
+              </button>
+              <button onclick="window.exportHumanizedContent()"
+                style="font-size:11px;font-weight:600;color:#059669;background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:6px;transition:background .15s;"
+                onmouseover="this.style.background='#ecfdf5'" onmouseout="this.style.background='none'">
+                ⬇️ Export
+              </button>
+            </div>
+          </div>
+          <p id="ai-humanize-status" class="text-xs text-gray-400 text-center min-h-[14px]"></p>
+          <div id="ai-humanize-output"
+            style="font-size:13px;color:#1f2937;line-height:1.75;background:#faf5ff;border:1.5px solid #e9d5ff;border-radius:12px;padding:14px 16px;white-space:pre-wrap;word-break:break-word;"></div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="window.exportHumanizedContent()"
+              class="flex-1 py-2.5 font-bold text-sm rounded-xl transition active:scale-95"
+              style="background:#059669;color:#fff;">
+              ⬇️ Export Humanized Content
+            </button>
+            <button onclick="window.runAiDetectOnHumanized()" id="ai-recheck-btn"
+              class="flex-1 py-2.5 font-bold text-sm rounded-xl transition border border-gray-200 active:scale-95"
+              style="background:#f9fafb;color:#374151;">
+              🔄 Re-check Score
+            </button>
+          </div>
+        </div>
+
+        <!-- Heatmap section: shown after clicking Sentence Heatmap -->
+        <div id="ai-heatmap-section" class="hidden space-y-2">
+          <p id="ai-heatmap-status" class="text-xs text-gray-400 text-center min-h-[14px]"></p>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;">Sentence-Level Analysis</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#9ca3af;">
+              <span><span style="display:inline-block;width:10px;height:10px;background:#dcfce7;border:1px solid #86efac;border-radius:2px;vertical-align:middle;margin-right:2px;"></span>Human</span>
+              <span><span style="display:inline-block;width:10px;height:10px;background:#fef9c3;border:1px solid #fde047;border-radius:2px;vertical-align:middle;margin-right:2px;"></span>Mixed</span>
+              <span><span style="display:inline-block;width:10px;height:10px;background:#fee2e2;border:1px solid #fca5a5;border-radius:2px;vertical-align:middle;margin-right:2px;"></span>AI</span>
+            </div>
+          </div>
+          <div id="ai-heatmap-output" class="text-sm leading-7 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700"></div>
+          <p class="text-[10px] text-gray-300 text-center pb-1">Hover each sentence to see its individual score</p>
+        </div>
+
+        <p class="text-[10px] text-gray-300 text-center pb-1">Scores are probabilistic estimates · Not a legal determination</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       PLAGIARISM CHECKER MODAL
+       ════════════════════════════════════════════════════════════ -->
+  <div id="plagiarism-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="relative w-full max-w-xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-lg">📄</div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Plagiarism Checker</h3>
+            <p class="text-[11px] text-gray-400">Web + 200M+ academic papers · Free</p>
+          </div>
+        </div>
+        <button onclick="window.closePlagiarismModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Scrollable body -->
+      <div class="overflow-y-auto flex-1 px-5 py-4 space-y-4">
+
+        <!-- MODE TOGGLE -->
+        <div style="display:flex;background:#f3f4f6;border-radius:10px;padding:3px;gap:2px;">
+          <button id="plag-mode-origin-btn" onclick="window.switchPlagMode('origin')"
+            style="flex:1;padding:7px 10px;border-radius:8px;font-size:11.5px;font-weight:700;border:none;cursor:pointer;background:#fff;color:#2563eb;box-shadow:0 1px 3px rgba(0,0,0,.1);transition:all .2s;">
+            🔍 Originality Check
+          </button>
+          <button id="plag-mode-self-btn" onclick="window.switchPlagMode('self')"
+            style="flex:1;padding:7px 10px;border-radius:8px;font-size:11.5px;font-weight:700;border:none;cursor:pointer;background:transparent;color:#9ca3af;transition:all .2s;">
+            🔁 Self-Plagiarism
+          </button>
+        </div>
+
+        <!-- ── ORIGINALITY PANE ── -->
+        <div id="plag-origin-pane" class="space-y-4">
+
+          <!-- Upload area -->
+          <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center hover:border-blue-400 dark:hover:border-blue-500 transition cursor-pointer group"
+               onclick="document.getElementById('plag-file-input').click()">
+            <input id="plag-file-input" type="file" accept=".txt,.pdf,.docx,.doc,.md" class="hidden"
+                   onchange="window.handleDetectorFile(this,'plag-text-input','plag-status','plag-count')">
+            <i data-lucide="upload-cloud" class="w-6 h-6 text-gray-300 group-hover:text-blue-400 mx-auto mb-1.5 transition"></i>
+            <p class="text-xs font-semibold text-gray-400 group-hover:text-blue-500 transition">Upload file</p>
+            <p class="text-[10px] text-gray-300 mt-0.5">TXT · PDF · DOCX · MD</p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="flex-1 h-px bg-gray-100 dark:bg-gray-700"></div>
+            <span class="text-[11px] text-gray-400 font-medium">or paste text</span>
+            <div class="flex-1 h-px bg-gray-100 dark:bg-gray-700"></div>
+          </div>
+
+          <!-- Text input -->
+          <div>
+            <textarea id="plag-text-input" rows="6"
+              placeholder="Paste an essay, article, research paper, or any text to check for originality…"
+              oninput="window.updateDetCount('plag-text-input','plag-count')"
+              class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-400 resize-none transition"></textarea>
+            <div class="flex items-center justify-between mt-1.5">
+              <span id="plag-count" class="text-[11px] text-gray-400">0 words · 0 chars</span>
+              <button onclick="document.getElementById('plag-text-input').value='';window.updateDetCount('plag-text-input','plag-count');document.getElementById('plag-result').classList.add('hidden');document.getElementById('plag-post-actions').classList.add('hidden');document.getElementById('plag-status').textContent='';"
+                class="text-[11px] text-gray-400 hover:text-red-500 transition font-medium">Clear</button>
+            </div>
+          </div>
+
+          <!-- Check button -->
+          <button id="plag-check-btn" onclick="window.runPlagCheck()"
+            class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition shadow-sm">
+            Check Originality
+          </button>
+
+          <!-- Status -->
+          <p id="plag-status" class="text-xs text-gray-400 text-center min-h-[16px]"></p>
+
+          <!-- Result -->
+          <div id="plag-result" class="hidden pb-2"></div>
+
+          <!-- Export PDF (shown after result) -->
+          <div id="plag-post-actions" class="hidden">
+            <button onclick="window.exportPlagReport()"
+              class="w-full py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-xl transition border border-gray-200 dark:border-gray-700">
+              📄 Export PDF Report
+            </button>
+          </div>
+
+          <p class="text-[10px] text-gray-300 text-center pb-1">Checks live web · Semantic Scholar · Tavily search</p>
+        </div>
+
+        <!-- ── SELF-PLAGIARISM PANE ── -->
+        <div id="plag-self-pane" class="hidden space-y-4">
+
+          <p style="font-size:12px;color:#6b7280;line-height:1.6;margin:0;">
+            Upload or paste two documents — your current paper and a prior work — to check for recycled passages and content overlap. No external search; fully private.
+          </p>
+
+          <!-- Document A -->
+          <div>
+            <div style="font-size:11.5px;font-weight:700;color:#374151;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+              <span style="background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:800;">DOC A</span>
+              Current Paper
+            </div>
+            <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-3 text-center hover:border-indigo-400 transition cursor-pointer group mb-2"
+                 onclick="document.getElementById('self-file-a').click()">
+              <input id="self-file-a" type="file" accept=".txt,.pdf,.docx,.doc,.md" class="hidden"
+                     onchange="window.handleSelfFile(this,'a')">
+              <p class="text-xs text-gray-400 group-hover:text-indigo-500 transition font-medium">Upload file (TXT · PDF · DOCX)</p>
+            </div>
+            <textarea id="self-text-a" rows="5"
+              placeholder="Or paste your current paper here…"
+              oninput="window.updateDetCount('self-text-a','self-count-a')"
+              class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-indigo-400 resize-none transition"></textarea>
+            <span id="self-count-a" class="text-[11px] text-gray-400">0 words · 0 chars</span>
+          </div>
+
+          <!-- Document B -->
+          <div>
+            <div style="font-size:11.5px;font-weight:700;color:#374151;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+              <span style="background:#fce7f3;color:#9d174d;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:800;">DOC B</span>
+              Prior Work / Reference Paper
+            </div>
+            <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-3 text-center hover:border-pink-400 transition cursor-pointer group mb-2"
+                 onclick="document.getElementById('self-file-b').click()">
+              <input id="self-file-b" type="file" accept=".txt,.pdf,.docx,.doc,.md" class="hidden"
+                     onchange="window.handleSelfFile(this,'b')">
+              <p class="text-xs text-gray-400 group-hover:text-pink-500 transition font-medium">Upload file (TXT · PDF · DOCX)</p>
+            </div>
+            <textarea id="self-text-b" rows="5"
+              placeholder="Or paste your prior / reference paper here…"
+              oninput="window.updateDetCount('self-text-b','self-count-b')"
+              class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-pink-400 resize-none transition"></textarea>
+            <span id="self-count-b" class="text-[11px] text-gray-400">0 words · 0 chars</span>
+          </div>
+
+          <!-- Compare button -->
+          <button id="self-compare-btn" onclick="window.runSelfPlagCheck()"
+            class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition shadow-sm">
+            Compare Documents
+          </button>
+
+          <!-- Status + Result -->
+          <p id="selfplag-status" class="text-xs text-gray-400 text-center min-h-[16px]"></p>
+          <div id="selfplag-result" class="hidden pb-2"></div>
+
+          <!-- Export PDF (shown after result) -->
+          <div id="selfplag-post-actions" class="hidden">
+            <button onclick="window.exportSelfPlagReport()"
+              class="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 text-xs font-bold rounded-xl transition border border-gray-200">
+              📄 Export PDF Report
+            </button>
+          </div>
+
+          <p class="text-[10px] text-gray-300 text-center pb-1">Direct Gemini comparison · No external search · Fully private</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       DEEP RESEARCH AGENT MODAL — v2 Clean UI
+       ════════════════════════════════════════════════════════════ -->
+  <!-- Deep Research Agent — runs in-chat, no separate modal needed -->
+  <!-- Legacy utility IDs kept for JS backwards compat -->
+  <div style="display:none;" aria-hidden="true">
+    <input type="checkbox" id="dr-use-max">
+    <div id="dr-query-input-hidden"></div>
+  </div>
+
+  <!-- FLASHCARD MODAL -->
+  <div id="flashcard-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-yellow-400 flex items-center justify-center text-base">⚡</div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Flashcards</h3>
+            <p class="text-[11px] text-gray-400">Know it or don't — fast self-assessment</p>
+          </div>
+        </div>
+        <button onclick="window.closeFlashcardModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="px-5 py-4 space-y-3">
+        <div>
+          <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Topic</label>
+          <textarea id="fc-topic" rows="2" placeholder="e.g. Cell biology, World War 2, Python basics..." class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400 resize-none"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Difficulty</label>
+            <select id="fc-difficulty" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Cards</label>
+            <select id="fc-count" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400">
+              <option value="5" selected>5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex items-center justify-between py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div>
+            <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">Include hints</div>
+            <div class="text-[10px] text-gray-400">Show a clue before revealing the answer</div>
+          </div>
+          <button id="fc-hints-toggle" onclick="window.toggleFlashcardHints()"
+            class="w-11 h-6 rounded-full bg-yellow-400 relative transition-colors flex-shrink-0 overflow-hidden"
+            aria-checked="true" role="switch">
+            <span id="fc-hints-knob" class="absolute top-0.5 left-[22px] w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200"></span>
+          </button>
+        </div>
+      </div>
+      <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2 bg-gray-50 dark:bg-gray-800/50">
+        <button onclick="window.closeFlashcardModal()" class="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Cancel</button>
+        <button onclick="window.submitFlashcard()" class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-bold rounded-xl transition">Generate cards</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       RESEARCH DECK MODAL
+       Step 1: Input → Step 2: Outline review → Step 3: Done
+  ================================================================ -->
+  <div id="deck-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="relative w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden" style="max-height:90vh;display:flex;flex-direction:column;">
+
+      <!-- HEADER (always visible) -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-yellow-400 flex items-center justify-center text-base">📊</div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Research Deck Generator</h3>
+            <p class="text-[11px] text-gray-400">chat / PDF → outline → intelligent slides → PPTX</p>
+          </div>
+        </div>
+        <button onclick="window.closeDeckModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- ── STEP 1: INPUT ── -->
+      <div id="deck-step-1" class="overflow-y-auto" style="flex:1;">
+        <div class="px-5 py-4 space-y-4">
+
+          <!-- Source toggle -->
+          <div>
+            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Source</label>
+            <div class="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 gap-1 text-xs font-bold">
+              <button id="deck-src-text-btn" onclick="window.deckSwitchSource('text')"
+                class="flex-1 py-2 rounded-lg transition bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-white">
+                ✍️ Topic / notes
+              </button>
+              <button id="deck-src-file-btn" onclick="window.deckSwitchSource('file')"
+                class="flex-1 py-2 rounded-lg transition text-gray-500 hover:text-gray-700 dark:hover:text-gray-200">
+                📄 Upload PDF / Word
+              </button>
+            </div>
+          </div>
+
+          <!-- Text input panel -->
+          <div id="deck-src-text-panel">
+            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Research topic or question</label>
+            <textarea id="deck-topic" rows="3"
+              placeholder="e.g. The impact of CRISPR gene editing on rare disease treatment — 2024 Phase II clinical data…"
+              class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400 resize-none"></textarea>
+          </div>
+
+          <!-- File upload panel -->
+          <div id="deck-src-file-panel" class="hidden">
+            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Research Paper / Document</label>
+            <div id="deck-drop-zone"
+              onclick="document.getElementById('deck-file-input').click()"
+              class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-5 text-center hover:border-yellow-400 transition cursor-pointer">
+              <div class="text-2xl mb-1.5">📄</div>
+              <div id="deck-file-name" class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-0.5">Drop file here or click to browse</div>
+              <div class="text-[11px] text-gray-400">PDF or Word (.pdf · .docx) — max 20 MB</div>
+            </div>
+            <input id="deck-file-input" type="file" accept=".pdf,.docx,.doc,.txt" class="hidden"
+              onchange="window.deckFileSelected(this)">
+            <!-- Extracted text preview (hidden, used by JS) -->
+            <div id="deck-file-status" class="hidden mt-2 text-[11px] rounded-lg px-3 py-2 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-semibold"></div>
+          </div>
+
+          <!-- Style picker -->
+          <div>
+            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Deck style</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="deck-style-option" data-val="academic">
+                <input type="radio" name="deck-style-radio" value="academic" checked class="sr-only">
+                <span class="text-lg">🎓</span>
+                <div>
+                  <div class="text-xs font-bold">Academic</div>
+                  <div class="text-[10px] text-gray-400">Research-grade, citation-aware</div>
+                </div>
+              </label>
+              <label class="deck-style-option" data-val="business">
+                <input type="radio" name="deck-style-radio" value="business" class="sr-only">
+                <span class="text-lg">💼</span>
+                <div>
+                  <div class="text-xs font-bold">Business</div>
+                  <div class="text-[10px] text-gray-400">Executive, data-driven</div>
+                </div>
+              </label>
+              <label class="deck-style-option" data-val="pitch">
+                <input type="radio" name="deck-style-radio" value="pitch" class="sr-only">
+                <span class="text-lg">🚀</span>
+                <div>
+                  <div class="text-xs font-bold">Pitch</div>
+                  <div class="text-[10px] text-gray-400">Startup, story-led</div>
+                </div>
+              </label>
+              <label class="deck-style-option" data-val="minimal">
+                <input type="radio" name="deck-style-radio" value="minimal" class="sr-only">
+                <span class="text-lg">◻</span>
+                <div>
+                  <div class="text-xs font-bold">Minimal</div>
+                  <div class="text-[10px] text-gray-400">Clean, text-first</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Length + Audience -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Deck length</label>
+              <select id="deck-length" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400">
+                <option value="short">Short — 6 slides</option>
+                <option value="standard" selected>Standard — 10 slides</option>
+                <option value="deep">Deep — 15 slides</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block">Audience</label>
+              <select id="deck-audience" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white outline-none focus:border-yellow-400">
+                <option>Research peers / PhD committee</option>
+                <option>Conference audience</option>
+                <option>University faculty</option>
+                <option>Executive / leadership</option>
+                <option>General audience</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden select for JS to read -->
+        <select id="deck-style" class="sr-only">
+          <option value="academic" selected>academic</option>
+          <option value="business">business</option>
+          <option value="pitch">pitch</option>
+          <option value="minimal">minimal</option>
+        </select>
+
+        <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2 bg-gray-50 dark:bg-gray-800/50 flex-shrink-0">
+          <button onclick="window.closeDeckModal()" class="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Cancel</button>
+          <button id="deck-plan-btn" onclick="window.planDeck()"
+            class="px-5 py-2 bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-bold rounded-xl transition flex items-center gap-2">
+            Plan my deck →
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: OUTLINE REVIEW ── -->
+      <div id="deck-step-2" class="hidden flex-col" style="flex:1;min-height:0;">
+        <!-- Outline header -->
+        <div class="px-5 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
+          <div>
+            <div id="deck-outline-title" class="text-sm font-bold text-gray-900 dark:text-white truncate max-w-xs"></div>
+            <div id="deck-outline-count" class="text-[11px] text-gray-400 mt-0.5"></div>
+          </div>
+          <span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">AI Planned</span>
+        </div>
+
+        <!-- Slide list -->
+        <div id="deck-outline-list" class="overflow-y-auto px-4 py-3 space-y-2" style="flex:1;"></div>
+
+        <!-- Type legend -->
+        <div class="px-4 py-2 flex flex-wrap gap-1.5 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 flex-shrink-0" id="deck-type-legend">
+          <span style="background:#e2e8f0;color:#334155;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Title</span>
+          <span style="background:#dbeafe;color:#1d4ed8;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Thesis</span>
+          <span style="background:#f3e8ff;color:#7e22ce;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Background</span>
+          <span style="background:#dcfce7;color:#15803d;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Evidence</span>
+          <span style="background:#ffedd5;color:#c2410c;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Chart</span>
+          <span style="background:#fce7f3;color:#be185d;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Comparison</span>
+          <span style="background:#fef9c3;color:#854d0e;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Quote</span>
+          <span style="background:#1e293b;color:#fff;font-size:9px;font-weight:700;padding:1px 7px;border-radius:999px;">Conclusion</span>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-between gap-2 bg-gray-50 dark:bg-gray-800/50 flex-shrink-0">
+          <button onclick="window.deckGoBack()" class="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white flex items-center gap-1">
+            ← Back
+          </button>
+          <button id="deck-generate-btn" onclick="window.generateDeck()"
+            class="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl transition flex items-center gap-2">
+            📊 Generate PPTX
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: DONE ── -->
+      <div id="deck-step-3" class="hidden flex-col items-center justify-center px-5 py-8" style="flex:1;">
+
+        <!-- Success icon -->
+        <div class="w-16 h-16 rounded-2xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center justify-center text-3xl mb-4">🎉</div>
+
+        <!-- Title -->
+        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1 text-center">Deck ready!</h3>
+        <p id="deck-done-title" class="text-sm text-gray-500 dark:text-gray-400 mb-4 text-center font-medium truncate max-w-xs"></p>
+
+        <!-- Info badges -->
+        <div id="deck-done-badges" class="flex flex-wrap gap-2 justify-center mb-6"></div>
+
+        <!-- Download button (primary CTA) -->
+        <button onclick="window.deckDownloadPptx()"
+          class="w-full max-w-xs flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-sm font-bold rounded-xl transition mb-3 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 4v11"/>
+          </svg>
+          Download PPTX
+        </button>
+
+        <!-- Secondary actions -->
+        <div class="flex gap-2 w-full max-w-xs">
+          <button onclick="window.closeDeckModal()"
+            class="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+            Close
+          </button>
+          <button onclick="window.closeDeckModal(); setTimeout(window.openDeckModal, 50);"
+            class="flex-1 px-4 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-bold rounded-xl transition">
+            ✨ New deck
+          </button>
+        </div>
+
+        <p class="text-[11px] text-gray-400 dark:text-gray-600 mt-5">Click Download PPTX to save to your device</p>
+      </div>
+
+    </div>
+  </div>
+
+  <style>
+    /* Deck style radio cards */
+    .deck-style-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .deck-style-option:hover { border-color: #d1d5db; }
+    .deck-style-option input:checked ~ * { /* handled via JS */ }
+    .deck-style-option.ds-selected {
+      border-color: #facc15;
+      background: #fefce8;
+    }
+    .dark .deck-style-option { border-color: #374151; }
+    .dark .deck-style-option.ds-selected { background: #1c1a05; border-color: #facc15; }
+
+    /* Fix step-2 display */
+    #deck-step-2:not(.hidden) { display: flex !important; }
+    #deck-step-3:not(.hidden) { display: flex !important; }
+
+    /* ── Text Size Switcher ── */
+    #text-size-panel { animation: tsSlideIn 0.16s cubic-bezier(0.16,1,0.3,1); }
+    @keyframes tsSlideIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+    .ts-option {
+      width:100%; display:flex; align-items:center; gap:14px;
+      padding:11px 16px; border:none; cursor:pointer; text-align:left;
+      background:transparent; border-left:3px solid transparent;
+      transition:background 0.12s, border-color 0.12s;
+    }
+    .ts-option:hover { background:rgba(250,204,21,0.06); }
+    .ts-option.ts-active {
+      background:rgba(250,204,21,0.08);
+      border-left-color:#facc15;
+    }
+    .dark .ts-option:hover { background:rgba(250,204,21,0.06); }
+    .dark .ts-option.ts-active { background:rgba(250,204,21,0.08); }
+    .ts-icon {
+      width:44px; height:44px; border-radius:10px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:800; background:rgba(0,0,0,0.04); color:#9ca3af;
+      transition:background 0.15s, color 0.15s;
+    }
+    .dark .ts-icon { background:rgba(255,255,255,0.06); }
+    .ts-option.ts-active .ts-icon { background:rgba(250,204,21,0.15); color:#b45309; }
+    .dark .ts-option.ts-active .ts-icon { color:#fbbf24; }
+    .ts-check {
+      margin-left:auto; width:18px; height:18px; border-radius:50%;
+      background:linear-gradient(135deg,#facc15,#f59e0b);
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 2px 6px rgba(245,158,11,0.4); flex-shrink:0;
+    }
+
+    /* Font size application */
+    html.text-sm { font-size: 14px; }
+    html.text-lg { font-size: 18px; }
+
+    /* Chevron rotation when panel open */
+    #text-size-btn.ts-open #text-size-chevron { transform: rotate(180deg); }
+  </style>
+
+  <!-- MEMORY MODAL -->
+  <div id="memory-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div id="memory-modal-inner" class="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
+
+      <!-- HEADER -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-yellow-400 flex items-center justify-center">
+            <i data-lucide="brain" class="w-4 h-4 text-black"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">AI Memory</h3>
+            <p class="text-[11px] text-gray-400">What Dynamo remembers about you</p>
+          </div>
+        </div>
+        <button onclick="window.closeMemoryModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- MEMORY COUNT ROW (shown when memories exist) -->
+      <div id="memory-count-row" style="display:none;align-items:center;gap:8px;padding:8px 20px 10px;background:#faf8ff;border-bottom:1px solid #f1f5f9;">
+        <i data-lucide="brain" style="width:14px;height:14px;color:#7c3aed;flex-shrink:0;"></i>
+        <span id="memory-count-text" style="font-size:12px;color:#7c3aed;font-weight:600;"></span>
+      </div>
+
+      <!-- BODY -->
+      <div class="px-5 py-4 max-h-[60vh] overflow-y-auto">
+        <!-- EMPTY STATE -->
+        <div id="memory-empty" class="hidden flex flex-col items-center justify-center py-10 text-center">
+          <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-3">
+            <i data-lucide="brain" class="w-5 h-5 text-gray-400"></i>
+          </div>
+          <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No memories yet</p>
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Chat with Dynamo AI and it will<br>remember things about you over time.</p>
+        </div>
+
+        <!-- MEMORY LIST -->
+        <div id="memory-list"></div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between bg-gray-50 dark:bg-gray-800/50">
+        <p class="text-[11px] text-gray-400">Memories improve your experience across all chats</p>
+        <button onclick="window.clearAllMemories()" class="text-[11px] font-semibold text-red-400 hover:text-red-500 transition">
+          Clear all
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DOCUMENT LIBRARY MODAL -->
+  <div id="documents-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="relative w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
+
+      <!-- HEADER -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-yellow-400 flex items-center justify-center">
+            <i data-lucide="library" class="w-4 h-4 text-black"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Document Library</h3>
+            <p class="text-[11px] text-gray-400">Dynamo remembers these across all sessions</p>
+          </div>
+        </div>
+        <button onclick="window.closeDocumentsModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- BODY -->
+      <div class="px-5 py-4 max-h-[60vh] overflow-y-auto">
+        <!-- EMPTY STATE -->
+        <div id="doc-empty" class="hidden flex flex-col items-center justify-center py-10 text-center">
+          <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-3">
+            <i data-lucide="file-text" class="w-5 h-5 text-gray-400"></i>
+          </div>
+          <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No saved documents yet</p>
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Upload a PDF or document and click<br>"Remember this document" to save it here.</p>
+        </div>
+        <!-- DOC LIST -->
+        <div id="doc-list"></div>
+      </div>
+
+      <!-- FOOTER: upload directly from library -->
+      <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between bg-gray-50 dark:bg-gray-800/50">
+        <label for="library-file-input" class="flex items-center gap-2 text-xs font-semibold text-yellow-700 dark:text-yellow-400 cursor-pointer hover:text-yellow-800 transition px-3 py-1.5 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30">
+          <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+          Add document to library
+        </label>
+        <input id="library-file-input" type="file" class="hidden" accept=".pdf,.docx,.txt"
+          onchange="window._handleLibraryUpload(this)" />
+        <p class="text-[11px] text-gray-400">PDF, DOCX, TXT supported</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESEARCH WATCHER MODAL -->
+  <div id="watches-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div id="watches-modal-inner" class="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="max-height:85vh;">
+
+      <!-- HEADER -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-yellow-400 flex items-center justify-center">
+            <i data-lucide="bell" class="w-4 h-4 text-black"></i>
+          </div>
+          <div>
+            <h3 id="watches-title" class="text-sm font-bold text-gray-900 dark:text-white">Research Watcher</h3>
+            <p id="watches-subtitle" class="text-[11px] text-gray-400">Get notified when a topic has new developments</p>
+          </div>
+        </div>
+        <button onclick="window.closeWatchesModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- BODY (populated by watches.js) -->
+      <div id="watches-body" class="px-5 py-4 overflow-y-auto flex-1"></div>
+
+      <!-- FOOTER (populated by watches.js) -->
+      <div id="watches-footer" class="px-5 py-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"></div>
+
+    </div>
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div id="auth-modal" class="hidden fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm overflow-y-auto" style="-webkit-overflow-scrolling:touch;">
+    <div class="flex min-h-full items-center justify-center p-4">
+    <div class="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl px-6 py-6 shadow-2xl my-4">
+      <button onclick="window.closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black dark:hover:text-white p-2 -mr-1 -mt-1" aria-label="Close">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      
+      <div class="flex justify-center mb-5">
+        <img src="/assets/dynamo-logo.png?v=20260428a" alt="Dynamo AI" class="w-14 h-14 rounded-xl shadow-lg" />
+      </div>
+      
+      <h2 id="auth-title" class="text-xl font-black text-center mb-5 text-black dark:text-white">Welcome Back</h2>
+
+      <!-- ✅ FORM wrapper enables Enter key + mobile "Go" button -->
+      <form id="auth-form" onsubmit="event.preventDefault(); window.handleAuthSubmit();" novalidate>
+        <div class="space-y-3">
+          <input id="auth-name" type="text" placeholder="Full Name" autocomplete="name" class="hidden w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"/>
+          <input id="auth-phone" type="tel" placeholder="Phone Number" autocomplete="tel" class="hidden w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"/>
+          <input id="auth-email" type="email" placeholder="Email Address" autocomplete="email" inputmode="email" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"/>
+          <div class="relative w-full">
+            <input id="auth-password" type="password" placeholder="Password" autocomplete="current-password" class="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"/>
+            <button type="button" onclick="window.togglePwdVis('auth-password', this)" tabindex="-1" class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-black dark:hover:text-white transition" aria-label="Toggle password visibility">
+              <svg id="auth-password-eye" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- GDPR — shown only in signup mode -->
+          <div id="gdpr-box" class="hidden flex items-start gap-2 pt-1 text-xs text-gray-500 dark:text-gray-400">
+            <input id="auth-consent" type="checkbox" class="mt-0.5 w-4 h-4 accent-yellow-400 flex-shrink-0"/>
+            <label for="auth-consent" class="leading-relaxed">I agree to the collection of my personal data as per the 
+              <a href="https://dynamoai.in/privacy.html" target="_blank" class="underline font-medium text-black dark:text-white">Privacy Policy</a> and 
+              <a href="https://dynamoai.in/terms.html" target="_blank" class="underline font-medium text-black dark:text-white">Terms of Service</a>.
+            </label>
+          </div>
+
+          <div id="auth-error" class="hidden text-xs rounded-xl px-3 py-2.5 bg-red-50 border border-red-200 text-red-700 font-medium"></div>
+
+          <!-- Forgot password -->
+          <div id="forgot-password-box" class="text-right text-xs text-gray-400 hidden">
+            <button type="button" onclick="window.resetPassword()" class="hover:underline hover:text-gray-700">Forgot password?</button>
+          </div>
+
+          <!-- Submit -->
+          <button id="auth-submit" type="submit" class="w-full py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-bold text-base hover:opacity-90 active:scale-[0.98] transition">Continue</button>
+        </div>
+      </form>
+
+      <!-- Google Sign-In -->
+      <div class="mt-4">
+        <div class="flex items-center gap-3 my-4">
+          <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+          <span class="text-xs text-gray-400 font-medium">OR</span>
+          <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+        </div>
+        <button onclick="window.signInWithGoogle()" class="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-black dark:text-white font-semibold transition active:scale-[0.98]">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"/>Continue with Google
+        </button>
+      </div>
+
+      <div class="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
+        <span id="auth-footer-text">New to Dynamo AI?</span>
+        <button type="button" id="auth-footer-action" onclick="window.toggleAuthMode()" class="font-semibold text-black dark:text-white ml-1 underline underline-offset-4">Sign up</button>
+      </div>
+    </div>
+    </div>
+  </div>
+  <!-- 🔒 Analyze Data Hidden File Input (REQUIRED) -->
+  <input
+  type="file"
+  id="analyze-file-input"
+  class="hidden"
+  accept=".csv,.xlsx,.xls,.pdf,.docx,.txt,.png,.jpg,.jpeg"
+  />
+  <script>
+
+    // INITIALIZE ICONS
+    lucide.createIcons();
+  </script>
+ <!-- CORE (must be first) -->
+ <script src="utils.js?v=20260615b"></script>
+
+ <!-- AUDIO ENGINE -->
+ <script src="audio_engine.js?v=20260615b"></script>
+ 
+ <!-- CHAT SYSTEM (must load before sidebar so render functions are available) -->
+ <script src="chat.js?v=20260706pro2"></script>
+
+ <!-- SIDERBAR -->
+ <script src="sidebar.js?v=20260615b"></script>
+ 
+  <!-- QUIZ -->
+ <script src="quiz.js?v=20260615b"></script>
+
+  <!-- FLASHCARD -->
+ <script src="flashcard.js?v=20260615b"></script>
+
+ <!-- RESEARCH DECK -->
+ <script src="deck.js?v=20260505c"></script>
+
+ <!-- FEATURE LAYERS -->
+ <script src="analysis_ui.js?v=20260615b"></script>
+ <script src="write_paper.js?v=20260615b"></script>
+ <script src="ui.js?v=20260707a"></script>
+ <script src="export_tools.js?v=20260615b"></script>
+ <script src="profile.js?v=20260615b"></script>
+ 
+ <!-- SOURCES PANEL (Perplexity-style) -->
+ <script src="sources_panel.js?v=20260615b"></script>
+ <script src="paper_download.js?v=20260730a"></script>
+
+ <!-- MEMORY -->
+ <script src="memory.js?v=20260615b"></script>
+
+ <!-- DOCUMENT LIBRARY -->
+ <script src="documents.js?v=20260615b"></script>
+
+ <!-- RESEARCH WATCHER -->
+ <script src="watches.js?v=20260615b"></script>
+
+ <!-- AUTH MUST BE LAST -->
+  <!-- Auth is cache-busted separately so login fixes reach browsers immediately. -->
+  <script src="auth.js?v=20260728auth1"></script>
+
+ <!-- MOBILE OPTIMIZATIONS -->
+ <script>
+   // Prevent double-tap zoom on buttons while keeping pinch zoom
+   document.addEventListener('touchend', (e) => {
+     if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+       e.preventDefault();
+     }
+   }, { passive: false });
+
+   // Optimize viewport on orientation change
+   window.addEventListener('orientationchange', () => {
+     const viewport = document.querySelector('meta[name="viewport"]');
+     if (viewport) {
+       viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
+     }
+     setTimeout(() => {
+       window.scrollTo(0, 0);
+     }, 100);
+   });
+
+   // Lock scroll when modals are open
+   function lockScroll() {
+     document.body.style.overflow = 'hidden';
+   }
+
+   function unlockScroll() {
+     document.body.style.overflow = '';
+   }
+
+   // Fix for iOS Safari vh units
+   const setVh = () => {
+     const vh = window.innerHeight * 0.01;
+     document.documentElement.style.setProperty('--vh', `${vh}px`);
+   };
+   setVh();
+   window.addEventListener('resize', setVh);
+   window.addEventListener('orientationchange', setVh);
+
+   // (deep research timer sync removed — agent runs in-chat, v4)
+ </script>
+ <!-- AI DETECTOR + PLAGIARISM -->
+ <script src="detector.js?v=20260731a"></script>
+
+ <script src="/deep_research.js?v=20260619a"></script>
+ <script src="/citation_checker.js?v=20260620a"></script>
+</body>
+</html>

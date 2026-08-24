@@ -36,7 +36,7 @@ def summarize_document(text: str, filename: str) -> dict:
 
     try:
         r = _client.models.generate_content(
-            model="gemini-3.1-flash-lite-preview",
+            model="gemini-3.5-flash-lite",
             contents=prompt
         )
         text_out = r.text.strip()
@@ -111,12 +111,15 @@ def save_document(supabase, user_id: str, filename: str, summary: str,
 # DELETE
 # --------------------------------------------------
 
-def delete_document(supabase, doc_id: str) -> bool:
-    """Delete a specific document by ID."""
+def delete_document(supabase, doc_id: str, user_id: str | None = None) -> bool:
+    """Delete a document by ID, optionally scoped to its owner."""
     if not supabase or not doc_id:
         return False
     try:
-        supabase.table("user_documents").delete().eq("id", doc_id).execute()
+        query = supabase.table("user_documents").delete().eq("id", doc_id)
+        if user_id:
+            query = query.eq("user_id", user_id)
+        query.execute()
         return True
     except Exception as e:
         print(f"Delete document error: {e}")

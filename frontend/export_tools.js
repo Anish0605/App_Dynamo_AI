@@ -1,5 +1,4 @@
 // export_tools.js — Dynamo AI (REAL EXPORT WIRED)
-console.log("export_tools.js loaded");
 
 /* --------------------------------------------------
    COLLECT CHAT HISTORY (JSON SAFE)
@@ -26,12 +25,15 @@ async function exportChat(type) {
   }
 
   try {
-    const res = await fetch(
+    const res = await window.backendFetch(
       `${window.BACKEND_URL}/export/${type}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages })
+        body: JSON.stringify({
+          messages,
+          user_id: window.appState?.supabaseUserId || ""
+        })
       }
     );
 
